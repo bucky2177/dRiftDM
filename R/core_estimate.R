@@ -80,7 +80,6 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
           verbose = verbose
         )
         if (!is.null(cl)) parallel::stopCluster(cl)
-        return(de_out)
       },
       error = function(e) {
         if (!is.null(cl)) parallel::stopCluster(cl)

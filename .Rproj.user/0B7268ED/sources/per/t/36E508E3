@@ -1,27 +1,27 @@
 {
-    "id": "55D26F69",
-    "path": "~/Promotion/SoftwareDinge/R package DDMs/dRiftDM/R/models.R",
-    "project_path": "R/models.R",
+    "id": "36E508E3",
+    "path": "~/Promotion/SoftwareDinge/R package DDMs/dRiftDM/R/core_solve.R",
+    "project_path": "R/core_solve.R",
     "type": "r_source",
-    "hash": "0",
+    "hash": "2249865687",
     "contents": "",
     "dirty": false,
-    "created": 1698834561297.0,
+    "created": 1698935469442.0,
     "source_on_save": false,
-    "relative_order": 14,
+    "relative_order": 15,
     "properties": {
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Sourcekzek2pznsrqz",
-        "cursorPosition": "99,41",
-        "scrollLine": "0"
+        "cursorPosition": "181,5",
+        "scrollLine": "160"
     },
     "folds": "",
-    "lastKnownWriteTime": 1698946283,
+    "lastKnownWriteTime": 1698950595,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1698946283163,
+    "last_content_update": 1698950595716,
     "read_only": false,
     "read_only_alternatives": []
 }
