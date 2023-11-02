@@ -1,0 +1,7 @@
+"0","x = seq(-10,10, 0.01)"
+"0","y = seq(-10,10, 0.01)"
+"0","f_x = dnorm(x, 1, sqrt(4))"
+"0",""
+"0","par(mfrow = c(3,1), mar = c(5,4,2,1))"
+"0","plot(f_x ~ x, col = ""red"", type = ""l"", xlab = ""x"", ylab = expression(f[X](x)), axes = F,"
+"0","     xlim = c(-4, 6), ylim = c(0, 0.3))"

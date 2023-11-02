@@ -1,0 +1,4 @@
+"0",""
+"0","y_shift = 1 - x"
+"0","f_y_shifted = dnorm(y_shift, 3, sqrt(2))"
+"0","plot(f_y_shifted ~ x, col = ""green"", type = ""l"", xlab = ""x"", ylab = expression(f[Y](1-x)), axes = F, xlim = c(-4, 6), ylim = c(0, 0.3))"

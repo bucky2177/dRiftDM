@@ -1,0 +1,24 @@
+Type: Package
+Package: dRiftDM
+Title: Fitting and Exploring Drift Diffusion Models
+Version: 0.1.0
+Authors@R: c(
+    person("Valentin", "Koob", , "koob@uni-bremen.de", role = c("cre", "aut")),
+    person("Thomas", "Richter", role = "aut"),
+    person("Markus", "Janczyk", role = "aut")
+  )
+Description: UNDER CONSTRUCTION! This package will help users to fit a drift diffusion model
+    with a time-dependent drift rate. The goal is to provides useful
+    functions to easily implement, fit, and explore a drift diffusion
+    model. The package also comes with pre-implemented drift diffusion
+    models for fitting data from conflict tasks. Version 0.1.0 is not meant for use yet!
+License: MIT + file LICENSE
+Suggests: 
+    testthat (>= 3.0.0), cowsay
+Config/testthat/edition: 3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Imports: 
+  magrittr, limSolve, withr, parallel, DEoptim, dfoptim
+
