@@ -1,2 +1,0 @@
-"0","y_shift = 2-y"
-"0","plot(P_y ~ y_shift, col = ""green"", type = ""h"", xlab = ""x"", ylab = ""P(Y=2-x)"", ylim = c(0,0.5), axes = F, xlim = c(1,3))"

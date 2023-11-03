@@ -1,2 +1,0 @@
-"0","P_z = c(P_y, 0) * P_x"
-"0","plot(P_z ~ x, col = ""orange"", type = ""h"", xlab = ""x"", ylab = ""P(X=x)*P(Y=2-x)"", ylim = c(0,0.5), axes = F, xlim = c(1,3))"
