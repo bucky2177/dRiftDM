@@ -1,5 +1,5 @@
 rm(list = ls())
-
+# Hallo Vali! :)
 
 one_dm = dmc_dm()
 print(one_dm)
