@@ -1,5 +1,6 @@
 # ===== FUNCTION FOR ESTIMATING THE PARAMETERS OF A MODEL
 
+#' @export
 estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
                            use_de_optim = TRUE, polish = TRUE, seed = NULL,
                            de_n_cores = 1, de_control = list(trace = F),
@@ -71,30 +72,34 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
 
     controls <- DEoptim::DEoptim.control(cluster = cl)
     controls <- utils::modifyList(controls, de_control)
-    de_out =
-    tryCatch(
-      expr = {
-        de_out <- DEoptim::DEoptim(
-          fn = goal_wrapper, lower = lower, upper = upper,
-          control = controls, drift_dm_obj = drift_dm_obj,
-          verbose = verbose
-        )
-        if (!is.null(cl)) parallel::stopCluster(cl)
-      },
-      error = function(e) {
-        if (!is.null(cl)) parallel::stopCluster(cl)
-        warning("an error occured: ", e, "\n returning unmodified object")
-        return(NULL)
-      }
-    )
-    if (is.null(de_out)) return(drift_dm_obj)
+    de_out <-
+      tryCatch(
+        expr = {
+          de_out <- DEoptim::DEoptim(
+            fn = goal_wrapper, lower = lower, upper = upper,
+            control = controls, drift_dm_obj = drift_dm_obj,
+            verbose = verbose
+          )
+          if (!is.null(cl)) parallel::stopCluster(cl)
+          de_out
+        },
+        error = function(e) {
+          if (!is.null(cl)) parallel::stopCluster(cl)
+          warning("an error occured: ", e, "\n returning unmodified object")
+          return(NULL)
+        }
+      )
+    if (is.null(de_out)) {
+      return(drift_dm_obj)
+    }
   }
 
   # choose "new" starting values
   if (use_de_optim) {
     start_vals <- as.numeric(de_out$optim$bestmem)
   } else {
-    start_vals = drift_dm_obj$prms_model[names(drift_dm_obj$prms_model) %in% drift_dm_obj$free_prms]
+    start_vals <- drift_dm_obj$prms_model[names(drift_dm_obj$prms_model) %in%
+      drift_dm_obj$free_prms]
     start_vals <- as.numeric(start_vals)
   }
 

@@ -47,7 +47,6 @@ calc_cafs_obs <- function(drift_dm_obj, n_bins) {
   return(all_cafs)
 }
 
-
 calc_cafs_pred <- function(drift_dm_obj, n_bins) {
   calc_temp <- function(pdf_u, pdf_l, one_cond, n_bins) {
     stopifnot(length(pdf_u) == length(pdf_l))
@@ -89,7 +88,7 @@ calc_cafs_pred <- function(drift_dm_obj, n_bins) {
   return(all_cafs)
 }
 
-
+#' @export
 calc_cafs <- function(drift_dm_obj, type = "obs", n_bins = 5) {
   if (n_bins <= 1) {
     stop("argument n_bins nust be larger than 1")
@@ -119,7 +118,6 @@ calc_cafs <- function(drift_dm_obj, type = "obs", n_bins = 5) {
 
 
 # ==== FUNCTIONS FOR CALCULATING QUANTILES
-
 calc_quantiles_obs <- function(drift_dm_obj, probs) {
   if (is.null(drift_dm_obj$obs_data)) {
     warning(
@@ -164,7 +162,6 @@ calc_quantiles_obs <- function(drift_dm_obj, probs) {
   return(all_quants)
 }
 
-
 calc_quantiles_pred <- function(drift_dm_obj, probs) {
   calc_temp <- function(pdf_u, pdf_l, t_vec, probs, one_cond) {
     stopifnot(length(pdf_u) == length(pdf_l))
@@ -205,7 +202,7 @@ calc_quantiles_pred <- function(drift_dm_obj, probs) {
 }
 
 
-
+#' @export
 calc_quantiles <- function(drift_dm_obj, type = "obs",
                            probs = seq(0.1, 0.9, 0.1)) {
   if (min(probs) <= 0 | max(probs) >= 1) {

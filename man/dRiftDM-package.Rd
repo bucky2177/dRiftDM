@@ -6,7 +6,7 @@
 \alias{dRiftDM-package}
 \title{dRiftDM: Fitting and Exploring Drift Diffusion Models}
 \description{
-This package will help users to fit a drift diffusion model with a time-dependent drift rate. The goal is to provides useful functions to easily implement, fit, and explore a drift diffusion model. The package also comes with pre-implemented drift diffusion models for fitting data from conflict tasks.
+UNDER CONSTRUCTION! This package will help users to fit a drift diffusion model with a time-dependent drift rate. The goal is to provides useful functions to easily implement, fit, and explore a drift diffusion model. The package also comes with pre-implemented drift diffusion models for fitting data from conflict tasks. Version 0.1.0 is not meant for use yet!
 }
 \author{
 \strong{Maintainer}: Valentin Koob \email{koob@uni-bremen.de}

@@ -136,7 +136,7 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, one_cond) {
     stop("pdf_l and pdf_nt don't have the same dimension!")
   }
 
-  if (abs(sum(pdf_nt*dt) - (sum(pdf_l*dt) + sum(pdf_u*dt))) >
+  if (abs(sum(pdf_nt * dt) - (sum(pdf_l * dt) + sum(pdf_u * dt))) >
     drift_dm_small_approx_error()) {
     warning(
       "pdf of the non-dec-time and pdf_l/pdf_u don't integrate to the",
@@ -207,12 +207,13 @@ log_like_heart <- function(drift_dm_obj, pdf_u, pdf_l, one_cond) {
         xout = drift_dm_obj$obs_data$rts_err[[one_cond]]
       )$y
 
-      app_like_u = app_like_u + drift_dm_robust_prm()
-      app_like_l = app_like_l + drift_dm_robust_prm()
+      app_like_u <- app_like_u + drift_dm_robust_prm()
+      app_like_l <- app_like_l + drift_dm_robust_prm()
       log_like <- sum(log(app_like_u)) + sum(log(app_like_l))
       if (is.nan(log_like)) {
-        if (min(app_like_u) < 0 | min(app_like_l) < 0)
-          warning("negative density values encountered") # log(0) gives -Inf
+        if (min(app_like_u) < 0 | min(app_like_l) < 0) {
+          warning("negative density values encountered")
+        } # log(0) gives -Inf
         return(-Inf)
       }
       return(log_like)

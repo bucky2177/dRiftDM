@@ -286,10 +286,7 @@ nt.drift_dm <- function(drift_dm_obj, t_vec, one_cond) {
 
 # ===== FUNCTIONS FOR GETTING INFORMATION CRITERIA
 
-
-get_ic <- function(drift_dm_obj, name_ic) {
-  name_ic <- match.arg(name_ic, c("AIC", "BIC"))
-
+get_ic <- function(drift_dm_obj) {
   if (is.null(drift_dm_obj$log_like_val)) {
     drift_dm_obj$log_like_val <- log_like(drift_dm_obj)
   }
@@ -298,15 +295,15 @@ get_ic <- function(drift_dm_obj, name_ic) {
   k <- length(drift_dm_obj$free_prms)
   n <- length(unlist(drift_dm_obj$obs_data))
 
-  if (name_ic == "AIC") {
-    return(2 * k - 2 * ll)
-  } else {
-    return(k * log(n) - 2 * ll)
-  }
+  AIC <- 2 * k - 2 * ll
+  BIC <- k * log(n) - 2 * ll
+
+  return(c(AIC = AIC, BIC = BIC))
 }
 
 # ===== FUNCITONS FOR SETTING THINGS
 
+#' @export
 set_model_prms <- function(drift_dm_obj, new_model_prms, eval_model = T) {
   if (length(new_model_prms) != length(drift_dm_obj$free_prms)) {
     stop("new_prms don't match the number of freeprms")
@@ -331,6 +328,7 @@ set_model_prms <- function(drift_dm_obj, new_model_prms, eval_model = T) {
 }
 
 
+#' @export
 set_free_prms <- function(drift_dm_obj, new_free_prms) {
   # input checks
   name_prms_model <- names(drift_dm_obj$prms_model)
@@ -369,7 +367,7 @@ set_free_prms <- function(drift_dm_obj, new_free_prms) {
 }
 
 
-
+#' @export
 set_solver_setting <- function(drift_dm_obj, name_prm_solve, value_prm_solve,
                                eval_model = T) {
   name_prm_solve <- match.arg(
@@ -436,10 +434,7 @@ set_solver_setting <- function(drift_dm_obj, name_prm_solve, value_prm_solve,
 }
 
 
-
-
-
-
+#' @export
 set_data <- function(drift_dm_obj, obs_data, eval_model = T) {
   # input check
   check_raw_data(obs_data)
@@ -490,19 +485,17 @@ check_raw_data <- function(obs_data) {
 
 # ===== FUNCTION FOR ENSURING EVERYTHING IS UP-TO-DATE
 
+#' @export
 re_evaluate_model <- function(drift_dm_obj) {
   drift_dm_obj$log_like_val <- log_like(drift_dm_obj)
-  drift_dm_obj$ic_vals <- c(
-    AIC = get_ic(drift_dm_obj, "AIC"),
-    BIC = get_ic(drift_dm_obj, "BIC")
-  )
+  drift_dm_obj$ic_vals <- get_ic(drift_dm_obj)
   return(drift_dm_obj)
 }
 
 
 
 # ===== FUNCTIONS FOR SIMULATING DATA/TRIALS
-
+#' @export
 simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE, seed = NULL) {
   if (!is.numeric(k) || k <= 0) {
     stop("k must be a numeric > 0")
@@ -511,7 +504,7 @@ simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE, seed = NULL
     stop("one_cond must be a character")
   }
   if (!(one_cond %in% drift_dm_obj$conds)) {
-    stop("one_cond must be a character")
+    stop("one_cond not in the models conds")
   }
   if (!is.logical(add_x)) {
     stop("add_x must be of type logical")
@@ -551,7 +544,8 @@ simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE, seed = NULL
       acc_steps <- acc_steps[-length(acc_steps)] # discard last step
       idx_fP <- which(abs(acc_steps) >= b_vec)[1] # get first passage index
       if (is.na(idx_fP)) {
-        acc_steps <- rep(NA, length(acc_steps))
+        warning("no boundary hit when simulating trial")
+        return(acc_steps)
       }
       if (idx_fP > 0 & idx_fP < length(acc_steps)) {
         acc_steps[(idx_fP + 1):length(acc_steps)] <- NA
