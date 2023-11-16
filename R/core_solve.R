@@ -29,7 +29,7 @@ kfe_ale <- function(drift_dm_obj, one_cond) {
 
 
   # Calculating starting vector x
-  x_vals <- x(drift_dm_obj = drift_dm_obj, x_vec, one_cond = one_cond)
+  x_vals <- x(drift_dm_obj = drift_dm_obj, x_vec = x_vec, one_cond = one_cond)
   if (abs(sum(x_vals) * dx - 1) > drift_dm_rough_approx_error()) {
     stop("starting condition not normalized")
   }
