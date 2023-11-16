@@ -1,8 +1,9 @@
 rm(list = ls())
 # Hallo Vali! :)
 
-one_dm = dmc_dm()
-print(one_dm)
+tic()
+one_dm = drift_dm(c("a" = 2, "b" = 3), conds = "null")
+toc()
 
 # simulate data
 data = simulate_data(one_dm, 10000, seed = 1)

@@ -183,8 +183,8 @@ calc_quantiles_pred <- function(drift_dm_obj, probs) {
 
   # create
   t_max <- drift_dm_obj$prms_solve[["t_max"]]
-  nT <- drift_dm_obj$prms_solve[["nT"]]
-  t_vec <- seq(0, t_max, length.out = nT + 1)
+  nt <- drift_dm_obj$prms_solve[["nt"]]
+  t_vec <- seq(0, t_max, length.out = nt + 1)
 
   all_quants <- lapply(drift_dm_obj$conds,
     function(one_cond, drift_dm_obj, t_vec, probs) {

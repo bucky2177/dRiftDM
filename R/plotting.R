@@ -6,8 +6,8 @@ plot_model <- function(drift_dm_obj, add_x = TRUE, sigma = 0, k = 1,
   # prepare some variables
   drift_dm_obj$prms_solve["sigma"] <- sigma
   t_max <- drift_dm_obj$prms_solve["t_max"]
-  nT <- drift_dm_obj$prms_solve["nT"]
-  t_vec <- seq(0, t_max, length.out = nT + 1)
+  nt <- drift_dm_obj$prms_solve["nt"]
+  t_vec <- seq(0, t_max, length.out = nt + 1)
   unique_conds <- unique(drift_dm_obj$conds)
 
 

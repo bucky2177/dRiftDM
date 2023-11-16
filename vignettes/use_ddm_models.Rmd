@@ -1,0 +1,22 @@
+---
+title: "Creating Drift Diffusion Models with dRiftDM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{create_ddm_models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+suppressPackageStartupMessages(library(dRiftDM))
+```
+
+
+Here we document how to create drift diffusion models with `dRiftDM`. 

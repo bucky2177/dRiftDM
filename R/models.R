@@ -174,8 +174,8 @@ mu_int.dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
 
 x.dmc_dm <- function(drift_dm_obj, one_cond) {
   alpha <- drift_dm_obj$prms_model[["alpha"]]
-  nX <- drift_dm_obj$prms_solve[["nX"]]
-  xx <- seq(0, 1, length.out = nX + 1)
+  nx <- drift_dm_obj$prms_solve[["nx"]]
+  xx <- seq(0, 1, length.out = nx + 1)
   x <- stats::dbeta(xx, alpha, alpha) / 2
   return(x)
 }
