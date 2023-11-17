@@ -62,7 +62,7 @@ creating a bare bone \link{drift_dm} object and then deriving model
 predictions.
 \item Second, in case a user defines an object inheriting from \code{drift_dm},
 without specifying custom versions of the respective methods. See
-\link{vignette("use_ddm_models", "dRiftDM)} for more information.
+\link{vignette("use_ddm_models", "dRiftDM")} for more information.
 }
 
 In other words: The functions with the ending \code{.drift_dm} are fall-back

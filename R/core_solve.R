@@ -149,13 +149,6 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, one_cond) {
 
   stopifnot(length(pdf_u) == length(pdf_nt) & length(pdf_l) == length(pdf_nt))
 
-  if (min(pdf_u) < -1e-3 || min(pdf_l) < -1e-3) {
-    warning(
-      "unlikely parameter combination encountered; the model produced",
-      " subst. negative pdf values"
-    )
-  }
-
   list(pdf_u = pdf_u, pdf_l = pdf_l)
 }
 
@@ -215,10 +208,10 @@ log_like_heart <- function(drift_dm_obj, pdf_u, pdf_l, one_cond) {
       app_like_u <- app_like_u + drift_dm_robust_prm()
       app_like_l <- app_like_l + drift_dm_robust_prm()
       log_like <- sum(log(app_like_u)) + sum(log(app_like_l))
-      if (is.nan(log_like)) {
+      if (is.nan(log_like)) { # log(0) gives -Inf
         if (min(app_like_u) < 0 | min(app_like_l) < 0) {
           warning("negative density values encountered")
-        } # log(0) gives -Inf
+        }
         return(-Inf)
       }
       return(log_like)

@@ -5,46 +5,48 @@
 \alias{set_free_prms}
 \alias{set_solver_settings}
 \alias{set_obs_data}
-\title{Setting attributes of the model}
+\title{Setting attributes of a drift_dm model}
 \usage{
-set_model_prms(drift_dm_obj, new_model_prms, eval_model = T)
+set_model_prms(drift_dm_obj, new_model_prms, eval_model = F)
 
 set_free_prms(drift_dm_obj, new_free_prms)
 
 set_solver_settings(
   drift_dm_obj,
-  name_prm_solve,
-  value_prm_solve,
-  eval_model = T
+  names_prm_solve,
+  values_prm_solve,
+  eval_model = F
 )
 
-set_obs_data(drift_dm_obj, obs_data, eval_model = T)
+set_obs_data(drift_dm_obj, obs_data, eval_model = F)
 }
 \arguments{
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
 
 \item{new_model_prms}{a numeric vector of the same length as
 \code{drift_dm_obj$free_prms}, specifying the new values of the parameters that
-are allowed to vary (see the example below)}
+are allowed to vary}
 
 \item{eval_model}{logical, indicating whether \link{re_evaluate_model}
-should be called after modifying the model. Default is \code{TRUE}. Note that if
+should be called after modifying the model. Default is \code{FALSE}. Note that if
 \code{eval_model} is set to \code{FALSE}, the attributes \code{log_like_val} and \code{ic_vals}
-are deleted from the model.}
+are deleted from the model. Also, \code{eval_model = TRUE} only has an effect
+if the model provides data.}
 
 \item{new_free_prms}{a character vector specifying the names of the
 parameters that are allowed to vary}
 
-\item{name_prm_solve}{a character vector of length 1, possible values are
+\item{names_prm_solve}{a character vector, possible entries are
 \code{solver}, \code{sigma}, \code{t_max}, \code{dt}, \code{dx} (Note that \code{solver} can only be
 \code{kfe} at the moment).}
 
-\item{value_prm_solve}{the value to be set for \code{name_prm_solve}.}
+\item{values_prm_solve}{numeric or character, defining the values to be set
+for \code{names_prm_solve}.}
 
 \item{obs_data}{a \link{data.frame} which provides three columns: (1) \code{RT} for
 the response times, (2) \code{Error} for error coding (1 = error, 0 = correct),
 (3) \code{Cond} for specifying the conditions (see
-\link{vignette("use_ddm_models", "dRiftDM)} for more information).}
+\link{vignette("use_ddm_models", "dRiftDM")} for more information).}
 }
 \value{
 each setter method passes back the modified model.
