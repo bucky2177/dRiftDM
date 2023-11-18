@@ -60,65 +60,60 @@ kfe_ale <- function(drift_dm_obj, one_cond) {
   stopifnot(length(mu_vec) == length(t_vec))
 
   sourceCpp('C/cpp_kfe.cpp')
-  print(b_vec[1])
-#  errorcode <- cpp_kfe(pdf_u, pdf_l, 
-#                       x_vals,
-#          nt,nx,
-#          dt,dx,
-#          sigma,
-#          b_vec,mu_vec,dt_b_vec);
-#  plot(pdf_u)
-#  plot(pdf_l)
+  errorcode <- cpp_kfe(pdf_u, pdf_l, 
+                       x_vals,
+          nt,nx,
+          dt,dx,
+          sigma,
+          b_vec,mu_vec,dt_b_vec);
+  if (errorcode != 1) stop("cpp-version of kfe failed")
   
-    # fill pdfs for each timestep
-    for (n in 1:nt) {
-      # Rannacher time-marching
-      theta <- 0.5
-      if (n <= 4) {
-        theta <- 1
-      }
-  
-      J_old <- b_vec[n]
-      mu_old <- mu_vec[n]
-      dt_b_old <- dt_b_vec[n]
-      mu_old <- rep(mu_old / J_old, nx + 1) - dt_b_old / J_old * x_vec
-      sigma_old <- sigma / J_old
-      L_old <- 1.0 / dx * sigma_old * sigma_old / 2.0
-  
-      J_new <- b_vec[n + 1]
-      mu_new <- mu_vec[n + 1]
-      dt_b_new <- dt_b_vec[n + 1]
-      mu_new <- rep(mu_new / J_new, nx + 1) - dt_b_new / J_new * x_vec
-      sigma_new <- sigma / J_new
-      L_new <- 1.0 / dx * sigma_new * sigma_new / 2.0
-  
-      f <- 2.0 / 3.0 * dx * x_vals
-      f[2:nx] <- f[2:nx] + 1.0 / 6.0 * dx * x_vals[1:(nx - 1)]
-      f[2:nx] <- f[2:nx] + 1.0 / 6.0 * dx * x_vals[3:(nx + 1)]
-  
-      f[2:nx] <- f[2:nx] + (theta - 1) * dt *
-        (-L_old - 0.5 * mu_old[1:(nx - 1)]) * x_vals[1:(nx - 1)]
-      f[2:nx] <- f[2:nx] + (theta - 1) * dt * (2.0 * L_old) * x_vals[2:nx]
-      f[2:nx] <- f[2:nx] + (theta - 1) * dt *
-        (-L_old + 0.5 * mu_old[3:(nx + 1)]) * x_vals[3:(nx + 1)]
-  
-      if (f[1] != 0 | f[nx + 1] != 0) stop("f nicht null?")
-  
-      x_vals <- tridiag(
-        f,
-        1.0 / 6.0 * dx + dt * theta * (-L_new - 0.5 * mu_new),
-        2.0 / 3.0 * dx + dt * theta * (2.0 * L_new),
-        1.0 / 6.0 * dx + dt * theta * (-L_new + 0.5 * mu_new)
-      )
-  
-      pdf_u[n + 1] <- 0.5 * sigma_new^2.0 / dx / dx *
-        (3.0 * x_vals[nx] - 1.5 * x_vals[nx - 1] + 1.0 / 3.0 * x_vals[nx - 2])
-      pdf_l[n + 1] <- 0.5 * sigma_new^2.0 / dx / dx *
-        (3.0 * x_vals[2] - 1.5 * x_vals[3] + 1.0 / 3.0 * x_vals[4])
-    }
-
-  plot(pdf_u)
-  plot(pdf_l)
+    # # fill pdfs for each timestep
+    # for (n in 1:nt) {
+    #   # Rannacher time-marching
+    #   theta <- 0.5
+    #   if (n <= 4) {
+    #     theta <- 1
+    #   }
+    # 
+    #   J_old <- b_vec[n]
+    #   mu_old <- mu_vec[n]
+    #   dt_b_old <- dt_b_vec[n]
+    #   mu_old <- rep(mu_old / J_old, nx + 1) - dt_b_old / J_old * x_vec
+    #   sigma_old <- sigma / J_old
+    #   L_old <- 1.0 / dx * sigma_old * sigma_old / 2.0
+    # 
+    #   J_new <- b_vec[n + 1]
+    #   mu_new <- mu_vec[n + 1]
+    #   dt_b_new <- dt_b_vec[n + 1]
+    #   mu_new <- rep(mu_new / J_new, nx + 1) - dt_b_new / J_new * x_vec
+    #   sigma_new <- sigma / J_new
+    #   L_new <- 1.0 / dx * sigma_new * sigma_new / 2.0
+    # 
+    #   f <- 2.0 / 3.0 * dx * x_vals
+    #   f[2:nx] <- f[2:nx] + 1.0 / 6.0 * dx * x_vals[1:(nx - 1)]
+    #   f[2:nx] <- f[2:nx] + 1.0 / 6.0 * dx * x_vals[3:(nx + 1)]
+    # 
+    #   f[2:nx] <- f[2:nx] + (theta - 1) * dt *
+    #     (-L_old - 0.5 * mu_old[1:(nx - 1)]) * x_vals[1:(nx - 1)]
+    #   f[2:nx] <- f[2:nx] + (theta - 1) * dt * (2.0 * L_old) * x_vals[2:nx]
+    #   f[2:nx] <- f[2:nx] + (theta - 1) * dt *
+    #     (-L_old + 0.5 * mu_old[3:(nx + 1)]) * x_vals[3:(nx + 1)]
+    # 
+    #   if (f[1] != 0 | f[nx + 1] != 0) stop("f nicht null?")
+    # 
+    #   x_vals <- tridiag(
+    #     f,
+    #     1.0 / 6.0 * dx + dt * theta * (-L_new - 0.5 * mu_new),
+    #     2.0 / 3.0 * dx + dt * theta * (2.0 * L_new),
+    #     1.0 / 6.0 * dx + dt * theta * (-L_new + 0.5 * mu_new)
+    #   )
+    # 
+    #   pdf_u[n + 1] <- 0.5 * sigma_new^2.0 / dx / dx *
+    #     (3.0 * x_vals[nx] - 1.5 * x_vals[nx - 1] + 1.0 / 3.0 * x_vals[nx - 2])
+    #   pdf_l[n + 1] <- 0.5 * sigma_new^2.0 / dx / dx *
+    #     (3.0 * x_vals[2] - 1.5 * x_vals[3] + 1.0 / 3.0 * x_vals[4])
+    # }
   # Omit all states that did not reach a threshold
   scale <- sum(pdf_u) * dt + sum(pdf_l) * dt
   pdf_u <- pdf_u / scale
@@ -159,13 +154,6 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, one_cond) {
   pdf_l <- stats::convolve(pdf_nt, rev(pdf_l)) * dt
 
   stopifnot(length(pdf_u) == length(pdf_nt) & length(pdf_l) == length(pdf_nt))
-
-  if (min(pdf_u) < -1e-3 || min(pdf_l) < -1e-3) {
-    warning(
-      "unlikely parameter combination encountered; the model produced",
-      " subst. negative pdf values"
-    )
-  }
 
   list(pdf_u = pdf_u, pdf_l = pdf_l)
 }
@@ -226,10 +214,10 @@ log_like_heart <- function(drift_dm_obj, pdf_u, pdf_l, one_cond) {
       app_like_u <- app_like_u + drift_dm_robust_prm()
       app_like_l <- app_like_l + drift_dm_robust_prm()
       log_like <- sum(log(app_like_u)) + sum(log(app_like_l))
-      if (is.nan(log_like)) {
+      if (is.nan(log_like)) { # log(0) gives -Inf
         if (min(app_like_u) < 0 | min(app_like_l) < 0) {
           warning("negative density values encountered")
-        } # log(0) gives -Inf
+        }
         return(-Inf)
       }
       return(log_like)

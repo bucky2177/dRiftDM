@@ -8,7 +8,7 @@
 #' have the attributes  of the parent class. Typically, users will not want to
 #' create an object of drift_dm alone, as its use is very limited. Rather, they
 #' will want an object of one of its  child classes. See
-#' [vignette("use_ddm_models", "dRiftDM)] for a list of pre-built diffusion
+#' [vignette("use_ddm_models", "dRiftDM")] for a list of pre-built diffusion
 #' models and more information on how to create and use child classes.
 #'
 #' @param prms_model A named numeric vector of the model parameters. The names
@@ -34,7 +34,7 @@
 #' @returns A list with the class label "drift_dm". In general, it is not
 #' recommended to directly modify the entries of this list. Users should use the
 #' built-in setter functions (e.g., [dRiftDM::set_model_prms]);
-#' see \code{vignette("use_ddm_models", package = "dRiftDM")} for more
+#' see [vignette("use_ddm_models", "dRiftDM")] for more
 #' information). The list contains the following entries:
 #'
 #' * The named numeric vector `prms_model`
@@ -67,19 +67,19 @@ drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
     stop("prms_model has length 0")
   }
   check_if_named_numeric_vector(x = prms_model, var_name = "prms_model")
-  if (!is.character(conds) || length(conds) == 0) {
+  if (!is.character(conds) | length(conds) == 0) {
     stop("conds is not a character vector of length >= 1")
   }
-  if (!is.numeric(sigma) || length(sigma) != 1) {
+  if (!is.numeric(sigma) | length(sigma) != 1) {
     stop("sigma is not a single numeric number")
   }
-  if (!is.numeric(t_max) || length(t_max) != 1) {
+  if (!is.numeric(t_max) | length(t_max) != 1) {
     stop("t_max is not a single numeric number")
   }
-  if (!is.numeric(dt) || length(dt) != 1) {
+  if (!is.numeric(dt) | length(dt) != 1) {
     stop("dt is not a single numeric number")
   }
-  if (!is.numeric(dx) || length(dx) != 1) {
+  if (!is.numeric(dx) | length(dx) != 1) {
     stop("dx is not a single numeric number")
   }
 
@@ -88,7 +88,7 @@ drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
   if (is.null(free_prms)) {
     free_prms <- names(prms_model)
   } else {
-    if (!is.character(free_prms) || length(free_prms) > length(prms_model)) {
+    if (!is.character(free_prms) | length(free_prms) > length(prms_model)) {
       stop(
         "free_prms is not a character vector with fewer elements",
         " than prms_model"
@@ -144,6 +144,11 @@ new_drift_dm <- function(prms_model, conds, free_prms, obs_data = NULL,
 
 # ======== BACKEND FUNCTION CHECKS ON EACH DRIFT_DM OBJECT
 validate_drift_dm <- function(drift_dm_obj) {
+
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
+
   # check the prms_model entry
   if (length(drift_dm_obj$prms_model) == 0) {
     stop("prms_model has length 0")
@@ -158,7 +163,7 @@ validate_drift_dm <- function(drift_dm_obj) {
   }
 
   # check the conditions entry
-  if (!is.character(drift_dm_obj$conds) || length(drift_dm_obj$conds) == 0) {
+  if (!is.character(drift_dm_obj$conds) | length(drift_dm_obj$conds) == 0) {
     stop("conds in drift_dm_obj is not a character vector of length >= 1")
   }
 
@@ -171,7 +176,7 @@ validate_drift_dm <- function(drift_dm_obj) {
   )
 
   # check the free prms entry
-  if (!is.character(drift_dm_obj$free_prms) ||
+  if (!is.character(drift_dm_obj$free_prms) |
     length(drift_dm_obj$free_prms) == 0) {
     stop("free_prms in drift_dm_obj is not a character vector of length >= 1")
   }
@@ -243,7 +248,7 @@ validate_drift_dm <- function(drift_dm_obj) {
   }
 
   # check if the solver entry is just a single string
-  if (!is.character(drift_dm_obj$solver) || length(drift_dm_obj$solver) != 1) {
+  if (!is.character(drift_dm_obj$solver) | length(drift_dm_obj$solver) != 1) {
     stop("solver in drift_dm_obj is not a single character/string")
   }
 
@@ -291,13 +296,13 @@ validate_drift_dm <- function(drift_dm_obj) {
 #' In order to work with `dRiftDM`, `x` must return a numeric vector of the
 #' same length as `x_vec`.
 #'
-#' See [vignette("use_ddm_models", "dRiftDM)] for more information how each
+#' See [vignette("use_ddm_models", "dRiftDM")] for more information how each
 #' function works and how to write a customized method for your own models
 #'
 #'
 #' @details
 #'
-#' Please visit the [vignette("use_ddm_models", "dRiftDM)] for more in-depth
+#' Please visit the [vignette("use_ddm_models", "dRiftDM")] for more in-depth
 #' information.
 #'
 #' ## Drift rate and its integral:
@@ -414,7 +419,7 @@ standard_nt <- function() {
 #'
 #' * Second, in case a user defines an object inheriting from `drift_dm`,
 #'  without specifying custom versions of the respective methods. See
-#'  [vignette("use_ddm_models", "dRiftDM)] for more information.
+#'  [vignette("use_ddm_models", "dRiftDM")] for more information.
 #'
 #' In other words: The functions with the ending `.drift_dm` are fall-back
 #' methods which provide fixed settings for the different diffusion model
@@ -476,6 +481,9 @@ mu_int.drift_dm <- function(drift_dm_obj, t_vec, one_cond) {
 #' @export
 x.drift_dm <- function(drift_dm_obj, x_vec, one_cond) {
   dx <- drift_dm_obj$prms_solve[["dx"]]
+  if (!is.numeric(x_vec) | length(x_vec) <= 1) {
+    stop("x_vec is not a vector")
+  }
   x <- numeric(length = length(x_vec))
   x[(length(x) + 1) %/% 2] <- 1 / dx
   return(x)
@@ -592,28 +600,30 @@ re_evaluate_model <- function(drift_dm_obj) {
 #'  are allowed to vary
 #' @param new_free_prms a character vector specifying the names of the
 #'  parameters that are allowed to vary
-#' @param name_prm_solve a character vector of length 1, possible values are
+#' @param names_prm_solve a character vector, possible entries are
 #'  `solver`, `sigma`, `t_max`, `dt`, `dx` (Note that `solver` can only be
 #'  `kfe` at the moment).
-#' @param value_prm_solve the value to be set for `name_prm_solve`.
+#' @param values_prm_solve numeric or character, defining the values to be set
+#'  for `names_prm_solve`.
 #' @param obs_data a [data.frame] which provides three columns: (1) `RT` for
 #'  the response times, (2) `Error` for error coding (1 = error, 0 = correct),
 #'  (3) `Cond` for specifying the conditions (see
-#'  [vignette("use_ddm_models", "dRiftDM)] for more information).
+#'  [vignette("use_ddm_models", "dRiftDM")] for more information).
 #' @param eval_model logical, indicating whether [dRiftDM::re_evaluate_model]
-#'  should be called after modifying the model. Default is `TRUE`. Note that if
+#'  should be called after modifying the model. Default is `FALSE`. Note that if
 #'  `eval_model` is set to `FALSE`, the attributes `log_like_val` and `ic_vals`
-#'  are deleted from the model. Also, `eval_model` only has an effect,
+#'  are deleted from the model. Also, `eval_model = TRUE` only has an effect
 #'  if the model provides data.
 #'
 #' @return each setter method passes back the modified model.
 #'
 #' @export
-set_model_prms <- function(drift_dm_obj, new_model_prms, eval_model = T) {
+set_model_prms <- function(drift_dm_obj, new_model_prms, eval_model = F) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
-  if (!is.logical(eval_model)) stop("eval_model must be logical")
+  if (!is.logical(eval_model) | length(eval_model) != 1)
+    stop("eval_model must be logical")
 
   if (!is.numeric(new_model_prms)) {
     stop("new_model_prms are not of type numeric")
@@ -641,6 +651,11 @@ set_model_prms <- function(drift_dm_obj, new_model_prms, eval_model = T) {
 #' @rdname set_model_prms
 #' @export
 set_free_prms <- function(drift_dm_obj, new_free_prms) {
+
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
+
   # input checks
   name_prms_model <- names(drift_dm_obj$prms_model)
   matched_free_prms <-
@@ -660,15 +675,7 @@ set_free_prms <- function(drift_dm_obj, new_free_prms) {
     stop("new_free_prms not of type character")
   }
 
-  if (length(matched_free_prms) > length(drift_dm_obj$prms_model)) {
-    stop("more parameters listed in new_free_prms than listed in prms_model")
-  }
-
-  if (length(matched_free_prms) == 0) {
-    stop("it is not allowed to have no free parameter")
-  }
-
-  # ensure ordering when setting the free parameters
+  # ensure ordering and non-duplicates when setting the free parameters
   matched_free_prms <- name_prms_model[name_prms_model %in% matched_free_prms]
   drift_dm_obj$free_prms <- matched_free_prms
 
@@ -679,17 +686,68 @@ set_free_prms <- function(drift_dm_obj, new_free_prms) {
 
 #' @rdname set_model_prms
 #' @export
-set_solver_settings <- function(drift_dm_obj, name_prm_solve, value_prm_solve,
-                               eval_model = T) {
-  name_prm_solve <- match.arg(
-    name_prm_solve,
-    c("solver", "sigma", "t_max", "dt", "dx")
-  )
+set_solver_settings <- function(drift_dm_obj, names_prm_solve, values_prm_solve,
+                                eval_model = F) {
+
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
+
+  if (length(names_prm_solve) != length(values_prm_solve))
+    stop("length of names_prm_solve and values_prm_solve don't match")
+
+  matched_names <- sapply(names_prm_solve, function(x) {
+      match.arg(x, c("solver", "sigma", "t_max", "dx", "dt"))
+    })
+  matched_names <- unname(matched_names)
+  if (any(matched_names != names_prm_solve)) {
+    warning(
+      "Some of the arguments in names_prm_solve did partially match with",
+      " 'solver', 'dx', 'dt', 't_max', 'sigma'. Automatically corrected.",
+      " Please Double check the result"
+    )
+  }
+
+  if (!is.character(matched_names)) {
+    stop("names_prm_solve not of type character")
+  }
+
+
+  if (!is.numeric(values_prm_solve) & !is.character(values_prm_solve)) {
+    stop("values_prm_solve must be either of type numeric or character")
+  }
+
+  # set all desired arguments one by one
+  for (i in seq_along(names_prm_solve)) {
+    drift_dm_obj = set_one_solver_setting(
+      drift_dm_obj = drift_dm_obj,
+      name_prm_solve = names_prm_solve[i],
+      value_prm_solve = values_prm_solve[i]
+    )
+  }
+
+  # ensure that nothing went wrong
+  drift_dm_obj <- validate_drift_dm(drift_dm_obj)
+
+  # ensure that everything is up-to-date
+  if (!is.null(drift_dm_obj$obs_data) & eval_model) {
+    drift_dm_obj <- re_evaluate_model(drift_dm_obj)
+  } else {
+    drift_dm_obj$log_like_val <- NULL
+    drift_dm_obj$ic_vals <- NULL
+  }
+  return(drift_dm_obj)
+}
+
+# separate function for setting one argument (internal)
+set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
+                                   value_prm_solve) {
 
 
   # if desired, set solver
   if (name_prm_solve == "solver") {
-    if (!is.character(value_prm_solve) | length(value_prm_solve) != 1) {
+    value_prm_solve = as.character(value_prm_solve)
+    if (length(value_prm_solve) != 1) {
       stop("solver argument must be a single character")
     }
     drift_dm_obj$solver <- value_prm_solve
@@ -697,7 +755,8 @@ set_solver_settings <- function(drift_dm_obj, name_prm_solve, value_prm_solve,
 
   # if desired, set sigma
   if (name_prm_solve == "sigma") {
-    if (!is.numeric(value_prm_solve) | length(value_prm_solve) != 1) {
+    value_prm_solve = as.numeric(value_prm_solve)
+    if (length(value_prm_solve) != 1) {
       stop("sigma argument must be a single numeric")
     }
     drift_dm_obj$prms_solve[["sigma"]] <- value_prm_solve
@@ -706,7 +765,8 @@ set_solver_settings <- function(drift_dm_obj, name_prm_solve, value_prm_solve,
 
   # if desired, set t_max or dt
   if (name_prm_solve == "t_max" | name_prm_solve == "dt") {
-    if (!is.numeric(value_prm_solve) | length(value_prm_solve) != 1) {
+    value_prm_solve = as.numeric(value_prm_solve)
+    if (length(value_prm_solve) != 1) {
       stop(name_prm_solve, "argument must be a single numeric")
     }
 
@@ -720,7 +780,8 @@ set_solver_settings <- function(drift_dm_obj, name_prm_solve, value_prm_solve,
 
   # if desired, set dx
   if (name_prm_solve == "dx") {
-    if (!is.numeric(value_prm_solve) | length(value_prm_solve) != 1) {
+    value_prm_solve = as.numeric(value_prm_solve)
+    if (length(value_prm_solve) != 1) {
       stop("dx argument must be a single numeric")
     }
 
@@ -730,23 +791,12 @@ set_solver_settings <- function(drift_dm_obj, name_prm_solve, value_prm_solve,
     drift_dm_obj$prms_solve <- prms_solve
   }
 
-  # ensure that nothing went wrong
-  drift_dm_obj <- validate_drift_dm(drift_dm_obj)
-
-  # ensure that everything is up-to-date
-  if (!is.null(drift_dm_obj$obs_data) & eval_model) {
-    drift_dm_obj <- re_evaluate_model(drift_dm_obj)
-  } else {
-    drift_dm_obj$log_like_val <- NULL
-    drift_dm_obj$ic_vals <- NULL
-  }
-
   return(drift_dm_obj)
 }
 
 #' @rdname set_model_prms
 #' @export
-set_obs_data <- function(drift_dm_obj, obs_data, eval_model = T) {
+set_obs_data <- function(drift_dm_obj, obs_data, eval_model = F) {
   # input check
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -813,14 +863,14 @@ check_raw_data <- function(obs_data) {
       "RT column in the provided data frame is not of type numeric",
       " Trying to fix this by applying as.numeric() on the column"
     )
-    as.numeric$RT <- as.numeric(obs_data$RT)
+    obs_data$RT <- as.numeric(obs_data$RT)
   }
   if (!is.numeric(obs_data$Error)) {
     warning(
       "Error column in the provided data frame is not of type numeric",
       " Trying to fix this by applying as.numeric() on the column"
     )
-    as.numeric$Error <- as.numeric(obs_data$Error)
+    obs_data$Error <- as.numeric(obs_data$Error)
   }
   if (min(obs_data$RT) < 0) stop("RTs are not >= 0")
   if (!all(unique(obs_data$Error) %in% c(0, 1))) {
@@ -832,22 +882,28 @@ check_raw_data <- function(obs_data) {
 
 # ===== FUNCTIONS FOR SIMULATING DATA/TRIALS
 #' @export
-simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE, seed = NULL) {
-  if (!is.numeric(k) || k <= 0) {
+simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE,
+                           seed = NULL) {
+
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
+
+  if (!is.numeric(k) | k <= 0) {
     stop("k must be a numeric > 0")
   }
-  if (!is.character(one_cond)) {
-    stop("one_cond must be a character")
+  if (!is.character(one_cond) | length(one_cond) != 1) {
+    stop("one_cond must be a character vector of length 1")
   }
   if (!(one_cond %in% drift_dm_obj$conds)) {
-    stop("one_cond not in the models conds")
+    stop("one_cond not in the model's conds")
   }
-  if (!is.logical(add_x)) {
+  if (!is.logical(add_x) | length(add_x) != 1) {
     stop("add_x must be of type logical")
   }
 
   if (!is.null(seed)) {
-    if (!is.numeric(seed) || length(seed) != 1) {
+    if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
     }
     withr::local_seed(seed)
@@ -868,9 +924,10 @@ simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE, seed = NULL
   samp_x <- numeric(k) # storage for starting values
 
   if (add_x) {
-    pdf_x <- x(drift_dm_obj = drift_dm_obj, one_cond = one_cond)
-    xx <- seq(-b_vec[1], b_vec[1], length.out = nx + 1)
-    samp_x <- draw_from_pdf(pdf_x, xx, k)
+    xx <- seq(-1, 1, length.out = nx + 1)
+    pdf_x <- x(drift_dm_obj = drift_dm_obj, x_vec = xx, one_cond = one_cond)
+    xx <- xx * b_vec[1]
+    samp_x <- draw_from_pdf(a_pdf = pdf_x, x_def = xx, k = k)
   }
 
   e_samples <-
@@ -889,16 +946,23 @@ simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE, seed = NULL
       return(acc_steps)
     })
 
+  if (k == 1)
+    return(as.vector(e_samples))
+
   return(t(e_samples))
 }
 
 #' @export
 simulate_data <- function(drift_dm_obj, n, seed = NULL) {
-  if (!is.numeric(n) || n <= 0) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
+
+  if (!is.numeric(n) | n <= 0) {
     stop("n must be a numeric > 0")
   }
   if (!is.null(seed)) {
-    if (!is.numeric(seed) || length(seed) != 1) {
+    if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
     }
     withr::local_seed(seed)
@@ -915,8 +979,8 @@ simulate_data <- function(drift_dm_obj, n, seed = NULL) {
       drift_dm_obj = drift_dm_obj, one_cond = one_cond,
       solver = drift_dm_obj$solver
     )
-    pdf_u <- pdfs[[1]]
-    pdf_l <- pdfs[[2]]
+    pdf_u <- pdfs$pdf_u
+    pdf_l <- pdfs$pdf_l
     stopifnot(length(pdf_u) == length(t_vec))
     stopifnot(length(pdf_l) == length(t_vec))
     p_u <- sum(pdf_u) / (sum(pdf_u) + sum(pdf_l))
@@ -929,11 +993,11 @@ simulate_data <- function(drift_dm_obj, n, seed = NULL) {
       sim_data,
       data.frame(
         RT = c(samp_u, samp_l),
-        Error = rep(c(0, 1), times = c(n_u, n - n_u)),
+        Error = rep(c(0, 1), times = c(length(samp_u), length(samp_l))),
         Cond = one_cond
       )
     )
   }
-  check_raw_data(sim_data) # ensure we play by our own rules :)
+  check_raw_data(sim_data)
   return(sim_data)
 }

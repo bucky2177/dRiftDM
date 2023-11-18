@@ -35,8 +35,13 @@ test_that("creating a drift_dm object", {
   rts_err <- list(null = some_data$RT[some_data$Error == 1])
   exp_data <- list(rts_corr = rts_corr, rts_err = rts_err)
   expect_identical(a_model$obs_data, exp_data)
+})
 
+
+test_that("input fails dm_drift", {
   # create failing cases
+  my_prms <- c("a" = 2, "b" = 3, "c" = 4)
+  conds <- c("null")
   expect_error(drift_dm(numeric(), conds), "prms_model")
   expect_error(drift_dm(my_prms, NULL), "conds")
   expect_error(drift_dm(my_prms, conds, sigma = NULL), regexp = "sigma")
@@ -44,10 +49,10 @@ test_that("creating a drift_dm object", {
   expect_error(drift_dm(my_prms, conds, dx = NULL), regexp = "dx")
   expect_error(drift_dm(my_prms, conds, dt = NULL), regexp = "dt")
   expect_error(drift_dm(my_prms, conds, free_prms = c(1, 2)),
-    regexp = "free_prms"
+               regexp = "free_prms"
   )
   expect_error(drift_dm(my_prms, conds, free_prms = c("a", "d")),
-    regexp = "free_prms"
+               regexp = "free_prms"
   )
 })
 
@@ -146,6 +151,9 @@ test_that("validate_model fails as expected", {
   temp <- a_model
   temp$solver <- c("two", "things")
   expect_error(validate_drift_dm(temp), "solver")
+
+  # wrong input for drift_dm
+  expect_error(validate_drift_dm("hallo"), "not of type drift_dm")
 })
 
 
@@ -159,12 +167,12 @@ test_that("standard methods for the ddm components work as expected", {
 
   t_vec <- seq(0, 3, 0.01)
   x_vec <- seq(-1, 1, 0.01)
-  def_mu <- mu(a_model, t_vec, one_cond = "WAYNE")
-  def_mu_int <- mu_int(a_model, t_vec, one_cond = "WAYNE")
-  def_b <- b(a_model, t_vec, one_cond = "WAYNE")
-  def_dtb <- dt_b(a_model, t_vec, one_cond = "WAYNE")
-  def_nt <- nt(a_model, t_vec, one_cond = "WAYNE")
-  def_x <- x(a_model, x_vec, one_cond = "WAYNE")
+  def_mu <- mu(a_model, t_vec, one_cond = "W")
+  def_mu_int <- mu_int(a_model, t_vec, one_cond = "W")
+  def_b <- b(a_model, t_vec, one_cond = "W")
+  def_dtb <- dt_b(a_model, t_vec, one_cond = "W")
+  def_nt <- nt(a_model, t_vec, one_cond = "W")
+  def_x <- x(a_model, x_vec, one_cond = "W")
 
   expect_identical(def_mu, rep(3, 301))
   expect_identical(def_mu_int, 3 * t_vec)
@@ -176,6 +184,16 @@ test_that("standard methods for the ddm components work as expected", {
   exp_x <- rep(0, 201)
   exp_x[101] <- 1 / .01
   expect_identical(def_x, exp_x)
+
+  # failures for t_vec
+  t_vec = numeric()
+  expect_error(mu(a_model, t_vec, one_cond = "W"), "t_vec is not a vector")
+  expect_error(mu_int(a_model, t_vec, one_cond = "W"), "t_vec is not a vector")
+  expect_error(b(a_model, t_vec, one_cond = "W"), "t_vec is not a vector")
+  expect_error(dt_b(a_model, t_vec, one_cond = "W"), "t_vec is not a vector")
+  expect_error(nt(a_model, t_vec, one_cond = "W"), "t_vec is not a vector")
+  expect_error(x(a_model, t_vec, one_cond = "W"), "x_vec is not a vector")
+
 })
 
 
@@ -248,3 +266,216 @@ test_that("set_model_prms works as expected", {
   expect_error(set_model_prms(a_model, c(1,3,4), eval_model = NULL),
                "eval_model")
 })
+
+
+test_that("set_free_prms works as expected", {
+
+  # before evaluating
+  my_prms <- c("a" = 2, "b" = 3, "cd" = 4)
+  conds <- c("null")
+  a_model <- drift_dm(prms_model = my_prms, conds = conds,
+                      sigma = 1, t_max = 1, dt = .01, dx = .01,
+                      obs_data = ratcliff_data
+  )
+  a_model = set_free_prms(a_model, c("b", "a"))
+  expect_identical(a_model$free_prms, c("a", "b"))
+
+  expect_warning(set_free_prms(a_model, c("c", "a")), "corrected")
+  a_model = suppressWarnings(set_free_prms(a_model, c("c", "a")))
+  expect_identical(a_model$free_prms, c("a", "cd"))
+
+  expect_error(set_free_prms(a_model, c("x", "a")), "arg")
+  expect_error(set_free_prms(a_model, NULL), "character")
+
+  expect_error(set_free_prms("hallo", c("b", "a")),
+               "drift_dm_obj")
+
+})
+
+
+test_that("set_solver_settings works as expected", {
+
+  # before evaluating
+  my_prms <- c("a" = 2, "b" = 3, "cd" = 4)
+  conds <- c("null")
+  a_model <- drift_dm(prms_model = my_prms, conds = conds,
+                      sigma = 1, t_max = 1, dt = .01, dx = .01,
+                      obs_data = ratcliff_data
+  )
+  a_model = set_solver_settings(a_model, c("t_max", "dt", "dx", "sigma"),
+                                c(3,.1,.1,2), eval_model = F)
+  expect_identical(a_model$prms_solve,
+                   c(sigma = 2, t_max = 3, dt = .1, dx = .1, nt = 30, nx = 20))
+  a_model = set_solver_settings(a_model, c("solver"),
+                                c("bla"), eval_model = F)
+  expect_identical(a_model$solver, "bla")
+
+  # errors and warnings
+  expect_error(set_solver_settings(a_model, c("solver"),
+                                   c("bla"), eval_model = T),
+               "not implemented yet")
+  a_model$solver = "kfe"
+  expect_warning(re_evaluate_model(a_model), "negative pdf values")
+
+  # further errors
+  expect_error(set_solver_settings(a_model, c("t_max", "dx"), c(2)),
+               "don't match")
+  expect_warning(set_solver_settings(a_model, c("so"), c(2)),
+               "Automatically corrected")
+  expect_error(set_solver_settings(a_model, c(), NULL), "not of type character")
+  expect_error(set_solver_settings(a_model, c("t_max"), list(4)),
+               "type numeric or character")
+  expect_error(set_solver_settings("hallo", "t_max", 3),
+               "drift_dm_obj")
+})
+
+
+
+
+test_that("set_obs_data and check_raw_data throw expected errors", {
+  my_prms <- c("a" = 2, "b" = 3, "cd" = 4)
+  conds <- c("null")
+  a_model <- drift_dm(prms_model = my_prms, conds = conds)
+
+  # wrong inputs to set_obs_data
+  expect_error(set_obs_data("uff", ratcliff_data), "not of type drift_dm")
+  temp_data = ratcliff_data
+  temp_data = rbind(temp_data, data.frame(RT = 0.4, Error = 1, Cond = "foo"))
+  expect_warning(set_obs_data(a_model, temp_data),
+                 "not listed in the model's conditions")
+  a_model$conds = c("null", "foo")
+  expect_error(set_obs_data(a_model, ratcliff_data),
+                 "not part of the Cond column")
+
+  a_model$conds = c("null")
+  expect_error(set_obs_data(a_model, list()), "not a data frame")
+
+  temp_data = data.frame(RT = 1, Error = "1", Cond = "null")
+  expect_warning(set_obs_data(a_model, temp_data), "not of type numeric")
+
+  temp_data = data.frame(RT = "1", Error = 1, Cond = "null")
+  expect_warning(set_obs_data(a_model, temp_data), "not of type numeric")
+
+  a_model$conds = c("1")
+  temp_data = data.frame(RT = 1, Error = 1, Cond = 1)
+  expect_warning(set_obs_data(a_model, temp_data), "not of type character")
+
+  temp_data = data.frame(RT = 1, Error = 1)
+  expect_error(set_obs_data(a_model, temp_data), "no Cond")
+  temp_data = data.frame(RT = 1, Cond = "null")
+  expect_error(set_obs_data(a_model, temp_data), "no Error")
+  temp_data = data.frame(Error = 1, Cond = "null")
+  expect_error(set_obs_data(a_model, temp_data), "no RT")
+
+  a_model$conds = c("null")
+  temp_data = data.frame(RT = 1, Error = -1, Cond = "null")
+  expect_error(set_obs_data(a_model, temp_data), "only contain 0s and 1s")
+  temp_data = data.frame(RT = -1, Error = 1, Cond = "null")
+  expect_error(set_obs_data(a_model, temp_data), "not >= 0")
+})
+
+
+test_that("simulate_trace works as expected", {
+  dt = .01
+  t_max = 1
+
+  # standard behavior
+  my_prms <- c("a" = 2, "b" = 3, "cd" = 4)
+  conds <- c("null")
+  a_model <- drift_dm(prms_model = my_prms, conds = conds,
+                      t_max = t_max, dt = dt)
+  a_model$prms_solve[["sigma"]] = 0
+
+  out = simulate_trace(drift_dm_obj = a_model, k = 2, one_cond = "null")
+  expect_identical(out[1,], out[2,])
+  expect_equal(dim(out), c(2, 1/.01 + 1))
+
+  one_trace = na.omit(out[1,])
+  expect_equal(length(one_trace),
+                   ceiling(standard_boundary() / standard_drift()/.01) + 1)
+
+  # with noise and seed
+  a_model$prms_solve[["sigma"]] = 1.5
+  out = simulate_trace(drift_dm_obj = a_model, k = 1, one_cond = "null",
+                       seed = 1, add_x = T)
+  expect_true(!is.matrix(out))
+
+  withr::local_seed(1)
+  # draw from pdf to ensure the same rng behvaior
+  xx = seq(-1, 1, length.out = a_model$prms_solve[["nx"]] + 1)
+  pdf_x = dunif(xx)
+  samp_x <- draw_from_pdf(a_pdf = pdf_x, x_def = xx, k = 1)
+
+  # now do the actual trace simulation as in Ulrich et al. Appendix C
+  t = seq(dt, t_max, dt)
+  mu = standard_drift()
+  dX = mu * dt + 1.5 * sqrt(dt) * rnorm(length(t)) # see
+  X = c(0, cumsum(dX))
+  X = X[1:min(which(X > standard_boundary()))]
+  expect_identical(out[!is.na(out)], X)
+
+  # expected errors
+  expect_error(simulate_trace(drift_dm_obj = a_model, k = 1, one_cond = "null",
+                              seed = c(1,2,3)), "seed must be a single numeric")
+
+  expect_error(simulate_trace(drift_dm_obj = a_model, k = 1, one_cond = "null",
+                              add_x = NULL), "logical")
+
+  expect_error(simulate_trace(drift_dm_obj = a_model, k = 1, one_cond = "foo"),
+               "not in the model's conds")
+  expect_error(simulate_trace(drift_dm_obj = a_model, k = 1, one_cond = 1),
+               "must be a character")
+  expect_error(simulate_trace(drift_dm_obj = a_model, k = list(1),
+                              one_cond = 1),
+               "must be a numeric > 0")
+  expect_error(simulate_trace(drift_dm_obj = "hallo", k = 1, one_cond = "null"),
+               "not of type drift_dm")
+
+  # no boundary hit
+  a_model = set_solver_settings(a_model, "t_max", 0.13)
+  a_model$prms_solve[["sigma"]] = 0
+  expect_warning(simulate_trace(drift_dm_obj = a_model, k = 1,
+                                one_cond = "null"),
+                 "no boundary hit"
+  )
+})
+
+
+test_that("simualte_data works as expected", {
+  # standard behavior
+  my_prms <- c("a" = 2, "b" = 3, "cd" = 4)
+  conds <- c("null")
+  a_model <- drift_dm(prms_model = my_prms, conds = conds, dx = .005,
+                      dt = .001, t_max = 1.5)
+  sim_data = simulate_data(a_model, 100000, seed = 1)
+  check_raw_data(sim_data)
+
+  # correct quantiles
+  sim_quantiles_corr = quantile(sim_data$RT[sim_data$Error == 0],
+                                probs = seq(0.1, 0.9, 0.1))
+  exp_quantiles = calc_quantiles(a_model, type = "pred")
+  exp_quantiles_corr = round(exp_quantiles$Quant_Corr, 3)
+  expect_true(all(abs(sim_quantiles_corr - exp_quantiles_corr) <= 1))
+
+  # error quantiles
+  sim_quantiles_err = quantile(sim_data$RT[sim_data$Error == 1],
+                                probs = seq(0.1, 0.9, 0.1))
+  exp_quantiles_err = round(exp_quantiles$Quant_Err, 3)
+  expect_true(all(abs(exp_quantiles_err - exp_quantiles_err) <= 1))
+
+  # basic diffusion model has symmetric pdfs
+  expect_true(all(
+    abs(exp_quantiles$Quant_Corr * 1000 - exp_quantiles$Quant_Err * 1000) <=
+      drift_dm_small_approx_error()
+  ))
+
+  # input checks
+  expect_error(simulate_data(a_model, -1), "> 0")
+  expect_error(simulate_data("hello", 1), "not of type drift_dm")
+  expect_error(simulate_data(a_model, 10, c("1", "2")), "single numeric")
+  expect_error(simulate_data(a_model, 10, c(1, 2)), "single numeric")
+
+})
+
+
+

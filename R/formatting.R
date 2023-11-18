@@ -36,9 +36,6 @@ print.drift_dm <- function(x, ...) {
   )
   cat("\n  values:", to_str)
   cat("\n")
-
-  cat("\nSolver:", drift_dm_obj$solver)
-  cat("\n")
 }
 
 

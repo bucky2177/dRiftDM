@@ -45,7 +45,7 @@ respective values at every time step \eqn{t}.
 In order to work with \code{dRiftDM}, \code{x} must return a numeric vector of the
 same length as \code{x_vec}.
 
-See \link{vignette("use_ddm_models", "dRiftDM)} for more information how each
+See \link{vignette("use_ddm_models", "dRiftDM")} for more information how each
 function works and how to write a customized method for your own models
 }
 \description{
@@ -65,7 +65,7 @@ All of the listed functions are generic functions which means that
 custom methods can be defined for new \link{class}es.
 }
 \details{
-Please visit the \link{vignette("use_ddm_models", "dRiftDM)} for more in-depth
+Please visit the \link{vignette("use_ddm_models", "dRiftDM")} for more in-depth
 information.
 \subsection{Drift rate and its integral:}{
 

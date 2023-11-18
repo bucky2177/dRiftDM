@@ -24,7 +24,7 @@ LazyData: true
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 Imports: 
-  magrittr, limSolve, withr, parallel, DEoptim, dfoptim
+  limSolve, withr, parallel, DEoptim, dfoptim
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr
