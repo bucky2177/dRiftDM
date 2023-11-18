@@ -1,15 +1,24 @@
+
+library("devtools")
+library("tictoc")
+library("Rcpp")
+load_all()
 rm(list = ls())
 # Hallo Vali! :)
+
+
 
 tic()
 one_dm = drift_dm(c("a" = 2, "b" = 3), conds = "null")
 toc()
 
+
+
 # simulate data
 data = simulate_data(one_dm, 10000, seed = 1)
 
 # set the data
-one_dm = set_data(drift_dm_obj = one_dm, obs_data = data, eval_model = T)
+one_dm = set_obs_data(drift_dm_obj = one_dm, obs_data = data, eval_model = T) 
 summary(one_dm)
 
 # plot the model
