@@ -22,7 +22,6 @@ kfe_ale <- function(drift_dm_obj, one_cond) {
 
 
   # Initializing containers
-  f <- numeric(nx + 1)
   pdf_u <- numeric(nt + 1)
   pdf_l <- numeric(nt + 1)
   x_vec <- seq(-1, 1, length.out = nx + 1)
@@ -30,90 +29,42 @@ kfe_ale <- function(drift_dm_obj, one_cond) {
 
   # Calculating starting vector x
   x_vals <- x(drift_dm_obj = drift_dm_obj, x_vec = x_vec, one_cond = one_cond)
-  if (abs(sum(x_vals) * dx - 1) > drift_dm_rough_approx_error()) {
+  if (abs(sum(x_vals) * dx - 1) > drift_dm_small_approx_error()) {
     stop("starting condition not normalized")
   }
-  if (length(x_vals) != nx + 1) stop("unexpected length of x")
+  if (length(x_vals) != nx + 1) stop("unexpected length of x_vals")
 
   # get values across t
   t_vec <- seq(0, t_max, length.out = nt + 1)
-  mu_vec <- mu(drift_dm_obj = drift_dm_obj, t_vec = t_vec, one_cond = one_cond)
-  b_vec <- b(drift_dm_obj = drift_dm_obj, t_vec = t_vec, one_cond = one_cond)
-  dt_b_vec <- dt_b(
+  mu_vals <- mu(drift_dm_obj = drift_dm_obj, t_vec = t_vec, one_cond = one_cond)
+  b_vals <- b(drift_dm_obj = drift_dm_obj, t_vec = t_vec, one_cond = one_cond)
+  dt_b_vals <- dt_b(
     drift_dm_obj = drift_dm_obj, t_vec = t_vec,
     one_cond = one_cond
   )
-  if (any(is.infinite(mu_vec)) | any(is.na(mu_vec))) {
-    stop("mu_vec provided infinite values or NAs")
+  if (any(is.infinite(mu_vals)) | any(is.na(mu_vals))) {
+    stop("mu_vals provided infinite values or NAs")
   }
-  if (any(is.infinite(b_vec)) | any(is.na(b_vec))) {
-    stop("b_vec provided infinite values or NAs")
+  if (any(is.infinite(b_vals)) | any(is.na(b_vals))) {
+    stop("b_vals provided infinite values or NAs")
   }
-  if (any(is.infinite(dt_b_vec)) | any(is.na(dt_b_vec))) {
-    stop("dt_b_vec provided infinite values or NAs")
+  if (any(is.infinite(dt_b_vals)) | any(is.na(dt_b_vals))) {
+    stop("dt_b_vals provided infinite values or NAs")
   }
   if (any(is.infinite(x_vals)) | any(is.na(x_vals))) {
     stop("x_vals provided infinite values or NAs")
   }
-  stopifnot(length(mu_vec) == length(b_vec))
-  stopifnot(length(mu_vec) == length(dt_b_vec))
-  stopifnot(length(mu_vec) == length(t_vec))
+  if (length(mu_vals) != length(t_vec)) stop("unexpected length of mu_vals")
+  if (length(b_vals) != length(t_vec)) stop("unexpected length of b_vals")
+  if (length(dt_b_vals) != length(t_vec)) stop("unexpected length of dt_b_vals")
 
-  sourceCpp('C/cpp_kfe.cpp')
-  errorcode <- cpp_kfe(pdf_u, pdf_l, 
-                       x_vals,
-          nt,nx,
-          dt,dx,
-          sigma,
-          b_vec,mu_vec,dt_b_vec);
+  # solve the pdfs
+  errorcode <- cpp_kfe(pdf_u = pdf_u, pdf_l = pdf_l, xx = x_vals, nt = nt,
+                       nx = nx, dt = dt, dx = dx, sigma = sigma,
+                       b_vals = b_vals, mu_vals = mu_vals,
+                       dt_b_vals = dt_b_vals);
   if (errorcode != 1) stop("cpp-version of kfe failed")
-  
-    # # fill pdfs for each timestep
-    # for (n in 1:nt) {
-    #   # Rannacher time-marching
-    #   theta <- 0.5
-    #   if (n <= 4) {
-    #     theta <- 1
-    #   }
-    # 
-    #   J_old <- b_vec[n]
-    #   mu_old <- mu_vec[n]
-    #   dt_b_old <- dt_b_vec[n]
-    #   mu_old <- rep(mu_old / J_old, nx + 1) - dt_b_old / J_old * x_vec
-    #   sigma_old <- sigma / J_old
-    #   L_old <- 1.0 / dx * sigma_old * sigma_old / 2.0
-    # 
-    #   J_new <- b_vec[n + 1]
-    #   mu_new <- mu_vec[n + 1]
-    #   dt_b_new <- dt_b_vec[n + 1]
-    #   mu_new <- rep(mu_new / J_new, nx + 1) - dt_b_new / J_new * x_vec
-    #   sigma_new <- sigma / J_new
-    #   L_new <- 1.0 / dx * sigma_new * sigma_new / 2.0
-    # 
-    #   f <- 2.0 / 3.0 * dx * x_vals
-    #   f[2:nx] <- f[2:nx] + 1.0 / 6.0 * dx * x_vals[1:(nx - 1)]
-    #   f[2:nx] <- f[2:nx] + 1.0 / 6.0 * dx * x_vals[3:(nx + 1)]
-    # 
-    #   f[2:nx] <- f[2:nx] + (theta - 1) * dt *
-    #     (-L_old - 0.5 * mu_old[1:(nx - 1)]) * x_vals[1:(nx - 1)]
-    #   f[2:nx] <- f[2:nx] + (theta - 1) * dt * (2.0 * L_old) * x_vals[2:nx]
-    #   f[2:nx] <- f[2:nx] + (theta - 1) * dt *
-    #     (-L_old + 0.5 * mu_old[3:(nx + 1)]) * x_vals[3:(nx + 1)]
-    # 
-    #   if (f[1] != 0 | f[nx + 1] != 0) stop("f nicht null?")
-    # 
-    #   x_vals <- tridiag(
-    #     f,
-    #     1.0 / 6.0 * dx + dt * theta * (-L_new - 0.5 * mu_new),
-    #     2.0 / 3.0 * dx + dt * theta * (2.0 * L_new),
-    #     1.0 / 6.0 * dx + dt * theta * (-L_new + 0.5 * mu_new)
-    #   )
-    # 
-    #   pdf_u[n + 1] <- 0.5 * sigma_new^2.0 / dx / dx *
-    #     (3.0 * x_vals[nx] - 1.5 * x_vals[nx - 1] + 1.0 / 3.0 * x_vals[nx - 2])
-    #   pdf_l[n + 1] <- 0.5 * sigma_new^2.0 / dx / dx *
-    #     (3.0 * x_vals[2] - 1.5 * x_vals[3] + 1.0 / 3.0 * x_vals[4])
-    # }
+
   # Omit all states that did not reach a threshold
   scale <- sum(pdf_u) * dt + sum(pdf_l) * dt
   pdf_u <- pdf_u / scale
@@ -124,8 +75,7 @@ kfe_ale <- function(drift_dm_obj, one_cond) {
   pdf_nt <- nt(drift_dm_obj = drift_dm_obj, t_vec = t_vec, one_cond = one_cond)
 
   pdfs <- add_residual(
-    pdf_nt = pdf_nt, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt,
-    one_cond = one_cond
+    pdf_nt = pdf_nt, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt, one_cond = one_cond
   )
 
   # ... and pass back
@@ -161,7 +111,7 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, one_cond) {
 
 # ==== Functions for calculating the log_likelihood
 
-log_like <- function(drift_dm_obj) {
+get_log_like <- function(drift_dm_obj) {
   log_like <- 0
   red_drift_dm_obj <- drift_dm_obj
   if (is.null(red_drift_dm_obj$obs_data)) {

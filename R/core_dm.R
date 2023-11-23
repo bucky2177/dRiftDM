@@ -563,7 +563,7 @@ re_evaluate_model <- function(drift_dm_obj) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
-  drift_dm_obj$log_like_val <- log_like(drift_dm_obj)
+  drift_dm_obj$log_like_val <- get_log_like(drift_dm_obj)
 
   drift_dm_obj$ic_vals <- get_ic(
     ll = drift_dm_obj$log_like_val,

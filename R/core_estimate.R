@@ -62,6 +62,7 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
   }
   if (is.null(drift_dm_obj$obs_data)) {
     warning("No data set, passing back unmodified object")
+    return(drift_dm_obj)
   }
   if (!is.numeric(lower) | !is.numeric(upper)) {
     stop("lower or upper are not of type numeric")
@@ -123,11 +124,22 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
   if (use_de_optim) {
     cl <- NULL
     if (de_n_cores > 1) {
+
+      # fetch custom component functions
+      all_objects <- ls(envir = .GlobalEnv)
+      mus <- grep("^mu\\.", all_objects, value = TRUE)
+      mu_ints <- grep("^mu_int\\.", all_objects, value = TRUE)
+      bs <- grep("^b\\.", all_objects, value = TRUE)
+      dt_bs <- grep("^dt_b\\.", all_objects, value = TRUE)
+      nts <- grep("^nt\\.", all_objects, value = TRUE)
+      xs <- grep("^x\\.", all_objects, value = TRUE)
+      all_funs = c("goal_wrapper", "set_model_prms",
+                 "prms_to_str", mus, mu_ints, bs, dt_bs, nts, xs)
+
       cl <- parallel::makeCluster(de_n_cores)
       parallel::clusterExport(
         cl = cl,
-        varlist = list("goal_wrapper", "set_model_prms",
-                       "prms_to_str"),
+        varlist = as.list(all_funs),
         envir = environment()
       )
     }
