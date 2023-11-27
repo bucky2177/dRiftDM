@@ -11,8 +11,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // cpp_kfe
-int cpp_kfe(NumericVector& pdf_u, NumericVector& pdf_l, NumericVector& xx, const int nt, const int nx, const double dt, const double dx, double sigma, const NumericVector b_vals, const NumericVector mu_vals, const NumericVector dt_b_vals);
-RcppExport SEXP _dRiftDM_cpp_kfe(SEXP pdf_uSEXP, SEXP pdf_lSEXP, SEXP xxSEXP, SEXP ntSEXP, SEXP nxSEXP, SEXP dtSEXP, SEXP dxSEXP, SEXP sigmaSEXP, SEXP b_valsSEXP, SEXP mu_valsSEXP, SEXP dt_b_valsSEXP) {
+int cpp_kfe(NumericVector& pdf_u, NumericVector& pdf_l, NumericVector& xx, const int nt, const int nx, const double dt, const double dx, double sigma, const bool r_stepping, const NumericVector b_vals, const NumericVector mu_vals, const NumericVector dt_b_vals, const NumericVector x_vec);
+RcppExport SEXP _dRiftDM_cpp_kfe(SEXP pdf_uSEXP, SEXP pdf_lSEXP, SEXP xxSEXP, SEXP ntSEXP, SEXP nxSEXP, SEXP dtSEXP, SEXP dxSEXP, SEXP sigmaSEXP, SEXP r_steppingSEXP, SEXP b_valsSEXP, SEXP mu_valsSEXP, SEXP dt_b_valsSEXP, SEXP x_vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -24,16 +24,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double >::type dt(dtSEXP);
     Rcpp::traits::input_parameter< const double >::type dx(dxSEXP);
     Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type r_stepping(r_steppingSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type b_vals(b_valsSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type mu_vals(mu_valsSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type dt_b_vals(dt_b_valsSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_kfe(pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt_b_vals));
+    Rcpp::traits::input_parameter< const NumericVector >::type x_vec(x_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_kfe(pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, r_stepping, b_vals, mu_vals, dt_b_vals, x_vec));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_dRiftDM_cpp_kfe", (DL_FUNC) &_dRiftDM_cpp_kfe, 11},
+    {"_dRiftDM_cpp_kfe", (DL_FUNC) &_dRiftDM_cpp_kfe, 13},
     {NULL, NULL, 0}
 };
 

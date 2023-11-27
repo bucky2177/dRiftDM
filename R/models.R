@@ -1,14 +1,19 @@
 # ==== Standard Ratcliff Diffusion Model
 
-ratcliff_dm <- function(type = "simple", obs_data = NULL, sigma = 1, t_max = 3, dt = .005,
-                        dx = .05) {
+ratcliff_dm <- function(type = "simple", obs_data = NULL, sigma = 1, t_max = 3,
+                        dt = .001, dx = .001) {
   prms_model <- c(muc = 3, b = 0.6, non_dec = 0.3)
   conds <- "null"
   r_dm <- drift_dm(
     prms_model = prms_model, conds = conds, free_prms = NULL,
-    obs_data = obs_data, sigma = sigma, t_max = t_max,
-    dt = dt, dx = dx
+    obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt, dx = dx
   )
+
+  # set the custom functions
+  r_dm = set_mu_fun(drift_dm_obj = r_dm, mu_fun = mu_constant)
+  r_dm = set_mu_int_fun(drift_dm_obj = r_dm, mu_int_fun = mu_int_constant)
+  r_dm = set_b_fun(drift_dm_obj = r_dm, b_fun = b_constant)
+  r_dm = set_nt_fun(drift_dm_obj = r_dm, nt_fun = nt_constant)
 
   class(r_dm) <- c("ratcliff_dm_simple", class(r_dm))
 
@@ -16,7 +21,10 @@ ratcliff_dm <- function(type = "simple", obs_data = NULL, sigma = 1, t_max = 3, 
 }
 
 
-mu.ratcliff_dm_simple <- function(drift_dm_obj, t_vec, one_cond) {
+mu_constant <- function(drift_dm_obj, t_vec, one_cond) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
   muc <- drift_dm_obj$prms_model[["muc"]]
   if (!is.numeric(muc) | length(muc) != 1) {
     stop("parameter muc is not a single number")
@@ -28,7 +36,10 @@ mu.ratcliff_dm_simple <- function(drift_dm_obj, t_vec, one_cond) {
   return(muc)
 }
 
-mu_int.ratcliff_dm_simple <- function(drift_dm_obj, t_vec, one_cond) {
+mu_int_constant <- function(drift_dm_obj, t_vec, one_cond) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
   muc <- drift_dm_obj$prms_model[["muc"]]
   if (!is.numeric(muc) | length(muc) != 1) {
     stop("muc is not a single number")
@@ -39,7 +50,10 @@ mu_int.ratcliff_dm_simple <- function(drift_dm_obj, t_vec, one_cond) {
   return(muc * t_vec)
 }
 
-b.ratcliff_dm_simple <- function(drift_dm_obj, t_vec, one_cond) {
+b_constant <- function(drift_dm_obj, t_vec, one_cond) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
   b <- drift_dm_obj$prms_model[["b"]]
   if (!is.numeric(b) | length(b) != 1) {
     stop("b is not a single number")
@@ -51,7 +65,10 @@ b.ratcliff_dm_simple <- function(drift_dm_obj, t_vec, one_cond) {
   return(b)
 }
 
-nt.ratcliff_dm_simple <- function(drift_dm_obj, t_vec, one_cond) {
+nt_constant <- function(drift_dm_obj, t_vec, one_cond) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
   non_dec_time <- drift_dm_obj$prms_model[["non_dec"]]
   if (!is.numeric(non_dec_time) | length(non_dec_time) != 1) {
     stop("non_dec_time is not a single number")
@@ -76,7 +93,8 @@ nt.ratcliff_dm_simple <- function(drift_dm_obj, t_vec, one_cond) {
 
 # === Diffusion Model for Conflict Task
 
-dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .005, dx = .05) {
+dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
+                   dx = .001) {
   prms_model <- c(
     muc = 4, b = .6, non_dec = .3, sd_non_dec = .02, tau = .04,
     a = 2, A = .1, alpha = 4
@@ -85,9 +103,16 @@ dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .005, dx = .05) {
   dmc_dm <- drift_dm(
     prms_model = prms_model, conds = conds,
     free_prms = c("muc", "b", "non_dec", "sd_non_dec", "tau", "A", "alpha"),
-    obs_data = obs_data, sigma = sigma, t_max = t_max,
-    dt = dt, dx = dx
+    obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt, dx = dx
   )
+
+  # set the custom functions
+  dmc_dm = set_mu_fun(drift_dm_obj = dmc_dm, mu_fun = mu_dmc_dm)
+  dmc_dm = set_mu_int_fun(drift_dm_obj = dmc_dm, mu_int_fun = mu_int_dmc_dm)
+  dmc_dm = set_x_fun(drift_dm_obj = dmc_dm, x_fun = x_dmc_dm)
+  dmc_dm = set_b_fun(drift_dm_obj = dmc_dm, b_fun = b_constant)
+  dmc_dm = set_nt_fun(drift_dm_obj = dmc_dm, nt_fun = nt_truncated_normal)
+
 
   class(dmc_dm) <- c("dmc_dm", class(dmc_dm))
 
@@ -95,7 +120,10 @@ dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .005, dx = .05) {
 }
 
 
-mu.dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
+mu_dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
   # unpack values and conduct checks
   muc <- drift_dm_obj$prms_model[["muc"]]
   tau <- drift_dm_obj$prms_model[["tau"]]
@@ -136,7 +164,10 @@ mu.dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
   }
 }
 
-mu_int.dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
+mu_int_dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
   # unpack values and conduct checks
   muc <- drift_dm_obj$prms_model[["muc"]]
   tau <- drift_dm_obj$prms_model[["tau"]]
@@ -172,27 +203,27 @@ mu_int.dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
   }
 }
 
-x.dmc_dm <- function(drift_dm_obj, one_cond) {
+x_dmc_dm <- function(drift_dm_obj, x_vec, one_cond) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
   alpha <- drift_dm_obj$prms_model[["alpha"]]
-  nx <- drift_dm_obj$prms_solve[["nx"]]
-  xx <- seq(0, 1, length.out = nx + 1)
+  if (!is.numeric(alpha) | length(alpha) != 1) {
+    stop("parameter alpha is not a single number")
+  }
+  if (!is.numeric(x_vec) | length(x_vec) <= 1) {
+    stop("x_vec is not a vector")
+  }
+
+  xx <- seq(0, 1, length.out = length(x_vec))
   x <- stats::dbeta(xx, alpha, alpha) / 2
   return(x)
 }
 
-b.dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
-  b <- drift_dm_obj$prms_model[["b"]]
-  if (!is.numeric(b) | length(b) != 1) {
-    stop("b is not a single number")
+nt_truncated_normal <- function(drift_dm_obj, t_vec, one_cond) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
   }
-  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
-  }
-  b <- rep(b, length(t_vec))
-  return(b)
-}
-
-nt.dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
   non_dec <- drift_dm_obj$prms_model[["non_dec"]]
   sd_non_dec <- drift_dm_obj$prms_model[["sd_non_dec"]]
   if (!is.numeric(non_dec) | length(non_dec) != 1) {
@@ -207,7 +238,6 @@ nt.dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
     stop("t_vec is not a vector")
   }
-
   if (sd_non_dec <= drift_dm_obj$prms_solve[["dt"]]) {
     stop("sd_non_dec should not be smaller than dt!")
   }

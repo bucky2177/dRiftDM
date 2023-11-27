@@ -59,7 +59,10 @@ calc_cafs_pred <- function(drift_dm_obj, n_bins) {
 
     x <- 1:length(cdf)
     probs <- seq(0, 1, length.out = n_bins + 1)
-    x_borders <- stats::approx(x = cdf, y = x, xout = probs)$y
+    probs = probs[2:(length(probs) - 1)]
+    x_borders <- stats::approx(x = cdf, y = x, xout = probs, ties = "mean")$y
+    x_borders = append(x_borders, min(x), after = 0) # ensure that x_borders
+    x_borders = append(x_borders, max(x)) # contains the lower and upper part
     bins <- cut(x, breaks = x_borders, labels = FALSE, include.lowest = TRUE)
     stopifnot(unique(bins) == 1:n_bins)
     sum_u <- tapply(pdf_u, bins, sum)
@@ -90,6 +93,11 @@ calc_cafs_pred <- function(drift_dm_obj, n_bins) {
 
 #' @export
 calc_cafs <- function(drift_dm_obj, type = "obs", n_bins = 5) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
+  if (!is.numeric(n_bins) | length(n_bins) != 1)
+    stop("n_bins must a single numeric")
   if (n_bins <= 1) {
     stop("argument n_bins nust be larger than 1")
   }
@@ -172,7 +180,7 @@ calc_quantiles_pred <- function(drift_dm_obj, probs) {
         cdf <- cumsum(a_pdf)
         cdf <- cdf - min(cdf)
         cdf <- cdf / max(cdf)
-        return(stats::approx(x = cdf, y = t_vec, xout = probs)$y)
+        return(stats::approx(x = cdf, y = t_vec, xout = probs, ties = "mean")$y)
       }, t_vec = t_vec, probs = probs)
 
     colnames(quants) <- c("Quant_Corr", "Quant_Err")
@@ -205,12 +213,16 @@ calc_quantiles_pred <- function(drift_dm_obj, probs) {
 #' @export
 calc_quantiles <- function(drift_dm_obj, type = "obs",
                            probs = seq(0.1, 0.9, 0.1)) {
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
+  if (!is.numeric(probs) | length(probs) < 2)
+    stop("probs must a numeric vector of length > 1")
+
   if (min(probs) <= 0 | max(probs) >= 1) {
-    stop("argument probs nust be in the range ]0, 1[")
+    stop("argument probs must be in the range ]0, 1[")
   }
-  if (length(probs) <= 1) {
-    stop("probs must define at least one probability")
-  }
+
   type <- match.arg(type, c("obs", "pred", "both"))
 
   if (type == "obs") {

@@ -9,7 +9,7 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
   }
 
   if (is.null(names(x))) {
-    stop("please ensure that", var_name, "is a named vector")
+    stop("please ensure that ", var_name, " is a named vector")
   }
 
   if (!is.null(labels) && !all(names(x) %in% labels)) {
@@ -18,7 +18,7 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
       paste(labels, collapse = ", ")
     )
   }
-  if (any(is.na(x))) stop(var_name, "contains NAs")
+  if (any(is.na(x))) stop(var_name, " contains NAs")
 }
 
 prms_to_str <- function(prms, names_prms, round_digits = NULL,
@@ -36,7 +36,7 @@ prms_to_str <- function(prms, names_prms, round_digits = NULL,
   }
 
   if (!is.numeric(prms)) {
-    stop("prms argument not of type character")
+    stop("prms argument not of type numeric")
   }
 
   if (length(prms) != length(names_prms)) {

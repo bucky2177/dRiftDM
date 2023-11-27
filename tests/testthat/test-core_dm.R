@@ -167,12 +167,12 @@ test_that("standard methods for the ddm components work as expected", {
 
   t_vec <- seq(0, 3, 0.01)
   x_vec <- seq(-1, 1, 0.01)
-  def_mu <- mu(a_model, t_vec, one_cond = "W")
-  def_mu_int <- mu_int(a_model, t_vec, one_cond = "W")
-  def_b <- b(a_model, t_vec, one_cond = "W")
-  def_dtb <- dt_b(a_model, t_vec, one_cond = "W")
-  def_nt <- nt(a_model, t_vec, one_cond = "W")
-  def_x <- x(a_model, x_vec, one_cond = "W")
+  def_mu <- a_model$comp_funs$mu_fun(a_model, t_vec, one_cond = "W")
+  def_mu_int <- a_model$comp_funs$mu_int_fun(a_model, t_vec, one_cond = "W")
+  def_b <- a_model$comp_funs$b_fun(a_model, t_vec, one_cond = "W")
+  def_dtb <- a_model$comp_funs$dt_b_fun(a_model, t_vec, one_cond = "W")
+  def_nt <- a_model$comp_funs$nt_fun(a_model, t_vec, one_cond = "W")
+  def_x <- a_model$comp_funs$x_fun(a_model, x_vec, one_cond = "W")
 
   expect_identical(def_mu, rep(3, 301))
   expect_identical(def_mu_int, 3 * t_vec)
@@ -187,12 +187,18 @@ test_that("standard methods for the ddm components work as expected", {
 
   # failures for t_vec
   t_vec = numeric()
-  expect_error(mu(a_model, t_vec, one_cond = "W"), "t_vec is not a vector")
-  expect_error(mu_int(a_model, t_vec, one_cond = "W"), "t_vec is not a vector")
-  expect_error(b(a_model, t_vec, one_cond = "W"), "t_vec is not a vector")
-  expect_error(dt_b(a_model, t_vec, one_cond = "W"), "t_vec is not a vector")
-  expect_error(nt(a_model, t_vec, one_cond = "W"), "t_vec is not a vector")
-  expect_error(x(a_model, t_vec, one_cond = "W"), "x_vec is not a vector")
+  expect_error(a_model$comp_funs$mu_fun(a_model, t_vec, one_cond = "W"),
+               "t_vec is not a vector")
+  expect_error(a_model$comp_funs$mu_int_fun(a_model, t_vec, one_cond = "W"),
+               "t_vec is not a vector")
+  expect_error(a_model$comp_funs$b_fun(a_model, t_vec, one_cond = "W"),
+               "t_vec is not a vector")
+  expect_error(a_model$comp_funs$dt_b_fun(a_model, t_vec, one_cond = "W"),
+               "t_vec is not a vector")
+  expect_error(a_model$comp_funs$nt_fun(a_model, t_vec, one_cond = "W"),
+               "t_vec is not a vector")
+  expect_error(a_model$comp_funs$x_fun(a_model, t_vec, one_cond = "W"),
+               "x_vec is not a vector")
 
 })
 
@@ -315,7 +321,7 @@ test_that("set_solver_settings works as expected", {
                                    c("bla"), eval_model = T),
                "not implemented yet")
   a_model$solver = "kfe"
-  expect_warning(re_evaluate_model(a_model), "negative pdf values")
+  expect_warning(re_evaluate_model(a_model), "negative density values")
 
   # further errors
   expect_error(set_solver_settings(a_model, c("t_max", "dx"), c(2)),
@@ -372,6 +378,47 @@ test_that("set_obs_data and check_raw_data throw expected errors", {
   expect_error(set_obs_data(a_model, temp_data), "only contain 0s and 1s")
   temp_data = data.frame(RT = -1, Error = 1, Cond = "null")
   expect_error(set_obs_data(a_model, temp_data), "not >= 0")
+})
+
+test_that("setting model component functions work as expected", {
+  my_prms <- c("a" = 2, "b" = 3, "cd" = 4)
+  conds <- c("null")
+  a_model <- drift_dm(prms_model = my_prms, conds = conds)
+
+  mu = function(drift_dm_obj, t_vec, one_cond){rnorm(1)}
+  a_model = set_mu_fun(a_model, mu)
+  mu_int = function(drift_dm_obj, t_vec, one_cond){rnorm(2)}
+  a_model = set_mu_int_fun(a_model, mu_int)
+  x = function(drift_dm_obj, x_vec, one_cond){rnorm(3)}
+  a_model = set_x_fun(a_model, x)
+  b = function(drift_dm_obj, t_vec, one_cond){rnorm(4)}
+  a_model = set_b_fun(a_model, b)
+  dt_b = function(drift_dm_obj, t_vec, one_cond){rnorm(5)}
+  a_model = set_dt_b_fun(a_model, dt_b)
+  nt = function(drift_dm_obj, t_vec, one_cond){rnorm(6)}
+  a_model = set_nt_fun(a_model, nt)
+
+  expect_identical(a_model$comp_funs$mu_fun, mu)
+  expect_identical(a_model$comp_funs$mu_int_fun, mu_int)
+  expect_identical(a_model$comp_funs$b_fun, b)
+  expect_identical(a_model$comp_funs$dt_b_fun, dt_b)
+  expect_identical(a_model$comp_funs$x, x)
+  expect_identical(a_model$comp_funs$nt, nt)
+
+  # input checks
+  expect_error(set_fun("bla", b, "mu", "t"), "not of type drift_dm")
+  expect_error(set_fun(a_model, "bla", "mu", "t"), "*_fun argument")
+
+  mu = function(foo, t_vec, one_cond){rnorm(1)}
+  expect_error(set_fun(a_model, mu, "mu", "t"), "first argument")
+  mu = function(drift_dm_obj, foo, one_cond){rnorm(1)}
+  expect_error(set_fun(a_model, mu, "mu", "t"), "second argument")
+  mu = function(drift_dm_obj, t_vec, foo){rnorm(1)}
+  expect_error(set_fun(a_model, mu, "mu", "t"), "third argument")
+
+  x = function(drift_dm_obj, t_vec, one_cond){rnorm(1)}
+  expect_error(set_fun(a_model, x, "x", "x"), "second argument")
+
 })
 
 
@@ -479,3 +526,26 @@ test_that("simualte_data works as expected", {
 
 
 
+
+test_that("set_obs_data works as expected", {
+  withr::local_seed(1)
+  rts = rnorm(10, mean = 0.3, sd = 0.02)
+  err = c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+  conds = c("c", "i", "c", "i", "c", "i", "i", "c", "i", "c")
+  data = data.frame(RT = rts,
+                    Error = err,
+                    Cond = conds)
+  model_prms = c("a" = 1)
+  model_conds = c("c", "i")
+  a_model = drift_dm(model_prms, model_conds)
+  a_model = set_obs_data(drift_dm_obj = a_model, obs_data = data)
+
+  expect_identical(a_model$obs_data$rts_corr$c,
+                   rts[err == 0 & conds == "c"])
+  expect_identical(a_model$obs_data$rts_corr$i,
+                   rts[err == 0 & conds == "i"])
+  expect_identical(a_model$obs_data$rts_err$c,
+                   rts[err == 1 & conds == "c"])
+  expect_identical(a_model$obs_data$rts_err$i,
+                   rts[err == 1 & conds == "i"])
+})

@@ -1,11 +1,10 @@
 # ==== Function for printing/summarizing information of drift_dm class
 
 #' @export
-print.drift_dm <- function(x, ...) {
-  drift_dm_obj <- x
+print.drift_dm <- function(drift_dm_obj, ...) {
   cat(
     "Class(es):",
-    drift_dm_temp_collapse(class(drift_dm_obj), collapse = ", ")
+    paste(class(drift_dm_obj), collapse = ", ")
   )
   cat("\n")
 
@@ -17,14 +16,14 @@ print.drift_dm <- function(x, ...) {
   cat("\n  values:", to_str)
   cat(
     "\n  free:",
-    drift_dm_temp_collapse(drift_dm_obj$free_prms, collapse = ", ")
+    paste(drift_dm_obj$free_prms, collapse = ", ")
   )
   cat("\n")
 
 
   cat(
     "\nConditions:",
-    drift_dm_temp_collapse(drift_dm_obj$conds, collapse = ", ")
+    paste(drift_dm_obj$conds, collapse = ", ")
   )
   cat("\n")
 
@@ -40,12 +39,11 @@ print.drift_dm <- function(x, ...) {
 
 
 #' @export
-print.summary.drift_dm <- function(x, ...) {
-  summary_obj <- x
+print.summary.drift_dm <- function(summary_obj, ...) {
 
   cat(
     "Class(es):",
-    drift_dm_temp_collapse(class(summary_obj), collapse = ", ")
+    paste(summary_obj$class, collapse = ", ")
   )
   cat("\n")
 
@@ -68,24 +66,25 @@ print.summary.drift_dm <- function(x, ...) {
   cat("\n")
   cat(
     "\nConds:",
-    drift_dm_temp_collapse(summary_obj$conds, collapse = ", ")
+    paste(summary_obj$conds, collapse = ", ")
   )
   cat(
     "\nFree Parameters:",
-    drift_dm_temp_collapse(summary_obj$free_prms, collapse = ", ")
+    paste(summary_obj$free_prms, collapse = ", ")
   )
   cat("\nSolver:", summary_obj$solver)
   to_str <- prms_to_str(
-    prms = summary_obj$disc,
-    names_prms = names(summary_obj$disc)
+    prms = summary_obj$prms_solve,
+    names_prms = names(summary_obj$prms_solve)
   )
   cat("\nSettings:", to_str)
   cat("\n")
+
+
 }
 
 #' @export
-summary.drift_dm <- function(object, ...) {
-  drift_dm_obj <- object
+summary.drift_dm <- function(drift_dm_obj, ...) {
 
   ans <- list()
   ans$class <- class(drift_dm_obj)
@@ -93,12 +92,12 @@ summary.drift_dm <- function(object, ...) {
     total = length(drift_dm_obj$prms_model),
     free = length(drift_dm_obj$free_prms)
   )
-  ans$disc <- drift_dm_obj$prms_solve
+  ans$prms_model = t(as.matrix(drift_dm_obj$prms_model))
+  rownames(ans$prms_model) = ""
   ans$conds <- drift_dm_obj$conds
-  ans$solver <- drift_dm_obj$solver
-
-  ans$prms_model <- drift_dm_obj$prms_model
+  ans$prms_solve <- drift_dm_obj$prms_solve
   ans$free_prms <- drift_dm_obj$free_prms
+  ans$solver <- drift_dm_obj$solver
 
   ans$obs_dat <- NULL
   if (!is.null(drift_dm_obj$obs_data)) {
@@ -132,15 +131,60 @@ summary.drift_dm <- function(object, ...) {
     )
   }
 
+  # if (F) { # to be implemented in future versions..
+  #
+  #   t_vec = seq(0, ans$prms_solve[["t_max"]], length.out = ans$prms_solve[["nt"]] + 1)
+  #   x_vec = seq(-1, 1, length.out = ans$prms_solve[["nx"]] + 1)
+  #
+  #   # pdf for x
+  #   ans$xs =
+  #   lapply(ans$conds, function(one_cond, x_vec){
+  #     pdf = drift_dm_obj$comp_funs$x_fun(drift_dm_obj = drift_dm_obj,
+  #                                         x_vec = x_vec, one_cond = one_cond)
+  #     return(make_text_pdf(x_vec, pdf))
+  #   }, x_vec = x_vec)
+  #   names(ans$xs) = ans$conds
+  #
+  #   # pdf for nt
+  #   ans$nts =
+  #     lapply(ans$conds, function(one_cond, t_vec){
+  #       pdf = drift_dm_obj$comp_funs$nt_fun(drift_dm_obj = drift_dm_obj,
+  #                                          t_vec = t_vec, one_cond = one_cond)
+  #       return(make_text_pdf(t_vec, pdf))
+  #     }, t_vec = t_vec)
+  #   names(ans$nts) = ans$conds
+  # }
+
   class(ans) <- "summary.drift_dm"
   ans
 }
 
 
 
-drift_dm_temp_collapse <- function(x, collapse) {
-  if (length(x) == 1) {
-    return(x)
-  }
-  return(paste(x, collapse = collapse))
-}
+# === HELPER FUNCTIONS WHEN FORMATTING THINS ====
+#
+# make_text_pdf = function(x_vec, pdf) {
+#
+#   x_bins = cut(x_vec, breaks = seq(min(x_vec), max(x_vec), length.out = 11),
+#                labels = F, include.lowest = T)
+#   pdf_binned = tapply(pdf, x_bins, sum)
+#   x_bins = unique(x_bins)
+#   pdf_binned = pdf_binned / max(pdf_binned)
+#
+#   prob_cuts = seq(0, 1, length.out = 5)
+#   string = c()
+#   for (y in length(prob_cuts):2) {
+#     to_print = pdf_binned > prob_cuts[y - 1]
+#     symbols <- ifelse(pdf_binned > 0.5*prob_cuts[y - 1] + 0.5*prob_cuts[y],
+#                       ":", ".")
+#     for (x in 1:10) {
+#       if (to_print[x]) {
+#         string = paste0(string, symbols[x])
+#       } else {
+#         string = paste0(string, " ")
+#       }
+#     }
+#     string = paste0(string, "\n")
+#   }
+#   return(string)
+# }

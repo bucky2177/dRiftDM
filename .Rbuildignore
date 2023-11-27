@@ -3,4 +3,4 @@
 ^data-raw$
 ^LICENSE\.md$
 ^playground\.R$
-^*\.Rprofile
+^.*\.Rprofile

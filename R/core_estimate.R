@@ -124,18 +124,7 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
   if (use_de_optim) {
     cl <- NULL
     if (de_n_cores > 1) {
-
-      # fetch custom component functions
-      all_objects <- ls(envir = .GlobalEnv)
-      mus <- grep("^mu\\.", all_objects, value = TRUE)
-      mu_ints <- grep("^mu_int\\.", all_objects, value = TRUE)
-      bs <- grep("^b\\.", all_objects, value = TRUE)
-      dt_bs <- grep("^dt_b\\.", all_objects, value = TRUE)
-      nts <- grep("^nt\\.", all_objects, value = TRUE)
-      xs <- grep("^x\\.", all_objects, value = TRUE)
-      all_funs = c("goal_wrapper", "set_model_prms",
-                 "prms_to_str", mus, mu_ints, bs, dt_bs, nts, xs)
-
+      all_funs = c("goal_wrapper", "set_model_prms", "prms_to_str")
       cl <- parallel::makeCluster(de_n_cores)
       parallel::clusterExport(
         cl = cl,
@@ -209,7 +198,7 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
   )
   cat(
     "\n\033[33m", "INFO: Estimation gave", final_vals,
-    "\n\tgave -log_like_val of", -drift_dm_obj$log_like_val, "\033[0m\n"
+    "\n\twith -log_like_val of", -drift_dm_obj$log_like_val, "\033[0m\n"
   )
 
   return(drift_dm_obj)

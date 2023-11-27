@@ -5,6 +5,12 @@
 \alias{set_free_prms}
 \alias{set_solver_settings}
 \alias{set_obs_data}
+\alias{set_mu_fun}
+\alias{set_mu_int_fun}
+\alias{set_x_fun}
+\alias{set_b_fun}
+\alias{set_dt_b_fun}
+\alias{set_nt_fun}
 \title{Setting attributes of a drift_dm model}
 \usage{
 set_model_prms(drift_dm_obj, new_model_prms, eval_model = F)
@@ -19,6 +25,18 @@ set_solver_settings(
 )
 
 set_obs_data(drift_dm_obj, obs_data, eval_model = F)
+
+set_mu_fun(drift_dm_obj, mu_fun)
+
+set_mu_int_fun(drift_dm_obj, mu_int_fun)
+
+set_x_fun(drift_dm_obj, x_fun)
+
+set_b_fun(drift_dm_obj, b_fun)
+
+set_dt_b_fun(drift_dm_obj, dt_b_fun)
+
+set_nt_fun(drift_dm_obj, nt_fun)
 }
 \arguments{
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
@@ -47,9 +65,15 @@ for \code{names_prm_solve}.}
 the response times, (2) \code{Error} for error coding (1 = error, 0 = correct),
 (3) \code{Cond} for specifying the conditions (see
 \link{vignette("use_ddm_models", "dRiftDM")} for more information).}
-}
-\value{
-each setter method passes back the modified model.
+
+\item{t_vec}{numeric vector defining the time space (from 0 to \code{t_max} in
+steps of \code{dt}; see \link{drift_dm})}
+
+\item{x_vec}{numeric vector defining the standardized evidence space (from
+-1 to 1 in steps of \code{dx}; see \link{drift_dm})}
+
+\item{one_cond}{a character of length 1 indicating a condition (see
+\link{drift_dm})}
 }
 \description{
 Functions starting with \verb{set_*} provide ways for modifying the
@@ -62,8 +86,101 @@ declared as "free".
 \item \code{set_free_prms} for declaring which parameters are "free" (i.e.,
 are allowed to vary or be modified)
 \item \code{set_solver_settings} for modifying the settings relevant to the functions
-deriving the pdfs of the diffusion model (only one parameter at a time can
-be changed)
+deriving the pdfs of the diffusion model
 \item \code{set_obs_data} can be used to pass/set observed data
+\item \code{set_mu_fun} can be used to set the function defining the drift rate
+\item \code{set_mu_int_fun} can be used to set the function defining the integral
+of the drift rate
+\item \code{set_x_fun} can be used to set the function defining the pdf of the
+starting condition
+\item \code{set_b_fun} can be used to set the function defining the boundary
+\item \code{set_dt_b_fun} can be used to set the first derivative of the function
+defining the boundary
+\item \code{set_nt_fun} can be used to set the function providing the pdf of the
+non-decision time
+}
+}
+\details{
+Please visit the \link{vignette("use_ddm_models", "dRiftDM")} for more in-depth
+information on how to modify an object of type drift_dm.
+
+\code{mu_fun} and \code{mu_int_fun} provide the drift rate and its integral,
+respectively, across the time space in a condition.
+
+\code{x_fun} provides a distribution of the starting point across the evidence
+space.
+
+\code{b_fun} and \code{dt_b_fun} provide the values of the (symmetric) boundary and its
+derivative, respectively, across the time space in a condition.
+
+\code{nt_fun} provides a distribution of the non-decision component across the
+time space in one condition.
+
+All of the listed functions are stored in the list \code{comp_funs} of the
+respective model.
+
+Every function must take the model itself, the time or evidence space, and
+a condition as arguments. In order to work with \code{dRiftDM}, \code{mu_fun},
+\code{mu_int_fun}, \code{b_fun}, \code{dt_b_fun}, \code{nt_fun} must return a numeric vector
+of the same length as \code{t_vec}, providing the respective values at every
+time step \eqn{t}.
+
+In order to work with \code{dRiftDM}, \code{x_fun} must return a numeric vector of the
+same length as \code{x_vec}.
+\subsection{Drift rate and its integral:}{
+
+The drift rate is the first derivative of the expected time-course
+of the diffusion process. For instance, if we assume that the diffusion
+process \eqn{X} is linear with a slope of \eqn{v}...
+\deqn{E(X) = v \cdot t}
+...then the drift rate at every time step \eqn{t} is the constant \eqn{v},
+obtained by taking the derivative of the expected time-course with respect
+to \eqn{t}:
+\deqn{\mu(t) = v}
+Conversely, the integral of the drift rate is identical to the expected
+time-course:
+\deqn{\mu_{int}(t) = v \cdot t}
+
+For the drift rate \code{mu_fun}, the default function when calling \code{drift_dm()}
+is a numeric vector containing the number \eqn{3}. Its integral counterpart
+\code{mu_int_fun} will return a numeric vector containing the values \code{t_vec*3}.
+}
+
+\subsection{Starting Point Distribution:}{
+
+The starting point of a diffusion model refers to the initial value taken
+by the evidence accumulation process at time \eqn{t=0}. This is a pdf
+over the evidence space.
+
+The default function when calling \code{drift_dm()} will be a function
+returning a dirac delta on zero, meaning that every potential diffusion
+process starts at 0.
+}
+
+\subsection{Boundary:}{
+
+The Boundary refers to the values of the absorbing boundaries at every time
+step \eqn{t} in a diffusion model. In most cases, this will be a constant.
+For instance:
+\deqn{b(t) = b}
+In this case, its derivative with respect to \eqn{t} is 0.
+
+The default function when calling \code{drift_dm()} will be function for \code{b_fun}
+returning a  numeric vector of length \code{length(t_vec)} containing the number
+\eqn{0.5}. Its counterpart \code{dt_b} will return a numeric vector of the same
+length containing its derivative, namely, \code{0} (see \link{b.drift_dm}).
+}
+
+\subsection{Non-Decision Time:}{
+
+The non-decision time refers to an additional time-requirement. Its
+distribution across the time space will be convoluted with the pdfs derived
+from the diffusion process.
+
+In psychology, the non-decision time captures time-requirements outside the
+central decision process, such as stimulus perception and motor execution.
+
+The default function when calling \code{drift_dm()} returns a dirac
+delta, shifted to \eqn{t = 0.3}.
 }
 }

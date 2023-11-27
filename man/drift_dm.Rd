@@ -12,7 +12,13 @@ drift_dm(
   sigma = 1,
   t_max = 3,
   dt = 0.001,
-  dx = 0.001
+  dx = 0.001,
+  mu_fun = NULL,
+  mu_int_fun = NULL,
+  x_fun = NULL,
+  b_fun = NULL,
+  dt_b_fun = NULL,
+  nt_fun = NULL
 )
 }
 \arguments{
@@ -42,6 +48,10 @@ See \link{set_obs_data} for more information.}
 
 \item{dx}{The step size of the evidence space discretization. Default is set
 to .001.}
+
+\item{mu_fun, mu_int_fun, x_fun, b_fun, dt_b_fun, nt_fun}{custom functions
+defining the components of a diffusion model. See the respective \verb{set_*}
+functions.}
 }
 \value{
 A list with the class label "drift_dm". In general, it is not
@@ -60,6 +70,10 @@ respectively), and the number of steps in the time and evidence space
 \item The character vector \code{free_prms}
 \item A label indicating the method for deriving the model predictions
 (currently only \code{kfe}).
+\item A list of functions called \code{comp_funs}, providing the components of the
+diffusion model (i.e., \code{mu_fun}, \code{mu_int_fun}, \code{x_fun}, \code{b_fun},
+\code{dt_b_fun}, \code{nt_fun}). These functions are called in the depths of the
+package and will determine the behavior of the model
 }
 
 If observed data were passed to the model, either when calling \code{drift_dm()}
@@ -82,5 +96,9 @@ have the attributes  of the parent class. Typically, users will not want to
 create an object of drift_dm alone, as its use is very limited. Rather, they
 will want an object of one of its  child classes. See
 \link{vignette("use_ddm_models", "dRiftDM")} for a list of pre-built diffusion
-models and more information on how to create and use child classes.
+models and more information on how to create/use/modify child classes.
+}
+\details{
+Please visit the \link{vignette("use_ddm_models", "dRiftDM")} for more in-depth
+information on how to modify an object of type drift_dm.
 }

@@ -54,13 +54,21 @@ test_that("input checks estimate_model", {
   expect_error(estimate_model(a_model, lower = c(1,0.2, 0.1),
                               upper = c(7, 0.8, 0.6), nmkb_control = "a"),
                "nmkb_control")
+})
+
+test_that("snapshot of the model running through nmkb", {
+
+  # first tests without data
+  a_model = ratcliff_dm(dt = .005, dx = .05)
+
 
   # tests that use parallel processing etc.
   skip_on_cran()
   new_data = simulate_data(a_model, n = 3000, seed = 1)
   a_model = set_obs_data(a_model, new_data)
+  a_model = set_model_prms(a_model, c(2, 0.5, 0.2))
   expect_snapshot(
-  estimate_model(a_model, lower = c(1,0.2, 0.1), upper = c(7, 0.8, 0.6),
-                 use_de_optim = F, use_nmkb = T, verbose = T)
+    estimate_model(a_model, lower = c(1,0.2, 0.1), upper = c(7, 0.8, 0.6),
+                   use_de_optim = F, use_nmkb = T, verbose = T)
   )
 })

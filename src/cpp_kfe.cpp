@@ -10,10 +10,11 @@ int cpp_kfe(NumericVector& pdf_u,
              NumericVector& xx,
              const int nt, const int nx,
              const double dt, const double dx,
-             double sigma,
+             double sigma, const bool r_stepping,
              const NumericVector b_vals,
              const NumericVector mu_vals,
-             const NumericVector dt_b_vals) {
+             const NumericVector dt_b_vals,
+             const NumericVector x_vec) {
 
   if (pdf_u.size() != nt+1){
     std::cerr << "pdf-upper has wrong size!" << std::endl; return -1;
@@ -36,24 +37,23 @@ int cpp_kfe(NumericVector& pdf_u,
   if (xx.size() != nx+1) {
     std::cerr << "x_vals has wrong size!" << std::endl; return -1;
   }
+  if (x_vec.size() != nx+1) {
+    std::cerr << "x_vec has wrong size!" << std::endl; return -1;
+  }
 
   NumericVector f(nx+1, 0.);  // storing the solution
   NumericVector mu_old(nx+1, 0.);
   NumericVector mu_new(nx+1, 0.);
-  NumericVector x_vec(nx+1, 0.);
 
-  for (int i=0; i<nx+1; ++i) {
-    x_vec[i] = -1.0 + 2.0*i/nx;
-  }
 
   for (int n=1; n<=nt; ++n) {
-    // Rannacher time-marching only required for Dirac initial and not really good?
+    // Rannacher time-stepping, required for Dirac initial
     double theta = 0.5;
-    if (n <= 4) {
+    if (n <= 4 && r_stepping) {
       theta = 1.0;
     }
 
-    // at old time
+    // at old time step
     const double J_old = b_vals[n-1];
     for (int i=0; i<nx+1; ++i) {
       mu_old[i] = (mu_vals[n-1] - dt_b_vals[n-1] * x_vec[i]) / J_old;

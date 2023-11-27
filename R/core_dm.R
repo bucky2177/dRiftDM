@@ -9,7 +9,7 @@
 #' create an object of drift_dm alone, as its use is very limited. Rather, they
 #' will want an object of one of its  child classes. See
 #' [vignette("use_ddm_models", "dRiftDM")] for a list of pre-built diffusion
-#' models and more information on how to create and use child classes.
+#' models and more information on how to create/use/modify child classes.
 #'
 #' @param prms_model A named numeric vector of the model parameters. The names
 #'  indicate the model's parameters, and the numeric entries provide the current
@@ -30,6 +30,9 @@
 #'  (seconds).
 #' @param dx The step size of the evidence space discretization. Default is set
 #'  to .001.
+#' @param mu_fun,mu_int_fun,x_fun,b_fun,dt_b_fun,nt_fun custom functions
+#'  defining the components of a diffusion model. See the respective `set_*`
+#'  functions.
 #'
 #' @returns A list with the class label "drift_dm". In general, it is not
 #' recommended to directly modify the entries of this list. Users should use the
@@ -47,6 +50,11 @@
 #' * The character vector `free_prms`
 #' * A label indicating the method for deriving the model predictions
 #'  (currently only `kfe`).
+#' * A list of functions called `comp_funs`, providing the components of the
+#'  diffusion model (i.e., `mu_fun`, `mu_int_fun`, `x_fun`, `b_fun`,
+#'  `dt_b_fun`, `nt_fun`). These functions are called in the depths of the
+#'  package and will determine the behavior of the model
+#'
 #'
 #'  If observed data were passed to the model, either when calling `drift_dm()`
 #'  or when calling [dRiftDM::set_obs_data], the list will contain an entry
@@ -59,9 +67,17 @@
 #' * ... the log likelihood;can be addressed via `drift_dm_obj$log_like_val`
 #' * ... the AIC/BIC values; can be addressed via `drift_dm_obj$ic_vals`
 #'
+#' @details
+#'
+#' Please visit the [vignette("use_ddm_models", "dRiftDM")] for more in-depth
+#' information on how to modify an object of type drift_dm.
+#'
+#'
 #' @export
 drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
-                     sigma = 1, t_max = 3, dt = .001, dx = .001) {
+                     sigma = 1, t_max = 3, dt = .001, dx = .001,
+                     mu_fun = NULL, mu_int_fun = NULL, x_fun = NULL,
+                     b_fun = NULL, dt_b_fun = NULL, nt_fun = NULL) {
   # conduct input checks and set defaults
   if (length(prms_model) == 0) {
     stop("prms_model has length 0")
@@ -101,12 +117,18 @@ drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
     free_prms <- names(prms_model)[names(prms_model) %in% free_prms]
   }
 
+  # get default functions, if necessary
+  comp_funs = get_default_functions(
+    mu_fun = mu_fun, mu_int_fun = mu_int_fun, x_fun = x_fun, b_fun = b_fun,
+    dt_b_fun = dt_b_fun, nt_fun = nt_fun
+  )
+
 
   # pass the arguments further down
   drift_dm_obj <- new_drift_dm(
     prms_model = prms_model, conds = conds,
     free_prms = free_prms, obs_data = obs_data,
-    prms_solve = prms_solve
+    prms_solve = prms_solve, comp_funs = comp_funs
   )
 
   # validate the model to ensure everything is as expected and pass back
@@ -117,7 +139,7 @@ drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
 
 # ====== BACKEND FUNCTION FOR CREATING A DRIFT_DM OBJECT
 new_drift_dm <- function(prms_model, conds, free_prms, obs_data = NULL,
-                         prms_solve) {
+                         prms_solve, comp_funs) {
   # calculate the number of discretization steps
   prms_solve["nt"] <- as.integer(
     prms_solve[["t_max"]] / prms_solve[["dt"]] + 1.e-8
@@ -129,7 +151,7 @@ new_drift_dm <- function(prms_model, conds, free_prms, obs_data = NULL,
   drift_dm_obj <- list(
     prms_model = prms_model, conds = conds,
     prms_solve = prms_solve, free_prms = free_prms,
-    solver = "kfe"
+    solver = "kfe", comp_funs = comp_funs
   )
   class(drift_dm_obj) <- "drift_dm"
 
@@ -252,147 +274,21 @@ validate_drift_dm <- function(drift_dm_obj) {
     stop("solver in drift_dm_obj is not a single character/string")
   }
 
+  # ensure that each element in comp_funs is a function
+  names = names(drift_dm_obj$comp_funs)
+  nec_names = c("mu_fun", "mu_int_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
+  if (any(names != nec_names)) stop("unexpected name in comp_funs")
+  for (one_name in names) {
+    if (!is.function(drift_dm_obj$comp_funs[[one_name]]))
+      stop(one_name, " listed in comp_funs is not a function")
+  }
+
   return(drift_dm_obj)
 }
 
 
 
-# =======GENERIC FUNCTIONS FOR THE DIFFERENT COMPONENTS OF A DDM
-
-#' Functions for defining the components of a diffusion model
-#'
-#' @description
-#' `mu` and `mu_int` provide the drift rate and its integral, respectively,
-#' across the time space in a condition.
-#'
-#' `x` provides a distribution of the starting point across the evidence
-#' space.
-#'
-#' `b` and `dt_b`provide the values of the (symmetric) boundary and its
-#' derivative, respectively, across the time space in a condition.
-#'
-#' `nt` provides a distribution of the non-decision component across the
-#' time space in one condition.
-#'
-#' All of the listed functions are generic functions which means that
-#' custom methods can be defined for new [class]es.
-#'
-#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
-#' @param t_vec numeric vector defining the time space (from 0 to `t_max` in
-#' steps of `dt`; see [dRiftDM::drift_dm])
-#' @param x_vec numeric vector defining the standardized evidence space (from
-#' -1 to 1 in steps of `dx`; see [dRiftDM::drift_dm])
-#' @param one_cond a character of length 1 indicating a condition (see
-#' [dRiftDM::drift_dm])
-#'
-#' @return The values returned by the functions depend on the class of
-#' their first argument. See the documentation of the particular methods for
-#' details of what is returned by that method.
-#'
-#' In order to work with `dRiftDM`, `mu`, `mu_int`, `b`, `dt_b`, `nt` must
-#' return a numeric vector of the same length as `t_vec`, providing the
-#' respective values at every time step \eqn{t}.
-#'
-#' In order to work with `dRiftDM`, `x` must return a numeric vector of the
-#' same length as `x_vec`.
-#'
-#' See [vignette("use_ddm_models", "dRiftDM")] for more information how each
-#' function works and how to write a customized method for your own models
-#'
-#'
-#' @details
-#'
-#' Please visit the [vignette("use_ddm_models", "dRiftDM")] for more in-depth
-#' information.
-#'
-#' ## Drift rate and its integral:
-#'
-#' The drift rate is the first derivative of the expected time-course
-#' of the diffusion process. For instance, if we assume that the diffusion
-#' process \eqn{X} is linear with a slope of \eqn{v}...
-#' \deqn{E(X) = v \cdot t}
-#' ...then the drift rate at every time step \eqn{t} is the constant \eqn{v},
-#' obtained by taking the derivative of the expected time-course with respect
-#' to \eqn{t}:
-#' \deqn{\mu(t) = v}
-#' Conversely, the integral of the drift rate is identical to the expected
-#' time-course:
-#' \deqn{\mu_{int}(t) = v \cdot t}
-#'
-#' For the drift rate `mu`, the default method for a model of type
-#' [dRiftDM::drift_dm] will return a numeric vector of length `length(t_vec)`
-#' containing the number \eqn{3}. Its integral counterpart `mu_int` will return
-#' a numeric vector containing the values `t_vec*3` (see
-#' [dRiftDM::mu.drift_dm]).
-#'
-#' ## Starting Point Distribution:
-#'
-#' The starting point of a diffusion model refers to the initial value taken
-#' by the evidence accumulation process at time \eqn{t=0}.
-#'
-#' The default method for a model of type [dRiftDM::drift_dm] returns a dirac
-#' delta on zero, meaning that every potential diffusion process starts at 0
-#' (see [dRiftDM::x.drift_dm]).
-#'
-#' ## Boundary:
-#'
-#' The Boundary refers to the values of the absorbing boundaries at every time
-#' step \eqn{t} in a diffusion model. In most cases, this will be a constant.
-#' For instance:
-#' \deqn{b(t) = b}
-#' In this case, its derivative with respect to \eqn{t} is 0.
-#'
-#' The default method for a model of type [dRiftDM::drift_dm] will return a
-#' numeric vector of length `length(t_vec)` containing the number \eqn{0.5}.
-#' Its counterpart `dt_b` will return a numeric vector of the same length
-#' containing its derivative, namely, `0` (see [dRiftDM::b.drift_dm]).
-#'
-#' ## Non-Decision Time:
-#'
-#' The non-decision time refers to an additional time-requirement. Its
-#' distribution across the time space will be convoluted with the pdfs derived
-#' from the diffusion process.
-#'
-#' In psychology, the non-decision time captures time-requirements outside the
-#' central decision process, such as stimulus perception and motor execution.
-#'
-#' The default method for a model of type [dRiftDM::drift_dm] returns a dirac
-#' delta, shifted to \eqn{t = 0.3} (see [dRiftDM::nt.drift_dm]).
-#'
-#' @export
-mu <- function(drift_dm_obj, t_vec, one_cond) {
-  UseMethod("mu")
-}
-
-#' @rdname mu
-#' @export
-mu_int <- function(drift_dm_obj, t_vec, one_cond) {
-  UseMethod("mu_int")
-}
-
-#' @rdname mu
-#' @export
-x <- function(drift_dm_obj, x_vec, one_cond) {
-  UseMethod("x")
-}
-
-#' @rdname mu
-#' @export
-b <- function(drift_dm_obj, t_vec, one_cond) {
-  UseMethod("b")
-}
-
-#' @rdname mu
-#' @export
-dt_b <- function(drift_dm_obj, t_vec, one_cond) {
-  UseMethod("dt_b")
-}
-
-#' @rdname mu
-#' @export
-nt <- function(drift_dm_obj, t_vec, one_cond) {
-  UseMethod("nt")
-}
+# =======DEFAULT FUNCTIONS FOR THE DIFFERENT COMPONENTS OF A DDM
 
 standard_drift <- function() {
   return(3)
@@ -404,131 +300,110 @@ standard_nt <- function() {
   return(0.3)
 }
 
+get_default_functions = function(mu_fun = NULL, mu_int_fun = NULL,
+                                 x_fun = NULL, b_fun = NULL,
+                                 dt_b_fun = NULL, nt_fun = NULL) {
 
-# ======= FALLBACK FUNCTIONS FOR THE DIFFERENT COMPONENTS OF A DDM
-#' Fallback functions for the diffusion model components
-#'
-#' @description
-#' the provided methods with the ending `.drift_dm` will be called in two cases.
-#'
-#' * First, if users explicitly pass a `drift_dm_obj` of type
-#'  [dRiftDM::drift_dm] to  [dRiftDM::mu], [dRiftDM::mu_int], [dRiftDM::x],
-#'  [dRiftDM::b], [dRiftDM::dt_b], or [dRiftDM::nt]. For instance, when
-#'  creating a bare bone [dRiftDM::drift_dm] object and then deriving model
-#'  predictions.
-#'
-#' * Second, in case a user defines an object inheriting from `drift_dm`,
-#'  without specifying custom versions of the respective methods. See
-#'  [vignette("use_ddm_models", "dRiftDM")] for more information.
-#'
-#' In other words: The functions with the ending `.drift_dm` are fall-back
-#' methods which provide fixed settings for the different diffusion model
-#' components in case no class-specific methods can be found.
-#'
-#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
-#' @param t_vec numeric vector defining the time space (from 0 to `t_max` in
-#' steps of `dt`; see [dRiftDM::drift_dm])
-#' @param x_vec numeric vector defining the standardized evidence space (from
-#' -1 to 1 in steps of `dx`; see [dRiftDM::drift_dm])
-#' @param one_cond a character of length 1 indicating a condition (see
-#' [dRiftDM::drift_dm])
-#'
-#' @return
-#'
-#' * `mu.drift_dm` (drift rate) returns a vector of length `length(t_vec)`
-#' containing the number \eqn{3}.
-#'
-#' * `mu_int.drift_dm` (integral of the drift rate) returns a vector of length
-#' `length(t_vec)` with the values `t_vec*3`.
-#'
-#' * `x.drift_dm` (starting point distribution) returns a dirac delta on zero
-#'  with length `length(x_vec)`. Note that if `nx` (see [dRiftDM::drift_dm]) is
-#'  even, the dirac delta will be slightly shifted to a value > 0.
-#'
-#' * `b.drift_dm` (boundary) returns a vector of length `length(t_vec)` with
-#'  the values \eqn{0.5}.
-#'
-#' * `dt_b.drift_dm` (derivative of the boundary) returns a vector of length
-#'  `length(t_vec)` with the values \eqn{0}.
-#'
-#' * `nt.drift_dm` (non-decision time) returns a dirac delta on \eqn{t = 0.3}
-#'  with length `length(t_vec)`. Note that if \eqn{t = 0.3} is not provided in
-#'  `t_vec`, the dirac delta is centered on the closest time step below
-#'  \eqn{t = 0.3}.
-#'
-#' @export
-mu.drift_dm <- function(drift_dm_obj, t_vec, one_cond) {
-  mu <- standard_drift()
-  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
-  }
-  mu <- rep(mu, length(t_vec))
-  return(mu)
+  if (is.null(mu_fun))
+    mu_fun <- function(drift_dm_obj, t_vec, one_cond) {
+      if (!inherits(drift_dm_obj, "drift_dm")) {
+        stop("drift_dm_obj is not of type drift_dm")
+      }
+      # a constant drift rate
+      mu <- standard_drift()
+      if (!is.numeric(t_vec) | length(t_vec) <= 1) {
+        stop("t_vec is not a vector")
+      }
+      mu <- rep(mu, length(t_vec))
+      return(mu)
+    }
+
+  if (is.null(mu_int_fun))
+    mu_int_fun <- function(drift_dm_obj, t_vec, one_cond) {
+      if (!inherits(drift_dm_obj, "drift_dm")) {
+        stop("drift_dm_obj is not of type drift_dm")
+      }
+      # integral of a constant drift rate
+      mu <- standard_drift()
+      if (!is.numeric(t_vec) | length(t_vec) <= 1) {
+        stop("t_vec is not a vector")
+      }
+      return(mu * t_vec)
+    }
+
+  if (is.null(x_fun))
+    x_fun <- function(drift_dm_obj, x_vec, one_cond) {
+      if (!inherits(drift_dm_obj, "drift_dm")) {
+        stop("drift_dm_obj is not of type drift_dm")
+      }
+      # starting point at 0
+      dx <- drift_dm_obj$prms_solve[["dx"]]
+      if (!is.numeric(x_vec) | length(x_vec) <= 1) {
+        stop("x_vec is not a vector")
+      }
+      x <- numeric(length = length(x_vec))
+      x[(length(x) + 1) %/% 2] <- 1 / dx
+      return(x)
+    }
+
+  if (is.null(b_fun))
+    b_fun <- function(drift_dm_obj, t_vec, one_cond) {
+      if (!inherits(drift_dm_obj, "drift_dm")) {
+        stop("drift_dm_obj is not of type drift_dm")
+      }
+      # constant boundary
+      b <- standard_boundary()
+      if (!is.numeric(t_vec) | length(t_vec) <= 1) {
+        stop("t_vec is not a vector")
+      }
+      b <- rep(b, length(t_vec))
+      return(b)
+    }
+
+  if (is.null(dt_b_fun))
+    dt_b_fun <- function(drift_dm_obj, t_vec, one_cond) {
+      if (!inherits(drift_dm_obj, "drift_dm")) {
+        stop("drift_dm_obj is not of type drift_dm")
+      }
+      # constant boundary
+      if (!is.numeric(t_vec) | length(t_vec) <= 1) {
+        stop("t_vec is not a vector")
+      }
+      dt_b <- rep(0, length(t_vec))
+      return(dt_b)
+    }
+
+
+  if (is.null(nt_fun))
+    nt_fun <- function(drift_dm_obj, t_vec, one_cond) {
+      if (!inherits(drift_dm_obj, "drift_dm")) {
+        stop("drift_dm_obj is not of type drift_dm")
+      }
+      non_dec_time <- standard_nt()
+
+      if (non_dec_time < 0 | non_dec_time > drift_dm_obj$prms_solve[["t_max"]]) {
+        stop("non_dec_time larger than t_max or smaller than 0!")
+      }
+
+      if (!is.numeric(t_vec) | length(t_vec) <= 1) {
+        stop("t_vec is not a vector")
+      }
+
+      dt <- drift_dm_obj$prms_solve[["dt"]]
+      d_nt <- numeric(length(t_vec))
+      which_index <- as.integer(non_dec_time / dt)
+      d_nt[which_index + 1] <- 1 / dt
+      return(d_nt)
+    }
+
+  return(
+    list(mu_fun = mu_fun, mu_int_fun = mu_int_fun, x_fun = x_fun,
+         b_fun = b_fun, dt_b_fun = dt_b_fun, nt_fun = nt_fun)
+  )
 }
 
-#' @rdname mu.drift_dm
-#' @export
-mu_int.drift_dm <- function(drift_dm_obj, t_vec, one_cond) {
-  mu <- standard_drift()
-  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
-  }
-  return(mu * t_vec)
-}
 
-# @THOMAS: MUSS SICH DAS ZU 1 INTEGRIEREN?
-#' @rdname mu.drift_dm
-#' @export
-x.drift_dm <- function(drift_dm_obj, x_vec, one_cond) {
-  dx <- drift_dm_obj$prms_solve[["dx"]]
-  if (!is.numeric(x_vec) | length(x_vec) <= 1) {
-    stop("x_vec is not a vector")
-  }
-  x <- numeric(length = length(x_vec))
-  x[(length(x) + 1) %/% 2] <- 1 / dx
-  return(x)
-}
 
-#' @rdname mu.drift_dm
-#' @export
-b.drift_dm <- function(drift_dm_obj, t_vec, one_cond) {
-  b <- standard_boundary()
-  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
-  }
-  b <- rep(b, length(t_vec))
-  return(b)
-}
-
-#' @rdname mu.drift_dm
-#' @export
-dt_b.drift_dm <- function(drift_dm_obj, t_vec, one_cond) {
-  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
-  }
-  dt_b <- rep(0, length(t_vec))
-  return(dt_b)
-}
-
-#' @rdname mu.drift_dm
-#' @export
-nt.drift_dm <- function(drift_dm_obj, t_vec, one_cond) {
-  non_dec_time <- standard_nt()
-
-  if (non_dec_time < 0 | non_dec_time > drift_dm_obj$prms_solve[["t_max"]]) {
-    stop("non_dec_time larger than t_max or smaller than 0!")
-  }
-
-  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
-  }
-
-  dt <- drift_dm_obj$prms_solve[["dt"]]
-  d_nt <- numeric(length(t_vec))
-  which_index <- as.integer(non_dec_time / dt)
-  d_nt[which_index + 1] <- 1 / dt
-  return(d_nt)
-}
 
 
 # ===== FUNCTIONS FOR GETTING THE INFORMATION CRITERIA
@@ -589,10 +464,25 @@ re_evaluate_model <- function(drift_dm_obj) {
 #'  are allowed to vary or be modified)
 #'
 #' * `set_solver_settings` for modifying the settings relevant to the functions
-#'  deriving the pdfs of the diffusion model (only one parameter at a time can
-#'  be changed)
+#'  deriving the pdfs of the diffusion model
 #'
 #' * `set_obs_data` can be used to pass/set observed data
+#'
+#' * `set_mu_fun` can be used to set the function defining the drift rate
+#'
+#' * `set_mu_int_fun` can be used to set the function defining the integral
+#'  of the drift rate
+#'
+#' * `set_x_fun` can be used to set the function defining the pdf of the
+#'  starting condition
+#'
+#' * `set_b_fun` can be used to set the function defining the boundary
+#'
+#' * `set_dt_b_fun` can be used to set the first derivative of the function
+#'  defining the boundary
+#'
+#' * `set_nt_fun` can be used to set the function providing the pdf of the
+#'  non-decision time
 #'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
 #' @param new_model_prms a numeric vector of the same length as
@@ -614,8 +504,95 @@ re_evaluate_model <- function(drift_dm_obj) {
 #'  `eval_model` is set to `FALSE`, the attributes `log_like_val` and `ic_vals`
 #'  are deleted from the model. Also, `eval_model = TRUE` only has an effect
 #'  if the model provides data.
+#' @param t_vec numeric vector defining the time space (from 0 to `t_max` in
+#' steps of `dt`; see [dRiftDM::drift_dm])
+#' @param x_vec numeric vector defining the standardized evidence space (from
+#' -1 to 1 in steps of `dx`; see [dRiftDM::drift_dm])
+#' @param one_cond a character of length 1 indicating a condition (see
+#' [dRiftDM::drift_dm])
 #'
-#' @return each setter method passes back the modified model.
+#' @details
+#'
+#' Please visit the [vignette("use_ddm_models", "dRiftDM")] for more in-depth
+#' information on how to modify an object of type drift_dm.
+#'
+#' `mu_fun` and `mu_int_fun` provide the drift rate and its integral,
+#' respectively, across the time space in a condition.
+#'
+#' `x_fun` provides a distribution of the starting point across the evidence
+#' space.
+#'
+#' `b_fun` and `dt_b_fun` provide the values of the (symmetric) boundary and its
+#' derivative, respectively, across the time space in a condition.
+#'
+#' `nt_fun` provides a distribution of the non-decision component across the
+#' time space in one condition.
+#'
+#' All of the listed functions are stored in the list `comp_funs` of the
+#' respective model.
+#'
+#' Every function must take the model itself, the time or evidence space, and
+#' a condition as arguments. In order to work with `dRiftDM`, `mu_fun`,
+#' `mu_int_fun`, `b_fun`, `dt_b_fun`, `nt_fun` must return a numeric vector
+#' of the same length as `t_vec`, providing the respective values at every
+#' time step \eqn{t}.
+#'
+#' In order to work with `dRiftDM`, `x_fun` must return a numeric vector of the
+#' same length as `x_vec`.
+#'
+#' ## Drift rate and its integral:
+#'
+#' The drift rate is the first derivative of the expected time-course
+#' of the diffusion process. For instance, if we assume that the diffusion
+#' process \eqn{X} is linear with a slope of \eqn{v}...
+#' \deqn{E(X) = v \cdot t}
+#' ...then the drift rate at every time step \eqn{t} is the constant \eqn{v},
+#' obtained by taking the derivative of the expected time-course with respect
+#' to \eqn{t}:
+#' \deqn{\mu(t) = v}
+#' Conversely, the integral of the drift rate is identical to the expected
+#' time-course:
+#' \deqn{\mu_{int}(t) = v \cdot t}
+#'
+#' For the drift rate `mu_fun`, the default function when calling `drift_dm()`
+#' is a numeric vector containing the number \eqn{3}. Its integral counterpart
+#' `mu_int_fun` will return a numeric vector containing the values `t_vec*3`.
+#'
+#' ## Starting Point Distribution:
+#'
+#' The starting point of a diffusion model refers to the initial value taken
+#' by the evidence accumulation process at time \eqn{t=0}. This is a pdf
+#' over the evidence space.
+#'
+#' The default function when calling `drift_dm()` will be a function
+#' returning a dirac delta on zero, meaning that every potential diffusion
+#' process starts at 0.
+#'
+#' ## Boundary:
+#'
+#' The Boundary refers to the values of the absorbing boundaries at every time
+#' step \eqn{t} in a diffusion model. In most cases, this will be a constant.
+#' For instance:
+#' \deqn{b(t) = b}
+#' In this case, its derivative with respect to \eqn{t} is 0.
+#'
+#' The default function when calling `drift_dm()` will be function for `b_fun`
+#' returning a  numeric vector of length `length(t_vec)` containing the number
+#' \eqn{0.5}. Its counterpart `dt_b` will return a numeric vector of the same
+#' length containing its derivative, namely, `0` (see [dRiftDM::b.drift_dm]).
+#'
+#' ## Non-Decision Time:
+#'
+#' The non-decision time refers to an additional time-requirement. Its
+#' distribution across the time space will be convoluted with the pdfs derived
+#' from the diffusion process.
+#'
+#' In psychology, the non-decision time captures time-requirements outside the
+#' central decision process, such as stimulus perception and motor execution.
+#'
+#' The default function when calling `drift_dm()` returns a dirac
+#' delta, shifted to \eqn{t = 0.3}.
+#'
 #'
 #' @export
 set_model_prms <- function(drift_dm_obj, new_model_prms, eval_model = F) {
@@ -743,6 +720,9 @@ set_solver_settings <- function(drift_dm_obj, names_prm_solve, values_prm_solve,
 set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
                                    value_prm_solve) {
 
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
 
   # if desired, set solver
   if (name_prm_solve == "solver") {
@@ -879,6 +859,91 @@ check_raw_data <- function(obs_data) {
 }
 
 
+#' @rdname set_model_prms
+#' @export
+set_mu_fun <- function(drift_dm_obj, mu_fun) {
+  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = mu_fun,
+                         name = "mu_fun", depends_on = "t")
+  return(drift_dm_obj)
+}
+
+#' @rdname set_model_prms
+#' @export
+set_mu_int_fun <- function(drift_dm_obj, mu_int_fun) {
+  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = mu_int_fun,
+                         name = "mu_int_fun", depends_on = "t")
+  return(drift_dm_obj)
+}
+
+#' @rdname set_model_prms
+#' @export
+set_x_fun <- function(drift_dm_obj, x_fun) {
+  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = x_fun,
+                         name = "x_fun", depends_on = "x")
+  return(drift_dm_obj)
+}
+
+#' @rdname set_model_prms
+#' @export
+set_b_fun <- function(drift_dm_obj, b_fun) {
+  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = b_fun,
+                         name = "b_fun", depends_on = "t")
+  return(drift_dm_obj)
+}
+
+
+#' @rdname set_model_prms
+#' @export
+set_dt_b_fun <- function(drift_dm_obj, dt_b_fun) {
+  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = dt_b_fun,
+                         name = "dt_b_fun", depends_on = "t")
+  return(drift_dm_obj)
+}
+
+#' @rdname set_model_prms
+#' @export
+set_nt_fun <- function(drift_dm_obj, nt_fun) {
+  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = nt_fun,
+                         name = "nt_fun", depends_on = "t")
+  return(drift_dm_obj)
+}
+
+
+# internal function, which sets the relevant function.
+# drift_dm_obj -> the model to modify
+# fun -> the user-passed function
+# name -> indicating the model component fun
+# depends_on -> toggle for ensuring that x_vec/t_vec is provided
+set_fun = function(drift_dm_obj, fun, name, depends_on) {
+
+  # user input checks
+  if (!is.function(fun)) stop("provided *_fun argument is not a function")
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
+  arg_names = names(as.list(args(fun)))
+  if (arg_names[[1]] != "drift_dm_obj")
+    stop("the first argument of ", name, " must be 'drift_dm_obj'")
+
+  if (depends_on == "t") {
+    if (arg_names[[2]] != "t_vec")
+      stop("the second argument of ", name, " must be 't_vec'")
+  } else {
+    if (arg_names[[2]] != "x_vec")
+      stop("the second argument of ", name, " must be 'x_vec'")
+  }
+
+  if (arg_names[[3]] != "one_cond")
+    stop("the third argument of ", name, " must be 'one_cond'")
+
+  # set the function
+  drift_dm_obj$comp_funs[[name]] <- fun
+  drift_dm_obj = validate_drift_dm(drift_dm_obj)
+  return(drift_dm_obj)
+}
+
+
+
 
 # ===== FUNCTIONS FOR SIMULATING DATA/TRIALS
 #' @export
@@ -919,13 +984,14 @@ simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE,
 
   e_samples <- matrix(0, nrow = k, ncol = nt + 1) # create matrix for storage
   t_vec <- seq(0, t_max, length.out = nt + 1) # all time steps
-  mu_vec <- mu(drift_dm_obj = drift_dm_obj, t_vec = t_vec, one_cond = one_cond)
-  b_vec <- b(drift_dm_obj = drift_dm_obj, t_vec = t_vec, one_cond = one_cond)
+  mu_vec <- drift_dm_obj$comp_funs$mu_fun(drift_dm_obj = drift_dm_obj, t_vec = t_vec, one_cond = one_cond)
+  b_vec <- drift_dm_obj$comp_funs$b_fun(drift_dm_obj = drift_dm_obj,
+                                        t_vec = t_vec, one_cond = one_cond)
   samp_x <- numeric(k) # storage for starting values
 
   if (add_x) {
     xx <- seq(-1, 1, length.out = nx + 1)
-    pdf_x <- x(drift_dm_obj = drift_dm_obj, x_vec = xx, one_cond = one_cond)
+    pdf_x <- drift_dm_obj$comp_funs$x_fun(drift_dm_obj = drift_dm_obj, x_vec = xx, one_cond = one_cond)
     xx <- xx * b_vec[1]
     samp_x <- draw_from_pdf(a_pdf = pdf_x, x_def = xx, k = k)
   }
