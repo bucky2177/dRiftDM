@@ -17,7 +17,7 @@ plot_quantiles(
 )
 }
 \arguments{
-\item{drift_dm_obj}{an object of type drift_dm}
+\item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
 
 \item{type}{character, indicating whether CAFs of the model ("pred"), the
 observed data ("obs"), or both ("both") should be plotted. Default is

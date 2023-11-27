@@ -25,6 +25,10 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
     withr::local_seed(seed)
   }
 
+  if (min(a_pdf) < 0)
+    warning("negative pdf values encountered when drawing values from a pdf. ",
+            "Approximate inverse sampling may not work in this case.")
+
   cdf <- cumsum(a_pdf) # 'integrate' the cdf from the pdf
   cdf <- cdf / max(cdf) # normalize
 

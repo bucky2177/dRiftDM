@@ -57,7 +57,7 @@ functions.}
 A list with the class label "drift_dm". In general, it is not
 recommended to directly modify the entries of this list. Users should use the
 built-in setter functions (e.g., \link{set_model_prms});
-see \link{vignette("use_ddm_models", "dRiftDM")} for more
+see \code{vignette("use_ddm_models", "dRiftDM")} for more
 information). The list contains the following entries:
 \itemize{
 \item The named numeric vector \code{prms_model}
@@ -95,10 +95,10 @@ backbone  of the dRiftDM package and every child of the drift_dm class must
 have the attributes  of the parent class. Typically, users will not want to
 create an object of drift_dm alone, as its use is very limited. Rather, they
 will want an object of one of its  child classes. See
-\link{vignette("use_ddm_models", "dRiftDM")} for a list of pre-built diffusion
+\code{vignette("use_ddm_models", "dRiftDM")} for a list of pre-built diffusion
 models and more information on how to create/use/modify child classes.
 }
 \details{
-Please visit the \link{vignette("use_ddm_models", "dRiftDM")} for more in-depth
+Please visit the \code{vignette("use_ddm_models", "dRiftDM")} for more in-depth
 information on how to modify an object of type drift_dm.
 }

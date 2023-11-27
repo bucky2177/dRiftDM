@@ -16,7 +16,7 @@ plot_cafs(
 )
 }
 \arguments{
-\item{drift_dm_obj}{an object of type drift_dm}
+\item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
 
 \item{type}{character, indicating whether CAFs of the model ("pred"), the
 observed data ("obs"), or both ("both") should be plotted. Default is
@@ -26,7 +26,7 @@ observed data ("obs"), or both ("both") should be plotted. Default is
 Default is 5.}
 
 \item{x_lab, y_lab}{character, providing a label for the x-axis and y-axis,
-respectively. Default is "Bins" and "Accuracy \link[=\\\%]{\\%}", respectively.}
+respectively. Default is "Bins" and "Accuracy \%", respectively.}
 
 \item{x_lim, y_lim}{numeric vectors of length 2, providing the limits of the
 x-axis and y-axis. The default for \code{x_lim} is \code{c(1, n_bins)}. The default

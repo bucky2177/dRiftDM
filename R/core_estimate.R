@@ -14,7 +14,7 @@
 #' * Use Differential Evolution followed by Nelder-Mead.
 #'
 #' More detailed information on how to use this function can be found in
-#' [vignette("use_ddm_models", "dRiftDM")]
+#' \code{vignette("use_ddm_models", "dRiftDM")}
 #'
 #'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]

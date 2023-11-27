@@ -78,7 +78,7 @@ calc_cafs_pred <- function(drift_dm_obj, n_bins) {
 
   all_cafs <- lapply(drift_dm_obj$conds,
     function(one_cond, drift_dm_obj, n_bins) {
-      pdfs <- get_pdfs(drift_dm_obj,
+      pdfs <- calc_pdfs(drift_dm_obj,
         one_cond = one_cond,
         solver = drift_dm_obj$solver
       )
@@ -91,6 +91,39 @@ calc_cafs_pred <- function(drift_dm_obj, n_bins) {
   return(all_cafs)
 }
 
+#' Calcuating CAFs
+#'
+#' This function calculates the conditional accuracy functions (CAFs) of the
+#' model and/or the observed data.
+#'
+#'
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
+#'
+#' @param type character, indicating whether CAFs of the observed data ("obs"),
+#'  of the model's predictions ("pred"), or both ("both") should be calculated.
+#'  Default is "obs".
+#' @param n_bins numeric, providing the number of bins that should be used when
+#'  calculating the CAFs
+#'
+#' @details
+#' CAFs are a way to quantify response accuracy against speed. To calculate
+#' CAFs, RTs (whether correct or incorrect) are first binned and then the
+#' percentage of correct responses per bin is calculated.
+#'
+#' When calculating model-based CAFs, a joint cdf combining both the pdf
+#' of correct and incorrect responses is calculated. Afterwards, this cdf
+#' is separated into even-spaced segments and the contribution of
+#' the pdf associated with a correct response relative to the joint cdf is
+#' calculated
+#'
+#' @returns
+#' Returns a data.frame containing at least the columns `Cond`, `Bin`, and
+#' `P_Corr` where `P_Corr` is the "percentage of correct responses". In case
+#' `type = "both"`, then the data.frame contains an additional column `Source`
+#' identifying whether an entry describes the observed data ("obs") or the
+#' model's predictions ("pred").
+#'
+#'
 #' @export
 calc_cafs <- function(drift_dm_obj, type = "obs", n_bins = 5) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
@@ -196,7 +229,7 @@ calc_quantiles_pred <- function(drift_dm_obj, probs) {
 
   all_quants <- lapply(drift_dm_obj$conds,
     function(one_cond, drift_dm_obj, t_vec, probs) {
-      pdfs <- get_pdfs(drift_dm_obj,
+      pdfs <- calc_pdfs(drift_dm_obj,
         one_cond = one_cond,
         solver = drift_dm_obj$solver
       )
@@ -210,6 +243,36 @@ calc_quantiles_pred <- function(drift_dm_obj, probs) {
 }
 
 
+#' Calcuating Quantiles
+#'
+#' This function calculates the quantiles of the
+#' model's predicted pdfs and/or of the observed response times.
+#'
+#'
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
+#'
+#' @param type character, indicating whether quantiles of the observed data
+#'  ("obs"), of the model's predicted pdfs ("pred"), or both ("both") should
+#'  be calculated. Default is "obs".
+#' @param probs numeric vector, providing the probabilites with values in
+#'  \eqn{\[0, 1s\]} for which quantiles should be calculated. Default is
+#'  `seq(0.1, 0.9, 0.1)`.
+#'
+#' @details
+#'  For observed response times, the function [stats::quantile] is used with
+#'  default settings
+#'
+#'
+#' @returns
+#' Returns a data.frame containing at least the columns `Cond`, `Prob`,
+#' `Quant_Corr` and `Quant_Err`. Here, `Cond` indicate the conditions of the
+#' model, `Prob` the probabilites, and `Quant_Corr` and `Quant_Err` the
+#' quantiles associated with correct and error responses, respectively.
+#' In case `type = "both"`, then the returned data.frame contains an additional
+#' column `Source` identifying whether an entry describes the observed data
+#' ("obs") or the model's predictions ("pred").
+#'
+#'
 #' @export
 calc_quantiles <- function(drift_dm_obj, type = "obs",
                            probs = seq(0.1, 0.9, 0.1)) {

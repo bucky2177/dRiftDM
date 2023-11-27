@@ -6,7 +6,7 @@
 #' of traces (see [dRiftDM::simulate_trace]).
 #' May come in handy when developing/testing/exploring a model.
 #'
-#' @param drift_dm_obj an object of type drift_dm
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
 #' @param add_x logical, indicating whether a starting point should be
 #'  added. Default is TRUE.
 #' @param sigma numerical, for controlling the diffusion parameter when
@@ -134,7 +134,7 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
 #' This function provides a basic plot of the model's and/or the observed data's
 #' conditional accuracy functions (CAFs; see [dRiftDM::calc_cafs]).
 #'
-#' @param drift_dm_obj an object of type drift_dm
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
 #'
 #' @param type character, indicating whether CAFs of the model ("pred"), the
 #'  observed data ("obs"), or both ("both") should be plotted. Default is
@@ -142,7 +142,7 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
 #' @param n_bins numeric, indicating how many bins the CAF should contain.
 #'  Default is 5.
 #' @param x_lab,y_lab character, providing a label for the x-axis and y-axis,
-#'  respectively. Default is "Bins" and "Accuracy [\%]", respectively.
+#'  respectively. Default is "Bins" and "Accuracy %", respectively.
 #' @param x_lim,y_lim numeric vectors of length 2, providing the limits of the
 #'  x-axis and y-axis. The default for `x_lim` is `c(1, n_bins)`. The default
 #'  for `y_lim` is `c(0, 1)`.
@@ -226,7 +226,7 @@ plot_cafs <- function(drift_dm_obj, type = "both", n_bins = 5, x_lab = NULL,
 #' This function provides a basic plot of the model's and/or the observed data's
 #' quantiles (see [dRiftDM::calc_quantiles]).
 #'
-#' @param drift_dm_obj an object of type drift_dm
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
 #'
 #' @param type character, indicating whether CAFs of the model ("pred"), the
 #'  observed data ("obs"), or both ("both") should be plotted. Default is

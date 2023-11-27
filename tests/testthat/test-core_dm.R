@@ -204,7 +204,7 @@ test_that("standard methods for the ddm components work as expected", {
 
 
 test_that("AIC and BIC calculation works as expected", {
-  aic_bic <- get_ic(ll = 2, k = 3, n = 300)
+  aic_bic <- calc_ic(ll = 2, k = 3, n = 300)
   expect_identical(aic_bic[["AIC"]], 2 * 3 - 2 * 2)
   expect_identical(aic_bic[["BIC"]], 3 * log(300) - 2 * 2)
 })

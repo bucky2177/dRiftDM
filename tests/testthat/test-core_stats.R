@@ -45,7 +45,7 @@ test_that("calc_caf works as expected", {
   ### PRED
   # get some pdfs/cafs
   a_model = ratcliff_dm(dx = .005, dt = .005)
-  pdfs = get_pdfs(a_model, one_cond = "null", solver = "kfe")
+  pdfs = calc_pdfs(a_model, one_cond = "null", solver = "kfe")
   pred_cafs = calc_cafs(drift_dm_obj = a_model, type = "pred")
 
   # calculate cafs by hand
@@ -57,8 +57,8 @@ test_that("calc_caf works as expected", {
 
   # another example with non-constant cafs
   a_model = dmc_dm(dt = 0.001, dx = 0.005, t_max = 1)
-  pdfs_comp = get_pdfs(a_model, one_cond = "comp", solver = "kfe")
-  pdfs_incomp = get_pdfs(a_model, one_cond = "incomp", solver = "kfe")
+  pdfs_comp = calc_pdfs(a_model, one_cond = "comp", solver = "kfe")
+  pdfs_incomp = calc_pdfs(a_model, one_cond = "incomp", solver = "kfe")
   pred_cafs = calc_cafs(drift_dm_obj = a_model, type = "pred")
 
   # reference obtained by my former package
@@ -134,7 +134,7 @@ test_that("calc_quantiles works as expected", {
   ## preds
   quants_pred = calc_quantiles(dummy_model, type = "pred",
                                probs = seq(0.2, 0.8, 0.1))
-  pdfs_incomp = get_pdfs(dummy_model, "incomp", "kfe")
+  pdfs_incomp = calc_pdfs(dummy_model, "incomp", "kfe")
 
 
   expect_true(all(

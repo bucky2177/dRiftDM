@@ -1,7 +1,8 @@
 # ==== Function for printing/summarizing information of drift_dm class
 
 #' @export
-print.drift_dm <- function(drift_dm_obj, ...) {
+print.drift_dm <- function(x, ...) {
+  drift_dm_obj <- x
   cat(
     "Class(es):",
     paste(class(drift_dm_obj), collapse = ", ")
@@ -39,7 +40,8 @@ print.drift_dm <- function(drift_dm_obj, ...) {
 
 
 #' @export
-print.summary.drift_dm <- function(summary_obj, ...) {
+print.summary.drift_dm <- function(x, ...) {
+  summary_obj <- x
 
   cat(
     "Class(es):",
@@ -84,8 +86,8 @@ print.summary.drift_dm <- function(summary_obj, ...) {
 }
 
 #' @export
-summary.drift_dm <- function(drift_dm_obj, ...) {
-
+summary.drift_dm <- function(object, ...) {
+  drift_dm_obj <- object
   ans <- list()
   ans$class <- class(drift_dm_obj)
   ans$nPrms <- c(

@@ -1,27 +1,27 @@
 test_that("force negative pdf values", {
   a_model = ratcliff_dm(dt = .01, dx = .01, obs_data = ratcliff_data)
   a_model = set_model_prms(a_model, c(7, 0.1, 0.3))
-  retur_val = suppressWarnings(get_log_like(a_model))
+  retur_val = suppressWarnings(calc_log_like(a_model))
   expect_identical(-Inf, retur_val)
-  expect_warning(get_pdfs(a_model, one_cond = "null", solver = "kfe"),
+  expect_warning(calc_pdfs(a_model, one_cond = "null", solver = "kfe"),
                  "subst. negative density")
 
   a_model = set_model_prms(a_model, c(7, 0.14, 0.3))
-  retur_val = suppressWarnings(get_log_like(a_model))
+  retur_val = suppressWarnings(calc_log_like(a_model))
   expect_identical(-Inf, retur_val)
   expect_warning(
   expect_warning(
     expect_warning(
       expect_warning(
-        get_log_like(a_model), "negative density values"
+        calc_log_like(a_model), "negative density values"
         ), "NaNs"
       ), "NaNs"
     ), "when calculating the log-likelihood")
 
   a_model = ratcliff_dm(dt = .01, dx = .01)
-  retur_val = suppressWarnings(get_log_like(a_model))
+  retur_val = suppressWarnings(calc_log_like(a_model))
   expect_identical(-Inf, retur_val)
-  expect_warning(get_log_like(a_model), "no data is provided")
+  expect_warning(calc_log_like(a_model), "no data is provided")
 
 })
 
@@ -43,7 +43,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$x_fun = x_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "unexpected length of x_vals")
 
   # get an x that is not normalized
@@ -54,7 +54,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$x_fun = x_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "doesn't integrate to 1")
 
   # get an x that is contains NAs
@@ -67,7 +67,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$x_fun = x_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "NAs")
 
 
@@ -82,7 +82,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$mu_fun = mu_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "unexpected length of mu_vals")
 
   # get wrong mu values
@@ -96,7 +96,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$mu_fun = mu_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "or NAs")
 
   # get wrong mu values
@@ -110,7 +110,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$mu_fun = mu_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "infinite")
 
 
@@ -123,7 +123,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$b_fun = b_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "unexpected length of b_vals")
 
   # get wrong b values
@@ -134,7 +134,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$b_fun = b_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "or NAs")
 
 
@@ -146,7 +146,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$b_fun = b_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "or NAs")
 
 
@@ -157,7 +157,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$dt_b_fun = dt_b_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "unexpected length of dt_b_vals")
 
 
@@ -169,7 +169,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$dt_b_fun = dt_b_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "NAs")
 
 
@@ -181,7 +181,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$dt_b_fun = dt_b_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "infinite")
 
   # wrong nt dimension
@@ -192,7 +192,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$nt_fun = nt_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "don't have the same dimension")
 
   # wrong nt values
@@ -202,7 +202,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$nt_fun = nt_foo
-  expect_warning(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_warning(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                "don't integrate to the same value")
 
   # wrong nt values
@@ -213,7 +213,7 @@ test_that("call pdfs with unreasonable components", {
   }
   temp = a_model
   temp$comp_funs$nt_fun = nt_foo
-  expect_error(get_pdfs(temp, one_cond = "null", solver = "kfe"),
+  expect_error(calc_pdfs(temp, one_cond = "null", solver = "kfe"),
                  "or NAs")
 
 
@@ -230,8 +230,8 @@ test_that("test log_like", {
   a_model = drift_dm(c("a" = 4), conds = c("null", "foo"), dx = 0.005,
                      dt = 0.005, t_max = 1)
   a_model = set_obs_data(a_model, data)
-  pdfs_null = get_pdfs(a_model, "null", "kfe")
-  pdfs_foo = get_pdfs(a_model, "foo", "kfe")
+  pdfs_null = calc_pdfs(a_model, "null", "kfe")
+  pdfs_foo = calc_pdfs(a_model, "foo", "kfe")
 
   # log_like_value calculated by hand
   t_vec = seq(0, 1, 0.005)
@@ -245,8 +245,8 @@ test_that("test log_like", {
   d_4 = d_4 + drift_dm_robust_prm()
   for_test_log_like = log(d_1) + log(d_2) + log(d_3) + log(d_4)
 
-  # get_log_like
-  by_model_log_like = get_log_like(a_model)
+  # calc_log_like
+  by_model_log_like = calc_log_like(a_model)
 
   expect_equal(by_model_log_like, for_test_log_like)
 })

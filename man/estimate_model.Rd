@@ -70,5 +70,5 @@ Users have three options:
 }
 
 More detailed information on how to use this function can be found in
-\link{vignette("use_ddm_models", "dRiftDM")}
+\code{vignette("use_ddm_models", "dRiftDM")}
 }

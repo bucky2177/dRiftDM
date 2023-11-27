@@ -38,7 +38,7 @@ test_that("testing DMC", {
   a_dmc_model = dmc_dm(t_max = 1000, dt = 5, dx = .1, sigma = 4)
   a_dmc_model = set_model_prms(a_dmc_model, c(0.5, 75, 300, 30, 50, 20, 2))
 
-  pdfs_comp = get_pdfs(a_dmc_model, "comp", "kfe")
+  pdfs_comp = calc_pdfs(a_dmc_model, "comp", "kfe")
 
   # get the pdfs from the python code....
   pdf_u_comp <- read.table(test_path("fixtures", "pdf_u_cong.txt"))$V1
@@ -59,7 +59,7 @@ test_that("testing DMC", {
                                               0.5929271, 0.300, 0.03, 0.05,
                                               0.1581139, 2))
 
-  pdfs_comp_s = get_pdfs(a_dmc_model, "comp", "kfe")
+  pdfs_comp_s = calc_pdfs(a_dmc_model, "comp", "kfe")
   expect_true(all(abs(pdfs_comp_s[[1]] / 1000 - pdfs_comp[[1]]) < 1e-8))
   expect_true(all(abs(pdfs_comp_s[[2]] / 1000 - pdfs_comp[[2]]) < 1e-8))
 
@@ -193,7 +193,7 @@ test_that("ratcliff_simple works as expected", {
   pdf_test[ 0.3 / a_model$prms_solve[["dt"]] + 1 ] = 1 / a_model$prms_solve[["dt"]]
   expect_equal(pdf_test, pdf_nt)
 
-  pdfs = get_pdfs(a_model, "w", "kfe")
+  pdfs = calc_pdfs(a_model, "w", "kfe")
   pdfs[[1]] = pdfs[[1]] / sum(pdfs[[1]])
   pdfs[[2]] = pdfs[[2]] / sum(pdfs[[2]])
   expect_true( all(abs(pdfs[[1]] - pdfs[[2]]) < 0.001))

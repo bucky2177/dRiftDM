@@ -21,8 +21,9 @@ LazyData: true
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 Imports: 
-  withr, parallel, DEoptim, dfoptim, Rcpp
+  withr, parallel, DEoptim, dfoptim, Rcpp, Rdpack
 LinkingTo: Rcpp
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr
+RdMacros: Rdpack

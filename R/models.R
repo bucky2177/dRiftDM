@@ -1,5 +1,29 @@
 # ==== Standard Ratcliff Diffusion Model
 
+#' Create a basic Diffusion Model
+#'
+#' This function creates a [dRiftDM::drift_dm] that corresponds to the basic
+#' Ratcliff diffusion model
+#'
+#' @param type character, indicatnig "which" Ratcliff diffusion model should
+#' be build. Default and only option currently is "simple".
+#'
+#' @param obs_data data.frame, an optional data.frame with the observed data.
+#' See [dRiftDM::set_obs_data].
+#' @param sigma,t_max,dt,dx numeric, providing the settings for the
+#' discretization (see [dRiftDM::drift_dm])
+#'
+#' @details
+#'
+#' ## Simple Model
+#'
+#' With "simple" Ratcliff Diffusion Model we refer to a diffusion model
+#' with  a constant drift rate `muc`, a constant boundary `b`, a constant
+#' non-decision time `non_dec`, and no starting point variability. See also
+#' [dRiftDM::mu_constant].
+#'
+#'
+#' @export
 ratcliff_dm <- function(type = "simple", obs_data = NULL, sigma = 1, t_max = 3,
                         dt = .001, dx = .001) {
   prms_model <- c(muc = 3, b = 0.6, non_dec = 0.3)
@@ -21,6 +45,33 @@ ratcliff_dm <- function(type = "simple", obs_data = NULL, sigma = 1, t_max = 3,
 }
 
 
+#' Basic drift diffusion model components
+#'
+#' @description
+#' The following functions can be used to modify/customize the components of
+#' a diffusion model
+#'
+#' `mu_constant`, this function provides the component function for a constant
+#' drift rate with parameter `muc`.
+#'
+#' `mu_int_constant`, provides the complementary integral to `mu_constant`.
+#'
+#' `b_constant`, this function provides the component function for a constant
+#' boundary with parameter `b`.
+#'
+#' `nt_constant`, this function provides the component function for a constant
+#' non-decision time with parameter `non_dec`.
+#'
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm].
+#' @param t_vec numeric vector providing the time space
+#' @param one_cond character, indicating a condition
+#'
+#' @details
+#' See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
+#' to set/modify/customize the components of a diffusion model.
+#'
+#'
+#' @export
 mu_constant <- function(drift_dm_obj, t_vec, one_cond) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -36,6 +87,9 @@ mu_constant <- function(drift_dm_obj, t_vec, one_cond) {
   return(muc)
 }
 
+
+#' @rdname mu_constant
+#' @export
 mu_int_constant <- function(drift_dm_obj, t_vec, one_cond) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -50,6 +104,8 @@ mu_int_constant <- function(drift_dm_obj, t_vec, one_cond) {
   return(muc * t_vec)
 }
 
+#' @rdname mu_constant
+#' @export
 b_constant <- function(drift_dm_obj, t_vec, one_cond) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -65,6 +121,8 @@ b_constant <- function(drift_dm_obj, t_vec, one_cond) {
   return(b)
 }
 
+#' @rdname mu_constant
+#' @export
 nt_constant <- function(drift_dm_obj, t_vec, one_cond) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -91,8 +149,47 @@ nt_constant <- function(drift_dm_obj, t_vec, one_cond) {
 
 
 
-# === Diffusion Model for Conflict Task
+#=== Diffusion Model for Conflict Task
 
+#' Create the diffusion model for conflict tasks
+#'
+#' @description
+#' This function creates a [dRiftDM::drift_dm] object that corresponds to the
+#' diffusion model for conflict tasks by
+#' \insertCite{Ulrichetal.2015;textual}{dRiftDM}.
+#'
+#' @param obs_data data.frame, an optional data.frame with the observed data.
+#' See [dRiftDM::set_obs_data].
+#' @param sigma,t_max,dt,dx numeric, providing the settings for the
+#' discretization (see [dRiftDM::drift_dm])
+#'
+#' @details
+#'
+#'
+#' The diffusion model for conflict tasks is a model for describing conflict
+#' tasks like the Stroop, Simon, or flanker task.
+#'
+#' It has the following properties:
+#' - a constant boundary (parameter `b`; see [dRiftDM::b_constant])
+#' - a staring point distribution in the shape of a beta distribution
+#'   (parameter `alpha`; see [dRiftDM::x_beta])
+#' - an evidence accumulation process that results from the sum of two
+#'    subprocesses (see [dRiftDM::mu_dmc_dm]:
+#'    - a controlled process with drift rate `muc`
+#'    - a gamma-shaped process with a scale parameter `tau`, a shape
+#'    parameter `a`, and an amplitude `A`.
+#' - A non-decision time that follows a truncated normal distribution with
+#'   mean `non_dec` and standard deviation `sd_non_dec`
+#'   (see [dRiftDM::nt_truncated_normal]).
+#'
+#' Its parameters are:  `muc`, `b`, `non_dec`, `sd_non_dec`, `tau`, `a`, `A`,
+#'  and `alpha`
+#'
+#' Per default the shape parameter `a` is set to 2 and not allowed to
+#' vary (i.e., is not listed in `free_prms`).
+#'
+#'
+#' @export
 dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
                    dx = .001) {
   prms_model <- c(
@@ -109,7 +206,7 @@ dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
   # set the custom functions
   dmc_dm = set_mu_fun(drift_dm_obj = dmc_dm, mu_fun = mu_dmc_dm)
   dmc_dm = set_mu_int_fun(drift_dm_obj = dmc_dm, mu_int_fun = mu_int_dmc_dm)
-  dmc_dm = set_x_fun(drift_dm_obj = dmc_dm, x_fun = x_dmc_dm)
+  dmc_dm = set_x_fun(drift_dm_obj = dmc_dm, x_fun = x_beta)
   dmc_dm = set_b_fun(drift_dm_obj = dmc_dm, b_fun = b_constant)
   dmc_dm = set_nt_fun(drift_dm_obj = dmc_dm, nt_fun = nt_truncated_normal)
 
@@ -119,7 +216,26 @@ dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
   return(dmc_dm)
 }
 
-
+#' Drift Rate for DMC
+#'
+#' @description
+#' The following functions are used for the drift rate of DMC
+#' (see [dRiftDM::dmc_dm]).
+#'
+#' `mu_dmc_dm`, this function provides the superimposed diffusion process
+#'  of DMC. Necessary parameters `muc`, `a`, `A`, `tau`.
+#'
+#' `mu_int_dmc_dm`, provides the complementary integral to `mu_dmc_dm`.
+#'
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm].
+#' @param t_vec numeric vector providing the time space
+#' @param one_cond character, indicating a condition
+#'
+#' @details
+#' See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
+#' to set/modify/customize the components of a diffusion model.
+#'
+#' @export
 mu_dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -164,6 +280,9 @@ mu_dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
   }
 }
 
+
+#' @rdname mu_dmc_dm
+#' @export
 mu_int_dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -203,7 +322,21 @@ mu_int_dmc_dm <- function(drift_dm_obj, t_vec, one_cond) {
   }
 }
 
-x_dmc_dm <- function(drift_dm_obj, x_vec, one_cond) {
+#' A beta-shaped starting point component
+#'
+#' This function provides the function component for a symmetric beta-shaped
+#' starting point distribution with parameter `alpha`.
+#'
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm].
+#' @param x_vec numeric vector providing the evidence space
+#' @param one_cond character, indicating a condition
+#'
+#' @details
+#' See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
+#' to set/modify/customize the components of a diffusion model.
+#'
+#' @export
+x_beta <- function(drift_dm_obj, x_vec, one_cond) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -220,6 +353,22 @@ x_dmc_dm <- function(drift_dm_obj, x_vec, one_cond) {
   return(x)
 }
 
+
+#' A truncated-normal shaped non-decision time component
+#'
+#' This function provides the function component for a non-decision time
+#' following a truncated-normal distribution with mean `non_dec` and
+#' standard deviation `sd_non_dec`.
+#'
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm].
+#' @param t_vec numeric vector providing the time space
+#' @param one_cond character, indicating a condition
+#'
+#' @details
+#' See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
+#' to set/modify/customize the components of a diffusion model.
+#'
+#' @export
 nt_truncated_normal <- function(drift_dm_obj, t_vec, one_cond) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")

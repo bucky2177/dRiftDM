@@ -17,28 +17,28 @@ int cpp_kfe(NumericVector& pdf_u,
              const NumericVector x_vec) {
 
   if (pdf_u.size() != nt+1){
-    std::cerr << "pdf-upper has wrong size!" << std::endl; return -1;
+    Rcerr << "pdf-upper has wrong size!" << std::endl; return -1;
   }
   if (pdf_l.size() != nt+1) {
-    std::cerr << "pdf-lower has wrong size!" << std::endl; return -1;
+    Rcerr << "pdf-lower has wrong size!" << std::endl; return -1;
   }
   if (b_vals.size() != nt+1) {
-    std::cerr << "b_vals has wrong size!" << std::endl; return -1;
+    Rcerr << "b_vals has wrong size!" << std::endl; return -1;
   }
   if (mu_vals.size() != nt+1) {
-    std::cerr << "mu_vals has wrong size!" << std::endl; return -1;
+    Rcerr << "mu_vals has wrong size!" << std::endl; return -1;
   }
   if (dt_b_vals.size() != nt+1) {
-    std::cerr << "dt_b_vals has wrong size!" << std::endl; return -1;
+    Rcerr << "dt_b_vals has wrong size!" << std::endl; return -1;
   }
   if (pdf_l.size() != nt+1) {
-    std::cerr << "pdf-lower has wrong size!" << std::endl; return -1;
+    Rcerr << "pdf-lower has wrong size!" << std::endl; return -1;
   }
   if (xx.size() != nx+1) {
-    std::cerr << "x_vals has wrong size!" << std::endl; return -1;
+    Rcerr << "x_vals has wrong size!" << std::endl; return -1;
   }
   if (x_vec.size() != nx+1) {
-    std::cerr << "x_vec has wrong size!" << std::endl; return -1;
+    Rcerr << "x_vec has wrong size!" << std::endl; return -1;
   }
 
   NumericVector f(nx+1, 0.);  // storing the solution
@@ -81,7 +81,7 @@ int cpp_kfe(NumericVector& pdf_u,
     }
 
     if ( (f[0]!=0) || (f[nx]!=0) ) {
-      std::cerr << "rhs not zero on thresholds!" << std::endl; return -1;
+      Rcerr << "rhs not zero on thresholds!" << std::endl; return -1;
     }
 
     NumericVector a(nx+1, 0.), b(nx+1, 0.), c(nx+1, 0.);

@@ -19,7 +19,7 @@ plot_trace(
 )
 }
 \arguments{
-\item{drift_dm_obj}{an object of type drift_dm}
+\item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
 
 \item{add_x}{logical, indicating whether a starting point should be
 added. Default is TRUE.}

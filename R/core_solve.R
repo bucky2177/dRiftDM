@@ -1,6 +1,27 @@
 # === FUNCTIONS FOR GETTING THE PDF OF A MODEL
-#'@export
-get_pdfs <- function(drift_dm_obj, one_cond, solver) {
+
+#' Derive the PDFs of a model
+#'
+#' @description
+#' This function calculates the probability density functions of a drift
+#' diffusion model for one condition.
+#'
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
+#'
+#' @param one_cond character, providing the name of a condition
+#' @param solver character, indicating which algorithm should be used for
+#'  deriving the pdf. Default is to "kfe", meaning that the Crank-Nicolson
+#'  discretization of the Kolmogorov-Forward-Equation should be used.
+#'
+#' @details
+#' More in-depth information about the mathematical details can be found in
+#' \insertCite{Richteretal.2023;textual}{dRiftDM}
+#'
+#' @references
+#' \insertAllCited{}
+#'
+#' @export
+calc_pdfs <- function(drift_dm_obj, one_cond, solver) {
 
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -42,7 +63,10 @@ kfe_ale <- function(drift_dm_obj, one_cond) {
   x_vals <- drift_dm_obj$comp_funs$x_fun(drift_dm_obj = drift_dm_obj,
                                          x_vec = x_vec, one_cond = one_cond)
   if (any(is.infinite(x_vals)) | any(is.na(x_vals))) {
-    stop("x_vals provided infinite values or NAs")
+    stop("x_fun provided infinite values or NAs")
+  }
+  if (min(x_vals) < 0) {
+    stop("x_fun provided negative values")
   }
   if (abs(sum(x_vals) * dx - 1) > drift_dm_small_approx_error()) {
     stop("starting condition doesn't integrate to 1")
@@ -102,6 +126,9 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt) {
   if (any(is.infinite(pdf_nt)) | any(is.na(pdf_nt))) {
     stop("pdf_nt provided infinite values or NAs")
   }
+  if (min(pdf_nt) < 0) {
+    stop("pdf_nt provided negative values")
+  }
   if (length(pdf_nt) != length(pdf_u)) {
     stop("pdf_u and pdf_nt don't have the same dimension!")
   }
@@ -128,13 +155,14 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt) {
             " the pdf")
   }
 
+
   return(list(pdf_u = pdf_u, pdf_l = pdf_l))
 }
 
 
 # ==== Functions for calculating the log_likelihood
 
-get_log_like <- function(drift_dm_obj) {
+calc_log_like <- function(drift_dm_obj) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -147,7 +175,7 @@ get_log_like <- function(drift_dm_obj) {
   }
   red_drift_dm_obj$obs_data <- NULL # to avoid copying the data unnecessarily
   for (one_cond in drift_dm_obj$conds) {
-    pdfs <- get_pdfs(
+    pdfs <- calc_pdfs(
       drift_dm_obj = red_drift_dm_obj,
       one_cond = one_cond,
       solver = drift_dm_obj$solver
