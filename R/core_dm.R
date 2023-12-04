@@ -357,10 +357,10 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
         stop("drift_dm_obj is not of type drift_dm")
       }
       # starting point at 0
-      dx <- drift_dm_obj$prms_solve[["dx"]]
       if (!is.numeric(x_vec) | length(x_vec) <= 1) {
         stop("x_vec is not a vector")
       }
+      dx = 2 / (length(x_vec) - 1)
       x <- numeric(length = length(x_vec))
       x[(length(x) + 1) %/% 2] <- 1 / dx
       return(x)
