@@ -19,7 +19,7 @@ print.dm_fits_subjects <- function(x, ...) {
     format(fits_subjects$drift_dm_fit_info$time_call, "%Y-%m-%d %H:%M:%S")
   )
   cat("\n")
-  cat("N Subjects:", length(fits_subjects$all_fits))
+  cat("N Subjects:", length(fits_subjects$all_fits), "\n")
 }
 
 

@@ -465,11 +465,24 @@ validate_fits_subjects <- function(fits_subjects) {
       exp_corr <- model_data[rownames(model_data) == paste("correct", one_cond)]
       exp_err <- model_data[rownames(model_data) == paste("error", one_cond)]
 
-      if (any(exp_corr != c(corr, n_corr)) | any(exp_err != c(err, n_err))) {
-        warning(paste(
-          "data of subject", one_vp, "in the fitted model",
-          "doesn't match with the expected data based on the info file"
-        ))
+      if (n_err > 0) {
+        if (any(exp_err != c(err, n_err))) {
+          warning(paste(
+            "data of subject", one_vp, "in the fitted model",
+            "doesn't match with the expected data based on the info file.",
+            "Cond:", one_cond
+          ))
+        }
+      }
+
+      if (n_corr > 0) {
+        if (any(exp_corr != c(corr, n_corr))) {
+          warning(paste(
+            "data of subject", one_vp, "in the fitted model",
+            "doesn't match with the expected data based on the info file.",
+            "Cond:", one_cond
+          ))
+        }
       }
     }
   }
