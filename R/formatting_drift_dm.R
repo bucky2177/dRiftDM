@@ -81,8 +81,6 @@ print.summary.drift_dm <- function(x, ...) {
   )
   cat("\nSettings:", to_str)
   cat("\n")
-
-
 }
 
 #' @export
@@ -94,8 +92,8 @@ summary.drift_dm <- function(object, ...) {
     total = length(drift_dm_obj$prms_model),
     free = length(drift_dm_obj$free_prms)
   )
-  ans$prms_model = t(as.matrix(drift_dm_obj$prms_model))
-  rownames(ans$prms_model) = ""
+  ans$prms_model <- t(as.matrix(drift_dm_obj$prms_model))
+  rownames(ans$prms_model) <- ""
   ans$conds <- drift_dm_obj$conds
   ans$prms_solve <- drift_dm_obj$prms_solve
   ans$free_prms <- drift_dm_obj$free_prms

@@ -22,17 +22,18 @@
 #'
 #' @export
 calc_pdfs <- function(drift_dm_obj, one_cond, solver) {
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
 
-  if (!is.character(one_cond) | length(one_cond) != 1)
+  if (!is.character(one_cond) | length(one_cond) != 1) {
     stop("one_cond must be of type character with length 1")
+  }
 
 
-  if (!is.character(solver) | length(solver) != 1)
+  if (!is.character(solver) | length(solver) != 1) {
     stop("solver must be of type character with length 1")
+  }
 
 
   if (solver == "kfe") {
@@ -60,8 +61,10 @@ kfe_ale <- function(drift_dm_obj, one_cond) {
 
   # get starting condition
   x_vec <- seq(-1, 1, length.out = nx + 1)
-  x_vals <- drift_dm_obj$comp_funs$x_fun(drift_dm_obj = drift_dm_obj,
-                                         x_vec = x_vec, one_cond = one_cond)
+  x_vals <- drift_dm_obj$comp_funs$x_fun(
+    drift_dm_obj = drift_dm_obj,
+    x_vec = x_vec, one_cond = one_cond
+  )
   if (any(is.infinite(x_vals)) | any(is.na(x_vals))) {
     stop("x_fun provided infinite values or NAs")
   }
@@ -72,14 +75,18 @@ kfe_ale <- function(drift_dm_obj, one_cond) {
     stop("starting condition doesn't integrate to 1")
   }
   if (length(x_vals) != nx + 1) stop("unexpected length of x_vals")
-  r_stepping = ifelse(length(which(x_vals > 0)) == 1, T, F)
+  r_stepping <- ifelse(length(which(x_vals > 0)) == 1, T, F)
 
   # get drift rate/boundary values across t
   t_vec <- seq(0, t_max, length.out = nt + 1)
-  mu_vals <- drift_dm_obj$comp_funs$mu_fun(drift_dm_obj = drift_dm_obj,
-                                           t_vec = t_vec, one_cond = one_cond)
-  b_vals <- drift_dm_obj$comp_funs$b_fun(drift_dm_obj = drift_dm_obj,
-                                         t_vec = t_vec, one_cond = one_cond)
+  mu_vals <- drift_dm_obj$comp_funs$mu_fun(
+    drift_dm_obj = drift_dm_obj,
+    t_vec = t_vec, one_cond = one_cond
+  )
+  b_vals <- drift_dm_obj$comp_funs$b_fun(
+    drift_dm_obj = drift_dm_obj,
+    t_vec = t_vec, one_cond = one_cond
+  )
   dt_b_vals <- drift_dm_obj$comp_funs$dt_b_fun(
     drift_dm_obj = drift_dm_obj, t_vec = t_vec, one_cond = one_cond
   )
@@ -97,11 +104,13 @@ kfe_ale <- function(drift_dm_obj, one_cond) {
   if (length(dt_b_vals) != length(t_vec)) stop("unexpected length of dt_b_vals")
 
   # solve the pdfs
-  errorcode <- cpp_kfe(pdf_u = pdf_u, pdf_l = pdf_l, xx = x_vals, nt = nt,
-                       nx = nx, dt = dt, dx = dx, sigma = sigma,
-                       r_stepping = r_stepping, b_vals = b_vals,
-                       mu_vals = mu_vals,
-                       dt_b_vals = dt_b_vals, x_vec = x_vec)
+  errorcode <- cpp_kfe(
+    pdf_u = pdf_u, pdf_l = pdf_l, xx = x_vals, nt = nt,
+    nx = nx, dt = dt, dx = dx, sigma = sigma,
+    r_stepping = r_stepping, b_vals = b_vals,
+    mu_vals = mu_vals,
+    dt_b_vals = dt_b_vals, x_vec = x_vec
+  )
   if (errorcode != 1) stop("cpp-version of kfe failed")
 
   # Omit all states that did not reach a threshold
@@ -110,8 +119,10 @@ kfe_ale <- function(drift_dm_obj, one_cond) {
   pdf_l <- pdf_l / scale
 
   #  add residual time ...
-  pdf_nt <- drift_dm_obj$comp_funs$nt_fun(drift_dm_obj = drift_dm_obj,
-                                          t_vec = t_vec, one_cond = one_cond)
+  pdf_nt <- drift_dm_obj$comp_funs$nt_fun(
+    drift_dm_obj = drift_dm_obj,
+    t_vec = t_vec, one_cond = one_cond
+  )
   pdfs <- add_residual(
     pdf_nt = pdf_nt, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt
   )
@@ -150,9 +161,11 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt) {
   stopifnot(length(pdf_u) == length(pdf_nt) & length(pdf_l) == length(pdf_nt))
 
   if (min(pdf_u) < -drift_dm_robust_prm() |
-      min(pdf_l) < -drift_dm_robust_prm()) {
-    warning("subst. negative density values encountered when calculating",
-            " the pdf")
+    min(pdf_l) < -drift_dm_robust_prm()) {
+    warning(
+      "subst. negative density values encountered when calculating",
+      " the pdf"
+    )
   }
 
 
@@ -212,8 +225,10 @@ log_like_heart <- function(drift_dm_obj, pdf_u, pdf_l, one_cond) {
       log_like <- sum(log(app_like_u)) + sum(log(app_like_l))
       if (is.nan(log_like)) { # log(0) gives -Inf
         if (min(app_like_u) < 1e-10 | min(app_like_l) < 1e-10) {
-          warning("negative density values encountered after adding robustness",
-          " parameter when calculating the log-likelihood")
+          warning(
+            "negative density values encountered after adding robustness",
+            " parameter when calculating the log-likelihood"
+          )
         }
         return(-Inf)
       }

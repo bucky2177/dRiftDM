@@ -23,14 +23,20 @@
 #'  each parameter to be optimized. Their length have to match the number of
 #'  `free_prms` in the model. Note that the i-th `lower` and `upper` element
 #'  refers to the i-th parameter listed in `free_prms` of `drift_dm_obj`.
-#' @param verbose logical, indicating if the parameter values and the negative
-#'  log-likelihood should be printed at each evaluation of the model. Default is
-#'  `FALSE`.
+#' @param verbose numeric, indicating the amount of information displayed.
+#'  If 0, no information is displayed. If 1 (default), basic information about
+#'  the start of Differential Evolution or Nelder-Mead and the final
+#'  estimation result is given. If 2, each evaluation of the log-likelihood
+#'  function is shown. Note that `verbose` is independent of the information
+#'  displayed by [DEoptim::DEoptim].
 #' @param use_de_optim logical, indicating whether Differential Evolution via
 #'  [DEoptim::DEoptim] should be used. Default is `TRUE`
 #' @param use_nmkb logical, indicating whether Nelder-Mead via
 #'  [dfoptim::nmkb] should be used. Default is `FALSE`. If both `use_de_optim`
-#'  and `use_nmkb` are `TRUE`, then Nelder-Mead follows Differential Evolution
+#'  and `use_nmkb` are `TRUE`, then Nelder-Mead follows Differential Evolution.
+#'  Note that Nelder-Mead requires a set of starting parameters for which either
+#'  the parameter values of `drift_dm_obj` or the estimated parameter values by
+#'  Differential Evolution are used.
 #' @param seed a single numeric, providing a seed for the Differential Evolution
 #'  algorithm
 #' @param de_n_cores a single numeric, indicating the number of cores to use.
@@ -50,11 +56,13 @@
 #'  further information.
 #'
 #' @export
-estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
+estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
                            use_de_optim = TRUE, use_nmkb = FALSE, seed = NULL,
                            de_n_cores = 1,
-                           de_control = list(reltol = 1e-9, steptol = 50,
-                                             itermax  = 200),
+                           de_control = list(
+                             reltol = 1e-9, steptol = 50,
+                             itermax = 200, trace = FALSE
+                           ),
                            nmkb_control = list(tol = 1e-6)) {
   # user input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
@@ -71,17 +79,25 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
     stop("length of lower and upper parameters are not equal!")
   }
   if (length(lower) != length(drift_dm_obj$free_prms)) {
-    stop("number of parameters in lower/upper don't match the number of",
-         " free_prms")
+    stop(
+      "number of parameters in lower/upper don't match the number of",
+      " free_prms"
+    )
   }
-  if (!is.logical(verbose) | length(verbose) != 1)
-    stop("verbose must be logical of length 1")
-  if (!is.logical(use_de_optim) | length(use_de_optim) != 1)
+  if (!is.numeric(verbose) | length(verbose) != 1 | !(verbose %in% c(0, 1, 2))) {
+    stop("verbose must be numeric of either 0, 1, or 2")
+  }
+  if (!is.logical(use_de_optim) | length(use_de_optim) != 1) {
     stop("use_de_optim must be logical of length 1")
-  if (!is.logical(use_nmkb) | length(use_nmkb) != 1)
+  }
+  if (!is.logical(use_nmkb) | length(use_nmkb) != 1) {
     stop("use_nmkb must be logical")
+  }
   if (!use_de_optim & !use_nmkb) {
-    warning("No estimation done, passing back unmodified object")
+    warning(
+      "use_de_optim and use_nmkb are set to FALSE.",
+      " No estimation done, passing back unmodified object"
+    )
     return(drift_dm_obj)
   }
   if (!is.null(seed)) {
@@ -93,11 +109,13 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
   if (!is.numeric(de_n_cores) | de_n_cores <= 0) {
     stop("de_n_cores must be a numeric > 0")
   }
-  if (!is.list(de_control))
+  if (!is.list(de_control)) {
     stop("de_control must be a list")
+  }
 
-  if (!is.list(nmkb_control))
+  if (!is.list(nmkb_control)) {
     stop("nmkb_control must be a list")
+  }
 
 
   # objective function to minimize
@@ -107,14 +125,15 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
       new_model_prms = new_model_prms,
       eval_model = T
     )
-    if (verbose) {
+    if (verbose == 2) {
       current_prms <- prms_to_str(
         prms = drift_dm_obj$prms_model,
         names_prms = names(drift_dm_obj$prms_model)
       )
       cat(
-        "\n\033[33m", "INFO: Parameters", current_prms,
-        "\n\tgave -log_like_val of", -drift_dm_obj$log_like_val, "\033[0m\n"
+        "\033[33mINFO: Parameters", current_prms,
+        "\n\tgave -log_like_val of", -drift_dm_obj$log_like_val, "\033[0m\n",
+        sep = " "
       )
     }
     return(-drift_dm_obj$log_like_val)
@@ -124,7 +143,7 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
   if (use_de_optim) {
     cl <- NULL
     if (de_n_cores > 1) {
-      all_funs = c("goal_wrapper", "set_model_prms", "prms_to_str")
+      all_funs <- c("goal_wrapper", "set_model_prms", "prms_to_str")
       cl <- parallel::makeCluster(de_n_cores)
       parallel::clusterExport(
         cl = cl,
@@ -136,10 +155,12 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
     controls <- DEoptim::DEoptim.control(cluster = cl)
     controls <- utils::modifyList(controls, de_control)
 
-    de_out =
+    de_out <-
       tryCatch(
         expr = {
-          cat("\nINFO: Running differential evolution\n")
+          if (verbose >= 1) {
+            cat("INFO: Running differential evolution\n")
+          }
           DEoptim::DEoptim(
             fn = goal_wrapper, lower = lower, upper = upper,
             control = controls, drift_dm_obj = drift_dm_obj,
@@ -148,13 +169,13 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
         },
         error = function(e) {
           if (!is.null(cl)) parallel::stopCluster(cl)
-          warning("an error occured: ", e, "\n returning unmodified object")
-          return(NULL)
+          warning("an error occured: ", e, "\n returning NULL")
+          return(e)
         }
       )
     if (!is.null(cl)) parallel::stopCluster(cl)
     if (is.null(de_out)) {
-      return(drift_dm_obj)
+      return(NULL)
     }
   }
 
@@ -167,9 +188,20 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
     start_vals <- as.numeric(start_vals)
   }
 
-  # Run nmkb
+  # check if nmkb is requested, but the parameter space is univariate
+  if (use_nmkb & length(start_vals) == 1) {
+    warning(
+      "Nelder-Mead is not applicable for univariate optimization.",
+      " Skipping Nelder-Mead."
+    )
+    use_nmkb <- F
+  }
+
+  # run nmkb
   if (use_nmkb) {
-    cat("\nINFO: Running bounded Nelder-Mead")
+    if (verbose >= 1) {
+      cat("INFO: Running bounded Nelder-Mead\n")
+    }
 
     nmkb_out <- dfoptim::nmkb(
       par = start_vals, fn = goal_wrapper, lower = lower,
@@ -196,10 +228,13 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = FALSE,
     prms = drift_dm_obj$prms_model,
     names_prms = names(drift_dm_obj$prms_model)
   )
-  cat(
-    "\n\033[33m", "INFO: Estimation gave", final_vals,
-    "\n\twith -log_like_val of", -drift_dm_obj$log_like_val, "\033[0m\n"
-  )
+  if (verbose >= 1) {
+    cat(
+      "\033[33mINFO: Estimation gave", final_vals,
+      "\n\twith -log_like_val of", -drift_dm_obj$log_like_val, "\033[0m\n",
+      sep = " "
+    )
+  }
 
   return(drift_dm_obj)
 }

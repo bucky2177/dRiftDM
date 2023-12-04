@@ -118,7 +118,7 @@ drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
   }
 
   # get default functions, if necessary
-  comp_funs = get_default_functions(
+  comp_funs <- get_default_functions(
     mu_fun = mu_fun, mu_int_fun = mu_int_fun, x_fun = x_fun, b_fun = b_fun,
     dt_b_fun = dt_b_fun, nt_fun = nt_fun
   )
@@ -166,7 +166,6 @@ new_drift_dm <- function(prms_model, conds, free_prms, obs_data = NULL,
 
 # ======== BACKEND FUNCTION CHECKS ON EACH DRIFT_DM OBJECT
 validate_drift_dm <- function(drift_dm_obj) {
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -274,13 +273,32 @@ validate_drift_dm <- function(drift_dm_obj) {
     stop("solver in drift_dm_obj is not a single character/string")
   }
 
-  # ensure that each element in comp_funs is a function
-  names = names(drift_dm_obj$comp_funs)
-  nec_names = c("mu_fun", "mu_int_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
+  # ensure that each element in comp_funs is a function with the correct
+  # arguments
+  names <- names(drift_dm_obj$comp_funs)
+  nec_names <- c("mu_fun", "mu_int_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
   if (any(names != nec_names)) stop("unexpected name in comp_funs")
   for (one_name in names) {
-    if (!is.function(drift_dm_obj$comp_funs[[one_name]]))
+    if (!is.function(drift_dm_obj$comp_funs[[one_name]])) {
       stop(one_name, " listed in comp_funs is not a function")
+    }
+
+    arg_names <- names(as.list(args(drift_dm_obj$comp_funs[[one_name]])))
+
+    if (arg_names[[1]] != "drift_dm_obj") {
+      stop("the first argument of ", one_name, " must be 'drift_dm_obj'")
+    }
+
+    if (one_name != "x_fun" & arg_names[[2]] != "t_vec") {
+      stop("the second argument of ", one_name, " must be 't_vec'")
+    }
+
+    if (one_name == "x_fun" & arg_names[[2]] != "x_vec") {
+      stop("the second argument of ", one_name, " must be 'x_vec'")
+    }
+    if (arg_names[[3]] != "one_cond") {
+      stop("the third argument of ", one_name, " must be 'one_cond'")
+    }
   }
 
   return(drift_dm_obj)
@@ -300,11 +318,11 @@ standard_nt <- function() {
   return(0.3)
 }
 
-get_default_functions = function(mu_fun = NULL, mu_int_fun = NULL,
-                                 x_fun = NULL, b_fun = NULL,
-                                 dt_b_fun = NULL, nt_fun = NULL) {
 
-  if (is.null(mu_fun))
+get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
+                                  x_fun = NULL, b_fun = NULL,
+                                  dt_b_fun = NULL, nt_fun = NULL) {
+  if (is.null(mu_fun)) {
     mu_fun <- function(drift_dm_obj, t_vec, one_cond) {
       if (!inherits(drift_dm_obj, "drift_dm")) {
         stop("drift_dm_obj is not of type drift_dm")
@@ -317,8 +335,9 @@ get_default_functions = function(mu_fun = NULL, mu_int_fun = NULL,
       mu <- rep(mu, length(t_vec))
       return(mu)
     }
+  }
 
-  if (is.null(mu_int_fun))
+  if (is.null(mu_int_fun)) {
     mu_int_fun <- function(drift_dm_obj, t_vec, one_cond) {
       if (!inherits(drift_dm_obj, "drift_dm")) {
         stop("drift_dm_obj is not of type drift_dm")
@@ -330,8 +349,9 @@ get_default_functions = function(mu_fun = NULL, mu_int_fun = NULL,
       }
       return(mu * t_vec)
     }
+  }
 
-  if (is.null(x_fun))
+  if (is.null(x_fun)) {
     x_fun <- function(drift_dm_obj, x_vec, one_cond) {
       if (!inherits(drift_dm_obj, "drift_dm")) {
         stop("drift_dm_obj is not of type drift_dm")
@@ -345,8 +365,9 @@ get_default_functions = function(mu_fun = NULL, mu_int_fun = NULL,
       x[(length(x) + 1) %/% 2] <- 1 / dx
       return(x)
     }
+  }
 
-  if (is.null(b_fun))
+  if (is.null(b_fun)) {
     b_fun <- function(drift_dm_obj, t_vec, one_cond) {
       if (!inherits(drift_dm_obj, "drift_dm")) {
         stop("drift_dm_obj is not of type drift_dm")
@@ -359,8 +380,9 @@ get_default_functions = function(mu_fun = NULL, mu_int_fun = NULL,
       b <- rep(b, length(t_vec))
       return(b)
     }
+  }
 
-  if (is.null(dt_b_fun))
+  if (is.null(dt_b_fun)) {
     dt_b_fun <- function(drift_dm_obj, t_vec, one_cond) {
       if (!inherits(drift_dm_obj, "drift_dm")) {
         stop("drift_dm_obj is not of type drift_dm")
@@ -372,9 +394,10 @@ get_default_functions = function(mu_fun = NULL, mu_int_fun = NULL,
       dt_b <- rep(0, length(t_vec))
       return(dt_b)
     }
+  }
 
 
-  if (is.null(nt_fun))
+  if (is.null(nt_fun)) {
     nt_fun <- function(drift_dm_obj, t_vec, one_cond) {
       if (!inherits(drift_dm_obj, "drift_dm")) {
         stop("drift_dm_obj is not of type drift_dm")
@@ -395,10 +418,13 @@ get_default_functions = function(mu_fun = NULL, mu_int_fun = NULL,
       d_nt[which_index + 1] <- 1 / dt
       return(d_nt)
     }
+  }
 
   return(
-    list(mu_fun = mu_fun, mu_int_fun = mu_int_fun, x_fun = x_fun,
-         b_fun = b_fun, dt_b_fun = dt_b_fun, nt_fun = nt_fun)
+    list(
+      mu_fun = mu_fun, mu_int_fun = mu_int_fun, x_fun = x_fun,
+      b_fun = b_fun, dt_b_fun = dt_b_fun, nt_fun = nt_fun
+    )
   )
 }
 
@@ -496,8 +522,9 @@ set_model_prms <- function(drift_dm_obj, new_model_prms, eval_model = F) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
-  if (!is.logical(eval_model) | length(eval_model) != 1)
+  if (!is.logical(eval_model) | length(eval_model) != 1) {
     stop("eval_model must be logical")
+  }
 
   if (!is.numeric(new_model_prms)) {
     stop("new_model_prms are not of type numeric")
@@ -525,7 +552,6 @@ set_model_prms <- function(drift_dm_obj, new_model_prms, eval_model = F) {
 #' @rdname set_model_prms
 #' @export
 set_free_prms <- function(drift_dm_obj, new_free_prms) {
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -562,17 +588,17 @@ set_free_prms <- function(drift_dm_obj, new_free_prms) {
 #' @export
 set_solver_settings <- function(drift_dm_obj, names_prm_solve, values_prm_solve,
                                 eval_model = F) {
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
 
-  if (length(names_prm_solve) != length(values_prm_solve))
+  if (length(names_prm_solve) != length(values_prm_solve)) {
     stop("length of names_prm_solve and values_prm_solve don't match")
+  }
 
   matched_names <- sapply(names_prm_solve, function(x) {
-      match.arg(x, c("solver", "sigma", "t_max", "dx", "dt"))
-    })
+    match.arg(x, c("solver", "sigma", "t_max", "dx", "dt"))
+  })
   matched_names <- unname(matched_names)
   if (any(matched_names != names_prm_solve)) {
     warning(
@@ -593,7 +619,7 @@ set_solver_settings <- function(drift_dm_obj, names_prm_solve, values_prm_solve,
 
   # set all desired arguments one by one
   for (i in seq_along(names_prm_solve)) {
-    drift_dm_obj = set_one_solver_setting(
+    drift_dm_obj <- set_one_solver_setting(
       drift_dm_obj = drift_dm_obj,
       name_prm_solve = names_prm_solve[i],
       value_prm_solve = values_prm_solve[i]
@@ -616,14 +642,13 @@ set_solver_settings <- function(drift_dm_obj, names_prm_solve, values_prm_solve,
 # separate function for setting one argument (internal)
 set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
                                    value_prm_solve) {
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
 
   # if desired, set solver
   if (name_prm_solve == "solver") {
-    value_prm_solve = as.character(value_prm_solve)
+    value_prm_solve <- as.character(value_prm_solve)
     if (length(value_prm_solve) != 1) {
       stop("solver argument must be a single character")
     }
@@ -632,7 +657,7 @@ set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
 
   # if desired, set sigma
   if (name_prm_solve == "sigma") {
-    value_prm_solve = as.numeric(value_prm_solve)
+    value_prm_solve <- as.numeric(value_prm_solve)
     if (length(value_prm_solve) != 1) {
       stop("sigma argument must be a single numeric")
     }
@@ -642,7 +667,7 @@ set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
 
   # if desired, set t_max or dt
   if (name_prm_solve == "t_max" | name_prm_solve == "dt") {
-    value_prm_solve = as.numeric(value_prm_solve)
+    value_prm_solve <- as.numeric(value_prm_solve)
     if (length(value_prm_solve) != 1) {
       stop(name_prm_solve, "argument must be a single numeric")
     }
@@ -657,7 +682,7 @@ set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
 
   # if desired, set dx
   if (name_prm_solve == "dx") {
-    value_prm_solve = as.numeric(value_prm_solve)
+    value_prm_solve <- as.numeric(value_prm_solve)
     if (length(value_prm_solve) != 1) {
       stop("dx argument must be a single numeric")
     }
@@ -890,32 +915,40 @@ check_raw_data <- function(obs_data) {
 #'
 #' @export
 set_mu_fun <- function(drift_dm_obj, mu_fun) {
-  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = mu_fun,
-                         name = "mu_fun", depends_on = "t")
+  drift_dm_obj <- set_fun(
+    drift_dm_obj = drift_dm_obj, fun = mu_fun,
+    name = "mu_fun", depends_on = "t"
+  )
   return(drift_dm_obj)
 }
 
 #' @rdname set_mu_fun
 #' @export
 set_mu_int_fun <- function(drift_dm_obj, mu_int_fun) {
-  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = mu_int_fun,
-                         name = "mu_int_fun", depends_on = "t")
+  drift_dm_obj <- set_fun(
+    drift_dm_obj = drift_dm_obj, fun = mu_int_fun,
+    name = "mu_int_fun", depends_on = "t"
+  )
   return(drift_dm_obj)
 }
 
 #' @rdname set_mu_fun
 #' @export
 set_x_fun <- function(drift_dm_obj, x_fun) {
-  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = x_fun,
-                         name = "x_fun", depends_on = "x")
+  drift_dm_obj <- set_fun(
+    drift_dm_obj = drift_dm_obj, fun = x_fun,
+    name = "x_fun", depends_on = "x"
+  )
   return(drift_dm_obj)
 }
 
 #' @rdname set_mu_fun
 #' @export
 set_b_fun <- function(drift_dm_obj, b_fun) {
-  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = b_fun,
-                         name = "b_fun", depends_on = "t")
+  drift_dm_obj <- set_fun(
+    drift_dm_obj = drift_dm_obj, fun = b_fun,
+    name = "b_fun", depends_on = "t"
+  )
   return(drift_dm_obj)
 }
 
@@ -923,16 +956,20 @@ set_b_fun <- function(drift_dm_obj, b_fun) {
 #' @rdname set_mu_fun
 #' @export
 set_dt_b_fun <- function(drift_dm_obj, dt_b_fun) {
-  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = dt_b_fun,
-                         name = "dt_b_fun", depends_on = "t")
+  drift_dm_obj <- set_fun(
+    drift_dm_obj = drift_dm_obj, fun = dt_b_fun,
+    name = "dt_b_fun", depends_on = "t"
+  )
   return(drift_dm_obj)
 }
 
 #' @rdname set_mu_fun
 #' @export
 set_nt_fun <- function(drift_dm_obj, nt_fun) {
-  drift_dm_obj = set_fun(drift_dm_obj = drift_dm_obj, fun = nt_fun,
-                         name = "nt_fun", depends_on = "t")
+  drift_dm_obj <- set_fun(
+    drift_dm_obj = drift_dm_obj, fun = nt_fun,
+    name = "nt_fun", depends_on = "t"
+  )
   return(drift_dm_obj)
 }
 
@@ -942,31 +979,34 @@ set_nt_fun <- function(drift_dm_obj, nt_fun) {
 # fun -> the user-passed function
 # name -> indicating the model component fun
 # depends_on -> toggle for ensuring that x_vec/t_vec is provided
-set_fun = function(drift_dm_obj, fun, name, depends_on) {
-
+set_fun <- function(drift_dm_obj, fun, name, depends_on) {
   # user input checks
   if (!is.function(fun)) stop("provided *_fun argument is not a function")
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
-  arg_names = names(as.list(args(fun)))
-  if (arg_names[[1]] != "drift_dm_obj")
+  arg_names <- names(as.list(args(fun)))
+  if (arg_names[[1]] != "drift_dm_obj") {
     stop("the first argument of ", name, " must be 'drift_dm_obj'")
-
-  if (depends_on == "t") {
-    if (arg_names[[2]] != "t_vec")
-      stop("the second argument of ", name, " must be 't_vec'")
-  } else {
-    if (arg_names[[2]] != "x_vec")
-      stop("the second argument of ", name, " must be 'x_vec'")
   }
 
-  if (arg_names[[3]] != "one_cond")
+  if (depends_on == "t") {
+    if (arg_names[[2]] != "t_vec") {
+      stop("the second argument of ", name, " must be 't_vec'")
+    }
+  } else {
+    if (arg_names[[2]] != "x_vec") {
+      stop("the second argument of ", name, " must be 'x_vec'")
+    }
+  }
+
+  if (arg_names[[3]] != "one_cond") {
     stop("the third argument of ", name, " must be 'one_cond'")
+  }
 
   # set the function
   drift_dm_obj$comp_funs[[name]] <- fun
-  drift_dm_obj = validate_drift_dm(drift_dm_obj)
+  drift_dm_obj <- validate_drift_dm(drift_dm_obj)
   return(drift_dm_obj)
 }
 
@@ -1016,7 +1056,6 @@ set_fun = function(drift_dm_obj, fun, name, depends_on) {
 #' @export
 simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE,
                            seed = NULL) {
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -1052,8 +1091,10 @@ simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE,
   e_samples <- matrix(0, nrow = k, ncol = nt + 1) # create matrix for storage
   t_vec <- seq(0, t_max, length.out = nt + 1) # all time steps
   mu_vec <- drift_dm_obj$comp_funs$mu_fun(drift_dm_obj = drift_dm_obj, t_vec = t_vec, one_cond = one_cond)
-  b_vec <- drift_dm_obj$comp_funs$b_fun(drift_dm_obj = drift_dm_obj,
-                                        t_vec = t_vec, one_cond = one_cond)
+  b_vec <- drift_dm_obj$comp_funs$b_fun(
+    drift_dm_obj = drift_dm_obj,
+    t_vec = t_vec, one_cond = one_cond
+  )
   samp_x <- numeric(k) # storage for starting values
 
   if (add_x) {
@@ -1079,8 +1120,9 @@ simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE,
       return(acc_steps)
     })
 
-  if (k == 1)
+  if (k == 1) {
     return(as.vector(e_samples))
+  }
 
   return(t(e_samples))
 }

@@ -36,8 +36,9 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
   }
 
   # prepare some variables
-  if (!is.null(sigma))
+  if (!is.null(sigma)) {
     drift_dm_obj$prms_solve["sigma"] <- sigma
+  }
   t_max <- drift_dm_obj$prms_solve["t_max"]
   nt <- drift_dm_obj$prms_solve["nt"]
   t_vec <- seq(0, t_max, length.out = nt + 1)
@@ -55,8 +56,10 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
 
   if (is.null(y_lim)) {
     bs <- sapply(unique_conds, function(x) {
-      max(drift_dm_obj$comp_funs$b_fun(drift_dm_obj = drift_dm_obj,
-                                       t_vec = t_vec, one_cond = x))
+      max(drift_dm_obj$comp_funs$b_fun(
+        drift_dm_obj = drift_dm_obj,
+        t_vec = t_vec, one_cond = x
+      ))
     })
     max_b <- max(bs)
     y_lim <- c(-max_b, max_b)
@@ -107,14 +110,16 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
       if (k == 1) {
         exp_process <- exp_processes
       } else {
-        exp_process <- exp_processes[i,]
+        exp_process <- exp_processes[i, ]
       }
       stopifnot(length(exp_process) == length(t_vec))
       graphics::points(exp_process ~ t_vec, ty = "l", col = line_cols_ev[idx])
     }
 
-    b_vec <- drift_dm_obj$comp_funs$b_fun(drift_dm_obj = drift_dm_obj,
-                                          t_vec = t_vec, one_cond = one_cond)
+    b_vec <- drift_dm_obj$comp_funs$b_fun(
+      drift_dm_obj = drift_dm_obj,
+      t_vec = t_vec, one_cond = one_cond
+    )
     stopifnot(length(b_vec) == length(t_vec))
     graphics::points(b_vec ~ t_vec, ty = "l", col = line_cols_b)
     graphics::points(-b_vec ~ t_vec, ty = "l", col = line_cols_b)
@@ -305,7 +310,8 @@ plot_quantiles <- function(drift_dm_obj, type = "both",
     sub_dat_obs <- sub_dat_obs[c("Prob", to_plot)]
     if (nrow(sub_dat_obs) > 0) {
       graphics::points(sub_dat_obs$Prob ~ sub_dat_obs[[to_plot]],
-                       col = line_cols[idx])
+        col = line_cols[idx]
+      )
     }
     sub_dat_pred <- sub_dat[sub_dat$Source == "pred", ]
     sub_dat_pred <- sub_dat_pred[c("Prob", to_plot)]

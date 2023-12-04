@@ -8,12 +8,12 @@ estimate_model(
   drift_dm_obj,
   lower,
   upper,
-  verbose = FALSE,
+  verbose = 0,
   use_de_optim = TRUE,
   use_nmkb = FALSE,
   seed = NULL,
   de_n_cores = 1,
-  de_control = list(reltol = 1e-09, steptol = 50, itermax = 200),
+  de_control = list(reltol = 1e-09, steptol = 50, itermax = 200, trace = FALSE),
   nmkb_control = list(tol = 1e-06)
 )
 }
@@ -25,16 +25,22 @@ each parameter to be optimized. Their length have to match the number of
 \code{free_prms} in the model. Note that the i-th \code{lower} and \code{upper} element
 refers to the i-th parameter listed in \code{free_prms} of \code{drift_dm_obj}.}
 
-\item{verbose}{logical, indicating if the parameter values and the negative
-log-likelihood should be printed at each evaluation of the model. Default is
-\code{FALSE}.}
+\item{verbose}{numeric, indicating the amount of information displayed.
+If 0, no information is displayed. If 1 (default), basic information about
+the start of Differential Evolution or Nelder-Mead and the final
+estimation result is given. If 2, each evaluation of the log-likelihood
+function is shown. Note that \code{verbose} is independent of the information
+displayed by \link[DEoptim:DEoptim]{DEoptim::DEoptim}.}
 
 \item{use_de_optim}{logical, indicating whether Differential Evolution via
 \link[DEoptim:DEoptim]{DEoptim::DEoptim} should be used. Default is \code{TRUE}}
 
 \item{use_nmkb}{logical, indicating whether Nelder-Mead via
 \link[dfoptim:nmkb]{dfoptim::nmkb} should be used. Default is \code{FALSE}. If both \code{use_de_optim}
-and \code{use_nmkb} are \code{TRUE}, then Nelder-Mead follows Differential Evolution}
+and \code{use_nmkb} are \code{TRUE}, then Nelder-Mead follows Differential Evolution.
+Note that Nelder-Mead requires a set of starting parameters for which either
+the parameter values of \code{drift_dm_obj} or the estimated parameter values by
+Differential Evolution are used.}
 
 \item{seed}{a single numeric, providing a seed for the Differential Evolution
 algorithm}

@@ -34,10 +34,10 @@ ratcliff_dm <- function(type = "simple", obs_data = NULL, sigma = 1, t_max = 3,
   )
 
   # set the custom functions
-  r_dm = set_mu_fun(drift_dm_obj = r_dm, mu_fun = mu_constant)
-  r_dm = set_mu_int_fun(drift_dm_obj = r_dm, mu_int_fun = mu_int_constant)
-  r_dm = set_b_fun(drift_dm_obj = r_dm, b_fun = b_constant)
-  r_dm = set_nt_fun(drift_dm_obj = r_dm, nt_fun = nt_constant)
+  r_dm <- set_mu_fun(drift_dm_obj = r_dm, mu_fun = mu_constant)
+  r_dm <- set_mu_int_fun(drift_dm_obj = r_dm, mu_int_fun = mu_int_constant)
+  r_dm <- set_b_fun(drift_dm_obj = r_dm, b_fun = b_constant)
+  r_dm <- set_nt_fun(drift_dm_obj = r_dm, nt_fun = nt_constant)
 
   class(r_dm) <- c("ratcliff_dm_simple", class(r_dm))
 
@@ -149,7 +149,7 @@ nt_constant <- function(drift_dm_obj, t_vec, one_cond) {
 
 
 
-#=== Diffusion Model for Conflict Task
+# === Diffusion Model for Conflict Task
 
 #' Create the diffusion model for conflict tasks
 #'
@@ -204,11 +204,11 @@ dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
   )
 
   # set the custom functions
-  dmc_dm = set_mu_fun(drift_dm_obj = dmc_dm, mu_fun = mu_dmc_dm)
-  dmc_dm = set_mu_int_fun(drift_dm_obj = dmc_dm, mu_int_fun = mu_int_dmc_dm)
-  dmc_dm = set_x_fun(drift_dm_obj = dmc_dm, x_fun = x_beta)
-  dmc_dm = set_b_fun(drift_dm_obj = dmc_dm, b_fun = b_constant)
-  dmc_dm = set_nt_fun(drift_dm_obj = dmc_dm, nt_fun = nt_truncated_normal)
+  dmc_dm <- set_mu_fun(drift_dm_obj = dmc_dm, mu_fun = mu_dmc_dm)
+  dmc_dm <- set_mu_int_fun(drift_dm_obj = dmc_dm, mu_int_fun = mu_int_dmc_dm)
+  dmc_dm <- set_x_fun(drift_dm_obj = dmc_dm, x_fun = x_beta)
+  dmc_dm <- set_b_fun(drift_dm_obj = dmc_dm, b_fun = b_constant)
+  dmc_dm <- set_nt_fun(drift_dm_obj = dmc_dm, nt_fun = nt_truncated_normal)
 
 
   class(dmc_dm) <- c("dmc_dm", class(dmc_dm))
