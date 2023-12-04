@@ -453,7 +453,7 @@ validate_fits_subjects <- function(fits_subjects) {
 
   # from those participants that are found... Does the data match?
   conds <- unique(exp_obs_data$Cond)
-  for (one_vp in all_subjects) {
+  for (one_vp in names(fits_subjects$all_fits)) {
     model_data <- summary(fits_subjects$all_fits[[one_vp]])$obs_data
 
     for (one_cond in conds) {
