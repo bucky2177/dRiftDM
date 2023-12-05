@@ -9,35 +9,36 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
   data_both <- rbind(subject_1, subject_2)
   a_model <- set_obs_data(a_model, subject_1)
   a_model <- set_free_prms(a_model, c("muc"))
-  expect_snapshot(
-    expect_warning(
-      estimate_model_subjects(
-        drift_dm_obj = a_model,
-        obs_data_subject = data_both,
-        lower = c(1), upper = c(5),
-        fit_procedure_name = "test_case_1",
-        seed = 1,
-        fit_dir = test_path("temp_fits"),
-        force_refit = TRUE,
-        verbose = 1,
-      ), "obs_data in drift_dm_obj will be ignored"
-    )
-  )
 
-  a_model$obs_data <- NULL
-
-  expect_snapshot(
+  expect_warning(
     estimate_model_subjects(
       drift_dm_obj = a_model,
       obs_data_subject = data_both,
       lower = c(1), upper = c(5),
-      fit_procedure_name = "test_case_2",
-      folder_name = "test_case_no_2",
-      seed = 2,
-      force_refit = TRUE,
+      fit_procedure_name = "test_case_1",
+      seed = 1,
       fit_dir = test_path("temp_fits"),
-      verbose = 0
-    )
+      force_refit = TRUE,
+      verbose = 0,
+      progress = 0,
+    ), "obs_data in drift_dm_obj will be ignored"
+  )
+
+
+  a_model$obs_data <- NULL
+
+
+  estimate_model_subjects(
+    drift_dm_obj = a_model,
+    obs_data_subject = data_both,
+    lower = c(1), upper = c(5),
+    fit_procedure_name = "test_case_2",
+    folder_name = "test_case_no_2",
+    seed = 2,
+    force_refit = TRUE,
+    fit_dir = test_path("temp_fits"),
+    verbose = 0,
+    progress = 0
   )
 
   # input checks
@@ -177,19 +178,19 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
   subject_3$Subject <- 3
   data_all <- rbind(subject_1, subject_2, subject_3)
 
-  expect_snapshot(
-    estimate_model_subjects(
-      drift_dm_obj = a_model,
-      obs_data_subject = data_all,
-      lower = c(1), upper = c(5),
-      fit_procedure_name = "test_case_2",
-      folder_name = "test_case_no_2",
-      seed = 2,
-      force_refit = FALSE,
-      fit_dir = test_path("temp_fits"),
-      verbose = 0
-    )
+  estimate_model_subjects(
+    drift_dm_obj = a_model,
+    obs_data_subject = data_all,
+    lower = c(1), upper = c(5),
+    fit_procedure_name = "test_case_2",
+    folder_name = "test_case_no_2",
+    seed = 2,
+    force_refit = FALSE,
+    fit_dir = test_path("temp_fits"),
+    verbose = 0,
+    progress = 0,
   )
+
 
   #### NOW THE LOADING
 

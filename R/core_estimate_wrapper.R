@@ -33,7 +33,7 @@
 #'  be fitted once more. Default is `FALSE` which indicates that saved files
 #' @param progress numerical, indicating if and how progress shall be depicted.
 #'  If 0, no progress is shown. If 1, the currently fitted subject is printed
-#'  out. If 2, a progressbar is shown.
+#'  out. If 2, a progressbar is shown. Default is 2.
 #' @param ... additional arguments passed down to [dRiftDM::estimate_model].
 #'
 #' @details
@@ -62,7 +62,7 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
                                     seed = NULL,
                                     fit_dir = "drift_dm_fits",
                                     force_refit = FALSE,
-                                    progress = 1, ...) {
+                                    progress = 2, ...) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -126,50 +126,53 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
   )
 
 
-  # 2. step: Split the data
+  # 2. step: Split the data and find those to fit
   list_obs_data <- split(x = obs_data_subject, f = obs_data_subject$Subject)
+  if (any(names(list_obs_data) == "drift_dm_fit_info")) {
+    stop("drift_dm_fit_info not allowed as subject number/identifier")
+  }
 
-  # 3. run a loop across the list
-  if (progress == 2) {
-    pb <- utils::txtProgressBar(
-      min = 0,
-      max = length(list_obs_data),
-      initial = 0
+  if (!force_refit) {
+    files_exist <- sapply(names(list_obs_data), function(x, folder_name) {
+      return(file.exists(file.path(folder_name, paste0(x, ".rds"))))
+    }, folder_name = folder_name)
+    list_obs_data <- list_obs_data[!files_exist]
+  }
+
+
+  # prepare progress output
+  if (progress == 1) {
+    start_time <- Sys.time()
+  } else if (progress == 2) {
+    pb <- progress::progress_bar$new(
+      format = "estimating [:bar] :percent; done in: :eta",
+      total = length(list_obs_data), clear = FALSE, width = 60
     )
   }
 
+  # 3. run a loop across the list
   for (name_one_subject in names(list_obs_data)) {
-    if (name_one_subject == "drift_dm_fit_info") {
-      stop("drift_dm_fit_info not allowed as subject number/identifier")
-    }
-
-    if (progress == 2) {
-      utils::setTxtProgressBar(
-        pb,
-        which(name_one_subject == names(list_obs_data))
-      )
-    }
-
+    # set the data to the model
     one_obs_data <- list_obs_data[[name_one_subject]]
     drift_dm_obj_subj <- set_obs_data(
       drift_dm_obj = drift_dm_obj,
       obs_data = one_obs_data
     )
 
-    file_name <- paste0(name_one_subject, ".rds")
-
-    if (!force_refit & file.exists(file.path(folder_name, file_name))) {
-      next
+    # estimate the model
+    if (progress == 1) {
+      num <- which(name_one_subject == names(list_obs_data))
+      cat(
+        "Estimating model for subject:", name_one_subject,
+        sprintf("(%s/%s)", num, length(list_obs_data)), "\n"
+      )
+    } else if (progress == 2) {
+      pb$tick()
     }
-
     result <-
       tryCatch(expr = {
-        if (progress == 1) {
-          cat("Estimating model for subject:", name_one_subject, "\n")
-        }
         estimate_model(
-          drift_dm_obj = drift_dm_obj_subj, lower = lower,
-          upper = upper, ...
+          drift_dm_obj = drift_dm_obj_subj, lower = lower, upper = upper, ...
         )
       }, error = function(e) {
         warning(
@@ -181,12 +184,17 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
       })
 
     if (!is.null(result)) {
-      saveRDS(object = result, file = file.path(folder_name, file_name))
+      saveRDS(
+        object = result,
+        file = file.path(folder_name, paste0(name_one_subject, ".rds"))
+      )
     }
-  }
-
-  if (progress == 2) {
-    close(pb)
+    if (progress == 1) {
+      time_elapsed <- as.numeric(difftime(Sys.time(), start_time, units = "min"))
+      time_elapsed <- round(time_elapsed, 2)
+      if (time_elapsed > 10) time_elapsed <- round(time_elapsed)
+      cat("-> done. Time elapsed:", time_elapsed, "minutes", "\n")
+    }
   }
 }
 
@@ -439,8 +447,8 @@ validate_fits_subjects <- function(fits_subjects) {
 
   # the same or different number of subjects?
   exp_obs_data <- drift_dm_fit_info$obs_data_subject
-  all_subjects <- unique(as.character(exp_obs_data$Subject))
-  n_exp <- length(all_subjects)
+  info_subjects <- unique(as.character(exp_obs_data$Subject))
+  n_exp <- length(info_subjects)
   n_real <- length(fits_subjects$all_fits)
 
   if (n_exp != n_real) {
@@ -453,36 +461,46 @@ validate_fits_subjects <- function(fits_subjects) {
 
   # from those participants that are found... Does the data match?
   conds <- unique(exp_obs_data$Cond)
-  for (one_vp in names(fits_subjects$all_fits)) {
+  subjects_fitted <- names(fits_subjects$all_fits)
+  subjects_found <- subjects_fitted[subjects_fitted %in% info_subjects]
+  for (one_vp in subjects_found) {
     model_data <- summary(fits_subjects$all_fits[[one_vp]])$obs_data
 
     for (one_cond in conds) {
+      # observed data in the info file
       vp_data <- exp_obs_data[exp_obs_data$Subject == one_vp, ]
       corr <- summary(vp_data$RT[vp_data$Cond == one_cond & vp_data$Error == 0])
       n_corr <- length(vp_data$RT[vp_data$Cond == one_cond & vp_data$Error == 0])
       err <- summary(vp_data$RT[vp_data$Cond == one_cond & vp_data$Error == 1])
       n_err <- length(vp_data$RT[vp_data$Cond == one_cond & vp_data$Error == 1])
+
+      # expected data in the fit object
       exp_corr <- model_data[rownames(model_data) == paste("correct", one_cond)]
       exp_err <- model_data[rownames(model_data) == paste("error", one_cond)]
 
+      # check for inconsistencies
+      toggle_err <- F
       if (n_err > 0) {
-        if (any(exp_err != c(err, n_err))) {
-          warning(paste(
-            "data of subject", one_vp, "in the fitted model",
-            "doesn't match with the expected data based on the info file.",
-            "Cond:", one_cond
-          ))
-        }
+        if (any(exp_err != c(err, n_err))) toggle_err <- T
+      } else {
+        if (exp_err[length(exp_err)] != 0) toggle_err <- T
+        if (any(!is.na(exp_err[-length(exp_err)]))) toggle_err <- T
       }
 
+      toggle_corr <- F
       if (n_corr > 0) {
-        if (any(exp_corr != c(corr, n_corr))) {
-          warning(paste(
-            "data of subject", one_vp, "in the fitted model",
-            "doesn't match with the expected data based on the info file.",
-            "Cond:", one_cond
-          ))
-        }
+        if (any(exp_corr != c(corr, n_corr))) toggle_corr <- T
+      } else {
+        if (exp_corr[length(exp_corr)] != 0) toggle_corr <- T
+        if (any(!is.na(exp_corr[-length(exp_corr)]))) toggle_corr <- T
+      }
+
+      if (toggle_err | toggle_corr) {
+        warning(
+          "data of subject ", one_vp, " in the fitted model ",
+          "doesn't match with the expected data based on the info file. ",
+          "Cond: ", one_cond
+        )
       }
     }
   }

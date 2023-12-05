@@ -14,7 +14,7 @@ estimate_model_subjects(
   seed = NULL,
   fit_dir = "drift_dm_fits",
   force_refit = FALSE,
-  progress = 1,
+  progress = 2,
   ...
 )
 }
@@ -51,7 +51,7 @@ be fitted once more. Default is \code{FALSE} which indicates that saved files}
 
 \item{progress}{numerical, indicating if and how progress shall be depicted.
 If 0, no progress is shown. If 1, the currently fitted subject is printed
-out. If 2, a progressbar is shown.}
+out. If 2, a progressbar is shown. Default is 2.}
 
 \item{...}{additional arguments passed down to \link{estimate_model}.}
 }
