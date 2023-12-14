@@ -2,19 +2,43 @@
 % Please edit documentation in R/core_dm_fits_subjects.R
 \name{gather_parameters}
 \alias{gather_parameters}
+\alias{gather_stats}
 \title{Get model values across subjects}
 \usage{
 gather_parameters(fits_subjects)
+
+gather_stats(fits_subjects, type, verbose = 0, ...)
 }
 \arguments{
 \item{fits_subjects}{an object inheriting from \code{dm_fits_subjects}, see
-\link{load_fits_subjects}
+\link{load_fits_subjects}}
 
-@return
+\item{type}{character vector when calling \link{calc_stats}}
+
+\item{...}{further arguments which are passed further down
+
+@details
+
 \code{gather_parameters} returns the model parameters, the log-likelihood, and
-AIC/BIC values as a data.frame}
+AIC/BIC values as a data.frame
+
+\code{gather_stats} calls \link{calc_stats}, and further arguments via ...
+can be passed. The return value is determined by \link{calc_stats} and
+can be controlled via the \code{type} argument (see the documentation
+\link{calc_stats} for more information). In any case, the returned
+value will contain the statistics as a data.frame, separately for each
+subject.}
+
+\item{stats}{optional, integer, indicating if information about the progress
+should be displayed. Can be set for some of the \verb{gather_*} functions.
+0 -> no information, 1 -> a progress bar. Default is 0.}
 }
 \description{
 \verb{gather_*} functions iterate over the individual model fits in
-\code{fits_subjects}, returning a data.frame of the respective parameters/values
+\code{fits_subjects}, returning a data.frame of the requested parameters or
+statistics:
+\itemize{
+\item \code{gather_parameters}: Gathers the (estimated) model parameters
+\item \code{gather_stats} calls \link{calc_stats} repeatedly for each subject.
+}
 }

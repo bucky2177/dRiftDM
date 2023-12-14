@@ -5,8 +5,8 @@
 \title{Plot the quantiles}
 \usage{
 plot_quantiles(
-  drift_dm_obj,
-  type = "both",
+  obj,
+  source = "both",
   probs = seq(0.1, 0.9, 0.1),
   to_plot = "Quant_Corr",
   x_lab = NULL,
@@ -17,9 +17,12 @@ plot_quantiles(
 )
 }
 \arguments{
-\item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
+\item{obj}{an object inheriting from \link{drift_dm} or
+\code{dm_fits_subjects} (see \link{load_fits_subjects}). If \code{obj} is of the
+latter type, quantiles are calculated via
+\link{gather_stats} and then aggregated across subjects.}
 
-\item{type}{character, indicating whether CAFs of the model ("pred"), the
+\item{source}{character, indicating whether CAFs of the model ("pred"), the
 observed data ("obs"), or both ("both") should be plotted. Default is
 "both".}
 
@@ -27,7 +30,7 @@ observed data ("obs"), or both ("both") should be plotted. Default is
 \code{seq(0.1, 0.9, 0.1)}}
 
 \item{to_plot}{character, providing the column of the data.frame returned by
-\link{calc_quantiles} that should be used for plotting. Default is
+\link{calc_stats} that should be used for plotting. Default is
 "Quant_Corr", indicating that the quantiles of correct responses will be
 plotted.}
 
@@ -36,7 +39,7 @@ respectively. Default is "RT" and "F(RT)", respectively.}
 
 \item{x_lim, y_lim}{numeric vectors of length 2, providing the limits of the
 x-axis and y-axis. The default for \code{x_lim} is \code{c(0, t_max / 2)}, with
-\code{t_max} defined within \code{drift_dm_obj}. The default for \code{y_lim} is
+\code{t_max} defined within \code{obj}. The default for \code{y_lim} is
 \code{c(0, 1)}.}
 
 \item{line_cols}{character vector, indicating the color-coding of the
@@ -44,5 +47,5 @@ conditions. Default colors are based on the \code{grDevices::rainbow} palette.}
 }
 \description{
 This function provides a basic plot of the model's and/or the observed data's
-quantiles (see \link{calc_quantiles}).
+quantiles (see \link{calc_stats}).
 }

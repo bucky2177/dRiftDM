@@ -4,16 +4,12 @@
 \alias{calc_pdfs}
 \title{Derive the PDFs of a model}
 \usage{
-calc_pdfs(drift_dm_obj, one_cond, solver)
+calc_pdfs(drift_dm_obj, one_cond)
 }
 \arguments{
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
 
 \item{one_cond}{character, providing the name of a condition}
-
-\item{solver}{character, indicating which algorithm should be used for
-deriving the pdf. Default is to "kfe", meaning that the Crank-Nicolson
-discretization of the Kolmogorov-Forward-Equation should be used.}
 }
 \description{
 This function calculates the probability density functions of a drift

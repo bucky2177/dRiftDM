@@ -624,7 +624,7 @@ test_that("simualte_data works as expected", {
   sim_quantiles_corr <- quantile(sim_data$RT[sim_data$Error == 0],
     probs = seq(0.1, 0.9, 0.1)
   )
-  exp_quantiles <- calc_quantiles(a_model, type = "pred")
+  exp_quantiles <- calc_stats(a_model, type = "quantiles", source = "pred")
   exp_quantiles_corr <- round(exp_quantiles$Quant_Corr, 3)
   expect_true(all(abs(sim_quantiles_corr - exp_quantiles_corr) <= 1))
 

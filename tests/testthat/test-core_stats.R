@@ -26,30 +26,25 @@ test_that("calc_caf works as expected", {
   )
 
   # test
-  cafs <- calc_cafs(drift_dm_obj = dummy_model, type = "obs", n_bins = 6)
+  cafs <- calc_stats(drift_dm_obj = dummy_model, type = "cafs",
+                     source = "obs", n_bins = 6)
   expect_identical(cafs$P_Corr[cafs$Cond == "null"], exp_1)
   expect_identical(cafs$P_Corr[cafs$Cond == "foo"], exp_2)
 
-  # test if dispatch works as expected
-  expect_identical(
-    calc_cafs(
-      drift_dm_obj = dummy_model, type = "obs",
-      n_bins = 6
-    ),
-    calc_cafs_obs(drift_dm_obj = dummy_model, n_bins = 6)
-  )
 
   # input checks
   expect_error(
-    calc_cafs(drift_dm_obj = dummy_model, n_bins = 1),
-    "larger than 1"
+    calc_stats(
+      calc_stats(drift_dm_obj = dummy_model, type = "cafs", n_bins = 1),
+      "larger than 1"
+    )
   )
   expect_error(
-    calc_cafs(drift_dm_obj = dummy_model, n_bins = NA),
+    calc_stats(drift_dm_obj = dummy_model, type = "cafs", n_bins = NA),
     "single numeric"
   )
   expect_error(
-    calc_cafs(drift_dm_obj = dummy_model, type = "foo"),
+    calc_stats(drift_dm_obj = dummy_model, type = "cafs", source = "foo"),
     "should be one of"
   )
 
@@ -57,8 +52,8 @@ test_that("calc_caf works as expected", {
   ### PRED
   # get some pdfs/cafs
   a_model <- ratcliff_dm(dx = .005, dt = .005)
-  pdfs <- calc_pdfs(a_model, one_cond = "null", solver = "kfe")
-  pred_cafs <- calc_cafs(drift_dm_obj = a_model, type = "pred")
+  pdfs <- calc_pdfs(a_model, one_cond = "null")
+  pred_cafs <- calc_stats(drift_dm_obj = a_model, type = "cafs", source = "pred")
 
   # calculate cafs by hand
   pdfs_u <- pdfs[[1]]
@@ -69,9 +64,10 @@ test_that("calc_caf works as expected", {
 
   # another example with non-constant cafs
   a_model <- dmc_dm(dt = 0.001, dx = 0.005, t_max = 1)
-  pdfs_comp <- calc_pdfs(a_model, one_cond = "comp", solver = "kfe")
-  pdfs_incomp <- calc_pdfs(a_model, one_cond = "incomp", solver = "kfe")
-  pred_cafs <- calc_cafs(drift_dm_obj = a_model, type = "pred")
+  pdfs_comp <- calc_pdfs(a_model, one_cond = "comp")
+  pdfs_incomp <- calc_pdfs(a_model, one_cond = "incomp")
+  pred_cafs <- calc_stats(drift_dm_obj = a_model,
+                          type = "cafs", source = "pred")
 
   # reference obtained by my former package
   expect_true(all(
@@ -86,8 +82,9 @@ test_that("calc_caf works as expected", {
   ### Both
   dat$Cond <- rep(c("comp", "incomp"), each = 12)
   a_model <- set_obs_data(a_model, dat)
-  caf_final <- calc_cafs(a_model, type = "both", n_bins = 6)
-  pred_cafs <- calc_cafs(drift_dm_obj = a_model, type = "pred", n_bins = 6)
+  caf_final <- calc_stats(a_model, type = "cafs", source = "both", n_bins = 6)
+  pred_cafs <- calc_stats(drift_dm_obj = a_model, type = "cafs",
+                          source = "pred", n_bins = 6)
 
   expect_true(nrow(caf_final) == 6 * 4)
   expect_identical(
@@ -119,8 +116,8 @@ test_that("calc_quantiles works as expected", {
   )
 
   dummy_model <- set_obs_data(drift_dm_obj = dummy_model, obs_data = dat)
-  quants_obs <- calc_quantiles(
-    drift_dm_obj = dummy_model, type = "obs",
+  quants_obs <- calc_stats(
+    drift_dm_obj = dummy_model, source = "obs", type = "quantiles",
     probs = seq(0.2, 0.8, 0.1)
   )
   expect_identical(
@@ -153,11 +150,12 @@ test_that("calc_quantiles works as expected", {
 
 
   ## preds
-  quants_pred <- calc_quantiles(dummy_model,
-    type = "pred",
+  quants_pred <- calc_stats(
+    dummy_model,
+    source = "pred", type = "quantiles",
     probs = seq(0.2, 0.8, 0.1)
   )
-  pdfs_incomp <- calc_pdfs(dummy_model, "incomp", "kfe")
+  pdfs_incomp <- calc_pdfs(dummy_model, "incomp")
 
 
   expect_true(all(
@@ -181,34 +179,35 @@ test_that("calc_quantiles works as expected", {
   ))
 
   # both
-  quants_both <- calc_quantiles(dummy_model,
-    type = "both",
+  quants_both <- calc_stats(
+    dummy_model,
+    source = "both", type = "quantiles",
     probs = seq(0.2, 0.8, 0.1)
   )
   both <- rbind(quants_obs, quants_pred)
-  both <- cbind(rep(c("obs", "pred"), each = 14), both)
   colnames(both)[1] <- "Source"
+  rownames(both) <- 1:nrow(both)
   expect_identical(quants_both, both)
 
   # input checks
   expect_error(
-    calc_quantiles(dummy_model, type = "foo"),
+    calc_stats(dummy_model, type = "quantiles", source = "foo"),
     "should be one of"
   )
   expect_error(
-    calc_quantiles(dummy_model, probs = NA),
+    calc_stats(dummy_model, type = "quantiles", probs = NA),
     "numeric vector"
   )
   expect_error(
-    calc_quantiles(dummy_model, probs = numeric()),
+    calc_stats(dummy_model, type = "quantiles", probs = numeric()),
     "numeric vector"
   )
   expect_error(
-    calc_quantiles(dummy_model, probs = c(0, 0.1)),
+    calc_stats(dummy_model, type = "quantiles", probs = c(0, 0.1)),
     "must be in the range"
   )
   expect_error(
-    calc_quantiles(dummy_model, probs = c(0.1, 1)),
+    calc_stats(dummy_model, type = "quantiles", probs = c(0.1, 1)),
     "must be in the range"
   )
 })
@@ -216,6 +215,6 @@ test_that("calc_quantiles works as expected", {
 test_that("no data warnings", {
   # no data warning
   a_model <- ratcliff_dm()
-  expect_warning(calc_quantiles(a_model, type = "obs"), "no data")
-  expect_warning(calc_cafs(a_model, type = "obs"), "no data")
+  expect_warning(calc_stats(a_model, type = "quantiles", source = "obs"), "no data")
+  expect_warning(calc_stats(a_model, type = "cafs", source = "obs"), "no data")
 })

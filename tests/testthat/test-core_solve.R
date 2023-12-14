@@ -1,22 +1,21 @@
 test_that("force negative pdf values", {
   a_model <- ratcliff_dm(dt = .01, dx = .01, obs_data = ratcliff_data)
   a_model <- set_model_prms(a_model, c(7, 0.1, 0.3))
-  retur_val <- suppressWarnings(calc_log_like(a_model))
-  expect_identical(-Inf, retur_val)
+  a_model <- suppressWarnings(re_evaluate_model(a_model))
+  expect_identical(-Inf, a_model$log_like_val)
   expect_warning(
-    calc_pdfs(a_model, one_cond = "null", solver = "kfe"),
+    calc_pdfs(a_model, one_cond = "null"),
     "subst. negative density"
   )
 
-  a_model <- set_model_prms(a_model, c(7, 0.14, 0.3))
-  retur_val <- suppressWarnings(calc_log_like(a_model))
-  expect_identical(-Inf, retur_val)
+  a_model <- suppressWarnings(
+    set_model_prms(a_model, c(7, 0.14, 0.3), eval_model = T)
+  )
+  expect_identical(-Inf, a_model$log_like_val)
   expect_warning(
     expect_warning(
       expect_warning(
-        expect_warning(
-          calc_log_like(a_model), "negative density values"
-        ), "NaNs"
+          calc_log_like(a_model), "NaNs"
       ), "NaNs"
     ), "when calculating the log-likelihood"
   )
@@ -45,7 +44,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$x_fun <- x_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "unexpected length of x_vals"
   )
 
@@ -58,7 +57,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$x_fun <- x_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "doesn't integrate to 1"
   )
 
@@ -73,7 +72,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$x_fun <- x_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "NAs"
   )
 
@@ -90,7 +89,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$mu_fun <- mu_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "unexpected length of mu_vals"
   )
 
@@ -106,7 +105,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$mu_fun <- mu_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "or NAs"
   )
 
@@ -122,7 +121,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$mu_fun <- mu_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "infinite"
   )
 
@@ -137,7 +136,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$b_fun <- b_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "unexpected length of b_vals"
   )
 
@@ -150,7 +149,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$b_fun <- b_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "or NAs"
   )
 
@@ -164,7 +163,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$b_fun <- b_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "or NAs"
   )
 
@@ -177,7 +176,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$dt_b_fun <- dt_b_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "unexpected length of dt_b_vals"
   )
 
@@ -191,7 +190,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$dt_b_fun <- dt_b_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "NAs"
   )
 
@@ -205,7 +204,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$dt_b_fun <- dt_b_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "infinite"
   )
 
@@ -218,7 +217,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$nt_fun <- nt_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "don't have the same dimension"
   )
 
@@ -230,7 +229,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$nt_fun <- nt_foo
   expect_warning(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "don't integrate to the same value"
   )
 
@@ -243,7 +242,7 @@ test_that("call pdfs with unreasonable components", {
   temp <- a_model
   temp$comp_funs$nt_fun <- nt_foo
   expect_error(
-    calc_pdfs(temp, one_cond = "null", solver = "kfe"),
+    calc_pdfs(temp, one_cond = "null"),
     "or NAs"
   )
 })
@@ -259,9 +258,9 @@ test_that("test log_like", {
     conds = c("null", "foo"), dx = 0.005,
     dt = 0.005, t_max = 1
   )
-  a_model <- set_obs_data(a_model, data)
-  pdfs_null <- calc_pdfs(a_model, "null", "kfe")
-  pdfs_foo <- calc_pdfs(a_model, "foo", "kfe")
+  a_model <- set_obs_data(a_model, data, eval_model = T)
+  pdfs_null <- calc_pdfs(a_model, "null")
+  pdfs_foo <- calc_pdfs(a_model, "foo")
 
   # log_like_value calculated by hand
   t_vec <- seq(0, 1, 0.005)
@@ -276,9 +275,8 @@ test_that("test log_like", {
   for_test_log_like <- log(d_1) + log(d_2) + log(d_3) + log(d_4)
 
   # calc_log_like
-  by_model_log_like <- calc_log_like(a_model)
 
-  expect_equal(by_model_log_like, for_test_log_like)
+  expect_equal(a_model$log_like, for_test_log_like)
 })
 
 # for get_pdf -> see test_models

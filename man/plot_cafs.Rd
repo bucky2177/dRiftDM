@@ -5,8 +5,8 @@
 \title{Plot conditional accuracy functions}
 \usage{
 plot_cafs(
-  drift_dm_obj,
-  type = "both",
+  obj,
+  source = "both",
   n_bins = 5,
   x_lab = NULL,
   y_lab = NULL,
@@ -16,9 +16,12 @@ plot_cafs(
 )
 }
 \arguments{
-\item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
+\item{obj}{an object inheriting from \link{drift_dm} or
+\code{dm_fits_subjects} (see \link{load_fits_subjects}). If \code{obj} is of the
+latter type, cafs are calculated via
+\link{gather_stats} and then aggregated across subjects.}
 
-\item{type}{character, indicating whether CAFs of the model ("pred"), the
+\item{source}{character, indicating whether CAFs of the model ("pred"), the
 observed data ("obs"), or both ("both") should be plotted. Default is
 "both".}
 
@@ -37,5 +40,5 @@ conditions. Default colors are based on the \code{grDevices::rainbow} palette.}
 }
 \description{
 This function provides a basic plot of the model's and/or the observed data's
-conditional accuracy functions (CAFs; see \link{calc_cafs}).
+conditional accuracy functions (CAFs; see \link{calc_stats}).
 }

@@ -9,9 +9,6 @@
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
 #'
 #' @param one_cond character, providing the name of a condition
-#' @param solver character, indicating which algorithm should be used for
-#'  deriving the pdf. Default is to "kfe", meaning that the Crank-Nicolson
-#'  discretization of the Kolmogorov-Forward-Equation should be used.
 #'
 #' @details
 #' More in-depth information about the mathematical details can be found in
@@ -21,10 +18,12 @@
 #' \insertAllCited{}
 #'
 #' @export
-calc_pdfs <- function(drift_dm_obj, one_cond, solver) {
+calc_pdfs <- function(drift_dm_obj, one_cond) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
+
+  solver = drift_dm_obj$solver
 
   if (!is.character(one_cond) | length(one_cond) != 1) {
     stop("one_cond must be of type character with length 1")
@@ -181,23 +180,21 @@ calc_log_like <- function(drift_dm_obj) {
   }
 
   log_like <- 0
-  red_drift_dm_obj <- drift_dm_obj
-  if (is.null(red_drift_dm_obj$obs_data)) {
-    warning("log_like() was called but no data is provided returning -Inf")
+  if (is.null(drift_dm_obj$obs_data)) {
+    warning("calc_log_like() was called but no data is provided returning -Inf")
     return(-Inf)
   }
-  red_drift_dm_obj$obs_data <- NULL # to avoid copying the data unnecessarily
-  for (one_cond in drift_dm_obj$conds) {
-    pdfs <- calc_pdfs(
-      drift_dm_obj = red_drift_dm_obj,
-      one_cond = one_cond,
-      solver = drift_dm_obj$solver
-    )
 
+  if (is.null(drift_dm_obj$pdfs)) {
+    warning("calc_log_like() was called but no pdfs were found. Returning -Inf")
+    return(-Inf)
+  }
+
+  for (one_cond in drift_dm_obj$conds) {
     log_like <- log_like + log_like_heart(
       drift_dm_obj = drift_dm_obj,
-      pdf_u = pdfs$pdf_u,
-      pdf_l = pdfs$pdf_l,
+      pdf_u = drift_dm_obj$pdfs[[one_cond]]$pdf_u,
+      pdf_l = drift_dm_obj$pdfs[[one_cond]]$pdf_l,
       one_cond = one_cond
     )
   }

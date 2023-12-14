@@ -53,7 +53,7 @@ test_that("testing DMC", {
   a_dmc_model <- dmc_dm(t_max = 1000, dt = 5, dx = .1, sigma = 4)
   a_dmc_model <- set_model_prms(a_dmc_model, c(0.5, 75, 300, 30, 50, 20, 2))
 
-  pdfs_comp <- calc_pdfs(a_dmc_model, "comp", "kfe")
+  pdfs_comp <- calc_pdfs(a_dmc_model, "comp")
 
   # get the pdfs from the python code....
   pdf_u_comp <- read.table(test_path("fixtures", "pdf_u_cong.txt"))$V1
@@ -77,7 +77,7 @@ test_that("testing DMC", {
     0.1581139, 2
   ))
 
-  pdfs_comp_s <- calc_pdfs(a_dmc_model, "comp", "kfe")
+  pdfs_comp_s <- calc_pdfs(a_dmc_model, "comp")
   expect_true(all(abs(pdfs_comp_s[[1]] / 1000 - pdfs_comp[[1]]) < 1e-8))
   expect_true(all(abs(pdfs_comp_s[[2]] / 1000 - pdfs_comp[[2]]) < 1e-8))
 
@@ -97,8 +97,8 @@ test_that("testing DMC", {
     spLim = c(-75.89466, 75.89466), setSeed = T,
     printInputArgs = F, printResults = F
   )
-  dmc_cafs <- calc_cafs(a_dmc_model, type = "pred")
-  dmc_quants <- calc_quantiles(a_dmc_model, type = "pred")
+  dmc_cafs <- calc_stats(a_dmc_model, type = "cafs", source = "pred")
+  dmc_quants <- calc_stats(a_dmc_model, type = "quantiles", source = "pred")
 
   expect_true(
     all(abs(
@@ -153,8 +153,8 @@ test_that("testing DMC", {
     spLim = c(-75.89466, 75.89466), setSeed = T,
     printInputArgs = F, printResults = F
   )
-  dmc_cafs <- calc_cafs(a_dmc_model, type = "pred")
-  dmc_quants <- calc_quantiles(a_dmc_model, type = "pred")
+  dmc_cafs <- calc_stats(a_dmc_model, type = "cafs", source = "pred")
+  dmc_quants <- calc_stats(a_dmc_model, type = "quantiles", source = "pred")
 
   expect_true(
     all(abs(
@@ -224,7 +224,7 @@ test_that("ratcliff_simple works as expected", {
   pdf_test[0.3 / a_model$prms_solve[["dt"]] + 1] <- 1 / a_model$prms_solve[["dt"]]
   expect_equal(pdf_test, pdf_nt)
 
-  pdfs <- calc_pdfs(a_model, "w", "kfe")
+  pdfs <- calc_pdfs(a_model, "w")
   pdfs[[1]] <- pdfs[[1]] / sum(pdfs[[1]])
   pdfs[[2]] <- pdfs[[2]] / sum(pdfs[[2]])
   expect_true(all(abs(pdfs[[1]] - pdfs[[2]]) < 0.001))
@@ -245,8 +245,8 @@ test_that("ratcliff_simple works as expected", {
     spLim = c(-75.89466, 75.89466), setSeed = T,
     printInputArgs = F, printResults = F
   )
-  r_cafs <- calc_cafs(a_model, type = "pred")
-  r_quants <- calc_quantiles(a_model, type = "pred")
+  r_cafs <- calc_stats(a_model, type = "cafs", source = "pred")
+  r_quants <- calc_stats(a_model, type = "quantiles", source = "pred")
   r_quants$Quant_Corr <- r_quants$Quant_Corr - 0.3
 
   expect_true(
