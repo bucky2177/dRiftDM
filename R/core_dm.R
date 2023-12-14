@@ -493,7 +493,7 @@ calc_ic <- function(ll, k, n) {
 #' Bayesian information criterion (BIC)
 #'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
-#' @param eval logical, indicating if the model should be evaluated or not.
+#' @param eval_model logical, indicating if the model should be evaluated or not.
 #'  If `False` pdfs, log_like_val and ic_vals are deleted from the model
 #'  (used in the internals of dRiftDM)
 #'
@@ -583,9 +583,9 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 #'  \code{vignette("use_ddm_models", "dRiftDM")} for more information).
 #' @param eval_model logical, indicating whether [dRiftDM::re_evaluate_model]
 #'  should be called after modifying the model. Default is `FALSE`. Note that if
-#'  `eval_model` is set to `FALSE`, the attributes `log_like_val` and `ic_vals`
-#'  are deleted from the model. Also, `eval_model = TRUE` only has an effect
-#'  if the model provides data.
+#'  `eval_model` is set to `FALSE`, the attributes `pdfs`, `log_like_val`,
+#'  and `ic_vals`are deleted from the model. Also, `eval_model = TRUE` only
+#'  has an effect if the model provides data.
 #'
 #' @returns Returns the modified `drift_dm_obj` object.
 #'
@@ -876,6 +876,12 @@ check_raw_data <- function(obs_data) {
 #' @param mu_fun,mu_int_fun,x_fun,b_fun,dt_b_fun,nt_fun functions defining
 #'  the respective components. See below for more details
 #'
+#' @param eval_model logical, indicating whether [dRiftDM::re_evaluate_model]
+#'  should be called after modifying the model. Default is `FALSE`. Note that if
+#'  `eval_model` is set to `FALSE`, the attributes `pdfs`, `log_like_val`,
+#'  and `ic_vals`are deleted from the model. Also, `eval_model = TRUE` only
+#'  has an effect if the model provides data.
+#'
 #' @details
 #'
 #' Please visit the \code{vignette("use_ddm_models", "dRiftDM")} for more in-depth
@@ -984,7 +990,7 @@ check_raw_data <- function(obs_data) {
 set_mu_fun <- function(drift_dm_obj, mu_fun, eval_model = F) {
   drift_dm_obj <- set_fun(
     drift_dm_obj = drift_dm_obj, fun = mu_fun,
-    name = "mu_fun", depends_on = "t", eval_model
+    name = "mu_fun", depends_on = "t", eval_model = eval_model
   )
   return(drift_dm_obj)
 }
@@ -994,7 +1000,7 @@ set_mu_fun <- function(drift_dm_obj, mu_fun, eval_model = F) {
 set_mu_int_fun <- function(drift_dm_obj, mu_int_fun, eval_model = F) {
   drift_dm_obj <- set_fun(
     drift_dm_obj = drift_dm_obj, fun = mu_int_fun,
-    name = "mu_int_fun", depends_on = "t", eval_model
+    name = "mu_int_fun", depends_on = "t", eval_model = eval_model
   )
   return(drift_dm_obj)
 }
@@ -1004,7 +1010,7 @@ set_mu_int_fun <- function(drift_dm_obj, mu_int_fun, eval_model = F) {
 set_x_fun <- function(drift_dm_obj, x_fun, eval_model = F) {
   drift_dm_obj <- set_fun(
     drift_dm_obj = drift_dm_obj, fun = x_fun,
-    name = "x_fun", depends_on = "x", eval_model
+    name = "x_fun", depends_on = "x", eval_model = eval_model
   )
   return(drift_dm_obj)
 }
@@ -1014,7 +1020,7 @@ set_x_fun <- function(drift_dm_obj, x_fun, eval_model = F) {
 set_b_fun <- function(drift_dm_obj, b_fun, eval_model = F) {
   drift_dm_obj <- set_fun(
     drift_dm_obj = drift_dm_obj, fun = b_fun,
-    name = "b_fun", depends_on = "t", eval_model
+    name = "b_fun", depends_on = "t", eval_model = eval_model
   )
   return(drift_dm_obj)
 }
@@ -1025,7 +1031,7 @@ set_b_fun <- function(drift_dm_obj, b_fun, eval_model = F) {
 set_dt_b_fun <- function(drift_dm_obj, dt_b_fun, eval_model = F) {
   drift_dm_obj <- set_fun(
     drift_dm_obj = drift_dm_obj, fun = dt_b_fun,
-    name = "dt_b_fun", depends_on = "t", eval_model
+    name = "dt_b_fun", depends_on = "t", eval_model = eval_model
   )
   return(drift_dm_obj)
 }
@@ -1035,7 +1041,7 @@ set_dt_b_fun <- function(drift_dm_obj, dt_b_fun, eval_model = F) {
 set_nt_fun <- function(drift_dm_obj, nt_fun, eval_model = F) {
   drift_dm_obj <- set_fun(
     drift_dm_obj = drift_dm_obj, fun = nt_fun,
-    name = "nt_fun", depends_on = "t", eval_model
+    name = "nt_fun", depends_on = "t", eval_model = eval_model
   )
   return(drift_dm_obj)
 }

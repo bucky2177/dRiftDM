@@ -4,21 +4,29 @@
 \alias{re_evaluate_model}
 \title{Re-evaluate the model}
 \usage{
-re_evaluate_model(drift_dm_obj)
+re_evaluate_model(drift_dm_obj, eval_model = T)
 }
 \arguments{
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
+
+\item{eval_model}{logical, indicating if the model should be evaluated or not.
+If \code{False} pdfs, log_like_val and ic_vals are deleted from the model
+(used in the internals of dRiftDM)}
 }
 \value{
 Returns the passed \code{drift_dm_obj} object, after (re-)calculating
-the log likelihood (and AIC/BIC) of the model.
+the pdfs, log likelihood (and AIC/BIC) of the model.
 \itemize{
+\item the pdfs an be addressed via \code{drift_dm_obj$pdfs}
 \item the log likelihood can be addressed via \code{drift_dm_obj$log_like_val}
 \item the AIC/BIC values can be addressed via \code{drift_dm_obj$ic_vals}
 }
+
+Note that if re_evaluate model is called before observed data was set,
+the function silently updates the \code{pdfs}, but not \code{log_like_val} or \code{ic_vals}
 }
 \description{
-Updates the log likelihood value stored in \code{drift_dm_obj} and subsequently
-calculates the values for the Akaike information criterion (AIC) and the
+Updates the pdfs, log likelihood, and
+the values for the Akaike information criterion (AIC) and the
 Bayesian information criterion (BIC)
 }

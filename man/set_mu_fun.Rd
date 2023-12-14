@@ -9,23 +9,29 @@
 \alias{set_nt_fun}
 \title{Setting components of a drift_dm model}
 \usage{
-set_mu_fun(drift_dm_obj, mu_fun)
+set_mu_fun(drift_dm_obj, mu_fun, eval_model = F)
 
-set_mu_int_fun(drift_dm_obj, mu_int_fun)
+set_mu_int_fun(drift_dm_obj, mu_int_fun, eval_model = F)
 
-set_x_fun(drift_dm_obj, x_fun)
+set_x_fun(drift_dm_obj, x_fun, eval_model = F)
 
-set_b_fun(drift_dm_obj, b_fun)
+set_b_fun(drift_dm_obj, b_fun, eval_model = F)
 
-set_dt_b_fun(drift_dm_obj, dt_b_fun)
+set_dt_b_fun(drift_dm_obj, dt_b_fun, eval_model = F)
 
-set_nt_fun(drift_dm_obj, nt_fun)
+set_nt_fun(drift_dm_obj, nt_fun, eval_model = F)
 }
 \arguments{
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
 
 \item{mu_fun, mu_int_fun, x_fun, b_fun, dt_b_fun, nt_fun}{functions defining
 the respective components. See below for more details}
+
+\item{eval_model}{logical, indicating whether \link{re_evaluate_model}
+should be called after modifying the model. Default is \code{FALSE}. Note that if
+\code{eval_model} is set to \code{FALSE}, the attributes \code{pdfs}, \code{log_like_val},
+and \code{ic_vals}are deleted from the model. Also, \code{eval_model = TRUE} only
+has an effect if the model provides data.}
 }
 \value{
 Returns the modified \code{drift_dm_obj} object.

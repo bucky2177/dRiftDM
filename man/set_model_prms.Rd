@@ -29,9 +29,9 @@ are allowed to vary}
 
 \item{eval_model}{logical, indicating whether \link{re_evaluate_model}
 should be called after modifying the model. Default is \code{FALSE}. Note that if
-\code{eval_model} is set to \code{FALSE}, the attributes \code{log_like_val} and \code{ic_vals}
-are deleted from the model. Also, \code{eval_model = TRUE} only has an effect
-if the model provides data.}
+\code{eval_model} is set to \code{FALSE}, the attributes \code{pdfs}, \code{log_like_val},
+and \code{ic_vals}are deleted from the model. Also, \code{eval_model = TRUE} only
+has an effect if the model provides data.}
 
 \item{new_free_prms}{a character vector specifying the names of the
 parameters that are allowed to vary}

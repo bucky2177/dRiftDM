@@ -15,6 +15,10 @@ gather_stats(fits_subjects, type, verbose = 0, ...)
 
 \item{type}{character vector when calling \link{calc_stats}}
 
+\item{verbose}{optional, integer, indicating if information about the progress
+should be displayed. Can be set for some of the \verb{gather_*} functions.
+0 -> no information, 1 -> a progress bar. Default is 0.}
+
 \item{...}{further arguments which are passed further down
 
 @details
@@ -28,10 +32,6 @@ can be controlled via the \code{type} argument (see the documentation
 \link{calc_stats} for more information). In any case, the returned
 value will contain the statistics as a data.frame, separately for each
 subject.}
-
-\item{stats}{optional, integer, indicating if information about the progress
-should be displayed. Can be set for some of the \verb{gather_*} functions.
-0 -> no information, 1 -> a progress bar. Default is 0.}
 }
 \description{
 \verb{gather_*} functions iterate over the individual model fits in

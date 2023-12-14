@@ -196,8 +196,6 @@ calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err, one_cond,
 #'  Default is "both".
 #' @param ... additional parameters passed down to the functions handling the
 #' calculations. See Details for more information
-#' @param n_bins numeric, providing the number of bins that should be used when
-#'  calculating the CAFs
 #'
 #' @details
 #'

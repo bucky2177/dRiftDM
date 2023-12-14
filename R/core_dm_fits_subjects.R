@@ -15,11 +15,12 @@
 #' @param fits_subjects an object inheriting from `dm_fits_subjects`, see
 #'  [dRiftDM::load_fits_subjects]
 #'
-#' @param stats optional, integer, indicating if information about the progress
+#' @param type character vector when calling [dRiftDM::calc_stats]
+#'
+#' @param verbose optional, integer, indicating if information about the progress
 #'  should be displayed. Can be set for some of the `gather_*` functions.
 #'  0 -> no information, 1 -> a progress bar. Default is 0.
 #'
-#' @param type character vector when calling [dRiftDM::calc_stats]
 #'
 #' @param ... further arguments which are passed further down
 #'

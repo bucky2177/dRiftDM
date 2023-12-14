@@ -18,9 +18,6 @@ Default is "both".}
 
 \item{...}{additional parameters passed down to the functions handling the
 calculations. See Details for more information}
-
-\item{n_bins}{numeric, providing the number of bins that should be used when
-calculating the CAFs}
 }
 \value{
 The return value depends on the \code{type} argument. If \code{type} is  a charcter
