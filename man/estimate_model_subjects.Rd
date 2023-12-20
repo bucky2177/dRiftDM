@@ -15,6 +15,7 @@ estimate_model_subjects(
   fit_dir = "drift_dm_fits",
   force_refit = FALSE,
   progress = 2,
+  start_vals = NULL,
   ...
 )
 }
@@ -52,6 +53,14 @@ be fitted once more. Default is \code{FALSE} which indicates that saved files}
 \item{progress}{numerical, indicating if and how progress shall be depicted.
 If 0, no progress is shown. If 1, the currently fitted subject is printed
 out. If 2, a progressbar is shown. Default is 2.}
+
+\item{start_vals}{optional data.frame, providing values to be set
+before calling \link{estimate_model}. Can be used to control the
+starting values for each individual when calling Nelder-Mead. Note that this
+will only have an effect if DEoptim is not used (i.e., when setting
+\code{use_de_optim = FALSE}; see \link{estimate_model}). The data.frame
+must provide a column \code{Subject} whose entries match the \code{Subject} column
+in \code{obs_data_subject}, as well as a column for each parameter of the model.}
 
 \item{...}{additional arguments passed down to \link{estimate_model}.}
 }

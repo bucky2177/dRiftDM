@@ -161,9 +161,8 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
 plot_cafs <- function(obj, source = "both", n_bins = 5, x_lab = NULL,
                       y_lab = NULL, x_lim = NULL, y_lim = NULL,
                       line_cols = NULL) {
-
   if (!inherits(obj, "drift_dm") &
-      !inherits(obj, "dm_fits_subjects")) {
+    !inherits(obj, "dm_fits_subjects")) {
     stop("obj is not of type drift_dm or dm_fits_subjects")
   }
 
@@ -180,9 +179,9 @@ plot_cafs <- function(obj, source = "both", n_bins = 5, x_lab = NULL,
     )
   }
 
-  agg_factors = c("Source", "Cond", "Bin")
+  agg_factors <- c("Source", "Cond", "Bin")
   stopifnot(agg_factors %in% colnames(cafs))
-  cafs = stats::aggregate(cafs["P_Corr"], by = cafs[agg_factors], FUN = mean)
+  cafs <- stats::aggregate(cafs["P_Corr"], by = cafs[agg_factors], FUN = mean)
 
   unique_conds <- unique(cafs$Cond)
 
@@ -281,7 +280,7 @@ plot_quantiles <- function(obj, source = "both",
                            x_lab = NULL, y_lab = NULL, x_lim = NULL,
                            y_lim = NULL, line_cols = NULL) {
   if (!inherits(obj, "drift_dm") &
-      !inherits(obj, "dm_fits_subjects")) {
+    !inherits(obj, "dm_fits_subjects")) {
     stop("obj is not of type drift_dm or dm_fits_subjects")
   }
 
@@ -295,13 +294,15 @@ plot_quantiles <- function(obj, source = "both",
     quantiles <- gather_stats(
       fits_subjects = obj, type = "quantiles", source = source,
       probs = probs, verbose = 1
-      )
+    )
   }
 
-  agg_factors = c("Source", "Cond", "Prob")
+  agg_factors <- c("Source", "Cond", "Prob")
   stopifnot(agg_factors %in% colnames(quantiles))
-  quantiles = stats::aggregate(quantiles[to_plot], by = quantiles[agg_factors],
-                               FUN = mean)
+  quantiles <- stats::aggregate(quantiles[to_plot],
+    by = quantiles[agg_factors],
+    FUN = mean
+  )
 
 
   unique_conds <- unique(quantiles$Cond)
@@ -391,25 +392,26 @@ plot_quantiles <- function(obj, source = "both",
 #'
 #'
 #' @export
-plot_prms = function(fits_subjects, include_fit_values = F, col = "skyblue"){
-
+plot_prms <- function(fits_subjects, include_fit_values = F, col = "skyblue") {
   if (!inherits(fits_subjects, "dm_fits_subjects")) {
     stop("argument fits_subjects is not not of type dm_fits_subjects")
   }
 
-  prms = gather_parameters(fits_subjects)
-  to_plot_names = setdiff(colnames(prms), c("Subject"))
+  prms <- gather_parameters(fits_subjects)
+  to_plot_names <- setdiff(colnames(prms), c("Subject"))
   if (!include_fit_values) {
-    to_plot_names = setdiff(to_plot_names, c("AIC", "BIC", "log_like"))
+    to_plot_names <- setdiff(to_plot_names, c("AIC", "BIC", "log_like"))
   }
 
-  n_plots = length(to_plot_names)
-  n_rows = ceiling(sqrt(n_plots))
-  n_cols = ceiling(n_plots / n_rows)
+  n_plots <- length(to_plot_names)
+  n_rows <- ceiling(sqrt(n_plots))
+  n_cols <- ceiling(n_plots / n_rows)
 
   withr::local_par(mfrow = c(n_rows, n_cols))
   for (one_prm_to_plot in to_plot_names) {
-    graphics::hist(prms[[one_prm_to_plot]], col = col, xlab = "values",
-                   main = one_prm_to_plot)
+    graphics::hist(prms[[one_prm_to_plot]],
+      col = col, xlab = "values",
+      main = one_prm_to_plot
+    )
   }
 }

@@ -303,43 +303,44 @@ validate_drift_dm <- function(drift_dm_obj) {
 
   # check pdfs
   if (!is.null(drift_dm_obj$pdfs)) {
-
     if (any(names(drift_dm_obj$pdfs) != drift_dm_obj$conds)) {
       stop("the pdf entry of drift_dm_obj is not labeled like the conditions")
     }
 
-    check = sapply(drift_dm_obj$pdfs, function(x){
-      names_check = all(names(x) == c("pdf_u", "pdf_l"))
-      length_check =
+    check <- sapply(drift_dm_obj$pdfs, function(x) {
+      names_check <- all(names(x) == c("pdf_u", "pdf_l"))
+      length_check <-
         as.vector(sapply(x, length)) == drift_dm_obj$prms_solve[["nt"]] + 1
-      length_check = all(length_check)
-      numeric_check = all(as.vector(sapply(x, is.numeric)))
+      length_check <- all(length_check)
+      numeric_check <- all(as.vector(sapply(x, is.numeric)))
       return(list(names_check, length_check, numeric_check))
     })
-    if (!all(unlist(check[1,]))) {
+    if (!all(unlist(check[1, ]))) {
       stop("a pdf by condition entry is not named pdf_u or pdf_l")
     }
-    if (!all(unlist(check[2,]))) {
+    if (!all(unlist(check[2, ]))) {
       stop("one of the pdf vectors has not the expected size")
     }
 
-    if (!all(unlist(check[3,]))) {
+    if (!all(unlist(check[3, ]))) {
       stop("one of the pdf vectors is not of type numeric")
     }
   }
 
-  #check log_like
+  # check log_like
   if (!is.null(drift_dm_obj$log_like_val)) {
     if (!is.numeric(drift_dm_obj$log_like_val) |
-       length(drift_dm_obj$log_like_val) != 1) {
+      length(drift_dm_obj$log_like_val) != 1) {
       stop("log_like val in drift_dm_obj is not a single numeric")
     }
   }
 
   # check AIC/BIC
   if (!is.null(drift_dm_obj$ic_vals)) {
-    check_if_named_numeric_vector(x = drift_dm_obj$ic_vals, var_name = "ic_vals",
-                                  labels = c("AIC", "BIC"), length = 2)
+    check_if_named_numeric_vector(
+      x = drift_dm_obj$ic_vals, var_name = "ic_vals",
+      labels = c("AIC", "BIC"), length = 2
+    )
   }
 
   return(drift_dm_obj)
@@ -514,21 +515,21 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
   }
 
   # set all to NULL
-  drift_dm_obj$log_like_val = NULL
-  drift_dm_obj$ic_vals = NULL
-  drift_dm_obj$pdfs = NULL
+  drift_dm_obj$log_like_val <- NULL
+  drift_dm_obj$ic_vals <- NULL
+  drift_dm_obj$pdfs <- NULL
   # pass back if no evaluation is requested
   if (!eval_model) {
     return(drift_dm_obj)
   }
 
   # calculate the pdfs
-  red_drift_dm_obj = drift_dm_obj
+  red_drift_dm_obj <- drift_dm_obj
   red_drift_dm_obj$obs_data <- NULL # to avoid copying the data unnecessarily
-  drift_dm_obj$pdfs = lapply(red_drift_dm_obj$conds, function(one_cond){
+  drift_dm_obj$pdfs <- lapply(red_drift_dm_obj$conds, function(one_cond) {
     calc_pdfs(red_drift_dm_obj, one_cond)
   })
-  names(drift_dm_obj$pdfs) = drift_dm_obj$conds
+  names(drift_dm_obj$pdfs) <- drift_dm_obj$conds
 
   # return if no data is supplied, so log_like and ic_vals are not updated
   if (is.null(drift_dm_obj$obs_data)) {
@@ -611,8 +612,10 @@ set_model_prms <- function(drift_dm_obj, new_model_prms, eval_model = F) {
   }
 
   # ensure that everything is up-to-date (or skip)
-  drift_dm_obj <- re_evaluate_model(drift_dm_obj = drift_dm_obj,
-                                    eval_model = eval_model)
+  drift_dm_obj <- re_evaluate_model(
+    drift_dm_obj = drift_dm_obj,
+    eval_model = eval_model
+  )
   # ensure that nothing went wrong
   drift_dm_obj <- validate_drift_dm(drift_dm_obj)
 
@@ -700,8 +703,10 @@ set_solver_settings <- function(drift_dm_obj, names_prm_solve, values_prm_solve,
 
 
   # ensure that everything is up-to-date (or skip)
-  drift_dm_obj <- re_evaluate_model(drift_dm_obj = drift_dm_obj,
-                                    eval_model = eval_model)
+  drift_dm_obj <- re_evaluate_model(
+    drift_dm_obj = drift_dm_obj,
+    eval_model = eval_model
+  )
 
   # ensure that nothing went wrong
   drift_dm_obj <- validate_drift_dm(drift_dm_obj)
@@ -804,8 +809,10 @@ set_obs_data <- function(drift_dm_obj, obs_data, eval_model = F) {
   drift_dm_obj$obs_data <- list(rts_corr = rts_corr, rts_err = rts_err)
 
   # ensure that everything is up-to-date (or skip)
-  drift_dm_obj <- re_evaluate_model(drift_dm_obj = drift_dm_obj,
-                                    eval_model = eval_model)
+  drift_dm_obj <- re_evaluate_model(
+    drift_dm_obj = drift_dm_obj,
+    eval_model = eval_model
+  )
 
   drift_dm_obj <- validate_drift_dm(drift_dm_obj)
 
@@ -1081,8 +1088,10 @@ set_fun <- function(drift_dm_obj, fun, name, depends_on, eval_model) {
   drift_dm_obj$comp_funs[[name]] <- fun
 
   # ensure that everything is up-to-date (or skip)
-  drift_dm_obj <- re_evaluate_model(drift_dm_obj = drift_dm_obj,
-                                    eval_model = eval_model)
+  drift_dm_obj <- re_evaluate_model(
+    drift_dm_obj = drift_dm_obj,
+    eval_model = eval_model
+  )
   drift_dm_obj <- validate_drift_dm(drift_dm_obj)
   return(drift_dm_obj)
 }
@@ -1248,8 +1257,10 @@ simulate_data <- function(drift_dm_obj, n, seed = NULL) {
   sim_data <- data.frame(RT = numeric(), Error = numeric(), Cond = character())
 
   if (is.null(drift_dm_obj$pdfs)) {
-    drift_dm_obj = re_evaluate_model(drift_dm_obj = drift_dm_obj,
-                                     eval_model = T)
+    drift_dm_obj <- re_evaluate_model(
+      drift_dm_obj = drift_dm_obj,
+      eval_model = T
+    )
   }
 
   for (one_cond in drift_dm_obj$conds) {

@@ -34,6 +34,13 @@
 #' @param progress numerical, indicating if and how progress shall be depicted.
 #'  If 0, no progress is shown. If 1, the currently fitted subject is printed
 #'  out. If 2, a progressbar is shown. Default is 2.
+#' @param start_vals optional data.frame, providing values to be set
+#'  before calling [dRiftDM::estimate_model]. Can be used to control the
+#'  starting values for each individual when calling Nelder-Mead. Note that this
+#'  will only have an effect if DEoptim is not used (i.e., when setting
+#'  `use_de_optim = FALSE`; see [dRiftDM::estimate_model]). The data.frame
+#'  must provide a column `Subject` whose entries match the `Subject` column
+#'  in `obs_data_subject`, as well as a column for each parameter of the model.
 #' @param ... additional arguments passed down to [dRiftDM::estimate_model].
 #'
 #' @details
@@ -62,7 +69,8 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
                                     seed = NULL,
                                     fit_dir = "drift_dm_fits",
                                     force_refit = FALSE,
-                                    progress = 2, ...) {
+                                    progress = 2,
+                                    start_vals = NULL, ...) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -99,7 +107,40 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
     stop("force_refit must be a single logical value")
   }
   if (!is.numeric(progress) | length(progress) != 1 | !(progress %in% c(0, 1, 2))) {
-    stop("verbose must be numeric of either 0, 1, or 2")
+    stop("progress must be numeric of either 0, 1, or 2")
+  }
+  if (!is.null(start_vals)) {
+    if (!is.data.frame(start_vals)) {
+      stop("start_vals must be a data.frame")
+    }
+    if (!("Subject" %in% colnames(start_vals))) {
+      stop("no Subject column found in start_vals")
+    }
+    sbjs_data <- unique(obs_data_subject$Subject)
+    sbjs_start <- unique(start_vals$Subject)
+    if (!all(sbjs_start %in% sbjs_data)) {
+      stop("There are subjects in start_vals that are not in obs_data_subject")
+    }
+    if (length(sbjs_start) != length(sbjs_data)) {
+      stop("different number of subjects in start_vals and obs_data_subject")
+    }
+    if (length(sbjs_start) != nrow(start_vals)) {
+      stop("subject identifiers in the column Subject of start_vals not unique")
+    }
+    if (!all(names(start_vals)[names(start_vals) != "Subject"] %in%
+      drift_dm_obj$free_prms)) {
+      stop(
+        "columns indicating parameters in start_vals don't match",
+        " free_prms of the model object"
+      )
+    }
+    if (!all(drift_dm_obj$free_prms %in%
+      names(start_vals)[names(start_vals) != "Subject"])) {
+      stop(
+        "columns indicating parameters in start_vals don't match",
+        " free_prms of the model object"
+      )
+    }
   }
 
   # 0. Step: create directory/folder for saving the fitted objects
@@ -118,7 +159,8 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
     upper = upper, seed = seed,
     drift_dm_obj = drift_dm_obj,
     obs_data_subject = obs_data_subject,
-    fit_procedure_name = fit_procedure_name
+    fit_procedure_name = fit_procedure_name,
+    start_vals = start_vals
   )
   saveRDS(
     object = fit_info,
@@ -171,6 +213,17 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
     }
     result <-
       tryCatch(expr = {
+        # set parameter values that might be used if DE is not run
+        if (!is.null(start_vals)) {
+          set_vals <- start_vals[start_vals$Subject == name_one_subject, ]
+          set_vals <- set_vals[names(set_vals) != "Subject"]
+          set_vals <- set_vals[drift_dm_obj_subj$free_prms]
+          drift_dm_obj_subj <- set_model_prms(
+            drift_dm_obj = drift_dm_obj_subj,
+            new_model_prms = as.numeric(set_vals)
+          )
+        }
+        # estimate the model
         estimate_model(
           drift_dm_obj = drift_dm_obj_subj, lower = lower, upper = upper, ...
         )
@@ -340,7 +393,8 @@ validate_fits_subjects <- function(fits_subjects) {
     "time_call", "lower", "upper", "drift_dm_obj",
     "obs_data_subject", "fit_procedure_name"
   )
-  if (!all(names(drift_dm_fit_info)[names(drift_dm_fit_info) != "seed"]
+  if (!all(names(drift_dm_fit_info)[!(names(drift_dm_fit_info) %in%
+    c("seed", "start_vals"))]
   %in% names_to_check)) {
     stop("drift_dm_fit_info contains unexpected info entries")
   }

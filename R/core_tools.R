@@ -26,7 +26,7 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
     withr::local_seed(seed)
   }
 
-  a_pdf = a_pdf + drift_dm_robust_prm()
+  a_pdf <- a_pdf + drift_dm_robust_prm()
   if (min(a_pdf) < 0) {
     warning(
       "negative pdf values encountered when drawing values from a pdf. ",

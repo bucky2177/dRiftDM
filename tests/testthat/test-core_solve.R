@@ -15,7 +15,7 @@ test_that("force negative pdf values", {
   expect_warning(
     expect_warning(
       expect_warning(
-          calc_log_like(a_model), "NaNs"
+        calc_log_like(a_model), "NaNs"
       ), "NaNs"
     ), "when calculating the log-likelihood"
   )

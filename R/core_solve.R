@@ -23,7 +23,7 @@ calc_pdfs <- function(drift_dm_obj, one_cond) {
     stop("drift_dm_obj is not of type drift_dm")
   }
 
-  solver = drift_dm_obj$solver
+  solver <- drift_dm_obj$solver
 
   if (!is.character(one_cond) | length(one_cond) != 1) {
     stop("one_cond must be of type character with length 1")

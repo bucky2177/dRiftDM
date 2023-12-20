@@ -15,7 +15,7 @@ test_that("snapshot the plotting functions", {
 
   plot2 <- function() {
     plot_cafs(a_model,
-              source = "both", n_bins = 4,
+      source = "both", n_bins = 4,
       x_lab = "foo", y_lab = "bar",
       x_lim = c(-1, 5), y_lim = c(0.4, 1),
       line_cols = c("red", "green")

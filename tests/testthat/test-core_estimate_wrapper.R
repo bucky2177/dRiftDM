@@ -415,3 +415,123 @@ test_that("validate_models errs as expected", {
 
   unlink(test_path("temp_fits"), recursive = TRUE)
 })
+
+
+test_that("start_vals work as expected", {
+  a_model <- ratcliff_dm(t_max = 1, dt = 0.01, dx = 0.1)
+  subject_1 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
+  subject_1$Subject <- 1
+  start_vals <- data.frame(Subject = 1, muc = 5, b = 0.4, non_dec = 0.2)
+  expect_warning(
+    estimate_model_subjects(a_model, subject_1,
+      lower = c(2, 0.2, 0.1),
+      upper = c(6, 0.8, 0.4),
+      fit_procedure_name = "foo",
+      fit_dir = test_path("temp"),
+      use_de_optim = F,
+      start_vals = start_vals
+    ),
+    "passing back unmodified object"
+  )
+  unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
+  expect_true(all(unmodifed$prms_model == start_vals[c("muc", "b", "non_dec")]))
+  unlink(test_path("temp"), recursive = T)
+
+  # default
+  expect_warning(
+    estimate_model_subjects(a_model, subject_1,
+      lower = c(2, 0.2, 0.1),
+      upper = c(6, 0.8, 0.4),
+      fit_procedure_name = "foo",
+      fit_dir = test_path("temp"),
+      use_de_optim = F,
+      start_vals = NULL
+    ),
+    "passing back unmodified object"
+  )
+  unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
+  expect_equal(a_model$prms_model, unmodifed$prms_model)
+  unlink(test_path("temp"), recursive = T)
+
+  # wrong input
+  expect_error(
+    estimate_model_subjects(a_model, subject_1,
+      lower = c(2, 0.2, 0.1),
+      upper = c(6, 0.8, 0.4),
+      fit_procedure_name = "foo",
+      fit_dir = test_path("temp"),
+      use_de_optim = F,
+      start_vals = as.matrix(start_vals)
+    ),
+    "must be a data.frame"
+  )
+
+  expect_error(
+    estimate_model_subjects(a_model, subject_1,
+      lower = c(2, 0.2, 0.1),
+      upper = c(6, 0.8, 0.4),
+      fit_procedure_name = "foo",
+      fit_dir = test_path("temp"),
+      use_de_optim = F,
+      start_vals = start_vals[c("Subject", "muc")]
+    ),
+    "don't match free_prms"
+  )
+
+  test_starts <- cbind(start_vals, bla = 3)
+  expect_error(
+    estimate_model_subjects(a_model, subject_1,
+      lower = c(2, 0.2, 0.1),
+      upper = c(6, 0.8, 0.4),
+      fit_procedure_name = "foo",
+      fit_dir = test_path("temp"),
+      use_de_optim = F,
+      start_vals = test_starts
+    ),
+    "don't match free_prms"
+  )
+
+  test_starts <- rbind(test_starts, test_starts)
+  test_starts$Subject <- c(1, 2)
+  expect_error(
+    estimate_model_subjects(a_model, subject_1,
+      lower = c(2, 0.2, 0.1),
+      upper = c(6, 0.8, 0.4),
+      fit_procedure_name = "foo",
+      fit_dir = test_path("temp"),
+      use_de_optim = F,
+      start_vals = test_starts
+    ),
+    "subjects in start_vals that are not in obs_data_subject"
+  )
+
+  test_starts$Subject <- c(1, 1)
+  expect_error(
+    estimate_model_subjects(a_model, subject_1,
+      lower = c(2, 0.2, 0.1),
+      upper = c(6, 0.8, 0.4),
+      fit_procedure_name = "foo",
+      fit_dir = test_path("temp"),
+      use_de_optim = F,
+      start_vals = test_starts
+    ),
+    "not unique"
+  )
+
+  # wrong order relative to free_prms should not matter
+  start_vals <- data.frame(Subject = 1, b = 1, muc = 2, non_dec = 3)
+  expect_warning(
+    estimate_model_subjects(a_model, subject_1,
+      lower = c(2, 0.2, 0.1),
+      upper = c(6, 0.8, 0.4),
+      fit_procedure_name = "foo",
+      fit_dir = test_path("temp"),
+      use_de_optim = F,
+      start_vals = start_vals
+    ),
+    "passing back unmodified object"
+  )
+  unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
+  expect_true(all(unmodifed$prms_model == c(2, 1, 3)))
+  unlink(test_path("temp"), recursive = T)
+})

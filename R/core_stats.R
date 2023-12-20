@@ -57,9 +57,9 @@ calc_cafs_pred <- function(pdf_u, pdf_l, one_cond, n_bins) {
 # internal function for input checking, data wrangling, and default values
 calc_cafs <- function(pdf_u, pdf_l, rts_corr, rts_err, one_cond, n_bins = NULL,
                       source = "both") {
-
-  if (is.null(n_bins))
-    n_bins = 5
+  if (is.null(n_bins)) {
+    n_bins <- 5
+  }
 
   # input checks
   if (!is.numeric(n_bins) | length(n_bins) != 1) {
@@ -73,21 +73,30 @@ calc_cafs <- function(pdf_u, pdf_l, rts_corr, rts_err, one_cond, n_bins = NULL,
 
   # calculations
   if (source == "obs" | source == "both") {
-    result_obs = calc_cafs_obs(rts_corr = rts_corr, rts_err = rts_err,
-                           one_cond = one_cond, n_bins = n_bins)
+    result_obs <- calc_cafs_obs(
+      rts_corr = rts_corr, rts_err = rts_err,
+      one_cond = one_cond, n_bins = n_bins
+    )
     if (!is.null(result_obs)) result_obs <- cbind(Source = "obs", result_obs)
   }
 
   if (source == "pred" | source == "both") {
-    result_pred = calc_cafs_pred(pdf_u = pdf_u, pdf_l = pdf_l,
-                                 one_cond = one_cond, n_bins = n_bins)
+    result_pred <- calc_cafs_pred(
+      pdf_u = pdf_u, pdf_l = pdf_l,
+      one_cond = one_cond, n_bins = n_bins
+    )
     result_pred <- cbind(Source = "pred", result_pred)
-
   }
 
-  if (source == "obs") return(result_obs)
-  if (source == "pred") return(result_pred)
-  if (source == "both") return(rbind(result_obs, result_pred))
+  if (source == "obs") {
+    return(result_obs)
+  }
+  if (source == "pred") {
+    return(result_pred)
+  }
+  if (source == "both") {
+    return(rbind(result_obs, result_pred))
+  }
 }
 
 
@@ -131,19 +140,19 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs) {
       return(stats::approx(x = cdf, y = t_vec, xout = probs, ties = "mean")$y)
     }, t_vec = t_vec, probs = probs)
 
-    colnames(quants) <- c("Quant_Corr", "Quant_Err")
-    quants <- as.data.frame(quants)
-    quants <- cbind(Cond = one_cond, Prob = probs, quants)
-    return(quants)
+  colnames(quants) <- c("Quant_Corr", "Quant_Err")
+  quants <- as.data.frame(quants)
+  quants <- cbind(Cond = one_cond, Prob = probs, quants)
+  return(quants)
 }
 
 
 # internal function for input checking, data wrangling, and default values
 calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err, one_cond,
                            probs = NULL, source = "both") {
-
-  if (is.null(probs))
-    probs = seq(0.1, 0.9, 0.1)
+  if (is.null(probs)) {
+    probs <- seq(0.1, 0.9, 0.1)
+  }
 
 
   # input checks
@@ -159,21 +168,31 @@ calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err, one_cond,
 
   # calculations
   if (source == "obs" | source == "both") {
-    result_obs = calc_quantiles_obs(rts_corr = rts_corr, rts_err = rts_err,
-                                    one_cond = one_cond, probs = probs)
+    result_obs <- calc_quantiles_obs(
+      rts_corr = rts_corr, rts_err = rts_err,
+      one_cond = one_cond, probs = probs
+    )
     if (!is.null(result_obs)) result_obs <- cbind(Source = "obs", result_obs)
   }
 
   if (source == "pred" | source == "both") {
-    result_pred = calc_quantiles_pred(pdf_u = pdf_u, pdf_l = pdf_l,
-                                      t_vec = t_vec,  one_cond = one_cond,
-                                      probs = probs)
+    result_pred <- calc_quantiles_pred(
+      pdf_u = pdf_u, pdf_l = pdf_l,
+      t_vec = t_vec, one_cond = one_cond,
+      probs = probs
+    )
     result_pred <- cbind(Source = "pred", result_pred)
   }
 
-  if (source == "obs") return(result_obs)
-  if (source == "pred") return(result_pred)
-  if (source == "both")  return(rbind(result_obs, result_pred))
+  if (source == "obs") {
+    return(result_obs)
+  }
+  if (source == "pred") {
+    return(result_pred)
+  }
+  if (source == "both") {
+    return(rbind(result_obs, result_pred))
+  }
 }
 
 
@@ -232,9 +251,8 @@ calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err, one_cond,
 #' statistics.
 #'
 #' @export
-calc_stats = function(drift_dm_obj, type, source = "both", ...) {
-
-  dotdot = list(...)
+calc_stats <- function(drift_dm_obj, type, source = "both", ...) {
+  dotdot <- list(...)
 
   # input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
@@ -250,14 +268,16 @@ calc_stats = function(drift_dm_obj, type, source = "both", ...) {
   }
 
   # get all rts and pdfs for quick reference
-  if (is.null(drift_dm_obj$pdfs)){
-    drift_dm_obj = re_evaluate_model(drift_dm_obj = drift_dm_obj,
-                                     eval_model = T)
+  if (is.null(drift_dm_obj$pdfs)) {
+    drift_dm_obj <- re_evaluate_model(
+      drift_dm_obj = drift_dm_obj,
+      eval_model = T
+    )
   }
-  all_pdfs = drift_dm_obj$pdfs
+  all_pdfs <- drift_dm_obj$pdfs
 
-  all_rts_corr = drift_dm_obj$obs_data$rts_corr
-  all_rts_err = drift_dm_obj$obs_data$rts_err
+  all_rts_corr <- drift_dm_obj$obs_data$rts_corr
+  all_rts_err <- drift_dm_obj$obs_data$rts_err
 
   stopifnot(all(names(all_rts_corr) == names(all_rts_err)))
   stopifnot(all(names(all_pdfs) == names(all_rts_err)))
@@ -271,54 +291,54 @@ calc_stats = function(drift_dm_obj, type, source = "both", ...) {
 
 
   # iterate through the requested types and calculate the stats
-  all_stats =
+  all_stats <-
     lapply(type, function(one_type) {
-
       if (one_type == "quantiles") {
-        result =
-          lapply(drift_dm_obj$conds, function(one_cond){
+        result <-
+          lapply(drift_dm_obj$conds, function(one_cond) {
+            pdf_u <- all_pdfs[[one_cond]]$pdf_u
+            pdf_l <- all_pdfs[[one_cond]]$pdf_l
+            rts_corr <- all_rts_corr[[one_cond]]
+            rts_err <- all_rts_err[[one_cond]]
 
-            pdf_u = all_pdfs[[one_cond]]$pdf_u
-            pdf_l = all_pdfs[[one_cond]]$pdf_l
-            rts_corr = all_rts_corr[[one_cond]]
-            rts_err = all_rts_err[[one_cond]]
-
-            calc_quantiles(pdf_u = pdf_u, pdf_l = pdf_l, t_vec = t_vec,
-                           rts_corr = rts_corr, rts_err = rts_err,
-                           one_cond = one_cond, probs = dotdot$probs,
-                           source = source)
+            calc_quantiles(
+              pdf_u = pdf_u, pdf_l = pdf_l, t_vec = t_vec,
+              rts_corr = rts_corr, rts_err = rts_err,
+              one_cond = one_cond, probs = dotdot$probs,
+              source = source
+            )
           })
-        result = do.call("rbind", result)
+        result <- do.call("rbind", result)
       }
 
       if (one_type == "cafs") {
-        result =
-          lapply(drift_dm_obj$conds, function(one_cond){
+        result <-
+          lapply(drift_dm_obj$conds, function(one_cond) {
+            pdf_u <- all_pdfs[[one_cond]]$pdf_u
+            pdf_l <- all_pdfs[[one_cond]]$pdf_l
+            rts_corr <- all_rts_corr[[one_cond]]
+            rts_err <- all_rts_err[[one_cond]]
 
-            pdf_u = all_pdfs[[one_cond]]$pdf_u
-            pdf_l = all_pdfs[[one_cond]]$pdf_l
-            rts_corr = all_rts_corr[[one_cond]]
-            rts_err = all_rts_err[[one_cond]]
-
-            calc_cafs(pdf_u = pdf_u, pdf_l = pdf_l, rts_corr = rts_corr,
-                      rts_err = rts_err, one_cond = one_cond,
-                      n_bins = dotdot$n_bins, source = source)
+            calc_cafs(
+              pdf_u = pdf_u, pdf_l = pdf_l, rts_corr = rts_corr,
+              rts_err = rts_err, one_cond = one_cond,
+              n_bins = dotdot$n_bins, source = source
+            )
           })
-        result = do.call("rbind", result)
+        result <- do.call("rbind", result)
       }
       if (!is.null(result)) {
-        result = result[order(result$Source),]
-        rownames(result) = 1:nrow(result)
+        result <- result[order(result$Source), ]
+        rownames(result) <- 1:nrow(result)
       }
       return(result)
-  })
+    })
 
   if (length(all_stats) == 1) {
-    all_stats = all_stats[[1]]
+    all_stats <- all_stats[[1]]
   } else {
-    names(all_stats) = type
+    names(all_stats) <- type
   }
 
   return(all_stats)
 }
-

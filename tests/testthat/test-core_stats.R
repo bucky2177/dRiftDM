@@ -26,8 +26,10 @@ test_that("calc_caf works as expected", {
   )
 
   # test
-  cafs <- calc_stats(drift_dm_obj = dummy_model, type = "cafs",
-                     source = "obs", n_bins = 6)
+  cafs <- calc_stats(
+    drift_dm_obj = dummy_model, type = "cafs",
+    source = "obs", n_bins = 6
+  )
   expect_identical(cafs$P_Corr[cafs$Cond == "null"], exp_1)
   expect_identical(cafs$P_Corr[cafs$Cond == "foo"], exp_2)
 
@@ -66,8 +68,10 @@ test_that("calc_caf works as expected", {
   a_model <- dmc_dm(dt = 0.001, dx = 0.005, t_max = 1)
   pdfs_comp <- calc_pdfs(a_model, one_cond = "comp")
   pdfs_incomp <- calc_pdfs(a_model, one_cond = "incomp")
-  pred_cafs <- calc_stats(drift_dm_obj = a_model,
-                          type = "cafs", source = "pred")
+  pred_cafs <- calc_stats(
+    drift_dm_obj = a_model,
+    type = "cafs", source = "pred"
+  )
 
   # reference obtained by my former package
   expect_true(all(
@@ -83,8 +87,10 @@ test_that("calc_caf works as expected", {
   dat$Cond <- rep(c("comp", "incomp"), each = 12)
   a_model <- set_obs_data(a_model, dat)
   caf_final <- calc_stats(a_model, type = "cafs", source = "both", n_bins = 6)
-  pred_cafs <- calc_stats(drift_dm_obj = a_model, type = "cafs",
-                          source = "pred", n_bins = 6)
+  pred_cafs <- calc_stats(
+    drift_dm_obj = a_model, type = "cafs",
+    source = "pred", n_bins = 6
+  )
 
   expect_true(nrow(caf_final) == 6 * 4)
   expect_identical(

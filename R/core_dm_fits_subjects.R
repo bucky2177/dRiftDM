@@ -58,9 +58,10 @@ gather_parameters <- function(fits_subjects) {
 
 #' @rdname gather_parameters
 #' @export
-gather_stats = function(fits_subjects, type, verbose = 0, ...) {
-  if (!(verbose %in% c(0,1)))
+gather_stats <- function(fits_subjects, type, verbose = 0, ...) {
+  if (!(verbose %in% c(0, 1))) {
     stop("verbose must be 0 or 1")
+  }
 
   if (!inherits(fits_subjects, "dm_fits_subjects")) {
     stop("fits_subjects not of type dm_fits_subjects")
@@ -68,7 +69,7 @@ gather_stats = function(fits_subjects, type, verbose = 0, ...) {
 
   # create a progress bar
   if (verbose == 1) {
-    n_iter = length(fits_subjects$all_fits)
+    n_iter <- length(fits_subjects$all_fits)
     pb <- progress::progress_bar$new(
       format = "calculating [:bar] :percent; done in: :eta",
       total = n_iter, clear = FALSE, width = 60
@@ -79,13 +80,13 @@ gather_stats = function(fits_subjects, type, verbose = 0, ...) {
   all_stats <-
     lapply(names(fits_subjects$all_fits), function(one_sbj) {
       if (verbose == 1) pb$tick()
-      one_model = fits_subjects$all_fits[[one_sbj]]
+      one_model <- fits_subjects$all_fits[[one_sbj]]
       stats_one_model <- calc_stats(drift_dm_obj = one_model, type = type, ...)
 
       if (is.list(stats_one_model) & is.data.frame(stats_one_model)) {
-        stats_one_model = data.frame(c(Subject = one_sbj, stats_one_model))
+        stats_one_model <- data.frame(c(Subject = one_sbj, stats_one_model))
       } else if (is.list(stats_one_model)) {
-        stats_one_model = lapply(stats_one_model, function(x){
+        stats_one_model <- lapply(stats_one_model, function(x) {
           return(data.frame(c(Subject = one_sbj, x)))
         })
       } else {
@@ -95,32 +96,33 @@ gather_stats = function(fits_subjects, type, verbose = 0, ...) {
     })
 
   # combine that stats across subjects
-  n_stats = sapply(all_stats, function(one_entry){
+  n_stats <- sapply(all_stats, function(one_entry) {
     if (is.data.frame(one_entry)) {
       return(1)
     } else {
       return(length(one_entry))
     }
   })
-  n_stats = unique(n_stats)
+  n_stats <- unique(n_stats)
   stopifnot(length(n_stats) == 1)
 
 
-  final_stats =
-    lapply(1:n_stats, function(inner_entry_index){
-      inner_entries = lapply(all_stats, function(x){
-        if (is.data.frame(x))
+  final_stats <-
+    lapply(1:n_stats, function(inner_entry_index) {
+      inner_entries <- lapply(all_stats, function(x) {
+        if (is.data.frame(x)) {
           return(x)
+        }
         x[[inner_entry_index]]
       })
-      inner_entries = do.call("rbind", inner_entries)
+      inner_entries <- do.call("rbind", inner_entries)
       return(inner_entries)
     })
 
   if (length(final_stats) == 1) {
     return(final_stats[[1]])
   } else {
-    names(final_stats) = type
+    names(final_stats) <- type
     return(final_stats)
   }
 }
