@@ -4,17 +4,28 @@
 \alias{simulate_data}
 \title{Simulate "observed" response times from a diffusion model}
 \usage{
-simulate_data(drift_dm_obj, n, seed = NULL)
+simulate_data(drift_dm_obj, n, df_prms = NULL, seed = NULL, verbose = 1)
 }
 \arguments{
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}.}
 
 \item{n}{numeric, the number of samples per condition to draw}
 
+\item{df_prms}{data.frame, an optional data.frame providing the parameters
+that should be used for simulating the data. \code{df_prms} must provide columns
+named like the parameters in \code{drift_dm_obj$free_prms}, plus a column \code{Subject}
+that will identify each simulated data set.}
+
 \item{seed}{numeric, an optional seed for reproducable sampling}
+
+\item{verbose}{integer, indicating if information about the progress
+should be displayed. 0 -> no information,
+1 -> a progress bar. Default is 1. Only effective when \code{df_prms} is provided}
 }
 \value{
-a data.frame containing the columns \code{RT}, \code{Error}, and \code{Cond}
+a data.frame containing at least the columns \code{RT}, \code{Error}, and \code{Cond}. If
+\code{df_prms} is provided, then the data.frame will additionally contain the
+column \code{Subject}
 }
 \description{
 Cdfs are derived from the model's pdfs and response times are drawn by

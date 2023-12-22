@@ -1222,10 +1222,19 @@ simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE,
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm].
 #'
 #' @param n numeric, the number of samples per condition to draw
+#' @param df_prms data.frame, an optional data.frame providing the parameters
+#' that should be used for simulating the data. `df_prms` must provide columns
+#' named like the parameters in `drift_dm_obj$free_prms`, plus a column `Subject`
+#' that will identify each simulated data set.
 #' @param seed numeric, an optional seed for reproducable sampling
+#' @param verbose integer, indicating if information about the progress
+#'  should be displayed. 0 -> no information,
+#'  1 -> a progress bar. Default is 1. Only effective when `df_prms` is provided
 #'
 #' @returns
-#' a data.frame containing the columns `RT`, `Error`, and `Cond`
+#' a data.frame containing at least the columns `RT`, `Error`, and `Cond`. If
+#' `df_prms` is provided, then the data.frame will additionally contain the
+#' column `Subject`
 #'
 #' @description
 #' Cdfs are derived from the model's pdfs and response times are drawn by
@@ -1235,19 +1244,83 @@ simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE,
 #' `seq(0, t_max, dt)`, see [dRiftDM::drift_dm]).
 #'
 #' @export
-simulate_data <- function(drift_dm_obj, n, seed = NULL) {
+simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
+                          verbose = 1) {
+
+  if (!is.null(seed)) {
+    if (!is.numeric(seed) | length(seed) != 1) {
+      stop("seed must be a single numeric")
+    }
+    withr::local_seed(seed)
+  }
+  if (!(verbose %in% c(0,1))) {
+    stop("verbose must be 0 or 1")
+  }
+
+  # if no df_prms are provided, call directly simulate_one_data_set
+  if (is.null(df_prms)) {
+    return(simulate_one_data_set(drift_dm_obj = drift_dm_obj, n = n))
+  }
+
+  # otherwise conduct checks ..
+  if (!is.data.frame(df_prms)) {
+    stop("df_prms must be a data.frame")
+  }
+  if (nrow(df_prms) <= 0) {
+    stop("df_prms must provide at least one row with prms")
+  }
+  if (!("Subject" %in% colnames(df_prms))) {
+    stop("no Subject column found in df_prms")
+  }
+  if (!all(names(df_prms)[names(df_prms) != "Subject"] %in%
+           drift_dm_obj$free_prms)) {
+    stop(
+      "columns indicating parameters in df_prms don't match",
+      " free_prms of the model object drift_dm_obj"
+    )
+  }
+  if (!all(drift_dm_obj$free_prms %in%
+           names(df_prms)[names(df_prms) != "Subject"])) {
+    stop(
+      "columns indicating parameters in df_prms don't match",
+      " free_prms of the model object drift_dm_obj"
+    )
+  }
+
+  # .. and run through all df_prms
+  # create a progress bar if desired
+  if (verbose == 1) {
+    n_iter <- nrow(df_prms)
+    pb <- progress::progress_bar$new(
+      format = "simulating [:bar] :percent; done in: :eta",
+      total = n_iter, clear = FALSE, width = 60
+    )
+  }
+
+  all_sim_data = apply(X = df_prms, MARGIN = 1, FUN = function(one_row){
+    if (verbose == 1) pb$tick()
+    one_set <- one_row[names(one_row) != "Subject"]
+    one_set <- one_set[drift_dm_obj$free_prms]
+    drift_dm_obj <- set_model_prms(drift_dm_obj = drift_dm_obj,
+                                   new_model_prms = as.numeric(one_set))
+    one_sim_dat = simulate_one_data_set(drift_dm_obj = drift_dm_obj, n = n)
+    one_sim_dat$Subject = one_row[["Subject"]]
+    return(one_sim_dat)
+  })
+
+  all_sim_data = do.call("rbind", all_sim_data)
+  return(all_sim_data)
+}
+
+# internal function that simulates data based on a model (using the prms set
+# in the model object)
+simulate_one_data_set <- function(drift_dm_obj, n) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
 
   if (!is.numeric(n) | n <= 0) {
     stop("n must be a numeric > 0")
-  }
-  if (!is.null(seed)) {
-    if (!is.numeric(seed) | length(seed) != 1) {
-      stop("seed must be a single numeric")
-    }
-    withr::local_seed(seed)
   }
 
   t_max <- drift_dm_obj$prms_solve[["t_max"]]
