@@ -1308,8 +1308,8 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
                                    new_model_prms = as.numeric(one_set))
     one_sim_dat = simulate_one_data_set(drift_dm_obj = drift_dm_obj, n = n)
     one_sim_dat$Subject = one_row[["Subject"]]
-    return(one_sim_dat)
     if (verbose == 1) pb$tick()
+    return(one_sim_dat)
   })
 
   all_sim_data = do.call("rbind", all_sim_data)
