@@ -1163,7 +1163,8 @@ simulate_trace <- function(drift_dm_obj, k, one_cond, add_x = FALSE,
     if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
     }
-    withr::local_seed(seed)
+    withr::local_preserve_seed()
+    set.seed(seed)
   }
 
   # unpack arguments for easier usage
@@ -1251,8 +1252,10 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
     if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
     }
-    withr::local_seed(seed)
+    withr::local_preserve_seed()
+    set.seed(seed)
   }
+
   if (!(verbose %in% c(0,1))) {
     stop("verbose must be 0 or 1")
   }
@@ -1322,6 +1325,7 @@ simulate_one_data_set <- function(drift_dm_obj, n) {
   if (!is.numeric(n) | n <= 0) {
     stop("n must be a numeric > 0")
   }
+
 
   t_max <- drift_dm_obj$prms_solve[["t_max"]]
   nt <- drift_dm_obj$prms_solve[["nt"]]

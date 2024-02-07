@@ -23,8 +23,10 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
     if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
     }
-    withr::local_seed(seed)
+    withr::local_preserve_seed()
+    set.seed(seed)
   }
+
 
   a_pdf <- a_pdf + drift_dm_robust_prm()
   if (min(a_pdf) < 0) {
@@ -94,7 +96,8 @@ simulate_values = function(lower, upper, n, distr = "unif", seed = NULL, ...) {
     if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
     }
-    withr::local_seed(seed)
+    withr::local_preserve_seed()
+    set.seed(seed)
   }
 
   # draw the parameters

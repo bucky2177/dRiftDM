@@ -72,27 +72,34 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
     warning("No data set, passing back unmodified object")
     return(drift_dm_obj)
   }
+
   if (!is.numeric(lower) | !is.numeric(upper)) {
     stop("lower or upper are not of type numeric")
   }
+
   if (length(lower) != length(upper)) {
     stop("length of lower and upper parameters are not equal!")
   }
+
   if (length(lower) != length(drift_dm_obj$free_prms)) {
     stop(
       "number of parameters in lower/upper don't match the number of",
       " free_prms"
     )
   }
+
   if (!is.numeric(verbose) | length(verbose) != 1 | !(verbose %in% c(0, 1, 2))) {
     stop("verbose must be numeric of either 0, 1, or 2")
   }
+
   if (!is.logical(use_de_optim) | length(use_de_optim) != 1) {
     stop("use_de_optim must be logical of length 1")
   }
+
   if (!is.logical(use_nmkb) | length(use_nmkb) != 1) {
     stop("use_nmkb must be logical")
   }
+
   if (!use_de_optim & !use_nmkb) {
     warning(
       "use_de_optim and use_nmkb are set to FALSE.",
@@ -100,15 +107,19 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
     )
     return(drift_dm_obj)
   }
+
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
     }
-    withr::local_seed(seed)
+    withr::local_preserve_seed()
+    set.seed(seed)
   }
+
   if (!is.numeric(de_n_cores) | de_n_cores <= 0) {
     stop("de_n_cores must be a numeric > 0")
   }
+
   if (!is.list(de_control)) {
     stop("de_control must be a list")
   }

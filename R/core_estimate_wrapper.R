@@ -84,12 +84,15 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
   if (!("Subject" %in% colnames(obs_data_subject))) {
     stop("no Subject column found in obs_data_subject")
   }
+
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
     }
-    withr::local_seed(seed)
+    withr::local_preserve_seed()
+    set.seed(seed)
   }
+
   if (!is.character(fit_procedure_name) | length(fit_procedure_name) != 1) {
     stop("fit_procedure_name must be a character vector of length 1")
   }

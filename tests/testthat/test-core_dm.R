@@ -644,8 +644,8 @@ test_that("simualte_data works as expected", {
   # input checks
   expect_error(simulate_data(a_model, -1), "> 0")
   expect_error(simulate_data("hello", 1), "not of type drift_dm")
-  expect_error(simulate_data(a_model, 10, c("1", "2")), "single numeric")
-  expect_error(simulate_data(a_model, 10, c(1, 2)), "single numeric")
+  expect_error(simulate_data(a_model, 10, seed = c("1", "2")), "single numeric")
+  expect_error(simulate_data(a_model, 10, seed = c(1, 2)), "single numeric")
 })
 
 

@@ -90,7 +90,11 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
   }
 
   if (!is.null(seed)) {
-    withr::local_seed(seed)
+    if (!is.numeric(seed) | length(seed) != 1) {
+      stop("seed must be a single numeric")
+    }
+    withr::local_preserve_seed()
+    set.seed(seed)
   }
 
   # prepare plot
