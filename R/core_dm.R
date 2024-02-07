@@ -1298,10 +1298,10 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
       format = "simulating [:bar] :percent; done in: :eta",
       total = n_iter, clear = FALSE, width = 60
     )
+    pb$tick(0)
   }
 
   all_sim_data = apply(X = df_prms, MARGIN = 1, FUN = function(one_row){
-    if (verbose == 1) pb$tick()
     one_set <- one_row[names(one_row) != "Subject"]
     one_set <- one_set[drift_dm_obj$free_prms]
     drift_dm_obj <- set_model_prms(drift_dm_obj = drift_dm_obj,
@@ -1309,6 +1309,7 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
     one_sim_dat = simulate_one_data_set(drift_dm_obj = drift_dm_obj, n = n)
     one_sim_dat$Subject = one_row[["Subject"]]
     return(one_sim_dat)
+    if (verbose == 1) pb$tick()
   })
 
   all_sim_data = do.call("rbind", all_sim_data)

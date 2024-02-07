@@ -193,6 +193,7 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
       format = "estimating [:bar] :percent; done in: :eta",
       total = length(list_obs_data), clear = FALSE, width = 60
     )
+    pb$tick(0)
   }
 
   # 3. run a loop across the list
@@ -211,8 +212,6 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
         "Estimating model for subject:", name_one_subject,
         sprintf("(%s/%s)", num, length(list_obs_data)), "\n"
       )
-    } else if (progress == 2) {
-      pb$tick()
     }
     result <-
       tryCatch(expr = {
@@ -250,6 +249,8 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
       time_elapsed <- round(time_elapsed, 2)
       if (time_elapsed > 10) time_elapsed <- round(time_elapsed)
       cat("-> done. Time elapsed:", time_elapsed, "minutes", "\n")
+    } else if (progress == 2) {
+      pb$tick()
     }
   }
 }

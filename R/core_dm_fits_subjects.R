@@ -74,12 +74,12 @@ gather_stats <- function(fits_subjects, type, verbose = 0, ...) {
       format = "calculating [:bar] :percent; done in: :eta",
       total = n_iter, clear = FALSE, width = 60
     )
+    pb$tick(0)
   }
 
   # call statistics across subjects
   all_stats <-
     lapply(names(fits_subjects$all_fits), function(one_sbj) {
-      if (verbose == 1) pb$tick()
       one_model <- fits_subjects$all_fits[[one_sbj]]
       stats_one_model <- calc_stats(drift_dm_obj = one_model, type = type, ...)
 
@@ -92,6 +92,7 @@ gather_stats <- function(fits_subjects, type, verbose = 0, ...) {
       } else {
         stop("unexpected return value")
       }
+      if (verbose == 1) pb$tick()
       return(stats_one_model)
     })
 
