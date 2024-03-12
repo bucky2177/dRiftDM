@@ -221,7 +221,7 @@ log_like_heart <- function(drift_dm_obj, pdf_u, pdf_l, one_cond) {
       app_like_l <- app_like_l + drift_dm_robust_prm()
       log_like <- sum(log(app_like_u)) + sum(log(app_like_l))
       if (is.nan(log_like)) { # log(0) gives -Inf
-        if (min(app_like_u) < 1e-10 | min(app_like_l) < 1e-10) {
+        if (min(app_like_u) < 0 | min(app_like_l) < 0) {
           warning(
             "negative density values encountered after adding robustness",
             " parameter when calculating the log-likelihood"
