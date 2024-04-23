@@ -131,11 +131,11 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
 
   # objective function to minimize
   goal_wrapper <- function(new_model_prms, drift_dm_obj, verbose) {
-    drift_dm_obj <- set_model_prms(
-      drift_dm_obj = drift_dm_obj,
-      new_model_prms = new_model_prms,
-      eval_model = T
-    )
+
+    drift_dm_obj$prms_model[drift_dm_obj$free_prms] <- new_model_prms
+    drift_dm_obj = re_evaluate_model(drift_dm_obj = drift_dm_obj, eval_model = T)
+
+
     if (verbose == 2) {
       current_prms <- prms_to_str(
         prms = drift_dm_obj$prms_model,
@@ -154,7 +154,7 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
   if (use_de_optim) {
     cl <- NULL
     if (de_n_cores > 1) {
-      all_funs <- c("goal_wrapper", "set_model_prms", "prms_to_str")
+      all_funs <- c("goal_wrapper", "re_evaluate_model", "prms_to_str")
       cl <- parallel::makeCluster(de_n_cores)
       parallel::clusterExport(
         cl = cl,
@@ -194,8 +194,7 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
   if (use_de_optim) {
     start_vals <- as.numeric(de_out$optim$bestmem)
   } else {
-    start_vals <- drift_dm_obj$prms_model[names(drift_dm_obj$prms_model) %in%
-      drift_dm_obj$free_prms]
+    start_vals <- drift_dm_obj$prms_model[drift_dm_obj$free_prms]
     start_vals <- as.numeric(start_vals)
   }
 
@@ -227,11 +226,12 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
   } else {
     final_vals <- as.numeric(start_vals)
   }
+  names(final_vals) = drift_dm_obj$free_prms
 
-  # set parameters
+  # set parameters an evaluate fully
   drift_dm_obj <- set_model_prms(
     drift_dm_obj = drift_dm_obj,
-    new_model_prms = final_vals,
+    new_prm_vals = final_vals,
     eval_model = T
   )
 

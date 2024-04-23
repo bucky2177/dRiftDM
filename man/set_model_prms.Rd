@@ -7,41 +7,34 @@
 \alias{set_obs_data}
 \title{Setting attributes of a drift_dm model}
 \usage{
-set_model_prms(drift_dm_obj, new_model_prms, eval_model = F)
+set_model_prms(drift_dm_obj, new_prm_vals, eval_model = F)
 
-set_free_prms(drift_dm_obj, new_free_prms)
+set_free_prms(drift_dm_obj, new_free_prms = NULL, new_fixed_prms = NULL)
 
-set_solver_settings(
-  drift_dm_obj,
-  names_prm_solve,
-  values_prm_solve,
-  eval_model = F
-)
+set_solver_settings(drift_dm_obj, new_solver_vals, eval_model = F)
 
 set_obs_data(drift_dm_obj, obs_data, eval_model = F)
 }
 \arguments{
-\item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
+\item{drift_dm_obj}{an object inheriting from \link{drift_dm}.}
 
-\item{new_model_prms}{a numeric vector of the same length as
-\code{drift_dm_obj$free_prms}, specifying the new values of the parameters that
-are allowed to vary}
+\item{new_prm_vals}{a named numeric vector, specifying new values
+for the model's parameters listed in \code{drift_dm_obj$prms_model}}
 
 \item{eval_model}{logical, indicating whether \link{re_evaluate_model}
 should be called after modifying the model. Default is \code{FALSE}. Note that if
 \code{eval_model} is set to \code{FALSE}, the attributes \code{pdfs}, \code{log_like_val},
-and \code{ic_vals}are deleted from the model. Also, \code{eval_model = TRUE} only
-has an effect if the model provides data.}
+and \code{ic_vals}are deleted from the model.}
 
-\item{new_free_prms}{a character vector specifying the names of the
-parameters that are allowed to vary}
+\item{new_free_prms, new_fixed_prms}{a character vector specifying the names
+of the parameters that are either allowed to vary or which are fixed. When
+calling \code{set_free_prms}, users can only specify \code{new_free_prms} or
+\code{new_fixed_prms}, not both.}
 
-\item{names_prm_solve}{a character vector, possible entries are
+\item{new_solver_vals}{a named vector specifying settings relevant for
+numerically solving  a model. Labels for each entry must match with
 \code{solver}, \code{sigma}, \code{t_max}, \code{dt}, \code{dx} (Note that \code{solver} can only be
 \code{kfe} at the moment).}
-
-\item{values_prm_solve}{numeric or character, defining the values to be set
-for \code{names_prm_solve}.}
 
 \item{obs_data}{a \link{data.frame} which provides three columns: (1) \code{RT} for
 the response times, (2) \code{Error} for error coding (1 = error, 0 = correct),
@@ -57,10 +50,8 @@ list underlying every object inheriting from \code{drift_dm}. Using the setter
 methods is the highly recommended way of changing the attributes of a model
 (see \link{drift_dm} for a list of the built-in attributes).
 \itemize{
-\item \code{set_model_prms} for setting the parameters of the model that are
-declared as "free".
-\item \code{set_free_prms} for declaring which parameters are "free" (i.e.,
-are allowed to vary or be modified)
+\item \code{set_model_prms} for setting the parameters of the model.
+\item \code{set_free_prms} for declaring which parameters are "free"  or "fixed".
 \item \code{set_solver_settings} for modifying the settings relevant to the functions
 deriving the pdfs of the diffusion model
 \item \code{set_obs_data} can be used to pass/set observed data

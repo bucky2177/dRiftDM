@@ -75,8 +75,7 @@ respective model.
 
 Each component function must take the model itself, the time or evidence
 space, and a condition as arguments. These arguments are provided with values
-when dRiftDM internally calls them (e.g., when calculating the pdfs, see
-\link{calc_pdfs})
+when dRiftDM internally calls them.
 
 In order to work with \code{dRiftDM}, \code{mu_fun},
 \code{mu_int_fun}, \code{b_fun}, \code{dt_b_fun}, \code{nt_fun} must have the following
@@ -90,7 +89,7 @@ of the same length as \code{t_vec}. For \code{mu_fun},
 respective boundary/drift rate (and their derivative/integral) at every time
 step \eqn{t}. For \code{nt_fun} the returned values provide the density of the
 non-decision time across the time space (which get convoluted with the
-pdfs when solving the model, see \link{calc_pdfs})
+pdfs when solving the model)
 
 In order to work with \code{dRiftDM}, \code{x_fun} must have the following
 declaration: \verb{my_fun = function(drift_dm_obj, x_vec, one_cond}). Here,

@@ -28,7 +28,6 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
   }
 
 
-  a_pdf <- a_pdf + drift_dm_robust_prm()
   if (min(a_pdf) < 0) {
     warning(
       "negative pdf values encountered when drawing values from a pdf. ",
@@ -104,7 +103,7 @@ simulate_values = function(lower, upper, n, distr = "unif", seed = NULL, ...) {
   n_prms = length(lower)
   if (distr == "unif") {
     prms = lapply(1:n_prms, function(i){
-      runif(n, min = lower[i], max = upper[i])
+      stats::runif(n, min = lower[i], max = upper[i])
     })
   } else if (distr == "tnorm") {
     means = dotdot$means
@@ -119,10 +118,10 @@ simulate_values = function(lower, upper, n, distr = "unif", seed = NULL, ...) {
       stop("sds is not numeric with length equal to lower/upper")
 
     prms = lapply(1:n_prms, function(i){
-      cdf_val_l = pnorm(q = lower[i], mean = means[i], sd = sds[i])
-      cdf_val_u = pnorm(q = upper[i], mean = means[i], sd = sds[i])
-      cdf_vals = runif(n = n, min = cdf_val_l, max = cdf_val_u)
-      qnorm(p = cdf_vals, mean = means[i], sd = sds[i])
+      cdf_val_l = stats::pnorm(q = lower[i], mean = means[i], sd = sds[i])
+      cdf_val_u = stats::pnorm(q = upper[i], mean = means[i], sd = sds[i])
+      cdf_vals = stats::runif(n = n, min = cdf_val_l, max = cdf_val_u)
+      stats::qnorm(p = cdf_vals, mean = means[i], sd = sds[i])
     })
   }
   prms = do.call("cbind", prms)

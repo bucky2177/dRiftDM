@@ -102,7 +102,7 @@ test_that("snapshot of the model running through nmkb", {
 
   new_data <- simulate_data(a_model, n = 3000, seed = 1)
   a_model <- set_obs_data(a_model, new_data)
-  a_model <- set_model_prms(a_model, c(2, 0.5, 0.2))
+  a_model <- set_model_prms(a_model, c(muc = 2, b = 0.5, non_dec = 0.2))
   expect_snapshot(
     estimate_model(a_model,
       lower = c(1, 0.2, 0.1), upper = c(7, 0.8, 0.6),

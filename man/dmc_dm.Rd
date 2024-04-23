@@ -22,21 +22,20 @@ diffusion model for conflict tasks by
 The diffusion model for conflict tasks is a model for describing conflict
 tasks like the Stroop, Simon, or flanker task.
 
-It has the following properties:
+It has the following properties (see \link{component_shelf}):
 \itemize{
-\item a constant boundary (parameter \code{b}; see \link{b_constant})
+\item a constant boundary (parameter \code{b})
 \item a staring point distribution in the shape of a beta distribution
-(parameter \code{alpha}; see \link{x_beta})
+(parameter \code{alpha})
 \item an evidence accumulation process that results from the sum of two
-subprocesses (see \link{mu_dmc_dm}:
+subprocesses:
 \itemize{
 \item a controlled process with drift rate \code{muc}
 \item a gamma-shaped process with a scale parameter \code{tau}, a shape
 parameter \code{a}, and an amplitude \code{A}.
 }
 \item A non-decision time that follows a truncated normal distribution with
-mean \code{non_dec} and standard deviation \code{sd_non_dec}
-(see \link{nt_truncated_normal}).
+mean \code{non_dec} and standard deviation \code{sd_non_dec}.
 }
 
 Its parameters are:  \code{muc}, \code{b}, \code{non_dec}, \code{sd_non_dec}, \code{tau}, \code{a}, \code{A},

@@ -78,12 +78,23 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
     warning("obs_data in drift_dm_obj will be ignored and deleted")
     drift_dm_obj$obs_data <- NULL
   }
+  drift_dm_obj = validate_drift_dm(drift_dm_obj)
+
+
   if (!is.data.frame(obs_data_subject)) {
     stop("obs_data_subject is not a data.frame")
   }
   if (!("Subject" %in% colnames(obs_data_subject))) {
     stop("no Subject column found in obs_data_subject")
   }
+
+  # check if data makes sense
+  obs_data_subject = check_raw_data(obs_data_subject)
+  if (drift_dm_obj$prms_solve[["t_max"]] < max(obs_data_subject$RT)) {
+    stop("t_max in drift_dm_obj is smaller than maximum RT. ",
+         "Please adjust before calling estimate_model_subjects")
+  }
+
 
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1) {
@@ -181,6 +192,12 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
     files_exist <- sapply(names(list_obs_data), function(x, folder_name) {
       return(file.exists(file.path(folder_name, paste0(x, ".rds"))))
     }, folder_name = folder_name)
+
+    if (any(files_exist)) {
+      message("There are already individual fits saved in ", folder_name,
+              ". Skipping those individuals... \nIf you want to re-fit all ",
+              "individuals, specify the argument force_refit = T!")
+    }
     list_obs_data <- list_obs_data[!files_exist]
   }
 
@@ -202,8 +219,18 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
     one_obs_data <- list_obs_data[[name_one_subject]]
     drift_dm_obj_subj <- set_obs_data(
       drift_dm_obj = drift_dm_obj,
-      obs_data = one_obs_data
+      obs_data = one_obs_data, eval_model = F
     )
+
+    # set parameter values that might be used if DE is not run
+    if (!is.null(start_vals)) {
+      set_vals <- start_vals[start_vals$Subject == name_one_subject, ]
+      set_vals <- set_vals[names(set_vals) != "Subject"]
+      drift_dm_obj_subj <- set_model_prms(
+        drift_dm_obj = drift_dm_obj_subj,
+        new_prm_vals = unlist(set_vals)
+      )
+    }
 
     # estimate the model
     if (progress == 1) {
@@ -215,16 +242,6 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
     }
     result <-
       tryCatch(expr = {
-        # set parameter values that might be used if DE is not run
-        if (!is.null(start_vals)) {
-          set_vals <- start_vals[start_vals$Subject == name_one_subject, ]
-          set_vals <- set_vals[names(set_vals) != "Subject"]
-          set_vals <- set_vals[drift_dm_obj_subj$free_prms]
-          drift_dm_obj_subj <- set_model_prms(
-            drift_dm_obj = drift_dm_obj_subj,
-            new_model_prms = as.numeric(set_vals)
-          )
-        }
         # estimate the model
         estimate_model(
           drift_dm_obj = drift_dm_obj_subj, lower = lower, upper = upper, ...

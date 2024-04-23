@@ -4,12 +4,19 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
     stop(var_name, " is not a (named) numeric vector")
   }
 
+  if (length(x) == 0) {
+    stop(var_name, " is an empty vector")
+  }
+
   if (!is.null(length) && length(x) != length) {
     stop(var_name, " has not ", length, " entries")
   }
-
   if (is.null(names(x))) {
     stop("please ensure that ", var_name, " is a named vector")
+  }
+
+  if (any(names(x) == "") | any(is.na(names(x)))) {
+    stop(var_name, " does not provide a name for each entry")
   }
 
   if (!is.null(labels) && !all(names(x) %in% labels)) {
@@ -19,6 +26,7 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
     )
   }
   if (any(is.na(x))) stop(var_name, " contains NAs")
+  if (any(is.infinite(x))) warning(var_name, " contains infinite values")
 }
 
 prms_to_str <- function(prms, names_prms, round_digits = NULL,
@@ -64,6 +72,9 @@ prms_to_str <- function(prms, names_prms, round_digits = NULL,
 drift_dm_approx_error <- function() {
   return(1e-20)
 }
+drift_dm_medium_approx_error <- function() {
+  return(.0001)
+}
 drift_dm_small_approx_error <- function() {
   return(.01)
 }
@@ -75,4 +86,8 @@ drift_dm_robust_prm <- function() {
 }
 drift_dm_default_rounding <- function() {
   return(3)
+}
+
+drift_dm_default_probs <- function() {
+  return(seq(0.1, 0.9, 0.1))
 }

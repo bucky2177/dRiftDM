@@ -54,14 +54,15 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
     y_lab <- "Evidence"
   }
 
+  b_vecs <- sapply(unique_conds, function(x) {
+    drift_dm_obj$comp_funs$b_fun(prms_model = drift_dm_obj$prms_model,
+                                 prms_solve = drift_dm_obj$prms_solve,
+                                 t_vec = t_vec, one_cond = x,
+                                 ddm_opts = drift_dm_obj$ddm_opts)
+  })
+
   if (is.null(y_lim)) {
-    bs <- sapply(unique_conds, function(x) {
-      max(drift_dm_obj$comp_funs$b_fun(
-        drift_dm_obj = drift_dm_obj,
-        t_vec = t_vec, one_cond = x
-      ))
-    })
-    max_b <- max(bs)
+    max_b <- max(b_vecs)
     y_lim <- c(-max_b, max_b)
   }
 
@@ -120,10 +121,7 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
       graphics::points(exp_process ~ t_vec, ty = "l", col = line_cols_ev[idx])
     }
 
-    b_vec <- drift_dm_obj$comp_funs$b_fun(
-      drift_dm_obj = drift_dm_obj,
-      t_vec = t_vec, one_cond = one_cond
-    )
+    b_vec <- b_vecs[, "comp"]
     stopifnot(length(b_vec) == length(t_vec))
     graphics::points(b_vec ~ t_vec, ty = "l", col = line_cols_b)
     graphics::points(-b_vec ~ t_vec, ty = "l", col = line_cols_b)
@@ -136,37 +134,13 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
 }
 
 
-# === FUNCTION FOR PLOTTING the Model Predictions
+# === FUNCTION FOR PLOTTING STATISTICS
 
-#' Plot conditional accuracy functions
-#'
-#' This function provides a basic plot of the model's and/or the observed data's
-#' conditional accuracy functions (CAFs; see [dRiftDM::calc_stats]).
-#'
-#' @param obj an object inheriting from [dRiftDM::drift_dm] or
-#' `dm_fits_subjects` (see [dRiftDM::load_fits_subjects]). If `obj` is of the
-#' latter type, cafs are calculated via
-#' [dRiftDM::gather_stats] and then aggregated across subjects.
-#'
-#' @param source character, indicating whether CAFs of the model ("pred"), the
-#'  observed data ("obs"), or both ("both") should be plotted. Default is
-#'  "both".
-#' @param n_bins numeric, indicating how many bins the CAF should contain.
-#'  Default is 5.
-#' @param x_lab,y_lab character, providing a label for the x-axis and y-axis,
-#'  respectively. Default is "Bins" and "Accuracy %", respectively.
-#' @param x_lim,y_lim numeric vectors of length 2, providing the limits of the
-#'  x-axis and y-axis. The default for `x_lim` is `c(1, n_bins)`. The default
-#'  for `y_lim` is `c(0, 1)`.
-#' @param line_cols character vector, indicating the color-coding of the
-#'  conditions. Default colors are based on the `grDevices::rainbow` palette.
-#'
-#' @export
-plot_cafs <- function(obj, source = "both", n_bins = 5, x_lab = NULL,
-                      y_lab = NULL, x_lim = NULL, y_lim = NULL,
-                      line_cols = NULL) {
-  if (!inherits(obj, "drift_dm") &
-    !inherits(obj, "dm_fits_subjects")) {
+# Plots the CAFs
+plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
+                      x_lab_cafs = NULL, y_lab_cafs = NULL, x_lim_cafs = NULL,
+                      y_lim_cafs = NULL, line_cols_cafs = NULL) {
+  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
     stop("obj is not of type drift_dm or dm_fits_subjects")
   }
 
@@ -174,12 +148,12 @@ plot_cafs <- function(obj, source = "both", n_bins = 5, x_lab = NULL,
   if (inherits(obj, "drift_dm")) {
     cafs <- calc_stats(
       drift_dm_obj = obj, type = "cafs", source = source,
-      n_bins = n_bins
+      n_bins = n_bins_cafs
     )
   } else {
     cafs <- gather_stats(
       fits_subjects = obj, type = "cafs", source = source,
-      n_bins = n_bins, verbose = 1
+      n_bins = n_bins_cafs, verbose = 1
     )
   }
 
@@ -190,101 +164,70 @@ plot_cafs <- function(obj, source = "both", n_bins = 5, x_lab = NULL,
   unique_conds <- unique(cafs$Cond)
 
   # set default arguments
-  if (is.null(x_lab)) {
-    x_lab <- "Bins"
+  if (is.null(x_lab_cafs)) {
+    x_lab_cafs <- "Bins"
   }
 
-  if (is.null(y_lab)) {
-    y_lab <- "Accuracy [%]"
+  if (is.null(y_lab_cafs)) {
+    y_lab_cafs <- "Accuracy [%]"
   }
 
-  if (is.null(y_lim)) {
-    y_lim <- c(0, 1)
+  if (is.null(y_lim_cafs)) {
+    y_lim_cafs <- c(0, 1)
   }
 
-  if (is.null(x_lim)) {
-    x_lim <- c(1, n_bins)
+  if (is.null(x_lim_cafs)) {
+    x_lim_cafs <- as.numeric(c(min(cafs$Bin), max(cafs$Bin)))
   }
 
-  if (!is.null(line_cols)) {
-    if (length(line_cols) == 1) {
-      rep(line_cols, length(unique_conds))
+  if (!is.null(line_cols_cafs)) {
+    if (length(line_cols_cafs) == 1) {
+      line_cols_cafs = rep(line_cols_cafs, length(unique_conds))
     } else {
-      if (length(line_cols) != length(unique_conds)) {
+      if (length(line_cols_cafs) != length(unique_conds)) {
         stop("number of line_cols must match the number of conditions")
       }
     }
   } else {
-    line_cols <- grDevices::rainbow(n = length(unique_conds))
+    line_cols_cafs <- grDevices::rainbow(n = length(unique_conds))
   }
 
   # prepare plot
   plot(c(1, 2) ~ c(1, 1),
-    col = "white", xlab = x_lab, ylab = y_lab, xlim = x_lim,
-    ylim = y_lim
+    col = "white", xlab = x_lab_cafs, ylab = y_lab_cafs, xlim = x_lim_cafs,
+    ylim = y_lim_cafs
   )
 
   for (idx in seq_along(unique_conds)) {
     sub_dat <- cafs[cafs$Cond == unique_conds[idx], ]
     sub_dat_obs <- sub_dat[sub_dat$Source == "obs", ]
     if (nrow(sub_dat_obs) > 0) {
-      graphics::points(sub_dat_obs$P_Corr ~ sub_dat_obs$Bin, col = line_cols[idx])
+      graphics::points(sub_dat_obs$P_Corr ~ sub_dat_obs$Bin,
+                       col = line_cols_cafs[idx])
     }
 
     sub_dat_pred <- sub_dat[sub_dat$Source == "pred", ]
     if (nrow(sub_dat_pred) > 0) {
       graphics::points(sub_dat_pred$P_Corr ~ sub_dat_pred$Bin,
         ty = "l",
-        col = line_cols[idx]
+        col = line_cols_cafs[idx]
       )
     }
   }
 
   graphics::legend("bottomright",
     legend = unique_conds,
-    col = line_cols, lty = 1
+    col = line_cols_cafs, lty = 1
   )
 }
 
-
-
-#' Plot the quantiles
-#'
-#' This function provides a basic plot of the model's and/or the observed data's
-#' quantiles (see [dRiftDM::calc_stats]).
-#'
-#' @param obj an object inheriting from [dRiftDM::drift_dm] or
-#' `dm_fits_subjects` (see [dRiftDM::load_fits_subjects]). If `obj` is of the
-#' latter type, quantiles are calculated via
-#' [dRiftDM::gather_stats] and then aggregated across subjects.
-#'
-#' @param source character, indicating whether CAFs of the model ("pred"), the
-#'  observed data ("obs"), or both ("both") should be plotted. Default is
-#'  "both".
-#' @param probs numeric vector, providing the quantiles to plot. Default is
-#'  `seq(0.1, 0.9, 0.1)`
-#' @param to_plot character, providing the column of the data.frame returned by
-#'  [dRiftDM::calc_stats] that should be used for plotting. Default is
-#'  "Quant_Corr", indicating that the quantiles of correct responses will be
-#'  plotted.
-#' @param x_lab,y_lab character, providing a label for the x-axis and y-axis,
-#'  respectively. Default is "RT" and "F(RT)", respectively.
-#' @param x_lim,y_lim numeric vectors of length 2, providing the limits of the
-#'  x-axis and y-axis. The default for `x_lim` is `c(0, t_max / 2)`, with
-#'  `t_max` defined within `obj`. The default for `y_lim` is
-#'  `c(0, 1)`.
-#' @param line_cols character vector, indicating the color-coding of the
-#'  conditions. Default colors are based on the `grDevices::rainbow` palette.
-#'
-#'
-#'
-#' @export
+# Plots the Quantiles
 plot_quantiles <- function(obj, source = "both",
-                           probs = seq(0.1, 0.9, 0.1), to_plot = "Quant_Corr",
-                           x_lab = NULL, y_lab = NULL, x_lim = NULL,
-                           y_lim = NULL, line_cols = NULL) {
-  if (!inherits(obj, "drift_dm") &
-    !inherits(obj, "dm_fits_subjects")) {
+                           probs_quantiles = NULL, dv_quantiles = NULL,
+                           x_lab_quantiles = NULL, y_lab_quantiles = NULL,
+                           x_lim_quantiles = NULL, y_lim_quantiles = NULL,
+                           line_cols_quantiles = NULL) {
+  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
     stop("obj is not of type drift_dm or dm_fits_subjects")
   }
 
@@ -292,18 +235,23 @@ plot_quantiles <- function(obj, source = "both",
   if (inherits(obj, "drift_dm")) {
     quantiles <- calc_stats(
       drift_dm_obj = obj, type = "quantiles", source = source,
-      probs = probs
+      probs = probs_quantiles
     )
   } else {
     quantiles <- gather_stats(
       fits_subjects = obj, type = "quantiles", source = source,
-      probs = probs, verbose = 1
+      probs = probs_quantiles, verbose = 1
     )
   }
 
+  if (is.null(dv_quantiles)) {
+    dv_quantiles <- "Quant_Corr"
+  }
+  dv_quantiles = match.arg(dv_quantiles, c("Quant_Err", "Quant_Corr"))
+
   agg_factors <- c("Source", "Cond", "Prob")
   stopifnot(agg_factors %in% colnames(quantiles))
-  quantiles <- stats::aggregate(quantiles[to_plot],
+  quantiles <- stats::aggregate(quantiles[dv_quantiles],
     by = quantiles[agg_factors],
     FUN = mean
   )
@@ -317,39 +265,39 @@ plot_quantiles <- function(obj, source = "both",
   }
 
 
-  # set default arguments
-  if (is.null(x_lab)) {
-    x_lab <- "RT"
+  # set default plot arguments
+  if (is.null(x_lab_quantiles)) {
+    x_lab_quantiles <- "RT"
   }
 
-  if (is.null(y_lab)) {
-    y_lab <- "F(RT)"
+  if (is.null(y_lab_quantiles)) {
+    y_lab_quantiles <- "F(RT)"
   }
 
-  if (is.null(y_lim)) {
-    y_lim <- c(0, 1)
+  if (is.null(y_lim_quantiles)) {
+    y_lim_quantiles <- c(0, 1)
   }
 
-  if (is.null(x_lim)) {
-    x_lim <- c(0, t_max / 2)
+  if (is.null(x_lim_quantiles)) {
+    x_lim_quantiles <- c(0, t_max / 2)
   }
 
-  if (!is.null(line_cols)) {
-    if (length(line_cols) == 1) {
-      rep(line_cols, length(unique_conds))
+  if (!is.null(line_cols_quantiles)) {
+    if (length(line_cols_quantiles) == 1) {
+      line_cols_quantiles = rep(line_cols_quantiles, length(unique_conds))
     } else {
-      if (length(line_cols) != length(unique_conds)) {
-        stop("number of line_cols must match the number of conditions")
+      if (length(line_cols_quantiles) != length(unique_conds)) {
+        stop("number of line_cols_quantiles must match the number of conditions")
       }
     }
   } else {
-    line_cols <- grDevices::rainbow(n = length(unique_conds))
+    line_cols_quantiles <- grDevices::rainbow(n = length(unique_conds))
   }
 
   # prepare plot
   plot(c(1, 2) ~ c(1, 1),
-    col = "white", xlab = x_lab, ylab = y_lab, xlim = x_lim,
-    ylim = y_lim
+    col = "white", xlab = x_lab_quantiles, ylab = y_lab_quantiles,
+    xlim = x_lim_quantiles, ylim = y_lim_quantiles
   )
 
 
@@ -357,26 +305,226 @@ plot_quantiles <- function(obj, source = "both",
     sub_dat <- quantiles[quantiles$Cond == unique_conds[idx], ]
     sub_dat_obs <- sub_dat[sub_dat$Source == "obs", ]
     if (nrow(sub_dat_obs) > 0) {
-      graphics::points(sub_dat_obs$Prob ~ sub_dat_obs[[to_plot]],
-        col = line_cols[idx]
+      graphics::points(sub_dat_obs$Prob ~ sub_dat_obs[[dv_quantiles]],
+        col = line_cols_quantiles[idx]
       )
     }
     sub_dat_pred <- sub_dat[sub_dat$Source == "pred", ]
     if (nrow(sub_dat_pred) > 0) {
-      graphics::points(sub_dat_pred$Prob ~ sub_dat_pred[[to_plot]],
-        ty = "l", col = line_cols[idx]
+      graphics::points(sub_dat_pred$Prob ~ sub_dat_pred[[dv_quantiles]],
+        ty = "l", col = line_cols_quantiles[idx]
       )
     }
   }
 
-
   graphics::legend("bottomright",
     legend = unique_conds,
-    col = line_cols, lty = 1
+    col = line_cols_quantiles, lty = 1
   )
 }
 
 
+# Plots the Delta Function(s)
+plot_delta_fun <- function(obj, source = "both", minuend_delta,
+                           subtrahend_delta, probs_delta = NULL, dv_delta = NULL,
+                           x_lab_delta = NULL, y_lab_delta = NULL,
+                           x_lim_delta = NULL, y_lim_delta = NULL,
+                           line_cols_delta = NULL) {
+
+  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
+    stop("obj is not of type drift_dm or dm_fits_subjects")
+  }
+
+  # get values
+  if (inherits(obj, "drift_dm")) {
+    delta_fun <- calc_stats(
+      drift_dm_obj = obj, type = "delta_fun", source = source,
+      probs = probs_delta, minuend = minuend_delta,
+      subtrahend = subtrahend_delta, dv = dv_delta
+    )
+  } else {
+    delta_fun <- gather_stats(
+      fits_subjects = obj, type = "delta_fun", source = source,
+      probs = probs_delta, minuend = minuend_delta,
+      subtrahend = subtrahend_delta, dv = dv_delta, verbose = 1
+    )
+  }
+
+  delta_columns =
+    names(delta_fun)[grepl(pattern = "^Delta", names(delta_fun))]
+  avg_columns =
+    names(delta_fun)[grepl(pattern = "^Avg", names(delta_fun))]
+
+  agg_factors <- c("Source", "Prob")
+  stopifnot(agg_factors %in% colnames(delta_fun))
+  delta_fun <- stats::aggregate(delta_fun[c(delta_columns, avg_columns)],
+                                by = delta_fun[agg_factors],
+                                FUN = mean
+  )
+
+  if (inherits(obj, "drift_dm")) {
+    t_max <- obj$prms_solve[["t_max"]]
+  } else {
+    t_max <- obj$drift_dm_fit_info$drift_dm_obj$prms_solve[["t_max"]]
+  }
+
+  # set default plot arguments
+  if (is.null(x_lab_delta)) {
+    x_lab_delta <- "Avg"
+  }
+
+  if (is.null(y_lab_delta)) {
+    y_lab_delta <- expression(Delta)
+  }
+
+  if (is.null(y_lim_delta)) {
+    y_lim_delta <- c(-0.1, 0.2)
+  }
+
+  if (is.null(x_lim_delta)) {
+    x_lim_delta <- c(0, t_max / 2)
+  }
+
+  if (!is.null(line_cols_delta)) {
+    if (length(line_cols_delta) == 1) {
+      line_cols_delta = rep(line_cols_delta, length(delta_columns))
+    } else {
+      if (length(line_cols_delta) != length(delta_columns)) {
+        stop("number of line_cols_delta must match the number of delta columns")
+      }
+    }
+  } else {
+    line_cols_delta <- grDevices::rainbow(n = length(delta_columns))
+  }
+
+
+  # prepare plot
+  plot(c(1, 2) ~ c(1, 1),
+       col = "white", xlab = x_lab_delta, ylab = y_lab_delta,
+       xlim = x_lim_delta, ylim = y_lim_delta
+  )
+
+
+  for (idx in seq_along(delta_columns)) {
+    sub_dat_obs <- delta_fun[delta_fun$Source == "obs", ]
+    sub_dat_obs <- sub_dat_obs[c(delta_columns[idx], avg_columns[idx])]
+    if (nrow(sub_dat_obs) > 0) {
+      graphics::points(sub_dat_obs[[1]] ~ sub_dat_obs[[2]],
+                       col = line_cols_delta[idx]
+      )
+    }
+    sub_dat_pred <- delta_fun[delta_fun$Source == "pred", ]
+    sub_dat_pred <- sub_dat_pred[c(delta_columns[idx], avg_columns[idx])]
+    if (nrow(sub_dat_pred) > 0) {
+      graphics::points(sub_dat_pred[[1]] ~ sub_dat_pred[[2]],
+                       ty = "l", col = line_cols_delta[idx]
+      )
+    }
+  }
+
+  graphics::legend("bottomright",
+                   legend = gsub("Delta_", "", delta_columns),
+                   col = line_cols_delta, lty = 1
+  )
+}
+
+
+
+
+#' Plot Statistics
+#'
+#' This function provides basic plots of statistics derived from a model.
+#' Internally, it calls [dRiftDM::gather_stats] or [dRiftDM::calc_stats] and
+#' subsequently creates basic plots.
+#'
+#' @param obj an object inheriting from [dRiftDM::drift_dm] or
+#' `dm_fits_subjects` (see [dRiftDM::load_fits_subjects]). If `obj` is of the
+#' latter type, statistics may be calculated via
+#' [dRiftDM::gather_stats], depending on the requested statistics. For
+#' quantiles, delta functions, and CAfs, observed data and model predictions
+#' are averaged across subjects
+#'
+#' @param type character vector, indicating which statistics should be
+#'  plotted (see [dRiftDM::calc_stats] for more info).
+#' @param source character, indicating whether the model prediction ("pred"),
+#' the observed data ("obs"), or both ("both") should be considered. Default is
+#'  "both".
+#' @param mfrow optional numeric vector, controls the number of rows and columns
+#' of the final plot in case `type` is of length > 1. Default is NULL, meaning
+#' that plots will not be grouped.
+#' @param ... optional and mandatory arguments passed down to internal functions
+#' creating the plots. For a full list of arguments see the details.
+#'
+#' @details
+#'
+#' For more information on each statistics, see [dRiftDM::calc_stats]
+#'
+#' # Conditional Accuracy Functions (CAFs)
+#'
+#' Optional arguments
+#' - `n_bins_cafs`: the number of bins for which to calculate accuracy
+#' - `x_lab_cafs`, `y_lab_cafs`, `x_lim_cafs`, `y_lim_cafs`: axes labels and limits
+#' - `line_cols_cafs`: a character vector defining colors for each condition
+#'
+#' # Quantiles
+#'
+#' Optional arguments
+#' - `probs_quantiles`: the probabilities for which quantiles to calculate
+#' - `dv_quantiles`: The dependent variable to plot; options are `Quant_Corr` or
+#'  `Quant_Err` for correct or incorrect responses
+#' - `x_lab_quantiles`, `y_lab_quantiles`, `x_lim_quantiles`,
+#'   `y_lim_quantiles`: axes labels and limits
+#' - `line_cols_quantiles`: a character vector defining colors for each condition
+#'
+#' # Delta Functions
+#'
+#' Mandatory arguments
+#' - `minuend_delta`, `subtrahend_delta`: character vectors specifying how to
+#' calculate delta functions
+#'
+#' Optional arguments
+#' - `probs_delta`: the probabilities for which quantiles to calculate
+#' - `dv_delta`: The dependent variable to plot; options are `Quant_Corr` or
+#'  `Quant_Err` for correct or incorrect responses
+#' - `x_lab_delta`, `y_lab_delta`, `x_lim_delta`, `y_lim_delta`: axes labels
+#' and limits
+#' - `line_cols_delta`: a character vector defining colors for each line
+#'
+#'
+#' @export
+plot_stats <- function(obj, type, source = "both", mfrow = NULL, ...) {
+
+  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
+    stop("obj is not of type drift_dm or dm_fits_subjects")
+  }
+
+  if (!is.character(type) | length(type) == 0) {
+    stop("type must be character vector of length >= 1")
+  }
+
+  type <- sapply(type, function(x) {
+    match.arg(x, c("cafs", "quantiles", "delta_fun"))
+  })
+  type <- unname(type)
+
+  if (!is.null(mfrow)) {
+    withr::local_par(mfrow)
+  }
+
+  # plot the requested plots sequentially
+  for (one_type in type) {
+
+    if (one_type == "cafs")
+      plot_cafs(obj = obj, source = source, ...)
+    if (one_type == "quantiles")
+      plot_quantiles(obj = obj, source = source, ...)
+    if (one_type == "delta_fun")
+      plot_delta_fun(obj = obj, source = source, ...)
+  }
+}
+
+
+# HISTOGRAM of Parameters
 
 #' Plot Parameter Distribution(s)
 #'
@@ -387,6 +535,8 @@ plot_quantiles <- function(obj, source = "both",
 #' @param include_fit_values logical, indicating if a histogram for
 #' `log_like`, `AIC`, and `BIC` should be created as well
 #' @param col the color of the histrogram bars
+#' @param breaks argument controlling the number of break points
+#' (see the arguments of [graphics::hist] for more information)
 #'
 #' @details
 #' This function uses [dRiftDM::gather_parameters] to gather parameters across
@@ -396,7 +546,8 @@ plot_quantiles <- function(obj, source = "both",
 #'
 #'
 #' @export
-plot_prms <- function(fits_subjects, include_fit_values = F, col = "skyblue") {
+plot_prms <- function(fits_subjects, include_fit_values = F, col = "skyblue",
+                      breaks = "Sturges") {
   if (!inherits(fits_subjects, "dm_fits_subjects")) {
     stop("argument fits_subjects is not not of type dm_fits_subjects")
   }
@@ -415,7 +566,7 @@ plot_prms <- function(fits_subjects, include_fit_values = F, col = "skyblue") {
   for (one_prm_to_plot in to_plot_names) {
     graphics::hist(prms[[one_prm_to_plot]],
       col = col, xlab = "values",
-      main = one_prm_to_plot
+      main = one_prm_to_plot, breaks = breaks
     )
   }
 }

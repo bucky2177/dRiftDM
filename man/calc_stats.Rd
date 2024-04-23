@@ -10,17 +10,17 @@ calc_stats(drift_dm_obj, type, source = "both", ...)
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
 
 \item{type}{character vector, indicating which statistics should be
-calculated. Currently supported options are "cafs" or "quantiles".}
+calculated. Currently supported options are "cafs", "quantiles", "delta_fun".}
 
-\item{source}{character, indicating whether CAFs of the observed data ("obs"),
-of the model's predictions ("pred"), or both ("both") should be calculated.
+\item{source}{character, indicating whether statistics for observed data ("obs"),
+the model's predictions ("pred"), or both ("both") should be calculated.
 Default is "both".}
 
-\item{...}{additional parameters passed down to the functions handling the
-calculations. See Details for more information}
+\item{...}{additional optional and necessary parameters passed down to the
+functions handling the calculations. See Details for more information}
 }
 \value{
-The return value depends on the \code{type} argument. If \code{type} is  a charcter
+The return value depends on the \code{type} argument. If \code{type} is  a character
 vector of length 1, a single data.frame is returned containing the requested
 statistics. If \code{type} is a character vector of length > 1, a named list
 is passed back, with each entry in the list corresponding to a data.frame of
@@ -32,6 +32,7 @@ or observed data. Currently supported are:
 \itemize{
 \item Conditional Accuracy Functions (CAFs)
 \item Quantiles
+\item Delta Functions
 }
 }
 \section{Conditional Accuracy Function (CAFs)}{
@@ -54,7 +55,26 @@ For observed response times, the function \link[stats:quantile]{stats::quantile}
 default settings.
 
 Which quantiles are calcuated can be controlled by providing the
-probabilites with values in \eqn{\[0, 1s\]}. Default is
+probabilites, \code{probs}, with values in \eqn{\[0, 1s\]}. Default is
 \code{seq(0.1, 0.9, 0.1)}.
+}
+
+\section{Delta Functions}{
+Delta functions calculate the difference between quantiles
+of two conditions against their mean:
+\eqn{Delta_i = Q_{i,j} - Q_{i,k}}
+\eqn{Avg_i = 0.5 \cdot Q_{i,j} + 0.5 \cdot Q_{i,k}}
+With i indicating a quantile, and j and k conditions.
+
+To calculate delta functions, users have to specify:
+\itemize{
+\item \code{minuend}: character vector, specifying condition(s) j. Must be in
+\code{drift_dm_obj$conds}.
+\item \code{subtrahend}: character vector, specifying condition(s) k. Must be in
+\code{drift_dm_obj$conds}
+\item \code{dv}: character vector, specifying the dependent variable(s) to use.
+Supported is \code{QUant_Corr} and \code{Quant_Err}
+\item optional: \code{probs}, see the section on quantiles
+}
 }
 

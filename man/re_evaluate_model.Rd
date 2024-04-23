@@ -23,7 +23,10 @@ the pdfs, log likelihood (and AIC/BIC) of the model.
 }
 
 Note that if re_evaluate model is called before observed data was set,
-the function silently updates the \code{pdfs}, but not \code{log_like_val} or \code{ic_vals}
+the function silently updates the \code{pdfs}, but not \code{log_like_val} or
+\code{ic_vals}. More in-depth information about the mathematical details for
+deriving the PDFs can be found in
+\insertCite{Richteretal.2023;textual}{dRiftDM}
 }
 \description{
 Updates the pdfs, log likelihood, and

@@ -178,19 +178,20 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
   subject_3$Subject <- 3
   data_all <- rbind(subject_1, subject_2, subject_3)
 
-  estimate_model_subjects(
-    drift_dm_obj = a_model,
-    obs_data_subject = data_all,
-    lower = c(1), upper = c(5),
-    fit_procedure_name = "test_case_2",
-    folder_name = "test_case_no_2",
-    seed = 2,
-    force_refit = FALSE,
-    fit_dir = test_path("temp_fits"),
-    verbose = 0,
-    progress = 0,
+  expect_message(
+    estimate_model_subjects(
+      drift_dm_obj = a_model,
+      obs_data_subject = data_all,
+      lower = c(1), upper = c(5),
+      fit_procedure_name = "test_case_2",
+      folder_name = "test_case_no_2",
+      seed = 2,
+      force_refit = FALSE,
+      fit_dir = test_path("temp_fits"),
+      verbose = 0,
+      progress = 0,
+    ), "Skipping those individuals"
   )
-
 
   #### NOW THE LOADING
 
@@ -365,7 +366,7 @@ test_that("validate_models errs as expected", {
 
 
   temp <- case_1
-  temp$all_fits$`2` <- set_solver_settings(temp$all_fits$`2`, "sigma", 2)
+  temp$all_fits$`2` <- set_solver_settings(temp$all_fits$`2`, c(sigma = 2))
   expect_error(
     validate_fits_subjects(temp), "prms_solve of subject 2"
   )
@@ -391,7 +392,8 @@ test_that("validate_models errs as expected", {
 
 
   temp <- case_1
-  temp$all_fits$`2`$comp_funs$x_fun <- function(drift_dm_obj, x_vec, one_cond) {
+  temp$all_fits$`2`$comp_funs$x_fun <- function(prms_model, prms_solve,
+                                                x_vec, one_cond, ddm_opts) {
     return(stats::dbeta(x_vec, 1, 1))
   }
   expect_warning(

@@ -151,7 +151,7 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs) {
 calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err, one_cond,
                            probs = NULL, source = "both") {
   if (is.null(probs)) {
-    probs <- seq(0.1, 0.9, 0.1)
+    probs <- drift_dm_default_probs()
   }
 
 
@@ -195,8 +195,100 @@ calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err, one_cond,
   }
 }
 
+# given a dataset providing the quantiles, calculates delta function(s)
+# for the character vectors minuend and subtrahend
+calc_delta_fun <- function(quantiles_dat, minuend = NULL, subtrahend = NULL,
+                           dv = NULL) {
 
-# wrapper function for multiple prediction stats
+  # input checks on data frame
+  if (!is.data.frame(quantiles_dat)) {
+    stop("the provided quantiles_dat is not a data.frame")
+  }
+  nec_columns = c("Source", "Cond", "Prob", "Quant_Corr", "Quant_Err")
+  if (any(colnames(quantiles_dat) != nec_columns)) {
+    stop("the provided quantiles_dat provides unexpected column names",
+         "\n\tprovided: ", paste(colnames(quantiles_dat), collapse = " "),
+         "\n\tnecessary: ", paste(nec_columns, collapse = " "))
+  }
+
+  # input checks on minuend/subtrahend
+  if (is.null(minuend)) {
+    stop("calc_delta_fun was called but the argument minuend not provided")
+  }
+  if (is.null(subtrahend)) {
+    stop("calc_delta_fun was called but the argument minuend not provided")
+  }
+  if (!is.character(minuend) | length(minuend) < 1) {
+    stop("minuend must a character vector of length >= 1")
+  }
+  if (!is.character(subtrahend) | length(subtrahend) < 1) {
+    stop("subtrahend must a character vector of length >= 1")
+  }
+  if (length(subtrahend) != length(minuend)) {
+    stop("different length of minuend and subtrahend")
+  }
+  if (!all(minuend %in% unique(quantiles_dat$Cond))) {
+    stop("Conds specified in minuend are not provided within quantiles_dat")
+  }
+  if (!all(subtrahend %in% unique(quantiles_dat$Cond))) {
+    stop("Conds specified in subtrahend are not provided within quantiles_dat")
+  }
+
+  # input checks on dv
+  if (is.null(dv)) {
+    dv <- "Quant_Corr"
+  }
+  dv <- sapply(dv, function(x) {
+    match.arg(x, c("Quant_Err", "Quant_Corr"))
+  })
+  dv <- unname(dv)
+
+  if (length(dv) > 1 & length(dv) != length(minuend)) {
+    if (length(minuend) == 1) {
+      minuend = rep(minuend, length(dv))
+      subtrahend = rep(subtrahend, length(dv))
+    } else {
+      stop("if several dvs are provided, the length must match minuend/subtrahend")
+    }
+  }
+
+  # reduce and make wide format
+  quantiles_dat = quantiles_dat[c("Source", "Cond", "Prob", dv)]
+
+  n_probs = length(unique(quantiles_dat$Prob))
+  n_source = length(unique(quantiles_dat$Source))
+  n_cond = length(unique(quantiles_dat$Cond))
+  if (nrow(quantiles_dat) != n_probs * n_source * n_cond) {
+    stop("quantiles_dat doesn't code uniquely rows solely by Probs, Source, ",
+         "and Cond")
+  }
+  quantiles_dat = stats::reshape(quantiles_dat, idvar = c("Source", "Prob"),
+                                 timevar = "Cond", direction = "wide", sep = "_")
+
+  # calculate delta functions
+
+  if (length(dv) == 1) {
+    delta_names = paste("Delta", paste(minuend, subtrahend, sep = "_"), sep = "_")
+    avg_names = paste("Avg", paste(minuend, subtrahend, sep = "_"), sep = "_")
+  } else {
+    delta_names = paste("Delta", gsub("^Quant_", "", dv), sep = "_")
+    avg_names = paste("Avg", gsub("^Quant_", "", dv), sep = "_")
+    delta_names = paste(delta_names, paste(minuend, subtrahend, sep = "_"), sep = "_")
+    avg_names = paste(avg_names, paste(minuend, subtrahend, sep = "_"), sep = "_")
+  }
+  minuends_wide = paste(dv, minuend, sep = "_")
+  subtrahend_wide = paste(dv, subtrahend, sep = "_")
+
+
+  for (i in seq_along(minuend)) {
+    vals_minuend = quantiles_dat[[minuends_wide[i]]]
+    vals_subtrahend = quantiles_dat[[subtrahend_wide[i]]]
+
+    quantiles_dat[[delta_names[i]]] = vals_minuend - vals_subtrahend
+    quantiles_dat[[avg_names[i]]] = 0.5*vals_minuend + 0.5*vals_subtrahend
+  }
+  return(quantiles_dat)
+}
 
 
 #' Calcuating Statistics
@@ -205,16 +297,17 @@ calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err, one_cond,
 #' or observed data. Currently supported are:
 #' - Conditional Accuracy Functions (CAFs)
 #' - Quantiles
+#' - Delta Functions
 #'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
 #'
 #' @param type character vector, indicating which statistics should be
-#'  calculated. Currently supported options are "cafs" or "quantiles".
-#' @param source character, indicating whether CAFs of the observed data ("obs"),
-#'  of the model's predictions ("pred"), or both ("both") should be calculated.
+#'  calculated. Currently supported options are "cafs", "quantiles", "delta_fun".
+#' @param source character, indicating whether statistics for observed data ("obs"),
+#'  the model's predictions ("pred"), or both ("both") should be calculated.
 #'  Default is "both".
-#' @param ... additional parameters passed down to the functions handling the
-#' calculations. See Details for more information
+#' @param ... additional optional and necessary parameters passed down to the
+#' functions handling the calculations. See Details for more information
 #'
 #' @details
 #'
@@ -239,12 +332,31 @@ calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err, one_cond,
 #'  default settings.
 #'
 #'  Which quantiles are calcuated can be controlled by providing the
-#'  probabilites with values in \eqn{\[0, 1s\]}. Default is
+#'  probabilites, `probs`, with values in \eqn{\[0, 1s\]}. Default is
 #'  `seq(0.1, 0.9, 0.1)`.
+#'
+#' # Delta Functions
+#'
+#'  Delta functions calculate the difference between quantiles
+#'  of two conditions against their mean:
+#'  \eqn{Delta_i = Q_{i,j} - Q_{i,k}}
+#'  \eqn{Avg_i = 0.5 \cdot Q_{i,j} + 0.5 \cdot Q_{i,k}}
+#'  With i indicating a quantile, and j and k conditions.
+#'
+#'  To calculate delta functions, users have to specify:
+#'  - `minuend`: character vector, specifying condition(s) j. Must be in
+#'    `drift_dm_obj$conds`.
+#'  - `subtrahend`: character vector, specifying condition(s) k. Must be in
+#'    `drift_dm_obj$conds`
+#'  - `dv`: character vector, specifying the dependent variable(s) to use.
+#'     Supported is `QUant_Corr` and `Quant_Err`
+#'  - optional: `probs`, see the section on quantiles
+#'
+#'
 #'
 #' @returns
 #'
-#' The return value depends on the `type` argument. If `type` is  a charcter
+#' The return value depends on the `type` argument. If `type` is  a character
 #' vector of length 1, a single data.frame is returned containing the requested
 #' statistics. If `type` is a character vector of length > 1, a named list
 #' is passed back, with each entry in the list corresponding to a data.frame of
@@ -263,9 +375,12 @@ calc_stats <- function(drift_dm_obj, type, source = "both", ...) {
     stop("type must be character vector of length >= 1")
   }
 
-  for (one_type in type) {
-    match.arg(one_type, c("cafs", "quantiles"))
-  }
+
+  type <- sapply(type, function(x) {
+      match.arg(x, c("cafs", "quantiles", "delta_fun"))
+    })
+  type <- unname(type)
+
 
   # get all rts and pdfs for quick reference
   if (is.null(drift_dm_obj$pdfs)) {
@@ -310,7 +425,6 @@ calc_stats <- function(drift_dm_obj, type, source = "both", ...) {
           })
         result <- do.call("rbind", result)
       }
-
       if (one_type == "cafs") {
         result <-
           lapply(drift_dm_obj$conds, function(one_cond) {
@@ -327,6 +441,15 @@ calc_stats <- function(drift_dm_obj, type, source = "both", ...) {
           })
         result <- do.call("rbind", result)
       }
+      if (one_type == "delta_fun") {
+        interim <- calc_stats(drift_dm_obj, type = "quantiles", source = source,
+                              probs = dotdot$probs)
+        result <- calc_delta_fun(quantiles_dat = interim,
+                                 minuend = dotdot$minuend,
+                                 subtrahend = dotdot$subtrahend,
+                                 dv = dotdot$dv)
+      }
+
       if (!is.null(result)) {
         result <- result[order(result$Source), ]
         rownames(result) <- 1:nrow(result)

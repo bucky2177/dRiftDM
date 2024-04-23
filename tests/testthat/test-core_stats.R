@@ -54,7 +54,7 @@ test_that("calc_caf works as expected", {
   ### PRED
   # get some pdfs/cafs
   a_model <- ratcliff_dm(dx = .005, dt = .005)
-  pdfs <- calc_pdfs(a_model, one_cond = "null")
+  pdfs <- re_evaluate_model(a_model)$pdfs[["null"]]
   pred_cafs <- calc_stats(drift_dm_obj = a_model, type = "cafs", source = "pred")
 
   # calculate cafs by hand
@@ -66,8 +66,8 @@ test_that("calc_caf works as expected", {
 
   # another example with non-constant cafs
   a_model <- dmc_dm(dt = 0.001, dx = 0.005, t_max = 1)
-  pdfs_comp <- calc_pdfs(a_model, one_cond = "comp")
-  pdfs_incomp <- calc_pdfs(a_model, one_cond = "incomp")
+  pdfs_comp <- re_evaluate_model(a_model)$pdfs[["comp"]]
+  pdfs_incomp <- re_evaluate_model(a_model)$pdfs[["incomp"]]
   pred_cafs <- calc_stats(
     drift_dm_obj = a_model,
     type = "cafs", source = "pred"
@@ -161,7 +161,6 @@ test_that("calc_quantiles works as expected", {
     source = "pred", type = "quantiles",
     probs = seq(0.2, 0.8, 0.1)
   )
-  pdfs_incomp <- calc_pdfs(dummy_model, "incomp")
 
 
   expect_true(all(
@@ -215,6 +214,148 @@ test_that("calc_quantiles works as expected", {
   expect_error(
     calc_stats(dummy_model, type = "quantiles", probs = c(0.1, 1)),
     "must be in the range"
+  )
+})
+
+
+
+test_that("calc_delta_fun works as expected", {
+  a_model = dmc_dm(dt = .005, dx = .005)
+  a_model$solver = "kfe"
+  a_model$conds = c("comp", "incomp", "neutral")
+
+  a_model$comp_funs$mu_fun = function(prms_model, prms_solve, t_vec, one_cond,
+                                      ddm_opts) {
+
+    # unpack values and conduct checks
+    muc <- prms_model[["muc"]]
+    tau <- prms_model[["tau"]]
+    A <- prms_model[["A"]]
+
+    mua <- A / tau * exp(1 - t_vec / tau) * (1 - t_vec / tau)
+
+    # get drift rate, depending on the condition
+    if (one_cond == "comp") {
+      return(muc + mua)
+    }
+    if (one_cond == "incomp") {
+      return(muc - mua)
+    }
+    if (one_cond == "neutral") {
+      return(muc + mua * 0)
+    }
+  }
+
+  a_model$comp_funs$mu_int_fun = function(prms_model, prms_solve, t_vec, one_cond,
+                                      ddm_opts) {
+    return(t_vec)
+  }
+
+  data = simulate_data(a_model, 1000)
+  a_model = set_obs_data(a_model, data, eval_model = T)
+  delta_dat = calc_stats(drift_dm_obj = a_model, type = "delta_fun",
+             minuend = "incomp", subtrahend = "comp")
+  expect_equal(delta_dat$Delta_incomp_comp,
+               delta_dat$Quant_Corr_incomp - delta_dat$Quant_Corr_comp)
+  expect_equal(delta_dat$Avg_incomp_comp,
+               0.5*delta_dat$Quant_Corr_incomp + 0.5*delta_dat$Quant_Corr_comp)
+
+  # incomp vs comp Corr
+  delta_dat = calc_stats(drift_dm_obj = a_model, type = "delta_fun",
+                         minuend = "incomp", subtrahend = "comp")
+  expect_equal(delta_dat$Delta_incomp_comp,
+               delta_dat$Quant_Corr_incomp - delta_dat$Quant_Corr_comp)
+  expect_equal(delta_dat$Avg_incomp_comp,
+               0.5*delta_dat$Quant_Corr_incomp + 0.5*delta_dat$Quant_Corr_comp)
+
+
+  # incomp vs comp Corr and Err
+  delta_dat = calc_stats(drift_dm_obj = a_model, type = "delta_fun",
+                         minuend = "incomp", subtrahend = "comp",
+                         dv = c("Quant_Corr", "Quant_Err"))
+  expect_equal(delta_dat$Delta_Corr_incomp_comp,
+               delta_dat$Quant_Corr_incomp - delta_dat$Quant_Corr_comp)
+  expect_equal(delta_dat$Avg_Corr_incomp_comp,
+               0.5*delta_dat$Quant_Corr_incomp + 0.5*delta_dat$Quant_Corr_comp)
+
+  expect_equal(delta_dat$Delta_Err_incomp_comp,
+               delta_dat$Quant_Err_incomp - delta_dat$Quant_Err_comp)
+  expect_equal(delta_dat$Avg_Err_incomp_comp,
+               0.5*delta_dat$Quant_Err_incomp + 0.5*delta_dat$Quant_Err_comp)
+
+
+  # incomp vs neutral Corr and neutral vs. comp  Err
+  delta_dat = calc_stats(drift_dm_obj = a_model, type = "delta_fun",
+                         minuend = c("incomp", "neutral"),
+                         subtrahend = c("comp", "comp"),
+                         dv = c("Quant_Corr", "Quant_Err"))
+  expect_equal(delta_dat$Delta_Corr_incomp_comp,
+               delta_dat$Quant_Corr_incomp - delta_dat$Quant_Corr_comp)
+  expect_equal(delta_dat$Avg_Corr_incomp_comp,
+               0.5*delta_dat$Quant_Corr_incomp + 0.5*delta_dat$Quant_Corr_comp)
+
+  expect_equal(delta_dat$Delta_Err_neutral_comp,
+               delta_dat$Quant_Err_neutral - delta_dat$Quant_Err_comp)
+  expect_equal(delta_dat$Avg_Err_neutral_comp,
+               0.5*delta_dat$Quant_Err_neutral + 0.5*delta_dat$Quant_Err_comp)
+
+
+  # compare with quantiles
+  quantiles = calc_stats(drift_dm_obj = a_model, type = "quantiles")
+  expect_equal(quantiles$Quant_Corr[quantiles$Cond == "comp"],
+               delta_dat$Quant_Corr_comp)
+  expect_equal(quantiles$Quant_Corr[quantiles$Cond == "neutral"],
+               delta_dat$Quant_Corr_neutral)
+
+
+  # input checks
+  expect_error(
+    calc_stats(drift_dm_obj = a_model, type = "delta_fun",
+               minuend = c("incomp", "neutral", "foo"),
+               subtrahend = c("comp", "comp"),
+               dv = c("Quant_Corr", "Quant_Err")), "length of minuend and subtrahend"
+  )
+
+  expect_error(
+    calc_stats(drift_dm_obj = a_model, type = "delta_fun",
+               minuend = c("incomp", "neutral"),
+               subtrahend = c("comp", "comp", "foo"),
+               dv = c("Quant_Corr", "Quant_Err")), "length of minuend and subtrahend"
+  )
+
+  expect_error(
+    calc_stats(drift_dm_obj = "foo", type = "delta_fun",
+               minuend = c("incomp", "neutral"),
+               subtrahend = c("comp", "comp"),
+               dv = c("Quant_Corr", "Quant_Err")), "drift_dm"
+  )
+
+  expect_error(
+    calc_stats(drift_dm_obj = a_model, type = "delta_fun",
+               minuend = c("incomp", "neutral", "bla"),
+               subtrahend = c("comp", "comp", "uff"),
+               dv = c("Quant_Corr", "Quant_Err")), "Conds specified in minuend"
+  )
+
+  expect_error(
+    calc_stats(drift_dm_obj = a_model, type = "delta_fun",
+               minuend = c("incomp", "neutral"),
+               subtrahend = c("comp", "uff"),
+               dv = c("Quant_Corr", "Quant_Err")), "Conds specified in subtrahend"
+  )
+
+  expect_error(
+    calc_stats(drift_dm_obj = a_model, type = "delta_fun",
+               minuend = character(),
+               subtrahend = c("comp", "comp", "comp"),
+               dv = c("Quant_Corr", "Quant_Err")), "minuend"
+  )
+
+  expect_error(
+    calc_stats(drift_dm_obj = a_model, type = "delta_fun",
+               minuend = c("incomp"),
+               subtrahend = character(),
+               dv = c("Quant_Corr", "Quant_Err")), "subtrahend"
   )
 })
 

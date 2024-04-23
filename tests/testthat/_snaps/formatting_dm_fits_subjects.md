@@ -5,7 +5,7 @@
     Output
       Fit procedure name: test_case_saved
       Fitted model type: ratcliff_dm_simple, drift_dm
-      Time of (last) call: 2023-12-04 10:12:28
+      Time of (last) call: 2024-04-18 11:43:27
       N Subjects: 2 
 
 ---
@@ -29,5 +29,5 @@
       
       -------
       Fitted model type: ratcliff_dm_simple, drift_dm
-      Time of (last) call: 2023-12-04 10:12:28
+      Time of (last) call: 2024-04-18 11:43:27
 

@@ -4,7 +4,12 @@
 \alias{plot_prms}
 \title{Plot Parameter Distribution(s)}
 \usage{
-plot_prms(fits_subjects, include_fit_values = F, col = "skyblue")
+plot_prms(
+  fits_subjects,
+  include_fit_values = F,
+  col = "skyblue",
+  breaks = "Sturges"
+)
 }
 \arguments{
 \item{fits_subjects}{an object inheriting from \code{dm_fits_subjects} (see
@@ -14,6 +19,9 @@ plot_prms(fits_subjects, include_fit_values = F, col = "skyblue")
 \code{log_like}, \code{AIC}, and \code{BIC} should be created as well}
 
 \item{col}{the color of the histrogram bars}
+
+\item{breaks}{argument controlling the number of break points
+(see the arguments of \link[graphics:hist]{graphics::hist} for more information)}
 }
 \description{
 This function creates a histogram for each parameter in \code{fits_subjects}

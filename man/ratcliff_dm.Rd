@@ -5,7 +5,8 @@
 \title{Create a basic Diffusion Model}
 \usage{
 ratcliff_dm(
-  type = "simple",
+  var_non_dec = FALSE,
+  var_start = FALSE,
   obs_data = NULL,
   sigma = 1,
   t_max = 3,
@@ -14,14 +15,14 @@ ratcliff_dm(
 )
 }
 \arguments{
-\item{type}{character, indicatnig "which" Ratcliff diffusion model should
-be build. Default and only option currently is "simple".}
-
 \item{obs_data}{data.frame, an optional data.frame with the observed data.
 See \link{set_obs_data}.}
 
 \item{sigma, t_max, dt, dx}{numeric, providing the settings for the
 discretization (see \link{drift_dm})}
+
+\item{type}{character, indicatnig "which" Ratcliff diffusion model should
+be build. Default and only option currently is "simple".}
 }
 \description{
 This function creates a \link{drift_dm} that corresponds to the basic
@@ -33,6 +34,6 @@ Ratcliff diffusion model
 With "simple" Ratcliff Diffusion Model we refer to a diffusion model
 with  a constant drift rate \code{muc}, a constant boundary \code{b}, a constant
 non-decision time \code{non_dec}, and no starting point variability. See also
-\link{mu_constant}.
+\link{component_shelf}.
 }
 }
