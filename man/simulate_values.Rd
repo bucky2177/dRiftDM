@@ -32,5 +32,5 @@ Draw values, most likely model parameters.
 When drawing from a truncated normal distribution, users must provide values
 for the arguments \code{means} and \code{sds}. These are numeric vectors of the same
 size as \code{lower} and \code{upper}, and indicate the mean and the standard deviation
-of the normal distribution.
+of the normal distributions.
 }

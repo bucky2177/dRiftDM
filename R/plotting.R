@@ -2,18 +2,19 @@
 #' Plot trace(s) of a model
 #'
 #' @description
-#' This functions creates a basic plot that depicts a user-defined number
+#' This functions creates a basic plot that shows a user-defined number
 #' of traces (see [dRiftDM::simulate_trace]).
 #' May come in handy when developing/testing/exploring a model.
 #'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
+#' @param k numeric, the number of traces to simulate per condition
+#' @param conds character vector, conditions for which traces shall be simulated
 #' @param add_x logical, indicating whether a starting point should be
-#'  added. Default is TRUE.
+#'  added. Default is FALSE
+#' @param seed numerical, an optional seed for reproducible sampling
 #' @param sigma numerical, for controlling the diffusion parameter when
-#'  simulating traces. Set 0 to plot the expected time-course of the diffusion
-#'  model. The default (NULL) leaves the diffusion constant of `drift_dm_obj`
-#'  unchanged.
-#' @param k numerical, number of traces to plot. Default is 1.
+#'  simulating traces. The default (NULL) leaves the diffusion constant of
+#'  `drift_dm_obj` unchanged.
 #' @param x_lab,y_lab character, providing a label for the x-axis and y-axis,
 #'  respectively. Default is "Time" and "Evidence", respectively.
 #' @param x_lim,y_lim numeric vectors of length 2, providing the limits of the
@@ -24,25 +25,28 @@
 #'  conditions. Default colors are based on the `grDevices::rainbow` palette.
 #' @param line_cols_b character, providing a color for the boundary. Default
 #'  is black.
-#' @param seed a seed for making the simulated traces reproducable. Default
-#'  (NULL) uses no seed.
 #'
 #' @export
-plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
-                       x_lab = NULL, y_lab = NULL, x_lim = NULL, y_lim = NULL,
-                       line_cols_ev = NULL, line_cols_b = NULL, seed = NULL) {
+plot_traces <- function(drift_dm_obj, k, conds = NULL, add_x = FALSE, seed = NULL,
+                        sigma = NULL, x_lab = NULL, y_lab = NULL, x_lim = NULL,
+                        y_lim = NULL, line_cols_ev = NULL, line_cols_b = NULL) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
 
   # prepare some variables
   if (!is.null(sigma)) {
+    stopifnot(sigma >= 0)
     drift_dm_obj$prms_solve["sigma"] <- sigma
   }
   t_max <- drift_dm_obj$prms_solve["t_max"]
   nt <- drift_dm_obj$prms_solve["nt"]
   t_vec <- seq(0, t_max, length.out = nt + 1)
-  unique_conds <- unique(drift_dm_obj$conds)
+  if (!is.null(conds)) {
+    unique_conds <- conds
+  } else {
+    unique_conds <- unique(drift_dm_obj$conds)
+  }
 
 
   # set default arguments
@@ -107,8 +111,8 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
 
   for (idx in seq_along(unique_conds)) {
     one_cond <- unique_conds[idx]
-    exp_processes <- simulate_trace(drift_dm_obj,
-      k = k, one_cond = one_cond,
+    exp_processes <- simulate_traces(drift_dm_obj,
+      k = k, conds = one_cond,
       add_x = add_x
     )
     for (i in 1:k) {
@@ -121,7 +125,7 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
       graphics::points(exp_process ~ t_vec, ty = "l", col = line_cols_ev[idx])
     }
 
-    b_vec <- b_vecs[, "comp"]
+    b_vec <- b_vecs[, one_cond]
     stopifnot(length(b_vec) == length(t_vec))
     graphics::points(b_vec ~ t_vec, ty = "l", col = line_cols_b)
     graphics::points(-b_vec ~ t_vec, ty = "l", col = line_cols_b)
@@ -129,7 +133,7 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
 
   graphics::legend("topright",
     legend = unique_conds,
-    col = line_cols_ev, lty = 1
+    col = line_cols_ev, lty = 1, bg = "white"
   )
 }
 
@@ -139,7 +143,7 @@ plot_trace <- function(drift_dm_obj, add_x = TRUE, sigma = NULL, k = 1,
 # Plots the CAFs
 plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
                       x_lab_cafs = NULL, y_lab_cafs = NULL, x_lim_cafs = NULL,
-                      y_lim_cafs = NULL, line_cols_cafs = NULL) {
+                      y_lim_cafs = NULL, line_cols_cafs = NULL, ...) {
   if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
     stop("obj is not of type drift_dm or dm_fits_subjects")
   }
@@ -226,7 +230,7 @@ plot_quantiles <- function(obj, source = "both",
                            probs_quantiles = NULL, dv_quantiles = NULL,
                            x_lab_quantiles = NULL, y_lab_quantiles = NULL,
                            x_lim_quantiles = NULL, y_lim_quantiles = NULL,
-                           line_cols_quantiles = NULL) {
+                           line_cols_quantiles = NULL, ...) {
   if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
     stop("obj is not of type drift_dm or dm_fits_subjects")
   }
@@ -325,11 +329,11 @@ plot_quantiles <- function(obj, source = "both",
 
 
 # Plots the Delta Function(s)
-plot_delta_fun <- function(obj, source = "both", minuend_delta,
-                           subtrahend_delta, probs_delta = NULL, dv_delta = NULL,
-                           x_lab_delta = NULL, y_lab_delta = NULL,
-                           x_lim_delta = NULL, y_lim_delta = NULL,
-                           line_cols_delta = NULL) {
+plot_delta_fun <- function(obj, source = "both", minuends_deltas,
+                           subtrahends_deltas, probs_deltas = NULL, dvs_deltas = NULL,
+                           x_lab_deltas = NULL, y_lab_deltas = NULL,
+                           x_lim_deltas = NULL, y_lim_deltas = NULL,
+                           line_cols_deltas = NULL, ...) {
 
   if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
     stop("obj is not of type drift_dm or dm_fits_subjects")
@@ -338,15 +342,15 @@ plot_delta_fun <- function(obj, source = "both", minuend_delta,
   # get values
   if (inherits(obj, "drift_dm")) {
     delta_fun <- calc_stats(
-      drift_dm_obj = obj, type = "delta_fun", source = source,
-      probs = probs_delta, minuend = minuend_delta,
-      subtrahend = subtrahend_delta, dv = dv_delta
+      drift_dm_obj = obj, type = "delta_funs", source = source,
+      probs = probs_deltas, minuends = minuends_deltas,
+      subtrahends = subtrahends_deltas, dv = dvs_deltas
     )
   } else {
     delta_fun <- gather_stats(
-      fits_subjects = obj, type = "delta_fun", source = source,
-      probs = probs_delta, minuend = minuend_delta,
-      subtrahend = subtrahend_delta, dv = dv_delta, verbose = 1
+      fits_subjects = obj, type = "delta_funs", source = source,
+      probs = probs_deltas, minuends = minuends_deltas,
+      subtrahends = subtrahends_deltas, dv = dvs_deltas, verbose = 1
     )
   }
 
@@ -369,39 +373,39 @@ plot_delta_fun <- function(obj, source = "both", minuend_delta,
   }
 
   # set default plot arguments
-  if (is.null(x_lab_delta)) {
-    x_lab_delta <- "Avg"
+  if (is.null(x_lab_deltas)) {
+    x_lab_deltas <- "Avg"
   }
 
-  if (is.null(y_lab_delta)) {
-    y_lab_delta <- expression(Delta)
+  if (is.null(y_lab_deltas)) {
+    y_lab_deltas <- expression(Delta)
   }
 
-  if (is.null(y_lim_delta)) {
-    y_lim_delta <- c(-0.1, 0.2)
+  if (is.null(y_lim_deltas)) {
+    y_lim_deltas <- c(-0.1, 0.2)
   }
 
-  if (is.null(x_lim_delta)) {
-    x_lim_delta <- c(0, t_max / 2)
+  if (is.null(x_lim_deltas)) {
+    x_lim_deltas <- c(0, t_max / 2)
   }
 
-  if (!is.null(line_cols_delta)) {
-    if (length(line_cols_delta) == 1) {
-      line_cols_delta = rep(line_cols_delta, length(delta_columns))
+  if (!is.null(line_cols_deltas)) {
+    if (length(line_cols_deltas) == 1) {
+      line_cols_deltas = rep(line_cols_deltas, length(delta_columns))
     } else {
-      if (length(line_cols_delta) != length(delta_columns)) {
-        stop("number of line_cols_delta must match the number of delta columns")
+      if (length(line_cols_deltas) != length(delta_columns)) {
+        stop("number of line_cols_deltas must match the number of delta columns")
       }
     }
   } else {
-    line_cols_delta <- grDevices::rainbow(n = length(delta_columns))
+    line_cols_deltas <- grDevices::rainbow(n = length(delta_columns))
   }
 
 
   # prepare plot
   plot(c(1, 2) ~ c(1, 1),
-       col = "white", xlab = x_lab_delta, ylab = y_lab_delta,
-       xlim = x_lim_delta, ylim = y_lim_delta
+       col = "white", xlab = x_lab_deltas, ylab = y_lab_deltas,
+       xlim = x_lim_deltas, ylim = y_lim_deltas
   )
 
 
@@ -410,21 +414,21 @@ plot_delta_fun <- function(obj, source = "both", minuend_delta,
     sub_dat_obs <- sub_dat_obs[c(delta_columns[idx], avg_columns[idx])]
     if (nrow(sub_dat_obs) > 0) {
       graphics::points(sub_dat_obs[[1]] ~ sub_dat_obs[[2]],
-                       col = line_cols_delta[idx]
+                       col = line_cols_deltas[idx]
       )
     }
     sub_dat_pred <- delta_fun[delta_fun$Source == "pred", ]
     sub_dat_pred <- sub_dat_pred[c(delta_columns[idx], avg_columns[idx])]
     if (nrow(sub_dat_pred) > 0) {
       graphics::points(sub_dat_pred[[1]] ~ sub_dat_pred[[2]],
-                       ty = "l", col = line_cols_delta[idx]
+                       ty = "l", col = line_cols_deltas[idx]
       )
     }
   }
 
   graphics::legend("bottomright",
                    legend = gsub("Delta_", "", delta_columns),
-                   col = line_cols_delta, lty = 1
+                   col = line_cols_deltas, lty = 1
   )
 }
 
@@ -442,7 +446,7 @@ plot_delta_fun <- function(obj, source = "both", minuend_delta,
 #' latter type, statistics may be calculated via
 #' [dRiftDM::gather_stats], depending on the requested statistics. For
 #' quantiles, delta functions, and CAfs, observed data and model predictions
-#' are averaged across subjects
+#' are averaged across subjects.
 #'
 #' @param type character vector, indicating which statistics should be
 #'  plotted (see [dRiftDM::calc_stats] for more info).
@@ -469,7 +473,7 @@ plot_delta_fun <- function(obj, source = "both", minuend_delta,
 #' # Quantiles
 #'
 #' Optional arguments
-#' - `probs_quantiles`: the probabilities for which quantiles to calculate
+#' - `probs_quantiles`: the probabilities for which quantiles to compute
 #' - `dv_quantiles`: The dependent variable to plot; options are `Quant_Corr` or
 #'  `Quant_Err` for correct or incorrect responses
 #' - `x_lab_quantiles`, `y_lab_quantiles`, `x_lim_quantiles`,
@@ -479,16 +483,16 @@ plot_delta_fun <- function(obj, source = "both", minuend_delta,
 #' # Delta Functions
 #'
 #' Mandatory arguments
-#' - `minuend_delta`, `subtrahend_delta`: character vectors specifying how to
+#' - `minuends_deltas`, `subtrahends_deltas`: character vectors specifying how to
 #' calculate delta functions
 #'
 #' Optional arguments
-#' - `probs_delta`: the probabilities for which quantiles to calculate
-#' - `dv_delta`: The dependent variable to plot; options are `Quant_Corr` or
+#' - `probs_deltas`: the probabilities for which quantiles to calculate
+#' - `dvs_deltas`: The dependent variable to plot; options are `Quant_Corr` or
 #'  `Quant_Err` for correct or incorrect responses
-#' - `x_lab_delta`, `y_lab_delta`, `x_lim_delta`, `y_lim_delta`: axes labels
+#' - `x_lab_deltas`, `y_lab_deltas`, `x_lim_deltas`, `y_lim_deltas`: axes labels
 #' and limits
-#' - `line_cols_delta`: a character vector defining colors for each line
+#' - `line_cols_deltas`: a character vector defining colors for each line
 #'
 #'
 #' @export
@@ -503,12 +507,12 @@ plot_stats <- function(obj, type, source = "both", mfrow = NULL, ...) {
   }
 
   type <- sapply(type, function(x) {
-    match.arg(x, c("cafs", "quantiles", "delta_fun"))
+    match.arg(x, c("cafs", "quantiles", "delta_funs"))
   })
   type <- unname(type)
 
   if (!is.null(mfrow)) {
-    withr::local_par(mfrow)
+    withr::local_par(mfrow = mfrow)
   }
 
   # plot the requested plots sequentially
@@ -518,7 +522,7 @@ plot_stats <- function(obj, type, source = "both", mfrow = NULL, ...) {
       plot_cafs(obj = obj, source = source, ...)
     if (one_type == "quantiles")
       plot_quantiles(obj = obj, source = source, ...)
-    if (one_type == "delta_fun")
+    if (one_type == "delta_funs")
       plot_delta_fun(obj = obj, source = source, ...)
   }
 }
@@ -569,4 +573,179 @@ plot_prms <- function(fits_subjects, include_fit_values = F, col = "skyblue",
       main = one_prm_to_plot, breaks = breaks
     )
   }
+}
+
+
+
+
+#' Visualize Model Components
+#'
+#' This function takes an object of type [dRiftDM::drift_dm] and plots the
+#' output of each component function in `drift_dm_obj$comp_funs`
+#'
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
+#' @param line_cols character vector, providing colors for each condition in
+#' `drift_dm_obj$conds`. Default is `NULL`, meaning that colors are determined by
+#' [grDevices::rainbow]
+#' @param xlim_time numeric vector of length 2, providing the limits of the
+#' x-axis of all plots related to the time space. Default is `NULL` which
+#' refers to \eqn{[0, t_{max}/2]}
+#'
+#' @export
+plot_model_comps <- function(drift_dm_obj, line_cols = NULL,
+                             xlim_time = NULL) {
+
+  # unpack parameters and conduct input checks
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("argument drift_dm_obj is not not of type drift_dm")
+  }
+
+
+  nx = drift_dm_obj$prms_solve[["nx"]]
+  nt = drift_dm_obj$prms_solve[["nt"]]
+  t_max = drift_dm_obj$prms_solve[["t_max"]]
+  x_vec = seq(-1, 1, length.out = nx + 1)
+  t_vec = seq(0, t_max, length.out = nt + 1)
+  conds = drift_dm_obj$conds
+
+  if (is.null(line_cols)) {
+    line_cols = grDevices::rainbow(n = length(conds))
+  }
+  if (length(line_cols) == 1) {
+      line_cols = rep(line_cols, length(conds))
+  } else {
+    if (length(line_cols) != length(conds)) {
+      stop("number of line_cols must match the number of delta columns")
+    }
+  }
+
+
+
+  if (is.null(xlim_time)) {
+    xlim_time = c(0, t_max/2)
+  }
+  if (!is.numeric(xlim_time) | length(xlim_time) != 2) {
+      stop("xlim_time must be a numeric vector of length 2")
+  }
+
+
+  withr::local_par(mfrow = c(3,2))
+
+  try({
+    # plot the drift rate
+    drift_rates = sapply(conds, function(one_cond){
+      drift_dm_obj$comp_funs$mu_fun(prms_model = drift_dm_obj$prms_model,
+                                    prms_solve = drift_dm_obj$prms_solve,
+                                    t_vec = t_vec, one_cond = one_cond,
+                                    ddm_opts = drift_dm_obj$ddm_opts)
+    }, simplify = F, USE.NAMES = T)
+    y_lim_drift_rate = range(unlist(drift_rates))
+
+    plot(c(1,2) ~ c(1,1) , col = "white", xlim = xlim_time,
+         ylab = "Drift Rate", xlab = "Time [s]", ylim = y_lim_drift_rate,
+         main = "mu_fun")
+
+    for (i in seq_along(conds) ) {
+      points(drift_rates[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+    }
+  }, silent = T)
+
+
+  try({
+    # plot the integral of the drift rate
+    drift_rates_int = sapply(conds, function(one_cond){
+      drift_dm_obj$comp_funs$mu_int_fun(prms_model = drift_dm_obj$prms_model,
+                                        prms_solve = drift_dm_obj$prms_solve,
+                                    t_vec = t_vec, one_cond = one_cond,
+                                    ddm_opts = drift_dm_obj$ddm_opts)
+    }, simplify = F, USE.NAMES = T)
+    y_lim_drift_rate_in = range(unlist(drift_rates_int))
+
+    plot(c(1,2) ~ c(1,1) , col = "white", xlim = xlim_time,
+         ylab = "Drift", xlab = "Time [s]", ylim = y_lim_drift_rate_in,
+         main = "mu_int_fun")
+
+    for (i in seq_along(conds) ) {
+      points(drift_rates_int[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+    }
+  }, silent = T)
+
+  try({
+    # plot the starting condition
+    x_vals = sapply(conds, function(one_cond){
+      drift_dm_obj$comp_funs$x_fun(prms_model = drift_dm_obj$prms_model,
+                                    prms_solve = drift_dm_obj$prms_solve,
+                                    x_vec = x_vec, one_cond = one_cond,
+                                    ddm_opts = drift_dm_obj$ddm_opts)
+    }, simplify = F, USE.NAMES = T)
+    y_lim_x_vals = range(unlist(x_vals))
+
+    plot(c(1,2) ~ c(1,1) , col = "white", xlim = c(-1, 1),
+         ylab = "Density", xlab = "Evidence Value", ylim = y_lim_x_vals,
+         main = "x_fun")
+
+    for (i in seq_along(conds) ) {
+      points(x_vals[[conds[i]]] ~ x_vec, ty = "l", col = line_cols[i])
+    }
+  }, silent = T)
+
+  try({
+    # plot the boundary
+    bs = sapply(conds, function(one_cond){
+      drift_dm_obj$comp_funs$b_fun(prms_model = drift_dm_obj$prms_model,
+                                        prms_solve = drift_dm_obj$prms_solve,
+                                        t_vec = t_vec, one_cond = one_cond,
+                                        ddm_opts = drift_dm_obj$ddm_opts)
+    }, simplify = F, USE.NAMES = T)
+    y_lim_bs = range(unlist(bs))
+
+    plot(c(1,2) ~ c(1,1) , col = "white", xlim = xlim_time,
+         ylab = "Boundary", xlab = "Time [s]", ylim = y_lim_bs,
+         main = "b_fun")
+
+    for (i in seq_along(conds) ) {
+      points(bs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+    }
+  }, silent = T)
+
+  try({
+    # plot the derivative of the boundary
+    dt_bs = sapply(conds, function(one_cond){
+      drift_dm_obj$comp_funs$dt_b_fun(prms_model = drift_dm_obj$prms_model,
+                                        prms_solve = drift_dm_obj$prms_solve,
+                                        t_vec = t_vec, one_cond = one_cond,
+                                        ddm_opts = drift_dm_obj$ddm_opts)
+    }, simplify = F, USE.NAMES = T)
+    y_lim_dt_bs = range(unlist(dt_bs))
+
+    plot(c(1,2) ~ c(1,1) , col = "white", xlim = xlim_time,
+         ylab = "Derivative Boundary", xlab = "Time [s]", ylim = y_lim_dt_bs,
+         main = "dt_b_fun")
+
+    for (i in seq_along(conds) ) {
+      points(dt_bs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+    }
+  }, silent = T)
+
+
+  try({
+    # plot the nn-decision time
+    non_dec_vecs = sapply(conds, function(one_cond){
+      drift_dm_obj$comp_funs$nt_fun(prms_model = drift_dm_obj$prms_model,
+                                      prms_solve = drift_dm_obj$prms_solve,
+                                      t_vec = t_vec, one_cond = one_cond,
+                                      ddm_opts = drift_dm_obj$ddm_opts)
+    }, simplify = F, USE.NAMES = T)
+    y_lim_non_dec = range(unlist(non_dec_vecs))
+
+    plot(c(1,2) ~ c(1,1) , col = "white", xlim = xlim_time,
+         ylab = "Density", xlab = "Time [s]", ylim = y_lim_non_dec,
+         main = "nt_fun")
+
+    for (i in seq_along(conds) ) {
+      points(non_dec_vecs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+    }
+  }, silent = T)
+
+  legend("topright", legend = conds, col = line_cols, lty = 1)
 }

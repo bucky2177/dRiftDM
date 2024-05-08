@@ -69,7 +69,7 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
 #' When drawing from a truncated normal distribution, users must provide values
 #' for the arguments `means` and `sds`. These are numeric vectors of the same
 #' size as `lower` and `upper`, and indicate the mean and the standard deviation
-#' of the normal distribution.
+#' of the normal distributions.
 #'
 #'
 #' @return

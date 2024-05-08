@@ -6,7 +6,7 @@
 \alias{dRiftDM-package}
 \title{dRiftDM: Fitting and Exploring Drift Diffusion Models}
 \description{
-Drift Diffusion models (DDMs) are common in cognitive psychology to desribe decision processes in simple tasks. We provide a wrapper around the numerical solution by Richter et al. (2023) to easy apply DDMs via Maximum-Likelihood-Estimation.
+Drift Diffusion models (DDMs) are common in cognitive psychology to desribe decision processes in simple tasks. We provide a wrapper around the numerical solution by Richter et al. (2023) to easily apply DDMs via Maximum-Likelihood-Estimation.
 }
 \author{
 \strong{Maintainer}: Valentin Koob \email{koob@uni-bremen.de}

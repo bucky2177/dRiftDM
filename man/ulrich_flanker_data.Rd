@@ -3,7 +3,7 @@
 \docType{data}
 \name{ulrich_flanker_data}
 \alias{ulrich_flanker_data}
-\title{Data from Ulrich et al. (2015)}
+\title{Exemplary Flanker Data}
 \format{
 A data.frame with 16 subjects and the following columns:
 \describe{

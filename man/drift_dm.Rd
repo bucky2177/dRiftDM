@@ -85,7 +85,7 @@ If the model has been evaluated (see \link{re_evaluate_model}), the
 list will additionally contain...
 \itemize{
 \item ... the log likelihood;can be addressed via \code{drift_dm_obj$log_like_val}
-\item ... the AIC/BIC values; can be addressed via \code{drift_dm_obj$ic_vals}
+\item ... the aic/bic values; can be addressed via \code{drift_dm_obj$ic_vals}
 }
 }
 \description{

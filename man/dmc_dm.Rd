@@ -10,8 +10,8 @@ dmc_dm(obs_data = NULL, sigma = 1, t_max = 3, dt = 0.001, dx = 0.001)
 \item{obs_data}{data.frame, an optional data.frame with the observed data.
 See \link{set_obs_data}.}
 
-\item{sigma, t_max, dt, dx}{numeric, providing the settings for the
-discretization (see \link{drift_dm})}
+\item{sigma, t_max, dt, dx}{numeric, providing the settings for the diffusion
+constant and discretization (see \link{drift_dm})}
 }
 \description{
 This function creates a \link{drift_dm} object that corresponds to the

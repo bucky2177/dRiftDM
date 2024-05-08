@@ -47,7 +47,7 @@
 #'  to [DEoptim::DEoptim] and [dfoptim::nmkb]. Default settings will lead
 #'  [DEoptim::DEoptim] to stop if the algorithm is unable to reduce the
 #'  negative log-likelihood by a factor of `reltol * (abs(val) + reltol)`
-#'  after `steptol = 50` steps, with `reltol = 1e-9` (or if the default itermax
+#'  after `steptol = 50` steps, with `reltol = 1e-8` (or if the default itermax
 #'  of 200 steps is reached).
 #'  Similarly, [dfoptim::nmkb]
 #'  will stop if the absolute difference of the log-likelihood between
@@ -60,7 +60,7 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
                            use_de_optim = TRUE, use_nmkb = FALSE, seed = NULL,
                            de_n_cores = 1,
                            de_control = list(
-                             reltol = 1e-9, steptol = 50,
+                             reltol = 1e-8, steptol = 50,
                              itermax = 200, trace = FALSE
                            ),
                            nmkb_control = list(tol = 1e-6)) {
@@ -86,6 +86,26 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
       "number of parameters in lower/upper don't match the number of",
       " free_prms"
     )
+  }
+
+  if (!is.null(names(lower)) | !is.null(names(upper))) {
+
+    if (is.null(names(lower)) & !is.null(names(upper))) {
+      stop("upper is a named numeric vector, but lower isn't")
+    }
+    if (!is.null(names(lower)) & is.null(names(upper))) {
+      stop("lower is a named numeric vector, but upper isn't")
+    }
+
+    check_if_named_numeric_vector(x = lower, var_name = "lower",
+                                  labels = drift_dm_obj$free_prms)
+    check_if_named_numeric_vector(x = upper, var_name = "upper",
+                                  labels = drift_dm_obj$free_prms)
+
+    lower = lower[drift_dm_obj$free_prms]
+    lower = unname(lower)
+    upper = upper[drift_dm_obj$free_prms]
+    upper = unname(upper)
   }
 
   if (!is.numeric(verbose) | length(verbose) != 1 | !(verbose %in% c(0, 1, 2))) {

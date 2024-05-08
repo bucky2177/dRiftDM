@@ -128,7 +128,8 @@ calc_quantiles_obs <- function(rts_corr, rts_err, one_cond, probs) {
 }
 
 # calculate obs quantiles for one set of observed pdfs
-calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs) {
+calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs,
+                                skip_if_contr_low = 0.0001) {
   stopifnot(length(pdf_u) == length(pdf_l))
   stopifnot(length(pdf_u) == length(t_vec))
 
@@ -141,8 +142,20 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs) {
     }, t_vec = t_vec, probs = probs)
 
   colnames(quants) <- c("Quant_Corr", "Quant_Err")
+
   quants <- as.data.frame(quants)
   quants <- cbind(Cond = one_cond, Prob = probs, quants)
+
+  sum_pdf_l = sum(pdf_l)
+  sum_pdf_u = sum(pdf_u)
+
+  if (sum_pdf_u / (sum_pdf_u + sum_pdf_l) >= 1 - skip_if_contr_low) {
+    quants["Quant_Err"] = NA
+  }
+  if (sum_pdf_u / (sum_pdf_u + sum_pdf_l) <= skip_if_contr_low) {
+    quants["Quant_Corr"] = NA
+  }
+
   return(quants)
 }
 
@@ -196,9 +209,9 @@ calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err, one_cond,
 }
 
 # given a dataset providing the quantiles, calculates delta function(s)
-# for the character vectors minuend and subtrahend
-calc_delta_fun <- function(quantiles_dat, minuend = NULL, subtrahend = NULL,
-                           dv = NULL) {
+# for the character vectors minuends and subtrahends
+calc_delta_fun <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
+                           dvs = NULL) {
 
   # input checks on data frame
   if (!is.data.frame(quantiles_dat)) {
@@ -211,49 +224,49 @@ calc_delta_fun <- function(quantiles_dat, minuend = NULL, subtrahend = NULL,
          "\n\tnecessary: ", paste(nec_columns, collapse = " "))
   }
 
-  # input checks on minuend/subtrahend
-  if (is.null(minuend)) {
-    stop("calc_delta_fun was called but the argument minuend not provided")
+  # input checks on minuends/subtrahends
+  if (is.null(minuends)) {
+    stop("calc_delta_fun was called but the argument minuends not provided")
   }
-  if (is.null(subtrahend)) {
-    stop("calc_delta_fun was called but the argument minuend not provided")
+  if (is.null(subtrahends)) {
+    stop("calc_delta_fun was called but the argument minuends not provided")
   }
-  if (!is.character(minuend) | length(minuend) < 1) {
-    stop("minuend must a character vector of length >= 1")
+  if (!is.character(minuends) | length(minuends) < 1) {
+    stop("minuends must a character vector of length >= 1")
   }
-  if (!is.character(subtrahend) | length(subtrahend) < 1) {
-    stop("subtrahend must a character vector of length >= 1")
+  if (!is.character(subtrahends) | length(subtrahends) < 1) {
+    stop("subtrahends must a character vector of length >= 1")
   }
-  if (length(subtrahend) != length(minuend)) {
-    stop("different length of minuend and subtrahend")
+  if (length(subtrahends) != length(minuends)) {
+    stop("different length of minuends and subtrahends")
   }
-  if (!all(minuend %in% unique(quantiles_dat$Cond))) {
-    stop("Conds specified in minuend are not provided within quantiles_dat")
+  if (!all(minuends %in% unique(quantiles_dat$Cond))) {
+    stop("Conds specified in minuends are not provided within quantiles_dat")
   }
-  if (!all(subtrahend %in% unique(quantiles_dat$Cond))) {
-    stop("Conds specified in subtrahend are not provided within quantiles_dat")
+  if (!all(subtrahends %in% unique(quantiles_dat$Cond))) {
+    stop("Conds specified in subtrahends are not provided within quantiles_dat")
   }
 
-  # input checks on dv
-  if (is.null(dv)) {
-    dv <- "Quant_Corr"
+  # input checks on dvs
+  if (is.null(dvs)) {
+    dvs <- "Quant_Corr"
   }
-  dv <- sapply(dv, function(x) {
+  dvs <- sapply(dvs, function(x) {
     match.arg(x, c("Quant_Err", "Quant_Corr"))
   })
-  dv <- unname(dv)
+  dvs <- unname(dvs)
 
-  if (length(dv) > 1 & length(dv) != length(minuend)) {
-    if (length(minuend) == 1) {
-      minuend = rep(minuend, length(dv))
-      subtrahend = rep(subtrahend, length(dv))
+  if (length(dvs) > 1 & length(dvs) != length(minuends)) {
+    if (length(minuends) == 1) {
+      minuends = rep(minuends, length(dvs))
+      subtrahends = rep(subtrahends, length(dvs))
     } else {
-      stop("if several dvs are provided, the length must match minuend/subtrahend")
+      stop("if several dvs are provided, the length must match minuends/subtrahends")
     }
   }
 
   # reduce and make wide format
-  quantiles_dat = quantiles_dat[c("Source", "Cond", "Prob", dv)]
+  quantiles_dat = quantiles_dat[c("Source", "Cond", "Prob", dvs)]
 
   n_probs = length(unique(quantiles_dat$Prob))
   n_source = length(unique(quantiles_dat$Source))
@@ -267,25 +280,25 @@ calc_delta_fun <- function(quantiles_dat, minuend = NULL, subtrahend = NULL,
 
   # calculate delta functions
 
-  if (length(dv) == 1) {
-    delta_names = paste("Delta", paste(minuend, subtrahend, sep = "_"), sep = "_")
-    avg_names = paste("Avg", paste(minuend, subtrahend, sep = "_"), sep = "_")
+  if (length(dvs) == 1) {
+    delta_names = paste("Delta", paste(minuends, subtrahends, sep = "_"), sep = "_")
+    avg_names = paste("Avg", paste(minuends, subtrahends, sep = "_"), sep = "_")
   } else {
-    delta_names = paste("Delta", gsub("^Quant_", "", dv), sep = "_")
-    avg_names = paste("Avg", gsub("^Quant_", "", dv), sep = "_")
-    delta_names = paste(delta_names, paste(minuend, subtrahend, sep = "_"), sep = "_")
-    avg_names = paste(avg_names, paste(minuend, subtrahend, sep = "_"), sep = "_")
+    delta_names = paste("Delta", gsub("^Quant_", "", dvs), sep = "_")
+    avg_names = paste("Avg", gsub("^Quant_", "", dvs), sep = "_")
+    delta_names = paste(delta_names, paste(minuends, subtrahends, sep = "_"), sep = "_")
+    avg_names = paste(avg_names, paste(minuends, subtrahends, sep = "_"), sep = "_")
   }
-  minuends_wide = paste(dv, minuend, sep = "_")
-  subtrahend_wide = paste(dv, subtrahend, sep = "_")
+  minuendss_wide = paste(dvs, minuends, sep = "_")
+  subtrahends_wide = paste(dvs, subtrahends, sep = "_")
 
 
-  for (i in seq_along(minuend)) {
-    vals_minuend = quantiles_dat[[minuends_wide[i]]]
-    vals_subtrahend = quantiles_dat[[subtrahend_wide[i]]]
+  for (i in seq_along(minuends)) {
+    vals_minuends = quantiles_dat[[minuendss_wide[i]]]
+    vals_subtrahends = quantiles_dat[[subtrahends_wide[i]]]
 
-    quantiles_dat[[delta_names[i]]] = vals_minuend - vals_subtrahend
-    quantiles_dat[[avg_names[i]]] = 0.5*vals_minuend + 0.5*vals_subtrahend
+    quantiles_dat[[delta_names[i]]] = vals_minuends - vals_subtrahends
+    quantiles_dat[[avg_names[i]]] = 0.5*vals_minuends + 0.5*vals_subtrahends
   }
   return(quantiles_dat)
 }
@@ -302,7 +315,7 @@ calc_delta_fun <- function(quantiles_dat, minuend = NULL, subtrahend = NULL,
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
 #'
 #' @param type character vector, indicating which statistics should be
-#'  calculated. Currently supported options are "cafs", "quantiles", "delta_fun".
+#'  calculated. Currently supported options are "cafs", "quantiles", "delta_funs".
 #' @param source character, indicating whether statistics for observed data ("obs"),
 #'  the model's predictions ("pred"), or both ("both") should be calculated.
 #'  Default is "both".
@@ -315,7 +328,7 @@ calc_delta_fun <- function(quantiles_dat, minuend = NULL, subtrahend = NULL,
 #'
 #' CAFs are a way to quantify response accuracy against speed. To calculate
 #' CAFs, RTs (whether correct or incorrect) are first binned and then the
-#' percentage of correct responses per bin is calculated.
+#' percent correct responses per bin is calculated.
 #'
 #' When calculating model-based CAFs, a joint cdf combining both the pdf
 #' of correct and incorrect responses is calculated. Afterwards, this cdf
@@ -332,24 +345,25 @@ calc_delta_fun <- function(quantiles_dat, minuend = NULL, subtrahend = NULL,
 #'  default settings.
 #'
 #'  Which quantiles are calcuated can be controlled by providing the
-#'  probabilites, `probs`, with values in \eqn{\[0, 1s\]}. Default is
+#'  probabilites, `probs`, with values in \eqn{[0, 1]}. Default is
 #'  `seq(0.1, 0.9, 0.1)`.
 #'
 #' # Delta Functions
 #'
 #'  Delta functions calculate the difference between quantiles
 #'  of two conditions against their mean:
-#'  \eqn{Delta_i = Q_{i,j} - Q_{i,k}}
-#'  \eqn{Avg_i = 0.5 \cdot Q_{i,j} + 0.5 \cdot Q_{i,k}}
-#'  With i indicating a quantile, and j and k conditions.
+#'  - \eqn{Delta_i = Q_{i,j} - Q_{i,k}}
+#'  - \eqn{Avg_i = 0.5 \cdot Q_{i,j} + 0.5 \cdot Q_{i,k}}
+#'
+#'  With i indicating a quantile, and j and k two conditions.
 #'
 #'  To calculate delta functions, users have to specify:
-#'  - `minuend`: character vector, specifying condition(s) j. Must be in
+#'  - `minuends`: character vector, specifying condition(s) j. Must be in
 #'    `drift_dm_obj$conds`.
-#'  - `subtrahend`: character vector, specifying condition(s) k. Must be in
+#'  - `subtrahends`: character vector, specifying condition(s) k. Must be in
 #'    `drift_dm_obj$conds`
-#'  - `dv`: character vector, specifying the dependent variable(s) to use.
-#'     Supported is `QUant_Corr` and `Quant_Err`
+#'  - `dvs`: character vector, specifying the dependent variable(s) to use.
+#'     Supported are `Quant_Corr` and `Quant_Err`
 #'  - optional: `probs`, see the section on quantiles
 #'
 #'
@@ -377,7 +391,7 @@ calc_stats <- function(drift_dm_obj, type, source = "both", ...) {
 
 
   type <- sapply(type, function(x) {
-      match.arg(x, c("cafs", "quantiles", "delta_fun"))
+      match.arg(x, c("cafs", "quantiles", "delta_funs"))
     })
   type <- unname(type)
 
@@ -441,13 +455,13 @@ calc_stats <- function(drift_dm_obj, type, source = "both", ...) {
           })
         result <- do.call("rbind", result)
       }
-      if (one_type == "delta_fun") {
+      if (one_type == "delta_funs") {
         interim <- calc_stats(drift_dm_obj, type = "quantiles", source = source,
                               probs = dotdot$probs)
         result <- calc_delta_fun(quantiles_dat = interim,
-                                 minuend = dotdot$minuend,
-                                 subtrahend = dotdot$subtrahend,
-                                 dv = dotdot$dv)
+                                 minuends = dotdot$minuends,
+                                 subtrahends = dotdot$subtrahends,
+                                 dvs = dotdot$dvs)
       }
 
       if (!is.null(result)) {

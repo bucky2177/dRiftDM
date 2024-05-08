@@ -15,6 +15,9 @@
 #' @param fits_subjects an object inheriting from `dm_fits_subjects`, see
 #'  [dRiftDM::load_fits_subjects]
 #'
+#' @param fit_tats logical, indicating if `gather_parameters` should also return
+#'  fit indices.
+#'
 #' @param type character vector when calling [dRiftDM::calc_stats]
 #'
 #' @param verbose optional, integer, indicating if information about the progress
@@ -24,32 +27,40 @@
 #'
 #' @param ... further arguments which are passed further down
 #'
-#'  @details
+#' @details
 #'
-#'  `gather_parameters` returns the model parameters, the log-likelihood, and
-#'  AIC/BIC values as a data.frame
+#' `gather_parameters` returns the model parameters, the log-likelihood, and
+#' AIC/BIC values as a data.frame
 #'
-#'  `gather_stats` calls [dRiftDM::calc_stats], and further arguments via ...
-#'  can be passed. The return value is determined by [dRiftDM::calc_stats] and
-#'  can be controlled via the `type` argument (see the documentation
-#'  [dRiftDM::calc_stats] for more information). In any case, the returned
-#'  value will contain the statistics as a data.frame, separately for each
-#'  subject.
+#' `gather_stats` calls [dRiftDM::calc_stats], and further arguments via ...
+#' can be passed forward. The return value is determined by [dRiftDM::calc_stats]
+#' and can be controlled via the `type` argument (see the documentation
+#' [dRiftDM::calc_stats] for more information). In any case, the returned
+#' value will contain the statistics as a data.frame, separately for each
+#' subject.
 #'
 #' @export
-gather_parameters <- function(fits_subjects) {
+gather_parameters <- function(fits_subjects, fit_stats = T) {
   if (!inherits(fits_subjects, "dm_fits_subjects")) {
     stop("fits_subjects not of type dm_fits_subjects")
   }
 
   prms <- sapply(fits_subjects$all_fits, function(x) {
     prms_one_model <- x$prms_model
-    prms_one_model <- c(prms_one_model, log_like = x$log_like_val, x$ic_vals)
+    if (fit_stats) {
+      prms_one_model <- c(prms_one_model, log_like = x$log_like_val, x$ic_vals)
+    }
     return(prms_one_model)
   })
   prms <- t(prms)
   prms <- as.data.frame(prms)
   prms <- cbind(Subject = rownames(prms), prms)
+  prms$Subject <- tryCatch(
+    as.numeric(prms$Subject),
+    error = function(e) prms$Subject,
+    warning = function(e) prms$Subject
+  )
+  prms = prms[order(prms$Subject),]
   rownames(prms) <- NULL
   return(prms)
 }

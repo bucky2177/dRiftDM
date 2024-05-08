@@ -95,6 +95,28 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
          "Please adjust before calling estimate_model_subjects")
   }
 
+  # check if lower or upper are named numeric vectors and unname them
+  # (after sorting of course)
+  if (!is.null(names(lower)) | !is.null(names(upper))) {
+
+    if (is.null(names(lower)) & !is.null(names(upper))) {
+      stop("upper is a named numeric vector, but lower isn't")
+    }
+    if (!is.null(names(lower)) & is.null(names(upper))) {
+      stop("lower is a named numeric vector, but upper isn't")
+    }
+
+    check_if_named_numeric_vector(x = lower, var_name = "lower",
+                                  labels = drift_dm_obj$free_prms)
+    check_if_named_numeric_vector(x = upper, var_name = "upper",
+                                  labels = drift_dm_obj$free_prms)
+
+    lower = lower[drift_dm_obj$free_prms]
+    lower = unname(lower)
+    upper = upper[drift_dm_obj$free_prms]
+    upper = unname(upper)
+  }
+
 
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1) {
@@ -194,8 +216,9 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
     }, folder_name = folder_name)
 
     if (any(files_exist)) {
-      message("There are already individual fits saved in ", folder_name,
-              ". Skipping those individuals... \nIf you want to re-fit all ",
+      message("There are already files saved in ", folder_name,
+              ". Skipping individuals with a corresponding identifier...",
+              "\nIf you want to re-fit all ",
               "individuals, specify the argument force_refit = T!")
     }
     list_obs_data <- list_obs_data[!files_exist]

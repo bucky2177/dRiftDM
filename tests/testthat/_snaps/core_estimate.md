@@ -273,7 +273,7 @@
       	gave -log_like_val of -2272.018 [0m
       [33mINFO: Estimation gave muc=2.98, b=0.593, non_dec=0.302 
       	with -log_like_val of -2272.018 [0m
-      Class(es): ratcliff_dm_simple, drift_dm
+      Class(es): ratcliff_dm, drift_dm
       
       Model Parameters:
         values: muc=2.98, b=0.593, non_dec=0.302
@@ -281,7 +281,7 @@
       
       Conditions: null
       
-      Discretization:
+      Deriving PDFs:
         solver: kfe
         values: sigma=1, t_max=3, dt=0.005, dx=0.05, nt=600, nx=40
 
@@ -393,7 +393,7 @@
       
       Conditions: comp, incomp
       
-      Discretization:
+      Deriving PDFs:
         solver: kfe
         values: sigma=1, t_max=1, dt=0.01, dx=0.1, nt=100, nx=20
 
@@ -505,7 +505,7 @@
       
       Conditions: comp, incomp
       
-      Discretization:
+      Deriving PDFs:
         solver: kfe
         values: sigma=1, t_max=1, dt=0.01, dx=0.1, nt=100, nx=20
 

@@ -11,7 +11,7 @@
       
       Conditions: comp, incomp
       
-      Discretization:
+      Deriving PDFs:
         solver: kfe
         values: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000
 
@@ -24,10 +24,10 @@
       
       Observed Data:
                       min. 1st qu. median      mean 3rd qu.  max.   n
-      correct comp   0.283  0.3415  0.382 0.4209588   0.479 0.775 291
-      correct incomp 0.275  0.3720  0.423 0.4414249   0.484 0.911 273
-      error comp     0.319  0.3480  0.401 0.4002222   0.450 0.499   9
-      error incomp   0.264  0.3030  0.331 0.3382593   0.367 0.476  27
+      correct comp   0.283 0.34075  0.382 0.4208288 0.47825 0.775 292
+      correct incomp 0.275 0.37200  0.424 0.4415128 0.48400 0.911 273
+      error comp     0.319 0.34450  0.393 0.3925000 0.41400 0.499   8
+      error incomp   0.264 0.30300  0.330 0.3380370 0.36700 0.476  27
       
       
       Number of Model Parameters:
@@ -42,7 +42,7 @@
       
       Fit Indices:
       log(like)       aic       bic 
-       483.9702 -953.9405 -923.1620 
+       488.2633 -962.5265 -931.7480 
       -------
       
       Conds: comp, incomp

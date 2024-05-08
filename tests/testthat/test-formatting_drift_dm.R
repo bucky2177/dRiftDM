@@ -7,7 +7,7 @@ test_that("print works as expected", {
 
 
 test_that("summary works as expected", {
-  a_dmc_model <- dmc_dm(obs_data = simon_data, dt = .005, dx = .005)
+  a_dmc_model <- dmc_dm(obs_data = dmc_synth_data, dt = .005, dx = .005)
   a_dmc_model <- re_evaluate_model(a_dmc_model)
   summary_model <- summary(a_dmc_model)
   expect_identical(summary_model$class, c("dmc_dm", "drift_dm"))

@@ -5,7 +5,7 @@
 \alias{gather_stats}
 \title{Get model values across subjects}
 \usage{
-gather_parameters(fits_subjects)
+gather_parameters(fits_subjects, fit_stats = T)
 
 gather_stats(fits_subjects, type, verbose = 0, ...)
 }
@@ -19,19 +19,10 @@ gather_stats(fits_subjects, type, verbose = 0, ...)
 should be displayed. Can be set for some of the \verb{gather_*} functions.
 0 -> no information, 1 -> a progress bar. Default is 0.}
 
-\item{...}{further arguments which are passed further down
+\item{...}{further arguments which are passed further down}
 
-@details
-
-\code{gather_parameters} returns the model parameters, the log-likelihood, and
-AIC/BIC values as a data.frame
-
-\code{gather_stats} calls \link{calc_stats}, and further arguments via ...
-can be passed. The return value is determined by \link{calc_stats} and
-can be controlled via the \code{type} argument (see the documentation
-\link{calc_stats} for more information). In any case, the returned
-value will contain the statistics as a data.frame, separately for each
-subject.}
+\item{fit_tats}{logical, indicating if \code{gather_parameters} should also return
+fit indices.}
 }
 \description{
 \verb{gather_*} functions iterate over the individual model fits in
@@ -41,4 +32,15 @@ statistics:
 \item \code{gather_parameters}: Gathers the (estimated) model parameters
 \item \code{gather_stats} calls \link{calc_stats} repeatedly for each subject.
 }
+}
+\details{
+\code{gather_parameters} returns the model parameters, the log-likelihood, and
+AIC/BIC values as a data.frame
+
+\code{gather_stats} calls \link{calc_stats}, and further arguments via ...
+can be passed forward. The return value is determined by \link{calc_stats}
+and can be controlled via the \code{type} argument (see the documentation
+\link{calc_stats} for more information). In any case, the returned
+value will contain the statistics as a data.frame, separately for each
+subject.
 }

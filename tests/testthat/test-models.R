@@ -424,7 +424,7 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
                                  x_vec = x_seq, one_cond = "w",
                                  ddm_opts = NULL)
 
-  pdf_test <- dunif(x_vec, 0 - a_model$prms_model[["range_start"]]/2,
+  pdf_test <- dunif(x_seq, 0 - a_model$prms_model[["range_start"]]/2,
                     0 + a_model$prms_model[["range_start"]] / 2)
   expect_identical(pdf_test, x_x)
 

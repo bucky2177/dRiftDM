@@ -3,7 +3,7 @@
 \docType{data}
 \name{ulrich_simon_data}
 \alias{ulrich_simon_data}
-\title{Data from Ulrich et al. (2015)}
+\title{Exemplary Simon Data}
 \format{
 A data.frame with 16 subjects and the following columns:
 \describe{

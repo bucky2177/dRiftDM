@@ -28,14 +28,15 @@ a data.frame containing at least the columns \code{RT}, \code{Error}, and \code{
 column \code{Subject}
 }
 \description{
+Generate random responses and response times based on a diffusion model.
+This function simulates data based on the provided diffusion model. To this
+end, random samples from the model's predicted pdfs are drawn via approximate
+inverse cdf sampling.
+}
+\details{
 Cdfs are derived from the model's pdfs and response times are drawn by
 mapping samples from a uniform distribution (in \eqn{[0, 1]}) to the values
 of the cdf. Note that sampled response times will correspond to the
 the values of the time space (i.e., they will correspond to
 \code{seq(0, t_max, dt)}, see \link{drift_dm}).
-}
-\details{
-This function simulates data based on the provided diffusion model. To this
-end, random samples from the model's predicted pdfs are drawn via approximate
-inverse cdf sampling.
 }

@@ -12,7 +12,7 @@ plot_stats(obj, type, source = "both", mfrow = NULL, ...)
 latter type, statistics may be calculated via
 \link{gather_stats}, depending on the requested statistics. For
 quantiles, delta functions, and CAfs, observed data and model predictions
-are averaged across subjects}
+are averaged across subjects.}
 
 \item{type}{character vector, indicating which statistics should be
 plotted (see \link{calc_stats} for more info).}
@@ -48,7 +48,7 @@ Optional arguments
 \section{Quantiles}{
 Optional arguments
 \itemize{
-\item \code{probs_quantiles}: the probabilities for which quantiles to calculate
+\item \code{probs_quantiles}: the probabilities for which quantiles to compute
 \item \code{dv_quantiles}: The dependent variable to plot; options are \code{Quant_Corr} or
 \code{Quant_Err} for correct or incorrect responses
 \item \code{x_lab_quantiles}, \code{y_lab_quantiles}, \code{x_lim_quantiles},
@@ -60,18 +60,18 @@ Optional arguments
 \section{Delta Functions}{
 Mandatory arguments
 \itemize{
-\item \code{minuend_delta}, \code{subtrahend_delta}: character vectors specifying how to
+\item \code{minuends_deltas}, \code{subtrahends_deltas}: character vectors specifying how to
 calculate delta functions
 }
 
 Optional arguments
 \itemize{
-\item \code{probs_delta}: the probabilities for which quantiles to calculate
-\item \code{dv_delta}: The dependent variable to plot; options are \code{Quant_Corr} or
+\item \code{probs_deltas}: the probabilities for which quantiles to calculate
+\item \code{dvs_deltas}: The dependent variable to plot; options are \code{Quant_Corr} or
 \code{Quant_Err} for correct or incorrect responses
-\item \code{x_lab_delta}, \code{y_lab_delta}, \code{x_lim_delta}, \code{y_lim_delta}: axes labels
+\item \code{x_lab_deltas}, \code{y_lab_deltas}, \code{x_lim_deltas}, \code{y_lim_deltas}: axes labels
 and limits
-\item \code{line_cols_delta}: a character vector defining colors for each line
+\item \code{line_cols_deltas}: a character vector defining colors for each line
 }
 }
 

@@ -15,7 +15,7 @@ test_that("input checks estimate_model", {
 
 
   # first tests with data
-  a_model <- ratcliff_dm(obs_data = ratcliff_data)
+  a_model <- ratcliff_dm(obs_data = ratcliff_synth_data)
   expect_error(estimate_model(a_model,
     lower = c(0.2, 0.1),
     upper = c(7, 0.8, 0.6)

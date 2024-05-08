@@ -25,14 +25,20 @@ automatic process.
 \code{x_dirac_0}, this function provides a dirac delta for a starting point
 centered between the boundaries
 
+\code{x_uniform}, this function provides a uniform distribution for a start point
+centered between the boundaries. Requires a parameter \code{range_start}
+
 \code{x_beta}, this function provides the function component for a symmetric
 beta-shaped starting point distribution with parameter \code{alpha}.
 
-\code{b_constant}, this function provides the component function for a constant
+\code{b_constant}, this function provides a constant
 boundary with parameter \code{b}.
 
-\code{nt_constant}, this function provides the component function for a constant
+\code{nt_constant}, this function provides a constant
 non-decision time with parameter \code{non_dec}.
+
+\code{nt_uniform}, this function provides a uniform distribution for the
+non-decision time. Requires the parameters \code{non_dec} and \code{range_non_dec}.
 
 \code{nt_truncated_normal}, this function provides the component function for
 a normally distributed non-decision time with parameters \code{non_dec},

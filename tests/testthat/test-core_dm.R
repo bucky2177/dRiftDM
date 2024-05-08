@@ -13,7 +13,7 @@ test_that("creating a drift_dm object", {
 
 
   # with data
-  some_data <- ratcliff_data
+  some_data <- ratcliff_synth_data
   my_prms <- c("a" = 2, "b" = 3, "c" = 4)
   conds <- c("null")
   a_model <- drift_dm(
@@ -138,7 +138,7 @@ test_that("validate_model fails as expected", {
 
   # change t_max to a smaller value than max(rt)
   temp <- a_model
-  some_data <- ratcliff_data
+  some_data <- ratcliff_synth_data
   temp <- set_obs_data(temp, some_data, eval_model = F)
   temp$prms_solve["t_max"] <- 0.5
   temp$prms_solve["nt"] <- 500
@@ -320,14 +320,14 @@ test_that("re_evaluate_model works as expected", {
   expect_null(a_model$log_like_val)
   expect_null(a_model$ic_vals)
 
-  a_model <- set_obs_data(a_model, ratcliff_data, eval_model = T)
+  a_model <- set_obs_data(a_model, ratcliff_synth_data, eval_model = T)
   log_like_val <- a_model$log_like_val
   expect_true(!is.null(a_model$log_like_val))
   aic_bic <- a_model$ic_vals
   expect_identical(aic_bic[["AIC"]], 2 * 3 - 2 * a_model$log_like_val)
   expect_identical(
     aic_bic[["BIC"]],
-    3 * log(nrow(ratcliff_data)) - 2 * a_model$log_like_val
+    3 * log(nrow(ratcliff_synth_data)) - 2 * a_model$log_like_val
   )
 
   expect_error(re_evaluate_model(NULL), "drift_dm_obj")
@@ -341,7 +341,7 @@ test_that("set_model_prms works as expected", {
   a_model <- drift_dm(
     prms_model = my_prms, conds = conds,
     sigma = 1, t_max = 1, dt = .01, dx = .01,
-    obs_data = ratcliff_data
+    obs_data = ratcliff_synth_data
   )
   a_model <- set_model_prms(a_model, c(b = 2, a = 1, c = 3), eval_model = F)
   expect_null(a_model$log_like_val)
@@ -393,7 +393,7 @@ test_that("set_free_prms works as expected", {
   a_model <- drift_dm(
     prms_model = my_prms, conds = conds,
     sigma = 1, t_max = 1, dt = .01, dx = .01,
-    obs_data = ratcliff_data
+    obs_data = ratcliff_synth_data
   )
   a_model <- set_free_prms(a_model, c("b", "a"))
   expect_identical(a_model$free_prms, c("a", "b"))
@@ -425,7 +425,7 @@ test_that("set_solver_settings works as expected", {
   a_model <- drift_dm(
     prms_model = my_prms, conds = conds,
     sigma = 1, t_max = 1, dt = .01, dx = .01,
-    obs_data = ratcliff_data
+    obs_data = ratcliff_synth_data
   )
   a_model <- set_solver_settings(a_model, c(t_max = 3, dt = .1, dx = .1,
                                             sigma = 2), eval_model = F
@@ -487,8 +487,8 @@ test_that("set_obs_data and check_raw_data throw expected errors", {
   a_model <- drift_dm(prms_model = my_prms, conds = conds)
 
   # wrong inputs to set_obs_data
-  expect_error(set_obs_data("uff", ratcliff_data), "not of type drift_dm")
-  temp_data <- ratcliff_data
+  expect_error(set_obs_data("uff", ratcliff_synth_data), "not of type drift_dm")
+  temp_data <- ratcliff_synth_data
   temp_data <- rbind(temp_data, data.frame(RT = 0.4, Error = 1, Cond = "foo"))
   expect_warning(
     set_obs_data(a_model, temp_data),
@@ -496,7 +496,7 @@ test_that("set_obs_data and check_raw_data throw expected errors", {
   )
   a_model$conds <- c("null", "foo")
   expect_error(
-    set_obs_data(a_model, ratcliff_data),
+    set_obs_data(a_model, ratcliff_synth_data),
     "not part of the Cond column"
   )
 
@@ -570,7 +570,7 @@ test_that("setting model component functions work as expected", {
 })
 
 
-test_that("simulate_trace works as expected", {
+test_that("simulate_traces works as expected", {
   dt <- .01
   t_max <- 1
 
@@ -583,7 +583,7 @@ test_that("simulate_trace works as expected", {
   )
   a_model$prms_solve[["sigma"]] <- 0
 
-  out <- simulate_trace(drift_dm_obj = a_model, k = 2, one_cond = "null")
+  out <- simulate_traces(drift_dm_obj = a_model, k = 2, conds = "null")
   expect_identical(out[1, ], out[2, ])
   expect_equal(dim(out), c(2, 1 / .01 + 1))
 
@@ -595,8 +595,8 @@ test_that("simulate_trace works as expected", {
 
   # with noise and seed
   a_model$prms_solve[["sigma"]] <- 1.5
-  out <- simulate_trace(
-    drift_dm_obj = a_model, k = 1, one_cond = "null",
+  out <- simulate_traces(
+    drift_dm_obj = a_model, k = 1, conds = "null",
     seed = 1, add_x = T
   )
   expect_true(!is.matrix(out))
@@ -616,33 +616,33 @@ test_that("simulate_trace works as expected", {
   expect_identical(out[!is.na(out)], X)
 
   # expected errors
-  expect_error(simulate_trace(
-    drift_dm_obj = a_model, k = 1, one_cond = "null",
+  expect_error(simulate_traces(
+    drift_dm_obj = a_model, k = 1, conds = "null",
     seed = c(1, 2, 3)
   ), "seed must be a single numeric")
 
-  expect_error(simulate_trace(
-    drift_dm_obj = a_model, k = 1, one_cond = "null",
+  expect_error(simulate_traces(
+    drift_dm_obj = a_model, k = 1, conds = "null",
     add_x = NULL
   ), "logical")
 
   expect_error(
-    simulate_trace(drift_dm_obj = a_model, k = 1, one_cond = "foo"),
+    simulate_traces(drift_dm_obj = a_model, k = 1, conds = "foo"),
     "not in the model's conds"
   )
   expect_error(
-    simulate_trace(drift_dm_obj = a_model, k = 1, one_cond = 1),
+    simulate_traces(drift_dm_obj = a_model, k = 1, conds = 1),
     "must be a character"
   )
   expect_error(
-    simulate_trace(
+    simulate_traces(
       drift_dm_obj = a_model, k = list(1),
-      one_cond = 1
+      conds = 1
     ),
     "must be a numeric > 0"
   )
   expect_error(
-    simulate_trace(drift_dm_obj = "hallo", k = 1, one_cond = "null"),
+    simulate_traces(drift_dm_obj = "hallo", k = 1, conds = "null"),
     "not of type drift_dm"
   )
 
@@ -650,12 +650,31 @@ test_that("simulate_trace works as expected", {
   a_model <- set_solver_settings(a_model, c(t_max = 0.13))
   a_model$prms_solve[["sigma"]] <- 0
   expect_warning(
-    simulate_trace(
+    simulate_traces(
       drift_dm_obj = a_model, k = 1,
-      one_cond = "null"
+      conds = "null"
     ),
     "no boundary hit"
   )
+
+
+  # call with multiple conds
+  a_model$prms_solve[["sigma"]] <- 1
+  a_model <- set_solver_settings(a_model, c(t_max = 1))
+  a_model$conds = c("foo", "bar")
+  set_one = simulate_traces(
+    drift_dm_obj = a_model, k = 1,
+    conds = NULL
+  )
+  expect_equal(names(set_one), c("foo", "bar"))
+
+
+  set_two = simulate_traces(
+    drift_dm_obj = a_model, k = 1,
+    conds = c("foo", "bar")
+  )
+  expect_equal(names(set_two), c("foo", "bar"))
+
 })
 
 

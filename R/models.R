@@ -5,22 +5,24 @@
 #' This function creates a [dRiftDM::drift_dm] that corresponds to the basic
 #' Ratcliff diffusion model
 #'
-#' @param type character, indicatnig "which" Ratcliff diffusion model should
-#' be build. Default and only option currently is "simple".
+#' @param var_non_dec,var_start logical, indicating whether the model should have
+#' a (uniform) variable non-decision time or starting point, respectively
+#' (see `nt_uniform` and `x_uniform` in [dRiftDM::component_shelf])
 #'
 #' @param obs_data data.frame, an optional data.frame with the observed data.
 #' See [dRiftDM::set_obs_data].
-#' @param sigma,t_max,dt,dx numeric, providing the settings for the
-#' discretization (see [dRiftDM::drift_dm])
+#' @param sigma,t_max,dt,dx numeric, providing the settings for the diffusion
+#' constant and discretization (see [dRiftDM::drift_dm])
 #'
 #' @details
 #'
-#' ## Simple Model
-#'
-#' With "simple" Ratcliff Diffusion Model we refer to a diffusion model
-#' with  a constant drift rate `muc`, a constant boundary `b`, a constant
-#' non-decision time `non_dec`, and no starting point variability. See also
-#' [dRiftDM::component_shelf].
+#' The Ratcliff diffusion model is a diffusion model with  a constant drift rate
+#' `muc` and a constant boundary `b`. If `var_non_dec = FALSE`,  a constant
+#' non-decision time `non_dec` is assumed, otherwise a uniform non-decision time
+#' with mean `non_dec` and range `range_non_dec`. If `var_start = FALSE`,  a
+#' constant starting point centered between the boundaries is assumed (i.e.,
+#' a dirac delta over 0), otherwise a uniform starting point with mean 0 and
+#' range `range_start`.
 #'
 #'
 #' @export
@@ -34,105 +36,32 @@ ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
   conds <- "null"
   r_dm <- drift_dm(
     prms_model = prms_model, conds = conds, free_prms = NULL,
-    obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt, dx = dx
+    obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt, dx = dx,
+    mu_fun = mu_constant, mu_int_fun = mu_int_constant, x_fun = x_dirac_0,
+    b_fun = b_constant, dt_b_fun = dt_b_constant, nt_fun = nt_constant
   )
 
-  # set the custom functions
-  r_dm <- set_mu_fun(drift_dm_obj = r_dm, mu_fun = mu_constant)
-  r_dm <- set_mu_int_fun(drift_dm_obj = r_dm, mu_int_fun = mu_int_constant)
-  r_dm <- set_b_fun(drift_dm_obj = r_dm, b_fun = b_constant)
-  r_dm <- set_dt_b_fun(drift_dm_obj = r_dm, dt_b_fun = dt_b_constant)
-
-  if (!var_non_dec) {
-    r_dm <- set_nt_fun(drift_dm_obj = r_dm, nt_fun = nt_constant)
-  } else {
-    r_dm <- set_nt_fun(drift_dm_obj = r_dm, nt_fun = nt_uniform)
+  # set other functions if requested
+  if (var_non_dec) {
+    r_dm <- set_comp_funs(
+      drift_dm_obj = r_dm,
+      comp_funs = list(nt_fun = nt_uniform)
+    )
   }
 
-  if (!var_start) {
-    r_dm <- set_x_fun(drift_dm_obj = r_dm, x_fun = x_dirac_0)
-  } else {
-    r_dm <- set_x_fun(drift_dm_obj = r_dm, x_fun = x_uniform)
+  if (var_start) {
+    r_dm <- set_comp_funs(
+      drift_dm_obj = r_dm,
+      comp_funs = list(x_fun = x_uniform)
+    )
   }
 
-  class(r_dm) <- c("ratcliff", class(r_dm))
+  class(r_dm) <- c("ratcliff_dm", class(r_dm))
 
   return(r_dm)
 }
 
 # ==== Standard Diffusion Model Components
-
-#' Diffusion model components
-#'
-#' @description
-#' The following function is meant as a convenient way to access pre-built
-#' model component functions. It returns a list of the following functions.
-#'
-#' `mu_constant`, this function provides the component function for a constant
-#' drift rate with parameter `muc`.
-#'
-#' `mu_dmc`, this function provides the superimposed diffusion process
-#'  of DMC. Necessary parameters are `muc` (drift rate of the controlled
-#'  process), `a` (shape..), `A` (amplitude...), `tau` (and scale of the
-#'  automatic process.
-#'
-#' `mu_int_constant`, provides the complementary integral to `mu_constant`.
-#'
-#' `mu_int_dmc`, provides the complementary integral to `mu_dmc`.
-#'
-#' `x_dirac_0`, this function provides a dirac delta for a starting point
-#' centered between the boundaries
-#'
-#' `x_beta`, this function provides the function component for a symmetric
-#' beta-shaped starting point distribution with parameter `alpha`.
-#'
-#' `b_constant`, this function provides the component function for a constant
-#' boundary with parameter `b`.
-#'
-#' `nt_constant`, this function provides the component function for a constant
-#' non-decision time with parameter `non_dec`.
-#'
-#' `nt_truncated_normal`, this function provides the component function for
-#' a normally distributed non-decision time with parameters `non_dec`,
-#' `sd_non_dec`. The Distribution is truncated to \eqn{[0, t_max]}.
-#'
-#'
-#' @details
-#' See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
-#' to set/modify/customize the components of a diffusion model.
-#'
-#' @export
-component_shelf <- function() {
-
-  components <- list()
-
-  # mus
-  components$mu_constant <- mu_constant
-  components$mu_dmc <- mu_dmc
-
-  # mus int
-  components$mu_int_constant <- mu_int_constant
-  components$mu_int_dmc <- mu_int_dmc
-
-  # xs
-  components$x_dirac_0 <- x_dirac_0
-  components$x_beta <- x_beta
-  components$x_uniform <- x_uniform
-
-  # bs
-  components$b_constant <- b_constant
-
-  # bs dt
-  components$dt_b_constant <- dt_b_constant
-
-  # nts
-  components$nt_constant <- nt_constant
-  components$nt_uniform <- nt_uniform
-  components$nt_truncated_normal <- nt_truncated_normal
-
-  return(components)
-}
-
 
 mu_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
@@ -290,8 +219,8 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'
 #' @param obs_data data.frame, an optional data.frame with the observed data.
 #' See [dRiftDM::set_obs_data].
-#' @param sigma,t_max,dt,dx numeric, providing the settings for the
-#' discretization (see [dRiftDM::drift_dm])
+#' @param sigma,t_max,dt,dx numeric, providing the settings for the diffusion
+#' constant and discretization (see [dRiftDM::drift_dm])
 #'
 #' @details
 #'
@@ -329,18 +258,10 @@ dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
   dmc_dm <- drift_dm(
     prms_model = prms_model, conds = conds,
     free_prms = c("muc", "b", "non_dec", "sd_non_dec", "tau", "A", "alpha"),
-    obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt, dx = dx
+    obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt, dx = dx,
+    mu_fun = mu_dmc, mu_int_fun = mu_int_dmc, x_fun = x_beta,
+    b_fun = b_constant, dt_b_fun = dt_b_constant, nt_fun = nt_truncated_normal
   )
-
-  # set the custom functions
-  dmc_dm <- set_mu_fun(drift_dm_obj = dmc_dm, mu_fun = mu_dmc)
-  dmc_dm <- set_mu_int_fun(drift_dm_obj = dmc_dm, mu_int_fun = mu_int_dmc)
-  dmc_dm <- set_x_fun(drift_dm_obj = dmc_dm, x_fun = x_beta)
-  dmc_dm <- set_b_fun(drift_dm_obj = dmc_dm, b_fun = b_constant)
-  dmc_dm <- set_dt_b_fun(drift_dm_obj = dmc_dm, dt_b_fun = dt_b_constant)
-  dmc_dm <- set_nt_fun(drift_dm_obj = dmc_dm, nt_fun = nt_truncated_normal)
-
-
   class(dmc_dm) <- c("dmc_dm", class(dmc_dm))
 
   return(dmc_dm)
@@ -475,4 +396,326 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opt
   p_l <- stats::pnorm(0, non_dec, sd_non_dec)
   d_nt <- d_val / (p_u - p_l)
   return(d_nt)
+}
+
+
+
+
+#=== Shrinking Spotlight Model
+#' Create the Shrinking Spotlight Model
+#'
+#' @description
+#' This function creates a [dRiftDM::drift_dm] object that corresponds to a
+#' simple version of the shrinking spotlight model by
+#' \insertCite{Whitetal.2015;textual}{dRiftDM}.
+#'
+#' @param obs_data data.frame, an optional data.frame with the observed data.
+#' See [dRiftDM::set_obs_data].
+#' @param sigma,t_max,dt,dx numeric, providing the settings for the diffusion
+#' constant and discretization (see [dRiftDM::drift_dm])
+#'
+#' @details
+#'
+#' The shrinking spotlight model is a model developed for the flanker task.
+#'
+#' It has the following properties (see [dRiftDM::component_shelf]):
+#' - a constant boundary (parameter `b`)
+#' - a constant starting point in between the decision boundaries
+#' - an evidence accumulation process that is driven by an attentional
+#' spotlight that covers both the flankers and the target. The area that covers
+#' the flankers and target is modeled by normal distribution with mean 0:
+#'    - At the beginning of the trial attention is wide-spread, and the width
+#'    at t=0 is the standard deviation `sd_0`
+#'    - As the trial progresses in time, the attentional spotlight narrows,
+#'    reflected by a linear decline of the standard deviation with rate `r`
+#'    (to a minimum of 0.001).
+#'    - the attention attributed to both the flankers and the target is scaled
+#'    by `p` which controls the strength of evidence accumulation
+#' - A non-decision time that follows a truncated normal distribution with
+#'   mean `non_dec` and standard deviation `sd_non_dec`.
+#'
+#' Its parameters are:  `b`, `non_dec`, `sd_non_dec`, `p`, `sd_0`, and `r`.
+#' Per default, all parameters are assumed to be "free".
+#'
+#'
+#' @export
+ssp_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
+                   dx = .001) {
+
+  prms_model = c(b = .6, non_dec = .3, sd_non_dec = .005, p = 3.3, sd_0 = 1.2,
+                 r = 10)
+  conds = c("comp", "incomp")
+
+  ssp_dm = drift_dm(prms_model = prms_model, conds = conds,
+    free_prms = NULL, obs_data = obs_data, sigma = sigma,
+    t_max = t_max, dt = dt, dx = dx, mu_fun = mu_ssp,
+    mu_int_fun = dummy_t, x_fun = x_dirac_0, b_fun = b_constant,
+    dt_b_fun = dt_b_constant, nt_fun = nt_constant
+  )
+
+  class(ssp_dm) = c("ssp_dm", class(ssp_dm))
+
+  return(ssp_dm)
+}
+
+#===
+# SSP Components
+
+mu_ssp = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+
+  # extract all parameters
+  p = prms_model[["p"]]
+  sd_0 = prms_model[["sd_0"]]
+  r = prms_model[["r"]]
+
+
+  if (!is.numeric(p) | length(p) != 1) {
+    stop("p is not a single number")
+  }
+  if (!is.numeric(sd_0) | length(sd_0) != 1) {
+    stop("sd_0 is not a single number")
+  }
+  if (!is.numeric(r) | length(r) != 1) {
+    stop("r is not a single number")
+  }
+  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
+    stop("t_vec is not a vector")
+  }
+
+  stopifnot(one_cond %in% c("comp", "incomp"))
+
+
+  sd_t = pmax(sd_0 - r * t_vec, 0.001)
+  a_tar_t = (stats::pnorm(q = 0.5, mean = 0, sd = sd_t) - 0.5)*2
+  a_fl_t = 1 - a_tar_t
+
+  # pass back the drift rate, depending on the condition
+  if (one_cond == "comp") {
+    mu_t = a_tar_t * p + a_fl_t * p
+  } else {
+    mu_t = a_tar_t * p - a_fl_t * p
+  }
+  return(mu_t)
+}
+
+
+
+
+#=== ADDITIONAL MODEL COMPONENTS
+
+# Collapsing Boundary - Hyperbolic Ratio Function
+b_hyperbol = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+
+  b0 = prms_model[["b0"]]
+  kappa = prms_model[["kappa"]]
+  t05 = prms_model[["t05"]]
+
+  if (!is.numeric(b0) | length(b0) != 1) {
+    stop("b0 is not a single number")
+  }
+  if (!is.numeric(kappa) | length(kappa) != 1) {
+    stop("kappa is not a single number")
+  }
+  if (!is.numeric(t05) | length(t05) != 1) {
+    stop("t05 is not a single number")
+  }
+  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
+    stop("t_vec is not a vector")
+  }
+
+  return(b0 * (1 - kappa * t_vec / (t_vec + t05)))
+}
+
+# derivative of the hyperbolic ratio function
+dt_b_hyperbol = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+
+  b0 = prms_model[["b0"]]
+  kappa = prms_model[["kappa"]]
+  t05 = prms_model[["t05"]]
+
+  if (!is.numeric(b0) | length(b0) != 1) {
+    stop("b0 is not a single number")
+  }
+  if (!is.numeric(kappa) | length(kappa) != 1) {
+    stop("kappa is not a single number")
+  }
+  if (!is.numeric(t05) | length(t05) != 1) {
+    stop("t05 is not a single number")
+  }
+  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
+    stop("t_vec is not a vector")
+  }
+
+  return(-(b0 * kappa * t05) / (t_vec + t05) ^ 2)
+}
+
+
+# Collapsing Boundary - Weibull Function
+b_weibull = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+
+  b0 = prms_model[["b0"]]
+  lambda = prms_model[["lambda"]]
+  k = prms_model[["k"]]
+  kappa = prms_model[["kappa"]]
+
+  if (!is.numeric(b0) | length(b0) != 1) {
+    stop("b0 is not b0 single number")
+  }
+  if (!is.numeric(lambda) | length(lambda) != 1) {
+    stop("lambda is not a single number")
+  }
+  if (!is.numeric(k) | length(k) != 1) {
+    stop("k is not a single number")
+  }
+  if (!is.numeric(kappa) | length(kappa) != 1) {
+    stop("kappa is not a single number")
+  }
+  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
+    stop("t_vec is not a vector")
+  }
+
+  return(b0 - (1 - exp(-(t_vec / lambda)^k)) * kappa * b0)
+}
+
+
+# derivative of the collapsing boundary - Weibull Function
+dt_b_weibull = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+
+  b0 = prms_model[["b0"]]
+  lambda = prms_model[["lambda"]]
+  k = prms_model[["k"]]
+  kappa = prms_model[["kappa"]]
+
+  if (!is.numeric(b0) | length(b0) != 1) {
+    stop("b0 is not b0 single number")
+  }
+  if (!is.numeric(lambda) | length(lambda) != 1) {
+    stop("lambda is not a single number")
+  }
+  if (!is.numeric(k) | length(k) != 1) {
+    stop("k is not a single number")
+  }
+  if (!is.numeric(kappa) | length(kappa) != 1) {
+    stop("kappa is not a single number")
+  }
+  if (!is.numeric(t_vec) | length(t_vec) <= 1) {
+    stop("t_vec is not a vector")
+  }
+
+  numer = -b0 * kappa * k * (t_vec / lambda)^(k - 1) * exp(-(t_vec / lambda)^k)
+  return(numer/lambda)
+}
+
+
+
+
+# === COMPONENT SHELF
+#' Diffusion model components
+#'
+#' @description
+#' This function is meant as a convenient way to access pre-built
+#' model component functions. It returns a list of the following functions.
+#'
+#' * `mu_constant`, provides the component function for a constant
+#' drift rate with parameter `muc`.
+#'
+#' * `mu_dmc`, provides the superimposed diffusion process
+#'  of DMC. Necessary parameters are `muc` (drift rate of the controlled
+#'  process), `a` (shape..), `A` (amplitude...), `tau` (scale of the
+#'  automatic process).
+#'
+#' * `mu_int_constant`, provides the complementary integral to `mu_constant`.
+#'
+#' * `mu_int_dmc`, provides the complementary integral to `mu_dmc`.
+#'
+#' * `x_dirac_0`, provides a dirac delta for a starting point
+#' centered between the boundaries (now parameter required).
+#'
+#' * `x_uniform`, provides a uniform distribution for a start point
+#'  centered between the boundaries. Requires a parameter `range_start`
+#'  (between 0 and 2).
+#'
+#' * `x_beta`, provides the function component for a symmetric
+#' beta-shaped starting point distribution with parameter `alpha`.
+#'
+#' * `b_constant`, provides a constant
+#' boundary with parameter `b`.
+#'
+#' * `b_hyperbol`, provides a collapsing boundary in terms of a
+#'   hyperbolic ratio function with parameters
+#'  `b0` as the initial value of the (upper) boundary,
+#'  `kappa` the size of the collapse, and `t05` the point in time where
+#'  the boundary has collapsed by half.
+#'
+#' * `b_weibull`, provides a collapsing boundary in terms of a
+#'   Weibull distribution with parameters
+#'  `b0` as the initial value of the (upper) boundary,
+#'  `lambda` controlling the time of the collapse,
+#'  `k` the shape of the collapse, and `kappa` the size of the collapse.
+#'
+#' * `dt_b_constant`, the first derivative of `b_constant`.
+#'
+#' * `dt_b_hyperbol`, the first derivative of `b_hyperbol`.
+#'
+#' * `nt_constant`, provides a constant
+#' non-decision time with parameter `non_dec`.
+#'
+#' * `nt_uniform`, provides a uniform distribution for the
+#' non-decision time. Requires the parameters `non_dec` and `range_non_dec`.
+#'
+#' * `nt_truncated_normal`, provides the component function for
+#' a normally distributed non-decision time with parameters `non_dec`,
+#' `sd_non_dec`. The Distribution is truncated to \eqn{[0, t_{max}]}.
+#'
+#' * `dummy_t` a function that accepts all required arguments for `mu_fun` or
+#' `mu_int_fun` but which throws an error. Might come in handy when a user
+#' doesn't require a drift rate or its integral.
+#'
+#'
+#' @details
+#' See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
+#' to set/modify/customize the components of a diffusion model.
+#'
+#' @export
+component_shelf <- function() {
+
+  components <- list()
+
+  # mus
+  components$mu_constant <- mu_constant
+  components$mu_dmc <- mu_dmc
+
+  # mus int
+  components$mu_int_constant <- mu_int_constant
+  components$mu_int_dmc <- mu_int_dmc
+
+  # xs
+  components$x_dirac_0 <- x_dirac_0
+  components$x_beta <- x_beta
+  components$x_uniform <- x_uniform
+
+  # bs
+  components$b_constant <- b_constant
+  components$b_hyperbol <- b_hyperbol
+  components$b_weibull <- b_weibull
+
+  # bs dt
+  components$dt_b_constant <- dt_b_constant
+  components$dt_b_hyperbol <- dt_b_hyperbol
+  components$dt_b_weibull <- dt_b_weibull
+
+  # nts
+  components$nt_constant <- nt_constant
+  components$nt_uniform <- nt_uniform
+  components$nt_truncated_normal <- nt_truncated_normal
+
+  # dummies
+  components$dummy_t = dummy_t
+
+  return(components)
+}
+
+
+dummy_t = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+  stop("dummy_t: this should not be called!")
 }
