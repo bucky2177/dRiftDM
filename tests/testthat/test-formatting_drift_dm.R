@@ -29,8 +29,8 @@ test_that("summary works as expected", {
     summary_model$fit_stats,
     c(
       "log(like)" = a_dmc_model$log_like_val,
-      "aic" = a_dmc_model$ic_vals[["AIC"]],
-      "bic" = a_dmc_model$ic_vals[["BIC"]]
+      "aic" = a_dmc_model$ic_vals[["aic"]],
+      "bic" = a_dmc_model$ic_vals[["bic"]]
     )
   )
 

@@ -190,7 +190,7 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
       fit_dir = test_path("temp_fits"),
       verbose = 0,
       progress = 0,
-    ), "Skipping those individuals"
+    ), "Skipping individuals"
   )
 
   #### NOW THE LOADING

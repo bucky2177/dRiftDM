@@ -14,6 +14,8 @@
       Deriving PDFs:
         solver: kfe
         values: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000
+      
+      Observed Data: NULL
 
 # summary works as expected
 
@@ -23,11 +25,11 @@
       Class(es): dmc_dm, drift_dm
       
       Observed Data:
-                      min. 1st qu. median      mean 3rd qu.  max.   n
-      correct comp   0.283 0.34075  0.382 0.4208288 0.47825 0.775 292
-      correct incomp 0.275 0.37200  0.424 0.4415128 0.48400 0.911 273
-      error comp     0.319 0.34450  0.393 0.3925000 0.41400 0.499   8
-      error incomp   0.264 0.30300  0.330 0.3380370 0.36700 0.476  27
+                      min. 1st qu. median  mean 3rd qu.  max.   n
+      correct comp   0.331   0.436  0.479 0.507   0.549 1.075 292
+      correct incomp 0.313   0.474  0.528 0.543   0.592 0.879 268
+      error comp     0.428   0.458  0.526 0.564   0.621 0.871   8
+      error incomp   0.302   0.398  0.452 0.458   0.498 0.771  32
       
       
       Number of Model Parameters:
@@ -42,7 +44,7 @@
       
       Fit Indices:
       log(like)       aic       bic 
-       488.2633 -962.5265 -931.7480 
+        163.914  -313.828  -283.050 
       -------
       
       Conds: comp, incomp

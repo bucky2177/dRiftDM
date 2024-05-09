@@ -284,6 +284,8 @@
       Deriving PDFs:
         solver: kfe
         values: sigma=1, t_max=3, dt=0.005, dx=0.05, nt=600, nx=40
+      
+      Observed Data: 3000 trials
 
 # behavior of DE and nmkb toggles
 
@@ -396,6 +398,8 @@
       Deriving PDFs:
         solver: kfe
         values: sigma=1, t_max=1, dt=0.01, dx=0.1, nt=100, nx=20
+      
+      Observed Data: 600 trials
 
 ---
 
@@ -508,4 +512,6 @@
       Deriving PDFs:
         solver: kfe
         values: sigma=1, t_max=1, dt=0.01, dx=0.1, nt=100, nx=20
+      
+      Observed Data: 600 trials
 

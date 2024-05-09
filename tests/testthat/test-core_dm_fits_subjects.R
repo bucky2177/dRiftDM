@@ -15,7 +15,7 @@ test_that("gathering_parameters works as expected", {
 
   prms_test <- rbind(prms_1, prms_2)
   prms_test <- as.data.frame(prms_test)
-  prms_test <- data.frame(Subject = c("1", "2"), prms_test)
+  prms_test <- data.frame(Subject = c(1, 2), prms_test)
   rownames(prms_test) <- 1:2
   expect_identical(prms, prms_test)
 })

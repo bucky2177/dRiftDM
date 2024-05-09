@@ -306,8 +306,8 @@ test_that("standard methods for the ddm components work as expected", {
 
 test_that("AIC and BIC calculation works as expected", {
   aic_bic <- calc_ic(ll = 2, k = 3, n = 300)
-  expect_identical(aic_bic[["AIC"]], 2 * 3 - 2 * 2)
-  expect_identical(aic_bic[["BIC"]], 3 * log(300) - 2 * 2)
+  expect_identical(aic_bic[["aic"]], 2 * 3 - 2 * 2)
+  expect_identical(aic_bic[["bic"]], 3 * log(300) - 2 * 2)
 })
 
 test_that("re_evaluate_model works as expected", {
@@ -324,9 +324,9 @@ test_that("re_evaluate_model works as expected", {
   log_like_val <- a_model$log_like_val
   expect_true(!is.null(a_model$log_like_val))
   aic_bic <- a_model$ic_vals
-  expect_identical(aic_bic[["AIC"]], 2 * 3 - 2 * a_model$log_like_val)
+  expect_identical(aic_bic[["aic"]], 2 * 3 - 2 * a_model$log_like_val)
   expect_identical(
-    aic_bic[["BIC"]],
+    aic_bic[["bic"]],
     3 * log(nrow(ratcliff_synth_data)) - 2 * a_model$log_like_val
   )
 
@@ -535,27 +535,26 @@ test_that("setting model component functions work as expected", {
   mu <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     rnorm(1)
   }
-  a_model <- set_mu_fun(a_model, mu)
+  a_model <- set_comp_funs(a_model, list(mu_fun = mu))
   mu_int <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     rnorm(2)
   }
-  a_model <- set_mu_int_fun(a_model, mu_int)
+  a_model <- set_comp_funs(a_model, list(mu_int_fun = mu_int))
   x <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
     rnorm(3)
   }
-  a_model <- set_x_fun(a_model, x)
+  a_model <- set_comp_funs(a_model, list(x_fun = x))
   b <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     rnorm(4)
   }
-  a_model <- set_b_fun(a_model, b)
   dt_b <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     rnorm(5)
   }
-  a_model <- set_dt_b_fun(a_model, dt_b)
+  a_model <- set_comp_funs(a_model, list(b_fun = b, dt_b_fun = dt_b))
   nt <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     rnorm(6)
   }
-  a_model <- set_nt_fun(a_model, nt)
+  a_model <- set_comp_funs(a_model, list(nt_fun = nt))
 
   expect_identical(a_model$comp_funs$mu_fun, mu)
   expect_identical(a_model$comp_funs$mu_int_fun, mu_int)
@@ -565,8 +564,11 @@ test_that("setting model component functions work as expected", {
   expect_identical(a_model$comp_funs$nt, nt)
 
   # input checks
-  expect_error(set_fun("bla", b, "mu", "t"), "not of type drift_dm")
-  expect_error(set_fun(a_model, "bla", "mu", "t"), "*_fun argument")
+  expect_error(set_comp_funs("bla", b), "not of type drift_dm")
+  expect_error(set_comp_funs(a_model, "bla"), "not a list")
+  expect_error(set_comp_funs(a_model, list()), "empty")
+  expect_error(set_comp_funs(a_model, list(b)), "not named")
+
 })
 
 

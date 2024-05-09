@@ -254,7 +254,7 @@ test_that("calc_delta_fun works as expected", {
   data = simulate_data(a_model, 1000)
   a_model = set_obs_data(a_model, data, eval_model = T)
   delta_dat = calc_stats(drift_dm_obj = a_model, type = "delta_fun",
-             minuend = "incomp", subtrahend = "comp")
+             minuends = "incomp", subtrahends = "comp")
   expect_equal(delta_dat$Delta_incomp_comp,
                delta_dat$Quant_Corr_incomp - delta_dat$Quant_Corr_comp)
   expect_equal(delta_dat$Avg_incomp_comp,
@@ -262,7 +262,7 @@ test_that("calc_delta_fun works as expected", {
 
   # incomp vs comp Corr
   delta_dat = calc_stats(drift_dm_obj = a_model, type = "delta_fun",
-                         minuend = "incomp", subtrahend = "comp")
+                         minuends = "incomp", subtrahends = "comp")
   expect_equal(delta_dat$Delta_incomp_comp,
                delta_dat$Quant_Corr_incomp - delta_dat$Quant_Corr_comp)
   expect_equal(delta_dat$Avg_incomp_comp,
@@ -271,8 +271,8 @@ test_that("calc_delta_fun works as expected", {
 
   # incomp vs comp Corr and Err
   delta_dat = calc_stats(drift_dm_obj = a_model, type = "delta_fun",
-                         minuend = "incomp", subtrahend = "comp",
-                         dv = c("Quant_Corr", "Quant_Err"))
+                         minuends = "incomp", subtrahends = "comp",
+                         dvs = c("Quant_Corr", "Quant_Err"))
   expect_equal(delta_dat$Delta_Corr_incomp_comp,
                delta_dat$Quant_Corr_incomp - delta_dat$Quant_Corr_comp)
   expect_equal(delta_dat$Avg_Corr_incomp_comp,
@@ -286,9 +286,9 @@ test_that("calc_delta_fun works as expected", {
 
   # incomp vs neutral Corr and neutral vs. comp  Err
   delta_dat = calc_stats(drift_dm_obj = a_model, type = "delta_fun",
-                         minuend = c("incomp", "neutral"),
-                         subtrahend = c("comp", "comp"),
-                         dv = c("Quant_Corr", "Quant_Err"))
+                         minuends = c("incomp", "neutral"),
+                         subtrahends = c("comp", "comp"),
+                         dvs = c("Quant_Corr", "Quant_Err"))
   expect_equal(delta_dat$Delta_Corr_incomp_comp,
                delta_dat$Quant_Corr_incomp - delta_dat$Quant_Corr_comp)
   expect_equal(delta_dat$Avg_Corr_incomp_comp,
@@ -311,51 +311,51 @@ test_that("calc_delta_fun works as expected", {
   # input checks
   expect_error(
     calc_stats(drift_dm_obj = a_model, type = "delta_fun",
-               minuend = c("incomp", "neutral", "foo"),
-               subtrahend = c("comp", "comp"),
-               dv = c("Quant_Corr", "Quant_Err")), "length of minuend and subtrahend"
+               minuends = c("incomp", "neutral", "foo"),
+               subtrahends = c("comp", "comp"),
+               dvs = c("Quant_Corr", "Quant_Err")), "length of minuends and subtrahends"
   )
 
   expect_error(
     calc_stats(drift_dm_obj = a_model, type = "delta_fun",
-               minuend = c("incomp", "neutral"),
-               subtrahend = c("comp", "comp", "foo"),
-               dv = c("Quant_Corr", "Quant_Err")), "length of minuend and subtrahend"
+               minuends = c("incomp", "neutral"),
+               subtrahends = c("comp", "comp", "foo"),
+               dvs = c("Quant_Corr", "Quant_Err")), "length of minuends and subtrahends"
   )
 
   expect_error(
     calc_stats(drift_dm_obj = "foo", type = "delta_fun",
-               minuend = c("incomp", "neutral"),
-               subtrahend = c("comp", "comp"),
-               dv = c("Quant_Corr", "Quant_Err")), "drift_dm"
+               minuends = c("incomp", "neutral"),
+               subtrahends = c("comp", "comp"),
+               dvs = c("Quant_Corr", "Quant_Err")), "drift_dm"
   )
 
   expect_error(
     calc_stats(drift_dm_obj = a_model, type = "delta_fun",
-               minuend = c("incomp", "neutral", "bla"),
-               subtrahend = c("comp", "comp", "uff"),
-               dv = c("Quant_Corr", "Quant_Err")), "Conds specified in minuend"
+               minuends = c("incomp", "neutral", "bla"),
+               subtrahends = c("comp", "comp", "uff"),
+               dvs = c("Quant_Corr", "Quant_Err")), "Conds specified in minuends"
   )
 
   expect_error(
     calc_stats(drift_dm_obj = a_model, type = "delta_fun",
-               minuend = c("incomp", "neutral"),
-               subtrahend = c("comp", "uff"),
-               dv = c("Quant_Corr", "Quant_Err")), "Conds specified in subtrahend"
+               minuends = c("incomp", "neutral"),
+               subtrahends = c("comp", "uff"),
+               dvs = c("Quant_Corr", "Quant_Err")), "Conds specified in subtrahends"
   )
 
   expect_error(
     calc_stats(drift_dm_obj = a_model, type = "delta_fun",
-               minuend = character(),
-               subtrahend = c("comp", "comp", "comp"),
-               dv = c("Quant_Corr", "Quant_Err")), "minuend"
+               minuends = character(),
+               subtrahends = c("comp", "comp", "comp"),
+               dvs = c("Quant_Corr", "Quant_Err")), "minuends"
   )
 
   expect_error(
     calc_stats(drift_dm_obj = a_model, type = "delta_fun",
-               minuend = c("incomp"),
-               subtrahend = character(),
-               dv = c("Quant_Corr", "Quant_Err")), "subtrahend"
+               minuends = c("incomp"),
+               subtrahends = character(),
+               dvs = c("Quant_Corr", "Quant_Err")), "subtrahends"
   )
 })
 

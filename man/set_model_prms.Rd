@@ -62,7 +62,7 @@ methods is the highly recommended way of changing a model
 \item \code{set_solver_settings} for modifying the settings relevant to the functions
 deriving the pdfs of the diffusion model
 \item \code{set_obs_data} can be used to pass/set observed data
-\item \code{set_comp_fun} can be used to pass/set component functions of the model
+\item \code{set_comp_funs} can be used to pass/set component functions of the model
 }
 }
 \details{

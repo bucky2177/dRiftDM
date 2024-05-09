@@ -7,42 +7,49 @@
 component_shelf()
 }
 \description{
-The following function is meant as a convenient way to access pre-built
+This function is meant as a convenient way to access pre-built
 model component functions. It returns a list of the following functions.
-
-\code{mu_constant}, this function provides the component function for a constant
+\itemize{
+\item \code{mu_constant}, provides the component function for a constant
 drift rate with parameter \code{muc}.
-
-\code{mu_dmc}, this function provides the superimposed diffusion process
+\item \code{mu_dmc}, provides the superimposed diffusion process
 of DMC. Necessary parameters are \code{muc} (drift rate of the controlled
-process), \code{a} (shape..), \code{A} (amplitude...), \code{tau} (and scale of the
-automatic process.
-
-\code{mu_int_constant}, provides the complementary integral to \code{mu_constant}.
-
-\code{mu_int_dmc}, provides the complementary integral to \code{mu_dmc}.
-
-\code{x_dirac_0}, this function provides a dirac delta for a starting point
-centered between the boundaries
-
-\code{x_uniform}, this function provides a uniform distribution for a start point
+process), \code{a} (shape..), \code{A} (amplitude...), \code{tau} (scale of the
+automatic process).
+\item \code{mu_int_constant}, provides the complementary integral to \code{mu_constant}.
+\item \code{mu_int_dmc}, provides the complementary integral to \code{mu_dmc}.
+\item \code{x_dirac_0}, provides a dirac delta for a starting point
+centered between the boundaries (now parameter required).
+\item \code{x_uniform}, provides a uniform distribution for a start point
 centered between the boundaries. Requires a parameter \code{range_start}
-
-\code{x_beta}, this function provides the function component for a symmetric
+(between 0 and 2).
+\item \code{x_beta}, provides the function component for a symmetric
 beta-shaped starting point distribution with parameter \code{alpha}.
-
-\code{b_constant}, this function provides a constant
+\item \code{b_constant}, provides a constant
 boundary with parameter \code{b}.
-
-\code{nt_constant}, this function provides a constant
+\item \code{b_hyperbol}, provides a collapsing boundary in terms of a
+hyperbolic ratio function with parameters
+\code{b0} as the initial value of the (upper) boundary,
+\code{kappa} the size of the collapse, and \code{t05} the point in time where
+the boundary has collapsed by half.
+\item \code{b_weibull}, provides a collapsing boundary in terms of a
+Weibull distribution with parameters
+\code{b0} as the initial value of the (upper) boundary,
+\code{lambda} controlling the time of the collapse,
+\code{k} the shape of the collapse, and \code{kappa} the size of the collapse.
+\item \code{dt_b_constant}, the first derivative of \code{b_constant}.
+\item \code{dt_b_hyperbol}, the first derivative of \code{b_hyperbol}.
+\item \code{nt_constant}, provides a constant
 non-decision time with parameter \code{non_dec}.
-
-\code{nt_uniform}, this function provides a uniform distribution for the
+\item \code{nt_uniform}, provides a uniform distribution for the
 non-decision time. Requires the parameters \code{non_dec} and \code{range_non_dec}.
-
-\code{nt_truncated_normal}, this function provides the component function for
+\item \code{nt_truncated_normal}, provides the component function for
 a normally distributed non-decision time with parameters \code{non_dec},
-\code{sd_non_dec}. The Distribution is truncated to \eqn{[0, t_max]}.
+\code{sd_non_dec}. The Distribution is truncated to \eqn{[0, t_{max}]}.
+\item \code{dummy_t} a function that accepts all required arguments for \code{mu_fun} or
+\code{mu_int_fun} but which throws an error. Might come in handy when a user
+doesn't require a drift rate or its integral.
+}
 }
 \details{
 See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how

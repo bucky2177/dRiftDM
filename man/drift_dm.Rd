@@ -50,15 +50,15 @@ See \link{set_obs_data} for more information.}
 to .001.}
 
 \item{mu_fun, mu_int_fun, x_fun, b_fun, dt_b_fun, nt_fun}{custom functions
-defining the components of a diffusion model. See the respective \verb{set_*}
-functions.}
+defining the components of a diffusion model. See the respective
+\code{set_comp_funs} function.}
 }
 \value{
 A list with the class label "drift_dm". In general, it is not
 recommended to directly modify the entries of this list. Users should use the
 built-in setter functions (e.g., \link{set_model_prms});
 see \code{vignette("use_ddm_models", "dRiftDM")} for more
-information). The list contains the following entries:
+information. The list contains the following entries:
 \itemize{
 \item The named numeric vector \code{prms_model}
 \item The character vector \code{conds}

@@ -28,7 +28,6 @@ a data.frame containing at least the columns \code{RT}, \code{Error}, and \code{
 column \code{Subject}
 }
 \description{
-Generate random responses and response times based on a diffusion model.
 This function simulates data based on the provided diffusion model. To this
 end, random samples from the model's predicted pdfs are drawn via approximate
 inverse cdf sampling.
