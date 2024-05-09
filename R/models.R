@@ -450,7 +450,7 @@ ssp_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
     free_prms = NULL, obs_data = obs_data, sigma = sigma,
     t_max = t_max, dt = dt, dx = dx, mu_fun = mu_ssp,
     mu_int_fun = dummy_t, x_fun = x_dirac_0, b_fun = b_constant,
-    dt_b_fun = dt_b_constant, nt_fun = nt_constant
+    dt_b_fun = dt_b_constant, nt_fun = nt_truncated_normal
   )
 
   class(ssp_dm) = c("ssp_dm", class(ssp_dm))
