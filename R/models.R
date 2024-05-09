@@ -246,6 +246,8 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' Per default the shape parameter `a` is set to 2 and not allowed to
 #' vary (i.e., is not listed in `free_prms`).
 #'
+#' @references
+#' \insertRef{Ulrichetal.2015}{dRiftDM}
 #'
 #' @export
 dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
@@ -407,7 +409,7 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opt
 #' @description
 #' This function creates a [dRiftDM::drift_dm] object that corresponds to a
 #' simple version of the shrinking spotlight model by
-#' \insertCite{Whitetal.2015;textual}{dRiftDM}.
+#' \insertCite{Whiteetal.2011;textual}{dRiftDM}.
 #'
 #' @param obs_data data.frame, an optional data.frame with the observed data.
 #' See [dRiftDM::set_obs_data].
@@ -436,6 +438,9 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opt
 #'
 #' Its parameters are:  `b`, `non_dec`, `sd_non_dec`, `p`, `sd_0`, and `r`.
 #' Per default, all parameters are assumed to be "free".
+#'
+#' @references
+#' \insertRef{Whiteetal.2011}{dRiftDM}
 #'
 #'
 #' @export

@@ -16,7 +16,7 @@ constant and discretization (see \link{drift_dm})}
 \description{
 This function creates a \link{drift_dm} object that corresponds to a
 simple version of the shrinking spotlight model by
-\insertCite{Whitetal.2015;textual}{dRiftDM}.
+\insertCite{Whiteetal.2011;textual}{dRiftDM}.
 }
 \details{
 The shrinking spotlight model is a model developed for the flanker task.
@@ -43,4 +43,7 @@ mean \code{non_dec} and standard deviation \code{sd_non_dec}.
 
 Its parameters are:  \code{b}, \code{non_dec}, \code{sd_non_dec}, \code{p}, \code{sd_0}, and \code{r}.
 Per default, all parameters are assumed to be "free".
+}
+\references{
+\insertRef{Whiteetal.2011}{dRiftDM}
 }
