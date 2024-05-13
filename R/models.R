@@ -618,6 +618,12 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'  process), `a` (shape..), `A` (amplitude...), `tau` (scale of the
 #'  automatic process).
 #'
+#' * `mu_ssp`, provides the drift rate for SSP.
+#'   Necessary parameters are `p` (perceptual input of flankers and
+#'  target), `sd_0` (initial spotlight width), `r` (shrinking rate of the
+#'  spotlight). Note that no `mu_int_ssp` exists.
+#'
+#'
 #' * `mu_int_constant`, provides the complementary integral to `mu_constant`.
 #'
 #' * `mu_int_dmc`, provides the complementary integral to `mu_dmc`.
