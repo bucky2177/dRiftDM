@@ -689,6 +689,8 @@ component_shelf <- function() {
   # mus
   components$mu_constant <- mu_constant
   components$mu_dmc <- mu_dmc
+  components$mu_ssp <- mu_ssp
+
 
   # mus int
   components$mu_int_constant <- mu_int_constant
