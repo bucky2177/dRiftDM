@@ -146,14 +146,14 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs,
   quants <- as.data.frame(quants)
   quants <- cbind(Cond = one_cond, Prob = probs, quants)
 
-  sum_pdf_l = sum(pdf_l)
-  sum_pdf_u = sum(pdf_u)
+  sum_pdf_l <- sum(pdf_l)
+  sum_pdf_u <- sum(pdf_u)
 
   if (sum_pdf_u / (sum_pdf_u + sum_pdf_l) >= 1 - skip_if_contr_low) {
-    quants["Quant_Err"] = NA
+    quants["Quant_Err"] <- NA
   }
   if (sum_pdf_u / (sum_pdf_u + sum_pdf_l) <= skip_if_contr_low) {
-    quants["Quant_Corr"] = NA
+    quants["Quant_Corr"] <- NA
   }
 
   return(quants)
@@ -212,16 +212,17 @@ calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err, one_cond,
 # for the character vectors minuends and subtrahends
 calc_delta_fun <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
                            dvs = NULL) {
-
   # input checks on data frame
   if (!is.data.frame(quantiles_dat)) {
     stop("the provided quantiles_dat is not a data.frame")
   }
-  nec_columns = c("Source", "Cond", "Prob", "Quant_Corr", "Quant_Err")
+  nec_columns <- c("Source", "Cond", "Prob", "Quant_Corr", "Quant_Err")
   if (any(colnames(quantiles_dat) != nec_columns)) {
-    stop("the provided quantiles_dat provides unexpected column names",
-         "\n\tprovided: ", paste(colnames(quantiles_dat), collapse = " "),
-         "\n\tnecessary: ", paste(nec_columns, collapse = " "))
+    stop(
+      "the provided quantiles_dat provides unexpected column names",
+      "\n\tprovided: ", paste(colnames(quantiles_dat), collapse = " "),
+      "\n\tnecessary: ", paste(nec_columns, collapse = " ")
+    )
   }
 
   # input checks on minuends/subtrahends
@@ -258,47 +259,51 @@ calc_delta_fun <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
 
   if (length(dvs) > 1 & length(dvs) != length(minuends)) {
     if (length(minuends) == 1) {
-      minuends = rep(minuends, length(dvs))
-      subtrahends = rep(subtrahends, length(dvs))
+      minuends <- rep(minuends, length(dvs))
+      subtrahends <- rep(subtrahends, length(dvs))
     } else {
       stop("if several dvs are provided, the length must match minuends/subtrahends")
     }
   }
 
   # reduce and make wide format
-  quantiles_dat = quantiles_dat[c("Source", "Cond", "Prob", dvs)]
+  quantiles_dat <- quantiles_dat[c("Source", "Cond", "Prob", dvs)]
 
-  n_probs = length(unique(quantiles_dat$Prob))
-  n_source = length(unique(quantiles_dat$Source))
-  n_cond = length(unique(quantiles_dat$Cond))
+  n_probs <- length(unique(quantiles_dat$Prob))
+  n_source <- length(unique(quantiles_dat$Source))
+  n_cond <- length(unique(quantiles_dat$Cond))
   if (nrow(quantiles_dat) != n_probs * n_source * n_cond) {
-    stop("quantiles_dat doesn't code uniquely rows solely by Probs, Source, ",
-         "and Cond")
+    stop(
+      "quantiles_dat doesn't code uniquely rows solely by Probs, Source, ",
+      "and Cond"
+    )
   }
-  quantiles_dat = stats::reshape(quantiles_dat, idvar = c("Source", "Prob"),
-                                 timevar = "Cond", direction = "wide", sep = "_")
+  quantiles_dat <- stats::reshape(quantiles_dat,
+    idvar = c("Source", "Prob"),
+    timevar = "Cond", direction = "wide", sep = "_"
+  )
 
   # calculate delta functions
 
   if (length(dvs) == 1) {
-    delta_names = paste("Delta", paste(minuends, subtrahends, sep = "_"), sep = "_")
-    avg_names = paste("Avg", paste(minuends, subtrahends, sep = "_"), sep = "_")
+    delta_names <- paste("Delta", paste(minuends, subtrahends, sep = "_"), sep = "_")
+    avg_names <- paste("Avg", paste(minuends, subtrahends, sep = "_"), sep = "_")
   } else {
-    delta_names = paste("Delta", gsub("^Quant_", "", dvs), sep = "_")
-    avg_names = paste("Avg", gsub("^Quant_", "", dvs), sep = "_")
-    delta_names = paste(delta_names, paste(minuends, subtrahends, sep = "_"), sep = "_")
-    avg_names = paste(avg_names, paste(minuends, subtrahends, sep = "_"), sep = "_")
+    delta_names <- paste("Delta", gsub("^Quant_", "", dvs), sep = "_")
+    avg_names <- paste("Avg", gsub("^Quant_", "", dvs), sep = "_")
+    delta_names <- paste(delta_names, paste(minuends, subtrahends, sep = "_"), sep = "_")
+    avg_names <- paste(avg_names, paste(minuends, subtrahends, sep = "_"), sep = "_")
   }
-  minuendss_wide = paste(dvs, minuends, sep = "_")
-  subtrahends_wide = paste(dvs, subtrahends, sep = "_")
+  minuendss_wide <- paste(dvs, minuends, sep = "_")
+  subtrahends_wide <- paste(dvs, subtrahends, sep = "_")
 
 
   for (i in seq_along(minuends)) {
-    vals_minuends = quantiles_dat[[minuendss_wide[i]]]
-    vals_subtrahends = quantiles_dat[[subtrahends_wide[i]]]
+    vals_minuends <- quantiles_dat[[minuendss_wide[i]]]
+    vals_subtrahends <- quantiles_dat[[subtrahends_wide[i]]]
 
-    quantiles_dat[[delta_names[i]]] = vals_minuends - vals_subtrahends
-    quantiles_dat[[avg_names[i]]] = 0.5*vals_minuends + 0.5*vals_subtrahends
+    quantiles_dat[[delta_names[i]]] <- vals_minuends - vals_subtrahends
+    quantiles_dat[[avg_names[i]]] <- 0.5 * vals_minuends + 0.5 * vals_subtrahends
   }
   return(quantiles_dat)
 }
@@ -391,8 +396,8 @@ calc_stats <- function(drift_dm_obj, type, source = "both", ...) {
 
 
   type <- sapply(type, function(x) {
-      match.arg(x, c("cafs", "quantiles", "delta_funs"))
-    })
+    match.arg(x, c("cafs", "quantiles", "delta_funs"))
+  })
   type <- unname(type)
 
 
@@ -456,12 +461,16 @@ calc_stats <- function(drift_dm_obj, type, source = "both", ...) {
         result <- do.call("rbind", result)
       }
       if (one_type == "delta_funs") {
-        interim <- calc_stats(drift_dm_obj, type = "quantiles", source = source,
-                              probs = dotdot$probs)
-        result <- calc_delta_fun(quantiles_dat = interim,
-                                 minuends = dotdot$minuends,
-                                 subtrahends = dotdot$subtrahends,
-                                 dvs = dotdot$dvs)
+        interim <- calc_stats(drift_dm_obj,
+          type = "quantiles", source = source,
+          probs = dotdot$probs
+        )
+        result <- calc_delta_fun(
+          quantiles_dat = interim,
+          minuends = dotdot$minuends,
+          subtrahends = dotdot$subtrahends,
+          dvs = dotdot$dvs
+        )
       }
 
       if (!is.null(result)) {

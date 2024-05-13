@@ -2,83 +2,106 @@ test_that("testing DMC", {
   a_dmc_model <- dmc_dm()
 
   # test the drift rate
-  mu_t <- a_dmc_model$comp_funs$mu_fun(prms_model = a_dmc_model$prms_model,
-                                       prms_solve = a_dmc_model$prms_solve,
-                                       t_vec =  c(0.002, 0.2),
-                                       one_cond =  "comp", ddm_opts = NULL)
+  mu_t <- a_dmc_model$comp_funs$mu_fun(
+    prms_model = a_dmc_model$prms_model,
+    prms_solve = a_dmc_model$prms_solve,
+    t_vec = c(0.002, 0.2),
+    one_cond = "comp", ddm_opts = NULL
+  )
   expect_equal(round(mu_t, 5), c(10.14106, 3.81684))
-  mu_t <- a_dmc_model$comp_funs$mu_fun(prms_model = a_dmc_model$prms_model,
-                                       prms_solve = a_dmc_model$prms_solve,
-                                       t_vec =  c(0.003, 0.3),
-                                       one_cond =  "incomp", ddm_opts = NULL)
+  mu_t <- a_dmc_model$comp_funs$mu_fun(
+    prms_model = a_dmc_model$prms_model,
+    prms_solve = a_dmc_model$prms_solve,
+    t_vec = c(0.003, 0.3),
+    one_cond = "incomp", ddm_opts = NULL
+  )
   expect_equal(round(mu_t, 5), c(-1.83182, 4.02443))
 
   # test integral of the drift rate
-  mu_t <- a_dmc_model$comp_funs$mu_int_fun(prms_model = a_dmc_model$prms_model,
-                                           prms_solve = a_dmc_model$prms_solve,
-                                           t_vec =  c(0.002, 0.2),
-                                           one_cond =  "comp", ddm_opts = NULL)
+  mu_t <- a_dmc_model$comp_funs$mu_int_fun(
+    prms_model = a_dmc_model$prms_model,
+    prms_solve = a_dmc_model$prms_solve,
+    t_vec = c(0.002, 0.2),
+    one_cond = "comp", ddm_opts = NULL
+  )
   expect_equal(round(mu_t, 6), c(0.020929, 0.809158))
-  mu_t <- a_dmc_model$comp_funs$mu_int_fun(prms_model = a_dmc_model$prms_model,
-                                           prms_solve = a_dmc_model$prms_solve,
-                                           t_vec =  c(0.003, 0.3),
-                                           one_cond =  "incomp", ddm_opts = NULL)
+  mu_t <- a_dmc_model$comp_funs$mu_int_fun(
+    prms_model = a_dmc_model$prms_model,
+    prms_solve = a_dmc_model$prms_solve,
+    t_vec = c(0.003, 0.3),
+    one_cond = "incomp", ddm_opts = NULL
+  )
   expect_equal(round(mu_t, 6), c(-0.006914, 1.198872))
 
   # test the drift rate with a != 2
   temp <- a_dmc_model
   temp$prms_model[["a"]] <- 2.1
-  mu_t <- temp$comp_funs$mu_fun(prms_model = temp$prms_model,
-                                       prms_solve = temp$prms_solve,
-                                       t_vec =  c(0.002, 0.2),
-                                       one_cond =  "comp", ddm_opts = NULL)
+  mu_t <- temp$comp_funs$mu_fun(
+    prms_model = temp$prms_model,
+    prms_solve = temp$prms_solve,
+    t_vec = c(0.002, 0.2),
+    one_cond = "comp", ddm_opts = NULL
+  )
   expect_equal(round(mu_t, 5), c(8.99534, 3.79313))
-  mu_t <- temp$comp_funs$mu_fun(prms_model = temp$prms_model,
-                                       prms_solve = temp$prms_solve,
-                                       t_vec =  c(0.003, 0.3),
-                                       one_cond =  "incomp", ddm_opts = NULL)
+  mu_t <- temp$comp_funs$mu_fun(
+    prms_model = temp$prms_model,
+    prms_solve = temp$prms_solve,
+    t_vec = c(0.003, 0.3),
+    one_cond = "incomp", ddm_opts = NULL
+  )
   expect_equal(round(mu_t, 5), c(-0.91730, 4.02898))
 
   # test integral of the drift rate
-  mu_t <- temp$comp_funs$mu_int_fun(prms_model = temp$prms_model,
-                                           prms_solve = temp$prms_solve,
-                                           t_vec =  c(0.002, 0.2),
-                                           one_cond =  "comp", ddm_opts = NULL)
+  mu_t <- temp$comp_funs$mu_int_fun(
+    prms_model = temp$prms_model,
+    prms_solve = temp$prms_solve,
+    t_vec = c(0.002, 0.2),
+    one_cond = "comp", ddm_opts = NULL
+  )
   expect_equal(round(mu_t, 7), c(0.0175355, 0.810705))
-  mu_t <- temp$comp_funs$mu_int_fun(prms_model = temp$prms_model,
-                                           prms_solve = temp$prms_solve,
-                                           t_vec =  c(0.003, 0.3),
-                                           one_cond =  "incomp", ddm_opts = NULL)
+  mu_t <- temp$comp_funs$mu_int_fun(
+    prms_model = temp$prms_model,
+    prms_solve = temp$prms_solve,
+    t_vec = c(0.003, 0.3),
+    one_cond = "incomp", ddm_opts = NULL
+  )
   expect_equal(round(mu_t, 6), c(-0.002527, 1.198627))
 
 
   # test the boundary
-  b_t <- a_dmc_model$comp_funs$b_fun(prms_model = a_dmc_model$prms_model,
-                                     prms_solve = a_dmc_model$prms_solve,
-                                     t_vec =  c(0.002, 0.2),
-                                     one_cond =  "comp", ddm_opts = NULL)
+  b_t <- a_dmc_model$comp_funs$b_fun(
+    prms_model = a_dmc_model$prms_model,
+    prms_solve = a_dmc_model$prms_solve,
+    t_vec = c(0.002, 0.2),
+    one_cond = "comp", ddm_opts = NULL
+  )
   expect_equal(b_t, c(0.6, 0.6))
-  dt_b_t <- a_dmc_model$comp_funs$dt_b_fun(prms_model = a_dmc_model$prms_model,
-                                           prms_solve = a_dmc_model$prms_solve,
-                                           t_vec =  c(0.002, 0.2),
-                                           one_cond =  "comp", ddm_opts = NULL)
+  dt_b_t <- a_dmc_model$comp_funs$dt_b_fun(
+    prms_model = a_dmc_model$prms_model,
+    prms_solve = a_dmc_model$prms_solve,
+    t_vec = c(0.002, 0.2),
+    one_cond = "comp", ddm_opts = NULL
+  )
   expect_equal(dt_b_t, c(0, 0))
 
   # test the starting condition
   x_seq <- seq(-1, 1, length.out = a_dmc_model$prms_solve[["nx"]] + 1)
-  x_x <- a_dmc_model$comp_funs$x_fun(prms_model = a_dmc_model$prms_model,
-                                     prms_solve = a_dmc_model$prms_solve,
-                                     x_vec =  x_seq,
-                                     one_cond =  "comp", ddm_opts = NULL)
+  x_x <- a_dmc_model$comp_funs$x_fun(
+    prms_model = a_dmc_model$prms_model,
+    prms_solve = a_dmc_model$prms_solve,
+    x_vec = x_seq,
+    one_cond = "comp", ddm_opts = NULL
+  )
   x_seq <- seq(0, 1, length.out = a_dmc_model$prms_solve[["nx"]] + 1)
   d_x <- stats::dbeta(x_seq, 4, 4) / 2
   expect_identical(d_x, x_x)
 
   # test the non-decision time
-  pdf_nt <- a_dmc_model$comp_funs$nt_fun(prms_model = a_dmc_model$prms_model,
-                                         prms_solve = a_dmc_model$prms_solve,
-                                         t_vec = seq(0, 1, 0.005),
-                                         one_cond =  "comp", ddm_opts = NULL
+  pdf_nt <- a_dmc_model$comp_funs$nt_fun(
+    prms_model = a_dmc_model$prms_model,
+    prms_solve = a_dmc_model$prms_solve,
+    t_vec = seq(0, 1, 0.005),
+    one_cond = "comp", ddm_opts = NULL
   )
   pdf_test <- truncnorm::dtruncnorm(seq(0, 1, .005), a = 0, mean = 0.3, sd = .02)
   expect_equal(pdf_test, pdf_nt)
@@ -86,9 +109,13 @@ test_that("testing DMC", {
   #####
   # compare with kfe created by Thomas's python code
   a_dmc_model <- dmc_dm(t_max = 1000, dt = 5, dx = .1, sigma = 4)
-  a_dmc_model <- set_model_prms(a_dmc_model,
-                                c(muc = 0.5, b = 75, non_dec = 300,
-                                  sd_non_dec = 30, tau = 50, A = 20, alpha = 2))
+  a_dmc_model <- set_model_prms(
+    a_dmc_model,
+    c(
+      muc = 0.5, b = 75, non_dec = 300,
+      sd_non_dec = 30, tau = 50, A = 20, alpha = 2
+    )
+  )
 
   pdfs_comp <- re_evaluate_model(a_dmc_model)$pdfs[["comp"]]
 
@@ -96,10 +123,11 @@ test_that("testing DMC", {
   pdf_u_comp <- read.table(test_path("fixtures", "pdf_u_cong.txt"))$V1
   pdf_l_comp <- read.table(test_path("fixtures", "pdf_l_cong.txt"))$V1
   # convolute it correctly
-  pdf_nt <- a_dmc_model$comp_funs$nt_fun(prms_model = a_dmc_model$prms_model,
-                                         prms_solve = a_dmc_model$prms_solve,
-                                         t_vec = seq(0, 1000, 5),
-                                         one_cond =  "comp", ddm_opts = NULL
+  pdf_nt <- a_dmc_model$comp_funs$nt_fun(
+    prms_model = a_dmc_model$prms_model,
+    prms_solve = a_dmc_model$prms_solve,
+    t_vec = seq(0, 1000, 5),
+    one_cond = "comp", ddm_opts = NULL
   )
   pdf_u_comp <- stats::convolve(pdf_nt, rev(pdf_u_comp)) * 5
   pdf_l_comp <- stats::convolve(pdf_nt, rev(pdf_l_comp)) * 5
@@ -121,10 +149,14 @@ test_that("testing DMC", {
 
   ## roughly compare with DMCfun # 1
   a_dmc_model <- dmc_dm()
-  a_dmc_model <- set_model_prms(a_dmc_model,
-                                c(muc = 4, b = 0.6, non_dec = 0.3,
-                                  sd_non_dec = 0.02, tau = 0.04, A =  0.1,
-                                  alpha = 4))
+  a_dmc_model <- set_model_prms(
+    a_dmc_model,
+    c(
+      muc = 4, b = 0.6, non_dec = 0.3,
+      sd_non_dec = 0.02, tau = 0.04, A = 0.1,
+      alpha = 4
+    )
+  )
   sim_data <- DMCfun::dmcSim(
     drc = 0.5059644,
     bnds = 75.89466,
@@ -178,9 +210,11 @@ test_that("testing DMC", {
 
   ## roughly compare with DMCfun # 2
   a_dmc_model <- dmc_dm()
-  a_dmc_model <- set_model_prms(a_dmc_model, c(muc = 4, b = 0.6,
-                                               non_dec = 0.3, sd_non_dec = 0.02,
-                                               tau = 0.04, A = 0, alpha = 4))
+  a_dmc_model <- set_model_prms(a_dmc_model, c(
+    muc = 4, b = 0.6,
+    non_dec = 0.3, sd_non_dec = 0.02,
+    tau = 0.04, A = 0, alpha = 4
+  ))
   funs <- get_default_functions()
   a_dmc_model$comp_funs$x_fun <- funs$x_fun # no starting point distribution
   sim_data <- DMCfun::dmcSim(
@@ -238,45 +272,56 @@ test_that("ratcliff_simple works as expected", {
   a_model <- ratcliff_dm()
 
   # test the drift rate
-  mu_t <- a_model$comp_funs$mu_fun(prms_model = a_model$prms_model,
-                                   prms_solve = a_model$prms_solve,
-                                   t_vec = c(0.002, 0.2), one_cond = "w",
-                                   ddm_opts = NULL)
+  mu_t <- a_model$comp_funs$mu_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(mu_t, c(3, 3))
-  mu_t <- a_model$comp_funs$mu_int_fun(prms_model = a_model$prms_model,
-                                       prms_solve = a_model$prms_solve,
-                                       t_vec = c(0.002, 0.2), one_cond = "w",
-                                       ddm_opts = NULL)
+  mu_t <- a_model$comp_funs$mu_int_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(mu_t, c(3 * 0.002, 3 * 0.2))
 
   # test the boundary
-  b_t <- a_model$comp_funs$b_fun(prms_model = a_model$prms_model,
-                                 prms_solve = a_model$prms_solve,
-                                 t_vec = c(0.002, 0.2), one_cond = "w",
-                                 ddm_opts = NULL)
+  b_t <- a_model$comp_funs$b_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(b_t, c(0.6, 0.6))
-  dt_b_t <- a_model$comp_funs$dt_b_fun(prms_model = a_model$prms_model,
-                                       prms_solve = a_model$prms_solve,
-                                       t_vec = c(0.002, 0.2), one_cond = "w",
-                                       ddm_opts = NULL)
+  dt_b_t <- a_model$comp_funs$dt_b_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(dt_b_t, c(0, 0))
 
   # test the starting condition
   x_seq <- seq(-1, 1, length.out = a_model$prms_solve[["nx"]] + 1)
-  x_x <- a_model$comp_funs$x_fun(prms_model = a_model$prms_model,
-                                 prms_solve = a_model$prms_solve,
-                                 x_vec = x_seq, one_cond = "w",
-                                 ddm_opts = NULL)
+  x_x <- a_model$comp_funs$x_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    x_vec = x_seq, one_cond = "w",
+    ddm_opts = NULL
+  )
   d_x <- rep(0, a_model$prms_solve[["nx"]] + 1)
   d_x[(a_model$prms_solve[["nx"]] + 2) / 2] <- 1 / a_model$prms_solve[["dx"]]
   expect_identical(d_x, x_x)
 
   # test the non-decision time
-  pdf_nt <- a_model$comp_funs$nt_fun(prms_model = a_model$prms_model,
-                                     prms_solve = a_model$prms_solve,
-                                     t_vec = seq(0, 3, a_model$prms_solve[["dt"]]),
-                                     one_cond = "w",
-                                     ddm_opts = NULL
+  pdf_nt <- a_model$comp_funs$nt_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = seq(0, 3, a_model$prms_solve[["dt"]]),
+    one_cond = "w",
+    ddm_opts = NULL
   )
   pdf_test <- rep(0, a_model$prms_solve[["nt"]] + 1)
 
@@ -330,57 +375,68 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
   a_model <- ratcliff_dm(var_non_dec = T)
 
   # test the drift rate
-  mu_t <- a_model$comp_funs$mu_fun(prms_model = a_model$prms_model,
-                                   prms_solve = a_model$prms_solve,
-                                   t_vec = c(0.002, 0.2), one_cond = "w",
-                                   ddm_opts = NULL)
+  mu_t <- a_model$comp_funs$mu_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(mu_t, c(3, 3))
-  mu_t <- a_model$comp_funs$mu_int_fun(prms_model = a_model$prms_model,
-                                       prms_solve = a_model$prms_solve,
-                                       t_vec = c(0.002, 0.2), one_cond = "w",
-                                       ddm_opts = NULL)
+  mu_t <- a_model$comp_funs$mu_int_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(mu_t, c(3 * 0.002, 3 * 0.2))
 
   # test the boundary
-  b_t <- a_model$comp_funs$b_fun(prms_model = a_model$prms_model,
-                                 prms_solve = a_model$prms_solve,
-                                 t_vec = c(0.002, 0.2), one_cond = "w",
-                                 ddm_opts = NULL)
+  b_t <- a_model$comp_funs$b_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(b_t, c(0.6, 0.6))
-  dt_b_t <- a_model$comp_funs$dt_b_fun(prms_model = a_model$prms_model,
-                                       prms_solve = a_model$prms_solve,
-                                       t_vec = c(0.002, 0.2), one_cond = "w",
-                                       ddm_opts = NULL)
+  dt_b_t <- a_model$comp_funs$dt_b_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(dt_b_t, c(0, 0))
 
   # test the starting condition
   x_seq <- seq(-1, 1, length.out = a_model$prms_solve[["nx"]] + 1)
-  x_x <- a_model$comp_funs$x_fun(prms_model = a_model$prms_model,
-                                 prms_solve = a_model$prms_solve,
-                                 x_vec = x_seq, one_cond = "w",
-                                 ddm_opts = NULL)
+  x_x <- a_model$comp_funs$x_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    x_vec = x_seq, one_cond = "w",
+    ddm_opts = NULL
+  )
   d_x <- rep(0, a_model$prms_solve[["nx"]] + 1)
   d_x[(a_model$prms_solve[["nx"]] + 2) / 2] <- 1 / a_model$prms_solve[["dx"]]
   expect_identical(d_x, x_x)
 
   # test the non-decision time
-  pdf_nt <- a_model$comp_funs$nt_fun(prms_model = a_model$prms_model,
-                                     prms_solve = a_model$prms_solve,
-                                     t_vec = seq(0, 3, a_model$prms_solve[["dx"]]),
-                                     one_cond = "w",
-                                     ddm_opts = NULL
+  pdf_nt <- a_model$comp_funs$nt_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = seq(0, 3, a_model$prms_solve[["dx"]]),
+    one_cond = "w",
+    ddm_opts = NULL
   )
-  t_vec = seq(0, a_model$prms_solve[["t_max"]], a_model$prms_solve[["dt"]])
+  t_vec <- seq(0, a_model$prms_solve[["t_max"]], a_model$prms_solve[["dt"]])
   pdf_test <- numeric(length(t_vec))
-  min_cut = a_model$prms_model[["non_dec"]] - a_model$prms_model[["range_non_dec"]] / 2
-  min_cut = min_cut / a_model$prms_solve[["dt"]] + 1
-  max_cut = a_model$prms_model[["non_dec"]] + a_model$prms_model[["range_non_dec"]] / 2
-  max_cut = max_cut / a_model$prms_solve[["dt"]] + 1
-  max_cut = round(max_cut)
-  min_cut = round(min_cut)
+  min_cut <- a_model$prms_model[["non_dec"]] - a_model$prms_model[["range_non_dec"]] / 2
+  min_cut <- min_cut / a_model$prms_solve[["dt"]] + 1
+  max_cut <- a_model$prms_model[["non_dec"]] + a_model$prms_model[["range_non_dec"]] / 2
+  max_cut <- max_cut / a_model$prms_solve[["dt"]] + 1
+  max_cut <- round(max_cut)
+  min_cut <- round(min_cut)
 
-  pdf_test[min_cut:max_cut] = 1
-  pdf_test = pdf_test / (sum(pdf_test) * a_model$prms_solve[["dt"]])
+  pdf_test[min_cut:max_cut] <- 1
+  pdf_test <- pdf_test / (sum(pdf_test) * a_model$prms_solve[["dt"]])
 
   expect_equal(pdf_test, pdf_nt)
 
@@ -394,46 +450,59 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
   a_model <- ratcliff_dm(var_start = T)
 
   # test the drift rate
-  mu_t <- a_model$comp_funs$mu_fun(prms_model = a_model$prms_model,
-                                   prms_solve = a_model$prms_solve,
-                                   t_vec = c(0.002, 0.2), one_cond = "w",
-                                   ddm_opts = NULL)
+  mu_t <- a_model$comp_funs$mu_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(mu_t, c(3, 3))
-  mu_t <- a_model$comp_funs$mu_int_fun(prms_model = a_model$prms_model,
-                                       prms_solve = a_model$prms_solve,
-                                       t_vec = c(0.002, 0.2), one_cond = "w",
-                                       ddm_opts = NULL)
+  mu_t <- a_model$comp_funs$mu_int_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(mu_t, c(3 * 0.002, 3 * 0.2))
 
   # test the boundary
-  b_t <- a_model$comp_funs$b_fun(prms_model = a_model$prms_model,
-                                 prms_solve = a_model$prms_solve,
-                                 t_vec = c(0.002, 0.2), one_cond = "w",
-                                 ddm_opts = NULL)
+  b_t <- a_model$comp_funs$b_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(b_t, c(0.6, 0.6))
-  dt_b_t <- a_model$comp_funs$dt_b_fun(prms_model = a_model$prms_model,
-                                       prms_solve = a_model$prms_solve,
-                                       t_vec = c(0.002, 0.2), one_cond = "w",
-                                       ddm_opts = NULL)
+  dt_b_t <- a_model$comp_funs$dt_b_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = c(0.002, 0.2), one_cond = "w",
+    ddm_opts = NULL
+  )
   expect_equal(dt_b_t, c(0, 0))
 
   # test the starting condition
   x_seq <- seq(-1, 1, length.out = a_model$prms_solve[["nx"]] + 1)
-  x_x <- a_model$comp_funs$x_fun(prms_model = a_model$prms_model,
-                                 prms_solve = a_model$prms_solve,
-                                 x_vec = x_seq, one_cond = "w",
-                                 ddm_opts = NULL)
+  x_x <- a_model$comp_funs$x_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    x_vec = x_seq, one_cond = "w",
+    ddm_opts = NULL
+  )
 
-  pdf_test <- dunif(x_seq, 0 - a_model$prms_model[["range_start"]]/2,
-                    0 + a_model$prms_model[["range_start"]] / 2)
+  pdf_test <- dunif(
+    x_seq, 0 - a_model$prms_model[["range_start"]] / 2,
+    0 + a_model$prms_model[["range_start"]] / 2
+  )
   expect_identical(pdf_test, x_x)
 
   # test the non-decision time
-  pdf_nt <- a_model$comp_funs$nt_fun(prms_model = a_model$prms_model,
-                                     prms_solve = a_model$prms_solve,
-                                     t_vec = seq(0, 3, a_model$prms_solve[["dt"]]),
-                                     one_cond = "w",
-                                     ddm_opts = NULL
+  pdf_nt <- a_model$comp_funs$nt_fun(
+    prms_model = a_model$prms_model,
+    prms_solve = a_model$prms_solve,
+    t_vec = seq(0, 3, a_model$prms_solve[["dt"]]),
+    one_cond = "w",
+    ddm_opts = NULL
   )
   pdf_test <- rep(0, a_model$prms_solve[["nt"]] + 1)
 
@@ -441,14 +510,10 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
   pdf_test[0.3 / a_model$prms_solve[["dt"]] + 1] <- 1 / a_model$prms_solve[["dt"]]
   expect_equal(pdf_test, pdf_nt)
 
-  a_model$prms_model[["range_start"]] = 0.8
+  a_model$prms_model[["range_start"]] <- 0.8
 
   pdfs <- re_evaluate_model(a_model)$pdfs[["null"]]
   pdfs[[1]] <- pdfs[[1]] / sum(pdfs[[1]])
   pdfs[[2]] <- pdfs[[2]] / sum(pdfs[[2]])
   expect_false(all(abs(pdfs[[1]] - pdfs[[2]]) < 0.001))
 })
-
-
-
-

@@ -78,7 +78,7 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
     warning("obs_data in drift_dm_obj will be ignored and deleted")
     drift_dm_obj$obs_data <- NULL
   }
-  drift_dm_obj = validate_drift_dm(drift_dm_obj)
+  drift_dm_obj <- validate_drift_dm(drift_dm_obj)
 
 
   if (!is.data.frame(obs_data_subject)) {
@@ -89,16 +89,17 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
   }
 
   # check if data makes sense
-  obs_data_subject = check_raw_data(obs_data_subject)
+  obs_data_subject <- check_raw_data(obs_data_subject)
   if (drift_dm_obj$prms_solve[["t_max"]] < max(obs_data_subject$RT)) {
-    stop("t_max in drift_dm_obj is smaller than maximum RT. ",
-         "Please adjust before calling estimate_model_subjects")
+    stop(
+      "t_max in drift_dm_obj is smaller than maximum RT. ",
+      "Please adjust before calling estimate_model_subjects"
+    )
   }
 
   # check if lower or upper are named numeric vectors and unname them
   # (after sorting of course)
   if (!is.null(names(lower)) | !is.null(names(upper))) {
-
     if (is.null(names(lower)) & !is.null(names(upper))) {
       stop("upper is a named numeric vector, but lower isn't")
     }
@@ -106,15 +107,19 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
       stop("lower is a named numeric vector, but upper isn't")
     }
 
-    check_if_named_numeric_vector(x = lower, var_name = "lower",
-                                  labels = drift_dm_obj$free_prms)
-    check_if_named_numeric_vector(x = upper, var_name = "upper",
-                                  labels = drift_dm_obj$free_prms)
+    check_if_named_numeric_vector(
+      x = lower, var_name = "lower",
+      labels = drift_dm_obj$free_prms
+    )
+    check_if_named_numeric_vector(
+      x = upper, var_name = "upper",
+      labels = drift_dm_obj$free_prms
+    )
 
-    lower = lower[drift_dm_obj$free_prms]
-    lower = unname(lower)
-    upper = upper[drift_dm_obj$free_prms]
-    upper = unname(upper)
+    lower <- lower[drift_dm_obj$free_prms]
+    lower <- unname(lower)
+    upper <- upper[drift_dm_obj$free_prms]
+    upper <- unname(upper)
   }
 
 
@@ -216,10 +221,12 @@ estimate_model_subjects <- function(drift_dm_obj, obs_data_subject, lower,
     }, folder_name = folder_name)
 
     if (any(files_exist)) {
-      message("There are already files saved in ", folder_name,
-              ". Skipping individuals with a corresponding identifier...",
-              "\nIf you want to re-fit all ",
-              "individuals, specify the argument force_refit = T!")
+      message(
+        "There are already files saved in ", folder_name,
+        ". Skipping individuals with a corresponding identifier...",
+        "\nIf you want to re-fit all ",
+        "individuals, specify the argument force_refit = T!"
+      )
     }
     list_obs_data <- list_obs_data[!files_exist]
   }

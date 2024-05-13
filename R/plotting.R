@@ -59,10 +59,12 @@ plot_traces <- function(drift_dm_obj, k, conds = NULL, add_x = FALSE, seed = NUL
   }
 
   b_vecs <- sapply(unique_conds, function(x) {
-    drift_dm_obj$comp_funs$b_fun(prms_model = drift_dm_obj$prms_model,
-                                 prms_solve = drift_dm_obj$prms_solve,
-                                 t_vec = t_vec, one_cond = x,
-                                 ddm_opts = drift_dm_obj$ddm_opts)
+    drift_dm_obj$comp_funs$b_fun(
+      prms_model = drift_dm_obj$prms_model,
+      prms_solve = drift_dm_obj$prms_solve,
+      t_vec = t_vec, one_cond = x,
+      ddm_opts = drift_dm_obj$ddm_opts
+    )
   })
 
   if (is.null(y_lim)) {
@@ -186,7 +188,7 @@ plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
 
   if (!is.null(line_cols_cafs)) {
     if (length(line_cols_cafs) == 1) {
-      line_cols_cafs = rep(line_cols_cafs, length(unique_conds))
+      line_cols_cafs <- rep(line_cols_cafs, length(unique_conds))
     } else {
       if (length(line_cols_cafs) != length(unique_conds)) {
         stop("number of line_cols must match the number of conditions")
@@ -207,7 +209,8 @@ plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
     sub_dat_obs <- sub_dat[sub_dat$Source == "obs", ]
     if (nrow(sub_dat_obs) > 0) {
       graphics::points(sub_dat_obs$P_Corr ~ sub_dat_obs$Bin,
-                       col = line_cols_cafs[idx])
+        col = line_cols_cafs[idx]
+      )
     }
 
     sub_dat_pred <- sub_dat[sub_dat$Source == "pred", ]
@@ -251,7 +254,7 @@ plot_quantiles <- function(obj, source = "both",
   if (is.null(dv_quantiles)) {
     dv_quantiles <- "Quant_Corr"
   }
-  dv_quantiles = match.arg(dv_quantiles, c("Quant_Err", "Quant_Corr"))
+  dv_quantiles <- match.arg(dv_quantiles, c("Quant_Err", "Quant_Corr"))
 
   agg_factors <- c("Source", "Cond", "Prob")
   stopifnot(agg_factors %in% colnames(quantiles))
@@ -288,7 +291,7 @@ plot_quantiles <- function(obj, source = "both",
 
   if (!is.null(line_cols_quantiles)) {
     if (length(line_cols_quantiles) == 1) {
-      line_cols_quantiles = rep(line_cols_quantiles, length(unique_conds))
+      line_cols_quantiles <- rep(line_cols_quantiles, length(unique_conds))
     } else {
       if (length(line_cols_quantiles) != length(unique_conds)) {
         stop("number of line_cols_quantiles must match the number of conditions")
@@ -334,7 +337,6 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
                            x_lab_deltas = NULL, y_lab_deltas = NULL,
                            x_lim_deltas = NULL, y_lim_deltas = NULL,
                            line_cols_deltas = NULL, ...) {
-
   if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
     stop("obj is not of type drift_dm or dm_fits_subjects")
   }
@@ -354,16 +356,16 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
     )
   }
 
-  delta_columns =
+  delta_columns <-
     names(delta_fun)[grepl(pattern = "^Delta", names(delta_fun))]
-  avg_columns =
+  avg_columns <-
     names(delta_fun)[grepl(pattern = "^Avg", names(delta_fun))]
 
   agg_factors <- c("Source", "Prob")
   stopifnot(agg_factors %in% colnames(delta_fun))
   delta_fun <- stats::aggregate(delta_fun[c(delta_columns, avg_columns)],
-                                by = delta_fun[agg_factors],
-                                FUN = mean
+    by = delta_fun[agg_factors],
+    FUN = mean
   )
 
   if (inherits(obj, "drift_dm")) {
@@ -391,7 +393,7 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
 
   if (!is.null(line_cols_deltas)) {
     if (length(line_cols_deltas) == 1) {
-      line_cols_deltas = rep(line_cols_deltas, length(delta_columns))
+      line_cols_deltas <- rep(line_cols_deltas, length(delta_columns))
     } else {
       if (length(line_cols_deltas) != length(delta_columns)) {
         stop("number of line_cols_deltas must match the number of delta columns")
@@ -404,8 +406,8 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
 
   # prepare plot
   plot(c(1, 2) ~ c(1, 1),
-       col = "white", xlab = x_lab_deltas, ylab = y_lab_deltas,
-       xlim = x_lim_deltas, ylim = y_lim_deltas
+    col = "white", xlab = x_lab_deltas, ylab = y_lab_deltas,
+    xlim = x_lim_deltas, ylim = y_lim_deltas
   )
 
 
@@ -414,21 +416,21 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
     sub_dat_obs <- sub_dat_obs[c(delta_columns[idx], avg_columns[idx])]
     if (nrow(sub_dat_obs) > 0) {
       graphics::points(sub_dat_obs[[1]] ~ sub_dat_obs[[2]],
-                       col = line_cols_deltas[idx]
+        col = line_cols_deltas[idx]
       )
     }
     sub_dat_pred <- delta_fun[delta_fun$Source == "pred", ]
     sub_dat_pred <- sub_dat_pred[c(delta_columns[idx], avg_columns[idx])]
     if (nrow(sub_dat_pred) > 0) {
       graphics::points(sub_dat_pred[[1]] ~ sub_dat_pred[[2]],
-                       ty = "l", col = line_cols_deltas[idx]
+        ty = "l", col = line_cols_deltas[idx]
       )
     }
   }
 
   graphics::legend("bottomright",
-                   legend = gsub("Delta_", "", delta_columns),
-                   col = line_cols_deltas, lty = 1
+    legend = gsub("Delta_", "", delta_columns),
+    col = line_cols_deltas, lty = 1
   )
 }
 
@@ -497,7 +499,6 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
 #'
 #' @export
 plot_stats <- function(obj, type, source = "both", mfrow = NULL, ...) {
-
   if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
     stop("obj is not of type drift_dm or dm_fits_subjects")
   }
@@ -517,13 +518,15 @@ plot_stats <- function(obj, type, source = "both", mfrow = NULL, ...) {
 
   # plot the requested plots sequentially
   for (one_type in type) {
-
-    if (one_type == "cafs")
+    if (one_type == "cafs") {
       plot_cafs(obj = obj, source = source, ...)
-    if (one_type == "quantiles")
+    }
+    if (one_type == "quantiles") {
       plot_quantiles(obj = obj, source = source, ...)
-    if (one_type == "delta_funs")
+    }
+    if (one_type == "delta_funs") {
       plot_delta_fun(obj = obj, source = source, ...)
+    }
   }
 }
 
@@ -594,25 +597,24 @@ plot_prms <- function(fits_subjects, include_fit_values = F, col = "skyblue",
 #' @export
 plot_model_comps <- function(drift_dm_obj, line_cols = NULL,
                              xlim_time = NULL) {
-
   # unpack parameters and conduct input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("argument drift_dm_obj is not not of type drift_dm")
   }
 
 
-  nx = drift_dm_obj$prms_solve[["nx"]]
-  nt = drift_dm_obj$prms_solve[["nt"]]
-  t_max = drift_dm_obj$prms_solve[["t_max"]]
-  x_vec = seq(-1, 1, length.out = nx + 1)
-  t_vec = seq(0, t_max, length.out = nt + 1)
-  conds = drift_dm_obj$conds
+  nx <- drift_dm_obj$prms_solve[["nx"]]
+  nt <- drift_dm_obj$prms_solve[["nt"]]
+  t_max <- drift_dm_obj$prms_solve[["t_max"]]
+  x_vec <- seq(-1, 1, length.out = nx + 1)
+  t_vec <- seq(0, t_max, length.out = nt + 1)
+  conds <- drift_dm_obj$conds
 
   if (is.null(line_cols)) {
-    line_cols = grDevices::rainbow(n = length(conds))
+    line_cols <- grDevices::rainbow(n = length(conds))
   }
   if (length(line_cols) == 1) {
-      line_cols = rep(line_cols, length(conds))
+    line_cols <- rep(line_cols, length(conds))
   } else {
     if (length(line_cols) != length(conds)) {
       stop("number of line_cols must match the number of delta columns")
@@ -622,130 +624,172 @@ plot_model_comps <- function(drift_dm_obj, line_cols = NULL,
 
 
   if (is.null(xlim_time)) {
-    xlim_time = c(0, t_max/2)
+    xlim_time <- c(0, t_max / 2)
   }
   if (!is.numeric(xlim_time) | length(xlim_time) != 2) {
-      stop("xlim_time must be a numeric vector of length 2")
+    stop("xlim_time must be a numeric vector of length 2")
   }
 
 
-  withr::local_par(mfrow = c(3,2))
+  withr::local_par(mfrow = c(3, 2))
 
-  try({
-    # plot the drift rate
-    drift_rates = sapply(conds, function(one_cond){
-      drift_dm_obj$comp_funs$mu_fun(prms_model = drift_dm_obj$prms_model,
-                                    prms_solve = drift_dm_obj$prms_solve,
-                                    t_vec = t_vec, one_cond = one_cond,
-                                    ddm_opts = drift_dm_obj$ddm_opts)
-    }, simplify = F, USE.NAMES = T)
-    y_lim_drift_rate = range(unlist(drift_rates))
+  try(
+    {
+      # plot the drift rate
+      drift_rates <- sapply(conds, function(one_cond) {
+        drift_dm_obj$comp_funs$mu_fun(
+          prms_model = drift_dm_obj$prms_model,
+          prms_solve = drift_dm_obj$prms_solve,
+          t_vec = t_vec, one_cond = one_cond,
+          ddm_opts = drift_dm_obj$ddm_opts
+        )
+      }, simplify = F, USE.NAMES = T)
+      y_lim_drift_rate <- range(unlist(drift_rates))
 
-    plot(c(1,2) ~ c(1,1) , col = "white", xlim = xlim_time,
-         ylab = "Drift Rate", xlab = "Time [s]", ylim = y_lim_drift_rate,
-         main = "mu_fun")
+      plot(c(1, 2) ~ c(1, 1),
+        col = "white", xlim = xlim_time,
+        ylab = "Drift Rate", xlab = "Time [s]", ylim = y_lim_drift_rate,
+        main = "mu_fun"
+      )
 
-    for (i in seq_along(conds) ) {
-      points(drift_rates[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
-    }
-  }, silent = T)
-
-
-  try({
-    # plot the integral of the drift rate
-    drift_rates_int = sapply(conds, function(one_cond){
-      drift_dm_obj$comp_funs$mu_int_fun(prms_model = drift_dm_obj$prms_model,
-                                        prms_solve = drift_dm_obj$prms_solve,
-                                    t_vec = t_vec, one_cond = one_cond,
-                                    ddm_opts = drift_dm_obj$ddm_opts)
-    }, simplify = F, USE.NAMES = T)
-    y_lim_drift_rate_in = range(unlist(drift_rates_int))
-
-    plot(c(1,2) ~ c(1,1) , col = "white", xlim = xlim_time,
-         ylab = "Drift", xlab = "Time [s]", ylim = y_lim_drift_rate_in,
-         main = "mu_int_fun")
-
-    for (i in seq_along(conds) ) {
-      points(drift_rates_int[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
-    }
-  }, silent = T)
-
-  try({
-    # plot the starting condition
-    x_vals = sapply(conds, function(one_cond){
-      drift_dm_obj$comp_funs$x_fun(prms_model = drift_dm_obj$prms_model,
-                                    prms_solve = drift_dm_obj$prms_solve,
-                                    x_vec = x_vec, one_cond = one_cond,
-                                    ddm_opts = drift_dm_obj$ddm_opts)
-    }, simplify = F, USE.NAMES = T)
-    y_lim_x_vals = range(unlist(x_vals))
-
-    plot(c(1,2) ~ c(1,1) , col = "white", xlim = c(-1, 1),
-         ylab = "Density", xlab = "Evidence Value", ylim = y_lim_x_vals,
-         main = "x_fun")
-
-    for (i in seq_along(conds) ) {
-      points(x_vals[[conds[i]]] ~ x_vec, ty = "l", col = line_cols[i])
-    }
-  }, silent = T)
-
-  try({
-    # plot the boundary
-    bs = sapply(conds, function(one_cond){
-      drift_dm_obj$comp_funs$b_fun(prms_model = drift_dm_obj$prms_model,
-                                        prms_solve = drift_dm_obj$prms_solve,
-                                        t_vec = t_vec, one_cond = one_cond,
-                                        ddm_opts = drift_dm_obj$ddm_opts)
-    }, simplify = F, USE.NAMES = T)
-    y_lim_bs = range(unlist(bs))
-
-    plot(c(1,2) ~ c(1,1) , col = "white", xlim = xlim_time,
-         ylab = "Boundary", xlab = "Time [s]", ylim = y_lim_bs,
-         main = "b_fun")
-
-    for (i in seq_along(conds) ) {
-      points(bs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
-    }
-  }, silent = T)
-
-  try({
-    # plot the derivative of the boundary
-    dt_bs = sapply(conds, function(one_cond){
-      drift_dm_obj$comp_funs$dt_b_fun(prms_model = drift_dm_obj$prms_model,
-                                        prms_solve = drift_dm_obj$prms_solve,
-                                        t_vec = t_vec, one_cond = one_cond,
-                                        ddm_opts = drift_dm_obj$ddm_opts)
-    }, simplify = F, USE.NAMES = T)
-    y_lim_dt_bs = range(unlist(dt_bs))
-
-    plot(c(1,2) ~ c(1,1) , col = "white", xlim = xlim_time,
-         ylab = "Derivative Boundary", xlab = "Time [s]", ylim = y_lim_dt_bs,
-         main = "dt_b_fun")
-
-    for (i in seq_along(conds) ) {
-      points(dt_bs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
-    }
-  }, silent = T)
+      for (i in seq_along(conds)) {
+        points(drift_rates[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+      }
+    },
+    silent = T
+  )
 
 
-  try({
-    # plot the nn-decision time
-    non_dec_vecs = sapply(conds, function(one_cond){
-      drift_dm_obj$comp_funs$nt_fun(prms_model = drift_dm_obj$prms_model,
-                                      prms_solve = drift_dm_obj$prms_solve,
-                                      t_vec = t_vec, one_cond = one_cond,
-                                      ddm_opts = drift_dm_obj$ddm_opts)
-    }, simplify = F, USE.NAMES = T)
-    y_lim_non_dec = range(unlist(non_dec_vecs))
+  try(
+    {
+      # plot the integral of the drift rate
+      drift_rates_int <- sapply(conds, function(one_cond) {
+        drift_dm_obj$comp_funs$mu_int_fun(
+          prms_model = drift_dm_obj$prms_model,
+          prms_solve = drift_dm_obj$prms_solve,
+          t_vec = t_vec, one_cond = one_cond,
+          ddm_opts = drift_dm_obj$ddm_opts
+        )
+      }, simplify = F, USE.NAMES = T)
+      y_lim_drift_rate_in <- range(unlist(drift_rates_int))
 
-    plot(c(1,2) ~ c(1,1) , col = "white", xlim = xlim_time,
-         ylab = "Density", xlab = "Time [s]", ylim = y_lim_non_dec,
-         main = "nt_fun")
+      plot(c(1, 2) ~ c(1, 1),
+        col = "white", xlim = xlim_time,
+        ylab = "Drift", xlab = "Time [s]", ylim = y_lim_drift_rate_in,
+        main = "mu_int_fun"
+      )
 
-    for (i in seq_along(conds) ) {
-      points(non_dec_vecs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
-    }
-  }, silent = T)
+      for (i in seq_along(conds)) {
+        points(drift_rates_int[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+      }
+    },
+    silent = T
+  )
+
+  try(
+    {
+      # plot the starting condition
+      x_vals <- sapply(conds, function(one_cond) {
+        drift_dm_obj$comp_funs$x_fun(
+          prms_model = drift_dm_obj$prms_model,
+          prms_solve = drift_dm_obj$prms_solve,
+          x_vec = x_vec, one_cond = one_cond,
+          ddm_opts = drift_dm_obj$ddm_opts
+        )
+      }, simplify = F, USE.NAMES = T)
+      y_lim_x_vals <- range(unlist(x_vals))
+
+      plot(c(1, 2) ~ c(1, 1),
+        col = "white", xlim = c(-1, 1),
+        ylab = "Density", xlab = "Evidence Value", ylim = y_lim_x_vals,
+        main = "x_fun"
+      )
+
+      for (i in seq_along(conds)) {
+        points(x_vals[[conds[i]]] ~ x_vec, ty = "l", col = line_cols[i])
+      }
+    },
+    silent = T
+  )
+
+  try(
+    {
+      # plot the boundary
+      bs <- sapply(conds, function(one_cond) {
+        drift_dm_obj$comp_funs$b_fun(
+          prms_model = drift_dm_obj$prms_model,
+          prms_solve = drift_dm_obj$prms_solve,
+          t_vec = t_vec, one_cond = one_cond,
+          ddm_opts = drift_dm_obj$ddm_opts
+        )
+      }, simplify = F, USE.NAMES = T)
+      y_lim_bs <- range(unlist(bs))
+
+      plot(c(1, 2) ~ c(1, 1),
+        col = "white", xlim = xlim_time,
+        ylab = "Boundary", xlab = "Time [s]", ylim = y_lim_bs,
+        main = "b_fun"
+      )
+
+      for (i in seq_along(conds)) {
+        points(bs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+      }
+    },
+    silent = T
+  )
+
+  try(
+    {
+      # plot the derivative of the boundary
+      dt_bs <- sapply(conds, function(one_cond) {
+        drift_dm_obj$comp_funs$dt_b_fun(
+          prms_model = drift_dm_obj$prms_model,
+          prms_solve = drift_dm_obj$prms_solve,
+          t_vec = t_vec, one_cond = one_cond,
+          ddm_opts = drift_dm_obj$ddm_opts
+        )
+      }, simplify = F, USE.NAMES = T)
+      y_lim_dt_bs <- range(unlist(dt_bs))
+
+      plot(c(1, 2) ~ c(1, 1),
+        col = "white", xlim = xlim_time,
+        ylab = "Derivative Boundary", xlab = "Time [s]", ylim = y_lim_dt_bs,
+        main = "dt_b_fun"
+      )
+
+      for (i in seq_along(conds)) {
+        points(dt_bs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+      }
+    },
+    silent = T
+  )
+
+
+  try(
+    {
+      # plot the nn-decision time
+      non_dec_vecs <- sapply(conds, function(one_cond) {
+        drift_dm_obj$comp_funs$nt_fun(
+          prms_model = drift_dm_obj$prms_model,
+          prms_solve = drift_dm_obj$prms_solve,
+          t_vec = t_vec, one_cond = one_cond,
+          ddm_opts = drift_dm_obj$ddm_opts
+        )
+      }, simplify = F, USE.NAMES = T)
+      y_lim_non_dec <- range(unlist(non_dec_vecs))
+
+      plot(c(1, 2) ~ c(1, 1),
+        col = "white", xlim = xlim_time,
+        ylab = "Density", xlab = "Time [s]", ylim = y_lim_non_dec,
+        main = "nt_fun"
+      )
+
+      for (i in seq_along(conds)) {
+        points(non_dec_vecs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+      }
+    },
+    silent = T
+  )
 
   legend("topright", legend = conds, col = line_cols, lty = 1)
 }

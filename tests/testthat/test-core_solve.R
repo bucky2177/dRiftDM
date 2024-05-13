@@ -34,8 +34,8 @@ test_that("test log_like", {
   )
   a_model <- set_obs_data(a_model, data, eval_model = T)
   a_model <- re_evaluate_model(a_model)
-  pdfs_null = a_model$pdfs$null
-  pdfs_foo = a_model$pdfs$foo
+  pdfs_null <- a_model$pdfs$null
+  pdfs_foo <- a_model$pdfs$foo
 
   # log_like_value calculated by hand
   t_vec <- seq(0, 1, 0.005)

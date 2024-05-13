@@ -60,7 +60,7 @@ gather_parameters <- function(fits_subjects, fit_stats = T) {
     error = function(e) prms$Subject,
     warning = function(e) prms$Subject
   )
-  prms = prms[order(prms$Subject),]
+  prms <- prms[order(prms$Subject), ]
   rownames(prms) <- NULL
   return(prms)
 }

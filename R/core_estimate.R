@@ -89,7 +89,6 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
   }
 
   if (!is.null(names(lower)) | !is.null(names(upper))) {
-
     if (is.null(names(lower)) & !is.null(names(upper))) {
       stop("upper is a named numeric vector, but lower isn't")
     }
@@ -97,15 +96,19 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
       stop("lower is a named numeric vector, but upper isn't")
     }
 
-    check_if_named_numeric_vector(x = lower, var_name = "lower",
-                                  labels = drift_dm_obj$free_prms)
-    check_if_named_numeric_vector(x = upper, var_name = "upper",
-                                  labels = drift_dm_obj$free_prms)
+    check_if_named_numeric_vector(
+      x = lower, var_name = "lower",
+      labels = drift_dm_obj$free_prms
+    )
+    check_if_named_numeric_vector(
+      x = upper, var_name = "upper",
+      labels = drift_dm_obj$free_prms
+    )
 
-    lower = lower[drift_dm_obj$free_prms]
-    lower = unname(lower)
-    upper = upper[drift_dm_obj$free_prms]
-    upper = unname(upper)
+    lower <- lower[drift_dm_obj$free_prms]
+    lower <- unname(lower)
+    upper <- upper[drift_dm_obj$free_prms]
+    upper <- unname(upper)
   }
 
   if (!is.numeric(verbose) | length(verbose) != 1 | !(verbose %in% c(0, 1, 2))) {
@@ -151,9 +154,8 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
 
   # objective function to minimize
   goal_wrapper <- function(new_model_prms, drift_dm_obj, verbose) {
-
     drift_dm_obj$prms_model[drift_dm_obj$free_prms] <- new_model_prms
-    drift_dm_obj = re_evaluate_model(drift_dm_obj = drift_dm_obj, eval_model = T)
+    drift_dm_obj <- re_evaluate_model(drift_dm_obj = drift_dm_obj, eval_model = T)
 
 
     if (verbose == 2) {
@@ -246,7 +248,7 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
   } else {
     final_vals <- as.numeric(start_vals)
   }
-  names(final_vals) = drift_dm_obj$free_prms
+  names(final_vals) <- drift_dm_obj$free_prms
 
   # set parameters an evaluate fully
   drift_dm_obj <- set_model_prms(

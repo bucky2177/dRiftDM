@@ -486,7 +486,6 @@ calc_ic <- function(ll, k, n) {
 #'
 #' @export
 re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -514,19 +513,19 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
   t_vec <- seq(0, t_max, length.out = nt + 1)
 
   if (drift_dm_obj$solver == "kfe") {
-    comp_fun_names = c("mu_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
+    comp_fun_names <- c("mu_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
   } else {
     stop("not implemented yet another solver")
   }
 
-  all_comp_vecs = sapply(drift_dm_obj$conds, function(one_cond) {
-    one_set_comp_vecs = sapply(comp_fun_names, function(name_comp_fun){
+  all_comp_vecs <- sapply(drift_dm_obj$conds, function(one_cond) {
+    one_set_comp_vecs <- sapply(comp_fun_names, function(name_comp_fun) {
       if (name_comp_fun == "x_fun") {
-        vals = drift_dm_obj$comp_funs[[name_comp_fun]](drift_dm_obj$prms_model,
-                                                       drift_dm_obj$prms_solve,
-                                                       x_vec,
-                                                       one_cond,
-                                                       drift_dm_obj$ddm_opts)
+        vals <- drift_dm_obj$comp_funs[[name_comp_fun]](drift_dm_obj$prms_model,
+          drift_dm_obj$prms_solve,
+          x_vec,
+          one_cond,
+          drift_dm_obj$ddm_opts)
 
         if (any(is.infinite(vals)) | any(is.na(vals))) {
           stop("x_fun provided infinite values or NAs, condition ", one_cond)
@@ -540,23 +539,26 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
         if (length(vals) != nx + 1) {
           stop("unexpected length of x_vals, condition ", one_cond)
         }
-
       } else {
         if (name_comp_fun == "mu_int_fun" & drift_dm_obj$solver == "kfe") {
           return(NULL)
         }
-        vals = drift_dm_obj$comp_funs[[name_comp_fun]](drift_dm_obj$prms_model,
-                                                       drift_dm_obj$prms_solve,
-                                                       t_vec,
-                                                       one_cond,
-                                                       drift_dm_obj$ddm_opts)
+        vals <- drift_dm_obj$comp_funs[[name_comp_fun]](drift_dm_obj$prms_model,
+          drift_dm_obj$prms_solve,
+          t_vec,
+          one_cond,
+          drift_dm_obj$ddm_opts)
         if (any(is.infinite(vals)) | any(is.na(vals))) {
-          stop("function for ", name_comp_fun,
-               " provided infinite values or NAs, condition ", one_cond)
+          stop(
+            "function for ", name_comp_fun,
+            " provided infinite values or NAs, condition ", one_cond
+          )
         }
         if (length(vals) != nt + 1) {
-          stop("function for ", name_comp_fun,
-               " provided a vector of unexpected length, condition ", one_cond)
+          stop(
+            "function for ", name_comp_fun,
+            " provided a vector of unexpected length, condition ", one_cond
+          )
         }
       }
 
@@ -570,8 +572,10 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
       }
       return(vals)
     }, USE.NAMES = T, simplify = F)
-    names(one_set_comp_vecs) = sub(pattern = "fun", replacement = c("vals"),
-                                   x = names(one_set_comp_vecs))
+    names(one_set_comp_vecs) <- sub(
+      pattern = "fun", replacement = c("vals"),
+      x = names(one_set_comp_vecs)
+    )
     return(one_set_comp_vecs)
   }, USE.NAMES = T, simplify = F)
 
@@ -579,11 +583,13 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
   # Second, calculate the pdfs
   pdfs <-
     sapply(drift_dm_obj$conds, function(one_cond) {
-    calc_pdfs(solver = drift_dm_obj$solver, x_vec = x_vec, t_vec = t_vec,
-              prms_solve = drift_dm_obj$prms_solve,
-              one_set_comp_vecs = all_comp_vecs[[one_cond]], one_cond = one_cond)
-  }, simplify = F, USE.NAMES = T)
-  drift_dm_obj$pdfs = pdfs
+      calc_pdfs(
+        solver = drift_dm_obj$solver, x_vec = x_vec, t_vec = t_vec,
+        prms_solve = drift_dm_obj$prms_solve,
+        one_set_comp_vecs = all_comp_vecs[[one_cond]], one_cond = one_cond
+      )
+    }, simplify = F, USE.NAMES = T)
+  drift_dm_obj$pdfs <- pdfs
 
 
   # return if no data is supplied, so log_like and ic_vals are not updated
@@ -592,9 +598,11 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
   }
 
   # update log_like_val and ic_vals
-  log_like_val <- calc_log_like(pdfs = pdfs, t_vec = t_vec,
-                                obs_data = drift_dm_obj$obs_data,
-                                conds = drift_dm_obj$conds)
+  log_like_val <- calc_log_like(
+    pdfs = pdfs, t_vec = t_vec,
+    obs_data = drift_dm_obj$obs_data,
+    conds = drift_dm_obj$conds
+  )
 
   ic_vals <- calc_ic(
     ll = log_like_val,
@@ -604,8 +612,8 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 
 
   # attach all and pass back
-  drift_dm_obj$log_like_val = log_like_val
-  drift_dm_obj$ic_vals = ic_vals
+  drift_dm_obj$log_like_val <- log_like_val
+  drift_dm_obj$ic_vals <- ic_vals
 
   return(drift_dm_obj)
 }
@@ -764,7 +772,6 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 #' @export
 set_model_prms <- function(drift_dm_obj, new_prm_vals,
                            eval_model = F) {
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -779,7 +786,7 @@ set_model_prms <- function(drift_dm_obj, new_prm_vals,
   }
 
 
-  drift_dm_obj$prms_model[names(new_prm_vals)] = new_prm_vals
+  drift_dm_obj$prms_model[names(new_prm_vals)] <- new_prm_vals
 
   # ensure that everything is up-to-date (or skip)
   drift_dm_obj <- re_evaluate_model(
@@ -796,34 +803,37 @@ set_model_prms <- function(drift_dm_obj, new_prm_vals,
 #' @export
 set_free_prms <- function(drift_dm_obj, new_free_prms = NULL,
                           new_fixed_prms = NULL) {
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
 
   if (is.null(new_free_prms) & is.null(new_fixed_prms)) {
-    stop("Neither new_free_prms nor new_fixed_prms specified. ",
-         "Please specify one of the two")
+    stop(
+      "Neither new_free_prms nor new_fixed_prms specified. ",
+      "Please specify one of the two"
+    )
   }
 
   if (!is.null(new_free_prms) & !is.null(new_fixed_prms)) {
-    stop("Both new_free_prms and new_fixed_prms were specified. ",
-         "Only one of the two is allowed")
+    stop(
+      "Both new_free_prms and new_fixed_prms were specified. ",
+      "Only one of the two is allowed"
+    )
   }
 
   if (!is.null(new_free_prms)) {
-    set_free = T
-    input_prms = new_free_prms
+    set_free <- T
+    input_prms <- new_free_prms
   } else {
-    set_free = F
-    input_prms = new_fixed_prms
+    set_free <- F
+    input_prms <- new_fixed_prms
   }
 
   # match inputs
   name_prms_model <- names(drift_dm_obj$prms_model)
   matched_prms <- sapply(input_prms, function(x) {
-      match.arg(x, name_prms_model)
-    })
+    match.arg(x, name_prms_model)
+  })
   matched_prms <- unname(matched_prms)
   if (any(matched_prms != input_prms)) {
     warning(
@@ -857,8 +867,8 @@ set_solver_settings <- function(drift_dm_obj, new_solver_vals,
     stop("drift_dm_obj is not of type drift_dm")
   }
 
-  names_prm_solve = names(new_solver_vals)
-  values_prm_solve = unname(new_solver_vals)
+  names_prm_solve <- names(new_solver_vals)
+  values_prm_solve <- unname(new_solver_vals)
 
   if (is.null(names_prm_solve)) {
     stop("values_prm_solve must be a named vector")
@@ -966,7 +976,7 @@ set_obs_data <- function(drift_dm_obj, obs_data, eval_model = F) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
-  obs_data = check_raw_data(obs_data)
+  obs_data <- check_raw_data(obs_data)
 
   if (!all(unique(obs_data$Cond) %in% drift_dm_obj$conds)) {
     warning(
@@ -1043,11 +1053,11 @@ check_raw_data <- function(obs_data) {
 
   if ("Subject" %in% colnames(obs_data)) {
     subject_cond_table <- table(obs_data$Subject, obs_data$Cond)
-    idx_0 = which(subject_cond_table == 0, arr.ind = T)
+    idx_0 <- which(subject_cond_table == 0, arr.ind = T)
 
     if (nrow(idx_0) > 0) {
       which_subjs <-
-        paste(rownames(subject_cond_table)[idx_0[,1]], collapse = ", ")
+        paste(rownames(subject_cond_table)[idx_0[, 1]], collapse = ", ")
       stop("Subject(s) ", which_subjs, " do not provide RTs for all conditions")
     }
   }
@@ -1058,7 +1068,6 @@ check_raw_data <- function(obs_data) {
 #' @rdname set_model_prms
 #' @export
 set_comp_funs <- function(drift_dm_obj, comp_funs, eval_model = F) {
-
   # user input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -1068,12 +1077,12 @@ set_comp_funs <- function(drift_dm_obj, comp_funs, eval_model = F) {
   if (length(comp_funs) == 0) stop("provided comp_funs argument is empty")
   if (is.null(names(comp_funs))) stop("entries in comp_funs are not named")
 
-  names_all_funs = names(comp_funs)
+  names_all_funs <- names(comp_funs)
 
   # iterate over the list
   for (one_fun_name in names_all_funs) {
     # ensure a reasonable name
-    one_fun_name = match.arg(
+    one_fun_name <- match.arg(
       one_fun_name,
       choices = c("mu_fun", "mu_int_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
     )
@@ -1142,7 +1151,7 @@ set_comp_funs <- function(drift_dm_obj, comp_funs, eval_model = F) {
 #'
 #' @export
 simulate_traces <- function(drift_dm_obj, k, conds = NULL, add_x = FALSE,
-                           seed = NULL) {
+                            seed = NULL) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -1164,21 +1173,23 @@ simulate_traces <- function(drift_dm_obj, k, conds = NULL, add_x = FALSE,
   }
 
   if (is.null(conds)) {
-    conds = drift_dm_obj$conds
+    conds <- drift_dm_obj$conds
   }
 
   # if more conds are requested, call function for each condition
   # and pass pack as a list
   if (length(conds) > 1) {
-    all_samples = sapply(conds, function(one_cond){
-      simulate_traces(drift_dm_obj = drift_dm_obj, k = k,
-                     conds = one_cond, add_x = add_x)
+    all_samples <- sapply(conds, function(one_cond) {
+      simulate_traces(
+        drift_dm_obj = drift_dm_obj, k = k,
+        conds = one_cond, add_x = add_x
+      )
     }, USE.NAMES = T, simplify = F)
     return(all_samples)
   }
 
   # else run the function with one condition
-  one_cond = conds
+  one_cond <- conds
 
   if (!is.character(one_cond) | length(one_cond) != 1) {
     stop("one_cond must be a character vector of length 1")
@@ -1198,25 +1209,31 @@ simulate_traces <- function(drift_dm_obj, k, conds = NULL, add_x = FALSE,
 
   e_samples <- matrix(0, nrow = k, ncol = nt + 1) # create matrix for storage
   t_vec <- seq(0, t_max, length.out = nt + 1) # all time steps
-  mu_vec <- drift_dm_obj$comp_funs$mu_fun(prms_model = drift_dm_obj$prms_model,
-                                          prms_solve = drift_dm_obj$prms_solve,
-                                          t_vec = t_vec,
-                                          one_cond = one_cond,
-                                          ddm_opts = drift_dm_obj$ddm_opts)
-  b_vec <- drift_dm_obj$comp_funs$b_fun(prms_model = drift_dm_obj$prms_model,
-                                        prms_solve = drift_dm_obj$prms_solve,
-                                        t_vec = t_vec,
-                                        one_cond = one_cond,
-                                        ddm_opts = drift_dm_obj$ddm_opts)
+  mu_vec <- drift_dm_obj$comp_funs$mu_fun(
+    prms_model = drift_dm_obj$prms_model,
+    prms_solve = drift_dm_obj$prms_solve,
+    t_vec = t_vec,
+    one_cond = one_cond,
+    ddm_opts = drift_dm_obj$ddm_opts
+  )
+  b_vec <- drift_dm_obj$comp_funs$b_fun(
+    prms_model = drift_dm_obj$prms_model,
+    prms_solve = drift_dm_obj$prms_solve,
+    t_vec = t_vec,
+    one_cond = one_cond,
+    ddm_opts = drift_dm_obj$ddm_opts
+  )
   samp_x <- numeric(k) # storage for starting values
 
   if (add_x) {
     xx <- seq(-1, 1, length.out = nx + 1)
-    pdf_x <- drift_dm_obj$comp_funs$x_fun(prms_model = drift_dm_obj$prms_model,
-                                          prms_solve = drift_dm_obj$prms_solve,
-                                          x_vec = xx,
-                                          one_cond = one_cond,
-                                          ddm_opts = drift_dm_obj$ddm_opts)
+    pdf_x <- drift_dm_obj$comp_funs$x_fun(
+      prms_model = drift_dm_obj$prms_model,
+      prms_solve = drift_dm_obj$prms_solve,
+      x_vec = xx,
+      one_cond = one_cond,
+      ddm_opts = drift_dm_obj$ddm_opts
+    )
     xx <- xx * b_vec[1]
     samp_x <- draw_from_pdf(a_pdf = pdf_x, x_def = xx, k = k)
   }
@@ -1277,7 +1294,6 @@ simulate_traces <- function(drift_dm_obj, k, conds = NULL, add_x = FALSE,
 #' @export
 simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
                           verbose = 1) {
-
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
@@ -1286,7 +1302,7 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
     set.seed(seed)
   }
 
-  if (!(verbose %in% c(0,1))) {
+  if (!(verbose %in% c(0, 1))) {
     stop("verbose must be 0 or 1")
   }
 
@@ -1306,14 +1322,14 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
     stop("no Subject column found in df_prms")
   }
   if (!all(names(df_prms)[names(df_prms) != "Subject"] %in%
-           drift_dm_obj$free_prms)) {
+    drift_dm_obj$free_prms)) {
     stop(
       "columns indicating parameters in df_prms don't match",
       " free_prms of the model object drift_dm_obj"
     )
   }
   if (!all(drift_dm_obj$free_prms %in%
-           names(df_prms)[names(df_prms) != "Subject"])) {
+    names(df_prms)[names(df_prms) != "Subject"])) {
     stop(
       "columns indicating parameters in df_prms don't match",
       " free_prms of the model object drift_dm_obj"
@@ -1331,17 +1347,19 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
     pb$tick(0)
   }
 
-  all_sim_data = apply(X = df_prms, MARGIN = 1, FUN = function(one_row){
+  all_sim_data <- apply(X = df_prms, MARGIN = 1, FUN = function(one_row) {
     one_set <- one_row[names(one_row) != "Subject"]
-    drift_dm_obj <- set_model_prms(drift_dm_obj = drift_dm_obj,
-                                   new_prm_vals = one_set)
-    one_sim_dat = simulate_one_data_set(drift_dm_obj = drift_dm_obj, n = n)
-    one_sim_dat$Subject = one_row[["Subject"]]
+    drift_dm_obj <- set_model_prms(
+      drift_dm_obj = drift_dm_obj,
+      new_prm_vals = one_set
+    )
+    one_sim_dat <- simulate_one_data_set(drift_dm_obj = drift_dm_obj, n = n)
+    one_sim_dat$Subject <- one_row[["Subject"]]
     if (verbose == 1) pb$tick()
     return(one_sim_dat)
   })
 
-  all_sim_data = do.call("rbind", all_sim_data)
+  all_sim_data <- do.call("rbind", all_sim_data)
   check_raw_data(all_sim_data)
   return(all_sim_data)
 }

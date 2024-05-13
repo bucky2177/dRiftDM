@@ -64,7 +64,6 @@ ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
 # ==== Standard Diffusion Model Components
 
 mu_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
   muc <- prms_model[["muc"]]
   if (!is.numeric(muc) | length(muc) != 1) {
     stop("parameter muc is not a single number")
@@ -79,7 +78,6 @@ mu_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
 mu_int_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
   muc <- prms_model[["muc"]]
   if (!is.numeric(muc) | length(muc) != 1) {
     stop("muc is not a single number")
@@ -92,7 +90,6 @@ mu_int_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
 x_dirac_0 <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
-
   dx <- prms_solve[["dx"]]
   if (!is.numeric(dx) | length(dx) != 1) {
     stop("dx is not a single number")
@@ -109,7 +106,6 @@ x_dirac_0 <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
 }
 
 x_uniform <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
-
   range_start <- prms_model[["range_start"]]
   if (!is.numeric(range_start) | length(range_start) != 1) {
     stop("parameter range_start is not a single number")
@@ -119,13 +115,12 @@ x_uniform <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
   }
 
   # uniform around staring point of 0
-  x <- stats::dunif(x = x_vec, min = 0 - range_start/2, max = 0 + range_start/2)
+  x <- stats::dunif(x = x_vec, min = 0 - range_start / 2, max = 0 + range_start / 2)
   return(x)
 }
 
 
 b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
   b <- prms_model[["b"]]
   if (!is.numeric(b) | length(b) != 1) {
     stop("b is not a single number")
@@ -139,7 +134,6 @@ b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
 dt_b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
   # constant boundary
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
     stop("t_vec is not a vector")
@@ -150,10 +144,9 @@ dt_b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
 nt_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
   non_dec <- prms_model[["non_dec"]]
   tmax <- prms_solve[["t_max"]]
-  dt <-  prms_solve[["dt"]]
+  dt <- prms_solve[["dt"]]
   if (!is.numeric(non_dec) | length(non_dec) != 1) {
     stop("non_dec is not a single number")
   }
@@ -202,8 +195,10 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   }
 
 
-  d_nt <- stats::dunif(x = t_vec, min = non_dec - range_non_dec/2,
-                       max = non_dec + range_non_dec/2)
+  d_nt <- stats::dunif(
+    x = t_vec, min = non_dec - range_non_dec / 2,
+    max = non_dec + range_non_dec / 2
+  )
   d_nt <- d_nt / (sum(d_nt) * dt) # ensure it integrates to 1
   return(d_nt)
 }
@@ -269,11 +264,10 @@ dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
   return(dmc_dm)
 }
 
-#====
+# ====
 # DMC component functions
 
 mu_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
   # unpack values and conduct checks
   muc <- prms_model[["muc"]]
   tau <- prms_model[["tau"]]
@@ -316,7 +310,6 @@ mu_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
 mu_int_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
   # unpack values and conduct checks
   muc <- prms_model[["muc"]]
   tau <- prms_model[["tau"]]
@@ -354,7 +347,6 @@ mu_int_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
 x_beta <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
-
   alpha <- prms_model[["alpha"]]
   if (!is.numeric(alpha) | length(alpha) != 1) {
     stop("parameter alpha is not a single number")
@@ -403,7 +395,7 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opt
 
 
 
-#=== Shrinking Spotlight Model
+# === Shrinking Spotlight Model
 #' Create the Shrinking Spotlight Model
 #'
 #' @description
@@ -446,32 +438,33 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opt
 #' @export
 ssp_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
                    dx = .001) {
+  prms_model <- c(
+    b = .6, non_dec = .3, sd_non_dec = .005, p = 3.3, sd_0 = 1.2,
+    r = 10
+  )
+  conds <- c("comp", "incomp")
 
-  prms_model = c(b = .6, non_dec = .3, sd_non_dec = .005, p = 3.3, sd_0 = 1.2,
-                 r = 10)
-  conds = c("comp", "incomp")
-
-  ssp_dm = drift_dm(prms_model = prms_model, conds = conds,
+  ssp_dm <- drift_dm(
+    prms_model = prms_model, conds = conds,
     free_prms = NULL, obs_data = obs_data, sigma = sigma,
     t_max = t_max, dt = dt, dx = dx, mu_fun = mu_ssp,
     mu_int_fun = dummy_t, x_fun = x_dirac_0, b_fun = b_constant,
     dt_b_fun = dt_b_constant, nt_fun = nt_truncated_normal
   )
 
-  class(ssp_dm) = c("ssp_dm", class(ssp_dm))
+  class(ssp_dm) <- c("ssp_dm", class(ssp_dm))
 
   return(ssp_dm)
 }
 
-#===
+# ===
 # SSP Components
 
-mu_ssp = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
+mu_ssp <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   # extract all parameters
-  p = prms_model[["p"]]
-  sd_0 = prms_model[["sd_0"]]
-  r = prms_model[["r"]]
+  p <- prms_model[["p"]]
+  sd_0 <- prms_model[["sd_0"]]
+  r <- prms_model[["r"]]
 
 
   if (!is.numeric(p) | length(p) != 1) {
@@ -490,15 +483,15 @@ mu_ssp = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   stopifnot(one_cond %in% c("comp", "incomp"))
 
 
-  sd_t = pmax(sd_0 - r * t_vec, 0.001)
-  a_tar_t = (stats::pnorm(q = 0.5, mean = 0, sd = sd_t) - 0.5)*2
-  a_fl_t = 1 - a_tar_t
+  sd_t <- pmax(sd_0 - r * t_vec, 0.001)
+  a_tar_t <- (stats::pnorm(q = 0.5, mean = 0, sd = sd_t) - 0.5) * 2
+  a_fl_t <- 1 - a_tar_t
 
   # pass back the drift rate, depending on the condition
   if (one_cond == "comp") {
-    mu_t = a_tar_t * p + a_fl_t * p
+    mu_t <- a_tar_t * p + a_fl_t * p
   } else {
-    mu_t = a_tar_t * p - a_fl_t * p
+    mu_t <- a_tar_t * p - a_fl_t * p
   }
   return(mu_t)
 }
@@ -506,14 +499,13 @@ mu_ssp = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
 
-#=== ADDITIONAL MODEL COMPONENTS
+# === ADDITIONAL MODEL COMPONENTS
 
 # Collapsing Boundary - Hyperbolic Ratio Function
-b_hyperbol = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
-  b0 = prms_model[["b0"]]
-  kappa = prms_model[["kappa"]]
-  t05 = prms_model[["t05"]]
+b_hyperbol <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+  b0 <- prms_model[["b0"]]
+  kappa <- prms_model[["kappa"]]
+  t05 <- prms_model[["t05"]]
 
   if (!is.numeric(b0) | length(b0) != 1) {
     stop("b0 is not a single number")
@@ -532,11 +524,10 @@ b_hyperbol = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 }
 
 # derivative of the hyperbolic ratio function
-dt_b_hyperbol = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
-  b0 = prms_model[["b0"]]
-  kappa = prms_model[["kappa"]]
-  t05 = prms_model[["t05"]]
+dt_b_hyperbol <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+  b0 <- prms_model[["b0"]]
+  kappa <- prms_model[["kappa"]]
+  t05 <- prms_model[["t05"]]
 
   if (!is.numeric(b0) | length(b0) != 1) {
     stop("b0 is not a single number")
@@ -551,17 +542,16 @@ dt_b_hyperbol = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("t_vec is not a vector")
   }
 
-  return(-(b0 * kappa * t05) / (t_vec + t05) ^ 2)
+  return(-(b0 * kappa * t05) / (t_vec + t05)^2)
 }
 
 
 # Collapsing Boundary - Weibull Function
-b_weibull = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
-  b0 = prms_model[["b0"]]
-  lambda = prms_model[["lambda"]]
-  k = prms_model[["k"]]
-  kappa = prms_model[["kappa"]]
+b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+  b0 <- prms_model[["b0"]]
+  lambda <- prms_model[["lambda"]]
+  k <- prms_model[["k"]]
+  kappa <- prms_model[["kappa"]]
 
   if (!is.numeric(b0) | length(b0) != 1) {
     stop("b0 is not b0 single number")
@@ -584,12 +574,11 @@ b_weibull = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
 # derivative of the collapsing boundary - Weibull Function
-dt_b_weibull = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-
-  b0 = prms_model[["b0"]]
-  lambda = prms_model[["lambda"]]
-  k = prms_model[["k"]]
-  kappa = prms_model[["kappa"]]
+dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+  b0 <- prms_model[["b0"]]
+  lambda <- prms_model[["lambda"]]
+  k <- prms_model[["k"]]
+  kappa <- prms_model[["kappa"]]
 
   if (!is.numeric(b0) | length(b0) != 1) {
     stop("b0 is not b0 single number")
@@ -607,8 +596,8 @@ dt_b_weibull = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("t_vec is not a vector")
   }
 
-  numer = -b0 * kappa * k * (t_vec / lambda)^(k - 1) * exp(-(t_vec / lambda)^k)
-  return(numer/lambda)
+  numer <- -b0 * kappa * k * (t_vec / lambda)^(k - 1) * exp(-(t_vec / lambda)^k)
+  return(numer / lambda)
 }
 
 
@@ -683,7 +672,6 @@ dt_b_weibull = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'
 #' @export
 component_shelf <- function() {
-
   components <- list()
 
   # mus
@@ -717,12 +705,12 @@ component_shelf <- function() {
   components$nt_truncated_normal <- nt_truncated_normal
 
   # dummies
-  components$dummy_t = dummy_t
+  components$dummy_t <- dummy_t
 
   return(components)
 }
 
 
-dummy_t = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
+dummy_t <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   stop("dummy_t: this should not be called!")
 }

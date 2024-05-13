@@ -2,7 +2,6 @@
 
 calc_pdfs <- function(solver, x_vec, t_vec, prms_solve, one_set_comp_vecs,
                       one_cond) {
-
   if (!is.character(solver) | length(solver) != 1) {
     stop("solver must be of type character with length 1")
   }
@@ -12,8 +11,10 @@ calc_pdfs <- function(solver, x_vec, t_vec, prms_solve, one_set_comp_vecs,
   }
 
   if (solver == "kfe") {
-    pdfs <- kfe_ale(x_vec = x_vec, t_vec = t_vec, prms_solve = prms_solve,
-                    one_set_comp_vecs = one_set_comp_vecs, one_cond = one_cond)
+    pdfs <- kfe_ale(
+      x_vec = x_vec, t_vec = t_vec, prms_solve = prms_solve,
+      one_set_comp_vecs = one_set_comp_vecs, one_cond = one_cond
+    )
   } else {
     stop("solver '", solver, "' not implemented yet!")
   }
@@ -23,7 +24,6 @@ calc_pdfs <- function(solver, x_vec, t_vec, prms_solve, one_set_comp_vecs,
 
 # kfe and residual time
 kfe_ale <- function(x_vec, t_vec, prms_solve, one_set_comp_vecs, one_cond) {
-
   # Getting the necessary parameters
   dt <- prms_solve[["dt"]]
   nt <- prms_solve[["nt"]]
@@ -67,7 +67,6 @@ kfe_ale <- function(x_vec, t_vec, prms_solve, one_set_comp_vecs, one_cond) {
 
 
 add_residual <- function(pdf_nt, pdf_u, pdf_l, dt) {
-
   if (length(pdf_nt) != length(pdf_u)) {
     stop("pdf_u and pdf_nt don't have the same dimension!")
   }
@@ -89,8 +88,8 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt) {
   stopifnot(length(pdf_u) == length(pdf_nt) & length(pdf_l) == length(pdf_nt))
 
   # add robustness prm
-  pdf_u = pdf_u + drift_dm_robust_prm()
-  pdf_l = pdf_l + drift_dm_robust_prm()
+  pdf_u <- pdf_u + drift_dm_robust_prm()
+  pdf_l <- pdf_l + drift_dm_robust_prm()
 
   if (min(pdf_u) < 0 | min(pdf_l) < 0) {
     warning(
@@ -105,7 +104,6 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt) {
 # ==== Functions for calculating the log_likelihood
 
 calc_log_like <- function(pdfs, t_vec, obs_data, conds) {
-
   log_like <- 0
 
   for (one_cond in conds) {

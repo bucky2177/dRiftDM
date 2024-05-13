@@ -42,12 +42,10 @@ print.drift_dm <- function(x, ...) {
   if (is.null(drift_dm_obj$obs_data)) {
     cat("NULL")
   } else {
-    n_trials = length(unlist(drift_dm_obj$obs_data))
+    n_trials <- length(unlist(drift_dm_obj$obs_data))
     cat(n_trials, "trials")
   }
   cat("\n")
-
-
 }
 
 

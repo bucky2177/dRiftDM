@@ -45,7 +45,7 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
   return(samples)
 }
 
-#=============================
+# =============================
 # FUNCTION FOR SIMULATING PRMS
 
 
@@ -76,20 +76,24 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
 #' A matrix with `n` rows and \code{length(lower)/length(upper)} columns.
 #'
 #' @export
-simulate_values = function(lower, upper, n, distr = "unif", seed = NULL, ...) {
-  dotdot = list(...)
+simulate_values <- function(lower, upper, n, distr = "unif", seed = NULL, ...) {
+  dotdot <- list(...)
 
-  #input checks
-  if (!is.numeric(lower) | length(lower) <= 0)
+  # input checks
+  if (!is.numeric(lower) | length(lower) <= 0) {
     stop("lower must be numeric with length >= 1")
-  if (!is.numeric(upper) | length(upper) <= 0)
+  }
+  if (!is.numeric(upper) | length(upper) <= 0) {
     stop("upper must be numeric with length >= 1")
-  if (length(upper) != length(lower))
+  }
+  if (length(upper) != length(lower)) {
     stop("lower and upper are not of the same length")
-  if (!is.numeric(n) | length(n) != 1)
+  }
+  if (!is.numeric(n) | length(n) != 1) {
     stop("n must be a single numeric")
+  }
 
-  distr = match.arg(distr, c("unif", "tnorm"))
+  distr <- match.arg(distr, c("unif", "tnorm"))
 
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1) {
@@ -100,30 +104,34 @@ simulate_values = function(lower, upper, n, distr = "unif", seed = NULL, ...) {
   }
 
   # draw the parameters
-  n_prms = length(lower)
+  n_prms <- length(lower)
   if (distr == "unif") {
-    prms = lapply(1:n_prms, function(i){
+    prms <- lapply(1:n_prms, function(i) {
       stats::runif(n, min = lower[i], max = upper[i])
     })
   } else if (distr == "tnorm") {
-    means = dotdot$means
-    sds = dotdot$sds
-    if (is.null(means))
+    means <- dotdot$means
+    sds <- dotdot$sds
+    if (is.null(means)) {
       stop("tnorm was requested but no means argument provided")
-    if (is.null(sds))
+    }
+    if (is.null(sds)) {
       stop("tnorm was requested but no sds argument provided")
-    if (!is.numeric(means) | length(means) != n_prms)
+    }
+    if (!is.numeric(means) | length(means) != n_prms) {
       stop("means is not numeric with length equal to lower/upper")
-    if (!is.numeric(sds) | length(sds) != n_prms)
+    }
+    if (!is.numeric(sds) | length(sds) != n_prms) {
       stop("sds is not numeric with length equal to lower/upper")
+    }
 
-    prms = lapply(1:n_prms, function(i){
-      cdf_val_l = stats::pnorm(q = lower[i], mean = means[i], sd = sds[i])
-      cdf_val_u = stats::pnorm(q = upper[i], mean = means[i], sd = sds[i])
-      cdf_vals = stats::runif(n = n, min = cdf_val_l, max = cdf_val_u)
+    prms <- lapply(1:n_prms, function(i) {
+      cdf_val_l <- stats::pnorm(q = lower[i], mean = means[i], sd = sds[i])
+      cdf_val_u <- stats::pnorm(q = upper[i], mean = means[i], sd = sds[i])
+      cdf_vals <- stats::runif(n = n, min = cdf_val_l, max = cdf_val_u)
       stats::qnorm(p = cdf_vals, mean = means[i], sd = sds[i])
     })
   }
-  prms = do.call("cbind", prms)
+  prms <- do.call("cbind", prms)
   return(prms)
 }

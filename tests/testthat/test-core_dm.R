@@ -206,7 +206,6 @@ test_that("validate_model fails as expected", {
     validate_drift_dm(temp),
     "the fifth argument of x_fun must be 'ddm_opts'"
   )
-
 })
 
 
@@ -221,29 +220,41 @@ test_that("standard methods for the ddm components work as expected", {
   t_vec <- seq(0, 3, 0.01)
   x_vec <- seq(-1, 1, 0.01)
   def_mu <- a_model$comp_funs$mu_fun(a_model$prms_model,
-                                     a_model$prms_solve,
-                                     t_vec, one_cond = "W",
-                                     a_model$ddm_opts)
+    a_model$prms_solve,
+    t_vec,
+    one_cond = "W",
+    a_model$ddm_opts
+  )
   def_mu_int <- a_model$comp_funs$mu_int_fun(a_model$prms_model,
-                                             a_model$prms_solve,
-                                             t_vec, one_cond = "W",
-                                             a_model$ddm_opts)
+    a_model$prms_solve,
+    t_vec,
+    one_cond = "W",
+    a_model$ddm_opts
+  )
   def_b <- a_model$comp_funs$b_fun(a_model$prms_model,
-                                   a_model$prms_solve,
-                                   t_vec, one_cond = "W",
-                                   a_model$ddm_opts)
+    a_model$prms_solve,
+    t_vec,
+    one_cond = "W",
+    a_model$ddm_opts
+  )
   def_dtb <- a_model$comp_funs$dt_b_fun(a_model$prms_model,
-                                        a_model$prms_solve,
-                                        t_vec, one_cond = "W",
-                                        a_model$ddm_opts)
+    a_model$prms_solve,
+    t_vec,
+    one_cond = "W",
+    a_model$ddm_opts
+  )
   def_nt <- a_model$comp_funs$nt_fun(a_model$prms_model,
-                                     a_model$prms_solve,
-                                     t_vec, one_cond = "W",
-                                     a_model$ddm_opts)
+    a_model$prms_solve,
+    t_vec,
+    one_cond = "W",
+    a_model$ddm_opts
+  )
   def_x <- a_model$comp_funs$x_fun(a_model$prms_model,
-                                   a_model$prms_solve,
-                                   x_vec, one_cond = "W",
-                                   a_model$ddm_opts)
+    a_model$prms_solve,
+    x_vec,
+    one_cond = "W",
+    a_model$ddm_opts
+  )
 
   expect_identical(def_mu, rep(3, 301))
   expect_identical(def_mu_int, 3 * t_vec)
@@ -261,44 +272,56 @@ test_that("standard methods for the ddm components work as expected", {
   x_vec <- numeric()
   expect_error(
     a_model$comp_funs$mu_fun(a_model$prms_model,
-                             a_model$prms_solve,
-                             t_vec, one_cond = "W",
-                             a_model$ddm_opts),
+      a_model$prms_solve,
+      t_vec,
+      one_cond = "W",
+      a_model$ddm_opts
+    ),
     "t_vec is not a vector"
   )
   expect_error(
     a_model$comp_funs$mu_int_fun(a_model$prms_model,
-                                 a_model$prms_solve,
-                                 t_vec, one_cond = "W",
-                                 a_model$ddm_opts),
+      a_model$prms_solve,
+      t_vec,
+      one_cond = "W",
+      a_model$ddm_opts
+    ),
     "t_vec is not a vector"
   )
   expect_error(
     a_model$comp_funs$b_fun(a_model$prms_model,
-                            a_model$prms_solve,
-                            t_vec, one_cond = "W",
-                            a_model$ddm_opts),
+      a_model$prms_solve,
+      t_vec,
+      one_cond = "W",
+      a_model$ddm_opts
+    ),
     "t_vec is not a vector"
   )
   expect_error(
     a_model$comp_funs$dt_b_fun(a_model$prms_model,
-                               a_model$prms_solve,
-                               t_vec, one_cond = "W",
-                               a_model$ddm_opts),
+      a_model$prms_solve,
+      t_vec,
+      one_cond = "W",
+      a_model$ddm_opts
+    ),
     "t_vec is not a vector"
   )
   expect_error(
     a_model$comp_funs$nt_fun(a_model$prms_model,
-                             a_model$prms_solve,
-                             t_vec, one_cond = "W",
-                             a_model$ddm_opts),
+      a_model$prms_solve,
+      t_vec,
+      one_cond = "W",
+      a_model$ddm_opts
+    ),
     "t_vec is not a vector"
   )
   expect_error(
     a_model$comp_funs$x_fun(a_model$prms_model,
-                            a_model$prms_solve,
-                            x_vec, one_cond = "W",
-                            a_model$ddm_opts),
+      a_model$prms_solve,
+      x_vec,
+      one_cond = "W",
+      a_model$ddm_opts
+    ),
     "x_vec is not a vector"
   )
 })
@@ -414,7 +437,7 @@ test_that("set_free_prms works as expected", {
 
   expect_error(set_free_prms(a_model, NULL, NULL), "Neither")
   expect_error(set_free_prms(a_model, NULL, 1), "character")
-  expect_error(set_free_prms(a_model, c(1,2), NULL), "character")
+  expect_error(set_free_prms(a_model, c(1, 2), NULL), "character")
 })
 
 
@@ -427,9 +450,10 @@ test_that("set_solver_settings works as expected", {
     sigma = 1, t_max = 1, dt = .01, dx = .01,
     obs_data = ratcliff_synth_data
   )
-  a_model <- set_solver_settings(a_model, c(t_max = 3, dt = .1, dx = .1,
-                                            sigma = 2), eval_model = F
-  )
+  a_model <- set_solver_settings(a_model, c(
+    t_max = 3, dt = .1, dx = .1,
+    sigma = 2
+  ), eval_model = F)
   expect_identical(
     a_model$prms_solve,
     c(sigma = 2, t_max = 3, dt = .1, dx = .1, nt = 30, nx = 20)
@@ -459,9 +483,10 @@ test_that("set_solver_settings works as expected", {
     set_solver_settings(a_model, c(sol = 2)),
     "Automatically corrected"
   )
-  expect_error(set_solver_settings(a_model, c(sol = NULL),
-                                   "not of type character")
-  )
+  expect_error(set_solver_settings(
+    a_model, c(sol = NULL),
+    "not of type character"
+  ))
   expect_error(
     set_solver_settings(a_model, c(t_max = list(4))),
     "type numeric or character"
@@ -475,7 +500,6 @@ test_that("set_solver_settings works as expected", {
     set_solver_settings(a_model, c(t_max = 3, 3)),
     "'arg' should be one of"
   )
-
 })
 
 
@@ -568,7 +592,6 @@ test_that("setting model component functions work as expected", {
   expect_error(set_comp_funs(a_model, "bla"), "not a list")
   expect_error(set_comp_funs(a_model, list()), "empty")
   expect_error(set_comp_funs(a_model, list(b)), "not named")
-
 })
 
 
@@ -663,20 +686,19 @@ test_that("simulate_traces works as expected", {
   # call with multiple conds
   a_model$prms_solve[["sigma"]] <- 1
   a_model <- set_solver_settings(a_model, c(t_max = 1))
-  a_model$conds = c("foo", "bar")
-  set_one = simulate_traces(
+  a_model$conds <- c("foo", "bar")
+  set_one <- simulate_traces(
     drift_dm_obj = a_model, k = 1,
     conds = NULL
   )
   expect_equal(names(set_one), c("foo", "bar"))
 
 
-  set_two = simulate_traces(
+  set_two <- simulate_traces(
     drift_dm_obj = a_model, k = 1,
     conds = c("foo", "bar")
   )
   expect_equal(names(set_two), c("foo", "bar"))
-
 })
 
 
