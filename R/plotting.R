@@ -156,20 +156,20 @@ plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
       drift_dm_obj = obj, type = "cafs", source = source,
       n_bins = n_bins_cafs
     )
-    b_encoding = attr(obj, "b_encoding")
+    b_encoding <- attr(obj, "b_encoding")
   } else {
     cafs <- gather_stats(
       fits_ids = obj, type = "cafs", source = source,
       n_bins = n_bins_cafs, verbose = 1
     )
-    b_encoding = attr(obj$drift_dm_fit_info$drift_dm_obj, "b_encoding")
+    b_encoding <- attr(obj$drift_dm_fit_info$drift_dm_obj, "b_encoding")
   }
 
   agg_factors <- c("Source", "Cond", "Bin")
   stopifnot(agg_factors %in% colnames(cafs))
 
-  u_name = names(b_encoding$u_name_value)
-  caf_name = paste0("P_", u_name)
+  u_name <- names(b_encoding$u_name_value)
+  caf_name <- paste0("P_", u_name)
   cafs <- stats::aggregate(cafs[caf_name], by = cafs[agg_factors], FUN = mean)
 
   unique_conds <- unique(cafs$Cond)
@@ -249,18 +249,18 @@ plot_quantiles <- function(obj, source = "both",
       drift_dm_obj = obj, type = "quantiles", source = source,
       probs = probs_quantiles
     )
-    b_encoding = attr(obj, "b_encoding")
+    b_encoding <- attr(obj, "b_encoding")
   } else {
     quantiles <- gather_stats(
       fits_ids = obj, type = "quantiles", source = source,
       probs = probs_quantiles, verbose = 1
     )
-    b_encoding = attr(obj$drift_dm_fit_info$drift_dm_obj, "b_encoding")
+    b_encoding <- attr(obj$drift_dm_fit_info$drift_dm_obj, "b_encoding")
   }
 
 
 
-  u_name = names(b_encoding$u_name_value)
+  u_name <- names(b_encoding$u_name_value)
 
   if (is.null(dv_quantiles)) {
     dv_quantiles <- paste0("Quant_", u_name)

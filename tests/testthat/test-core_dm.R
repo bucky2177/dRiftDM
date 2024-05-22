@@ -552,51 +552,56 @@ test_that("set_obs_data and check_raw_data throw expected errors", {
 })
 
 test_that("set_b_encoding works as expected", {
-
   # model with other b_encoding
-  a_model = dmc_dm(dt = .005, dx = .005)
-  a_model = set_b_encoding(drift_dm_obj = a_model,
-                           b_encoding = list(column = "Test",
-                                             u_name_value = c("foo" = "a"),
-                                             l_name_value = c("bar" = "c"))
+  a_model <- dmc_dm(dt = .005, dx = .005)
+  a_model <- set_b_encoding(
+    drift_dm_obj = a_model,
+    b_encoding = list(
+      column = "Test",
+      u_name_value = c("foo" = "a"),
+      l_name_value = c("bar" = "c")
+    )
   )
-  some_data = data.frame(RT = c(0.1, 0.2, 0.3, 0.4),
-                         Test = c("a", "c", "c", "a"),
-                         Cond = c("comp", "incomp", "comp", "incomp"))
-  a_model = set_obs_data(a_model, obs_data = some_data)
-  a_model = re_evaluate_model(a_model)
+  some_data <- data.frame(
+    RT = c(0.1, 0.2, 0.3, 0.4),
+    Test = c("a", "c", "c", "a"),
+    Cond = c("comp", "incomp", "comp", "incomp")
+  )
+  a_model <- set_obs_data(a_model, obs_data = some_data)
+  a_model <- re_evaluate_model(a_model)
 
   # model with default encoding
-  b_model = dmc_dm(dt = .005, dx = .005)
-  some_data = data.frame(RT = c(0.1, 0.2, 0.3, 0.4),
-                         Error = c(0, 1, 1, 0),
-                         Cond = c("comp", "incomp", "comp", "incomp"))
-  b_model = set_obs_data(b_model, obs_data = some_data)
-  b_model = re_evaluate_model(b_model)
+  b_model <- dmc_dm(dt = .005, dx = .005)
+  some_data <- data.frame(
+    RT = c(0.1, 0.2, 0.3, 0.4),
+    Error = c(0, 1, 1, 0),
+    Cond = c("comp", "incomp", "comp", "incomp")
+  )
+  b_model <- set_obs_data(b_model, obs_data = some_data)
+  b_model <- re_evaluate_model(b_model)
 
   expect_identical(unlist(a_model), unlist(b_model))
 
   # some stats with other b_encoding
-  some_data = dmc_synth_data
-  colnames(some_data)[2] = "Test"
-  some_data$Test = ifelse(some_data$Test == 0, "a", "c")
-  a_model = set_obs_data(a_model, some_data)
-  stats1 = calc_stats(a_model, type = c("quantiles", "cafs"))
+  some_data <- dmc_synth_data
+  colnames(some_data)[2] <- "Test"
+  some_data$Test <- ifelse(some_data$Test == 0, "a", "c")
+  a_model <- set_obs_data(a_model, some_data)
+  stats1 <- calc_stats(a_model, type = c("quantiles", "cafs"))
   expect_equal(colnames(stats1$quantiles)[4:5], c("Quant_foo", "Quant_bar"))
   expect_equal(colnames(stats1$cafs)[4], c("P_foo"))
 
   # some stats with default encoding
-  some_data = dmc_synth_data
-  b_model = set_obs_data(b_model, some_data)
-  stats2 = calc_stats(b_model, type = c("quantiles", "cafs"))
+  some_data <- dmc_synth_data
+  b_model <- set_obs_data(b_model, some_data)
+  stats2 <- calc_stats(b_model, type = c("quantiles", "cafs"))
   expect_equal(stats2$quantiles$Quant_corr, stats1$quantiles$Quant_foo)
   expect_equal(stats2$quantiles$Quant_err, stats1$quantiles$Quant_bar)
   expect_equal(stats2$cafs$P_corr, stats1$cafs$P_foo)
-
 })
 
-test_that("set_b_encoding errs as expected",  {
-  a_model = dmc_dm()
+test_that("set_b_encoding errs as expected", {
+  a_model <- dmc_dm()
 
   expect_error(
     set_b_encoding(drift_dm_obj = NULL), "not of type drift_dm"
@@ -607,63 +612,90 @@ test_that("set_b_encoding errs as expected",  {
   )
 
   expect_error(
-    set_b_encoding(drift_dm_obj = a_model,
-                   b_encoding = list(column = "Error",
-                                     u_name_value = c("foo" = 1),
-                                     l_name_value = c("bar" = 1),
-                                     test = 3)),
+    set_b_encoding(
+      drift_dm_obj = a_model,
+      b_encoding = list(
+        column = "Error",
+        u_name_value = c("foo" = 1),
+        l_name_value = c("bar" = 1),
+        test = 3
+      )
+    ),
     "unexpected entries"
   )
 
   expect_error(
-    set_b_encoding(drift_dm_obj = a_model,
-                   b_encoding = list(column = "Error",
-                                     bla = c("foo" = 1),
-                                     l_name_value = c("bar" = 1))),
+    set_b_encoding(
+      drift_dm_obj = a_model,
+      b_encoding = list(
+        column = "Error",
+        bla = c("foo" = 1),
+        l_name_value = c("bar" = 1)
+      )
+    ),
     "unexpected entries"
   )
 
   expect_error(
-    set_b_encoding(drift_dm_obj = a_model,
-                   b_encoding = list(column = "Error",
-                                     u_name_value = c("foo" = "1"),
-                                     l_name_value = c("bar" = 1))),
+    set_b_encoding(
+      drift_dm_obj = a_model,
+      b_encoding = list(
+        column = "Error",
+        u_name_value = c("foo" = "1"),
+        l_name_value = c("bar" = 1)
+      )
+    ),
     "not of the same type"
   )
 
   expect_error(
-    set_b_encoding(drift_dm_obj = a_model,
-                   b_encoding = list(column = list(123),
-                                     u_name_value = c("foo" = 1, "bla" = 3),
-                                     l_name_value = c("bar" = 1))),
+    set_b_encoding(
+      drift_dm_obj = a_model,
+      b_encoding = list(
+        column = list(123),
+        u_name_value = c("foo" = 1, "bla" = 3),
+        l_name_value = c("bar" = 1)
+      )
+    ),
     "not a single character"
   )
 
 
   expect_error(
-    set_b_encoding(drift_dm_obj = a_model,
-                   b_encoding = list(column = c("foo", "bar"),
-                                     u_name_value = c("foo" = 1, "bla" = 3),
-                                     l_name_value = c("bar" = 1))),
+    set_b_encoding(
+      drift_dm_obj = a_model,
+      b_encoding = list(
+        column = c("foo", "bar"),
+        u_name_value = c("foo" = 1, "bla" = 3),
+        l_name_value = c("bar" = 1)
+      )
+    ),
     "not a single character"
   )
 
   expect_error(
-    set_b_encoding(drift_dm_obj = a_model,
-                   b_encoding = list(column = "Error",
-                                     u_name_value = c(1),
-                                     l_name_value = c("bar" = 1))),
+    set_b_encoding(
+      drift_dm_obj = a_model,
+      b_encoding = list(
+        column = "Error",
+        u_name_value = c(1),
+        l_name_value = c("bar" = 1)
+      )
+    ),
     "not a named vector"
   )
 
   expect_error(
-    set_b_encoding(drift_dm_obj = a_model,
-                   b_encoding = list(column = "Error",
-                                     u_name_value = c("foo" = 1),
-                                     l_name_value = c(1))),
+    set_b_encoding(
+      drift_dm_obj = a_model,
+      b_encoding = list(
+        column = "Error",
+        u_name_value = c("foo" = 1),
+        l_name_value = c(1)
+      )
+    ),
     "not a named vector"
   )
-
 })
 
 test_that("setting model component functions work as expected", {
@@ -825,12 +857,16 @@ test_that("simualte_data works as expected", {
     prms_model = my_prms, conds = conds, dx = .005,
     dt = .001, t_max = 1.5
   )
-  a_model = set_b_encoding(a_model, b_encoding = list(column = "col",
-                                            u_name_value = c(a = 0),
-                                            l_name_value = c(b = -1)))
+  a_model <- set_b_encoding(a_model, b_encoding = list(
+    column = "col",
+    u_name_value = c(a = 0),
+    l_name_value = c(b = -1)
+  ))
   sim_data <- simulate_data(a_model, 100000, seed = 1)
-  check_raw_data(sim_data, b_encoding_column = "col", u_name_value = 0,
-                 l_name_value = -1)
+  check_raw_data(sim_data,
+    b_encoding_column = "col", u_name_value = 0,
+    l_name_value = -1
+  )
 
   # correct quantiles
   sim_quantiles_a <- quantile(sim_data$RT[sim_data$col == 0],

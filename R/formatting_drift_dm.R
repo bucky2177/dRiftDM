@@ -52,7 +52,7 @@ print.drift_dm <- function(x, ...) {
 #' @export
 print.summary.drift_dm <- function(x, ...) {
   summary_obj <- x
-  round_to = drift_dm_default_rounding()
+  round_to <- drift_dm_default_rounding()
 
   cat(
     "Class(es):",
@@ -61,9 +61,9 @@ print.summary.drift_dm <- function(x, ...) {
   cat("\n")
 
   cat("\nObserved Data:\n")
-  obs_data_print = summary_obj$obs_data
+  obs_data_print <- summary_obj$obs_data
   if (!is.null(obs_data_print)) {
-    obs_data_print = round(obs_data_print, round_to)
+    obs_data_print <- round(obs_data_print, round_to)
   }
   print(obs_data_print)
   cat("\n")
@@ -78,9 +78,9 @@ print.summary.drift_dm <- function(x, ...) {
 
   cat("\nFit Indices:\n")
 
-  fit_stats_print = summary_obj$fit_stats
+  fit_stats_print <- summary_obj$fit_stats
   if (!is.null(fit_stats_print)) {
-    fit_stats_print = round(fit_stats_print, round_to)
+    fit_stats_print <- round(fit_stats_print, round_to)
   }
   print(fit_stats_print)
   cat("-------")

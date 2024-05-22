@@ -72,7 +72,7 @@ calc_cafs <- function(pdf_u, pdf_l, rts_u, rts_l, one_cond, n_bins = NULL,
   source <- match.arg(source, c("obs", "pred", "both"))
 
 
-  u_name = names(b_encoding$u_name_value)
+  u_name <- names(b_encoding$u_name_value)
 
 
   # calculations
@@ -189,8 +189,8 @@ calc_quantiles <- function(pdf_u, pdf_l, t_vec, rts_u, rts_l, one_cond,
 
   source <- match.arg(source, c("obs", "pred", "both"))
 
-  u_name = names(b_encoding$u_name_value)
-  l_name = names(b_encoding$l_name_value)
+  u_name <- names(b_encoding$u_name_value)
+  l_name <- names(b_encoding$l_name_value)
 
   # calculations
   if (source == "obs" | source == "both") {
@@ -243,10 +243,10 @@ calc_delta_fun <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
     stop("the provided quantiles_dat is not a data.frame")
   }
 
-  u_name = names(b_encoding$u_name_value)
-  l_name = names(b_encoding$l_name_value)
-  quant_name_u = paste("Quant", u_name, sep = "_")
-  quant_name_l = paste("Quant", l_name, sep = "_")
+  u_name <- names(b_encoding$u_name_value)
+  l_name <- names(b_encoding$l_name_value)
+  quant_name_u <- paste("Quant", u_name, sep = "_")
+  quant_name_l <- paste("Quant", l_name, sep = "_")
 
   nec_columns <- c("Source", "Cond", "Prob", quant_name_u, quant_name_l)
   if (any(colnames(quantiles_dat) != nec_columns)) {
@@ -450,7 +450,7 @@ calc_stats <- function(drift_dm_obj, type, source = "both",
   stopifnot(all(names(all_rts_u) == names(all_rts_l)))
   stopifnot(all(names(all_pdfs) == names(all_rts_l)))
 
-  b_encoding = attr(drift_dm_obj, "b_encoding")
+  b_encoding <- attr(drift_dm_obj, "b_encoding")
 
   # get time space (needed for quantiles)
   t_max <- drift_dm_obj$prms_solve[["t_max"]]

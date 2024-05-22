@@ -64,13 +64,13 @@
 #'
 #' @export
 estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
-                                    upper, fit_procedure_name,
-                                    folder_name = fit_procedure_name,
-                                    seed = NULL,
-                                    fit_dir = "drift_dm_fits",
-                                    force_refit = FALSE,
-                                    progress = 2,
-                                    start_vals = NULL, ...) {
+                               upper, fit_procedure_name,
+                               folder_name = fit_procedure_name,
+                               seed = NULL,
+                               fit_dir = "drift_dm_fits",
+                               force_refit = FALSE,
+                               progress = 2,
+                               start_vals = NULL, ...) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -89,10 +89,12 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
   }
 
   # check if data makes sense
-  b_encoding = attr(drift_dm_obj, "b_encoding")
-  obs_data_ids <- check_raw_data(obs_data_ids, b_encoding_column = b_encoding$column,
-                                 u_name_value = b_encoding$u_name_value,
-                                 b_encoding$l_name_value)
+  b_encoding <- attr(drift_dm_obj, "b_encoding")
+  obs_data_ids <- check_raw_data(obs_data_ids,
+    b_encoding_column = b_encoding$column,
+    u_name_value = b_encoding$u_name_value,
+    b_encoding$l_name_value
+  )
   if (drift_dm_obj$prms_solve[["t_max"]] < max(obs_data_ids$RT)) {
     stop(
       "t_max in drift_dm_obj is smaller than maximum RT. ",
@@ -370,8 +372,6 @@ load_fits_ids <- function(path = "drift_dm_fits",
                           detailed_info = F,
                           check_data = T,
                           progress = 2) {
-
-
   if (!is.character(path) | length(path) != 1) {
     stop("path is not character vector of length 1")
   }
@@ -387,7 +387,7 @@ load_fits_ids <- function(path = "drift_dm_fits",
   if (!is.logical(check_data) | length(check_data) != 1) {
     stop("fit_procedure_name is not character vector of length 1")
   }
-  if (!(progress %in% c(0,1,2))) {
+  if (!(progress %in% c(0, 1, 2))) {
     stop("progress must be 0, 1, or 2")
   }
 
@@ -412,8 +412,10 @@ load_fits_ids <- function(path = "drift_dm_fits",
 
   # if no fit_info files were found
   if (length(search_files) == 0) {
-    stop("no folder with a (suitable) file drift_dm_fit_info.rds found",
-         " in path ", path, " with procedure name ", fit_procedure_name)
+    stop(
+      "no folder with a (suitable) file drift_dm_fit_info.rds found",
+      " in path ", path, " with procedure name ", fit_procedure_name
+    )
   }
 
   option <- 1
@@ -460,8 +462,10 @@ load_fits_ids <- function(path = "drift_dm_fits",
     if (progress == 2) pb$tick()
     return(readRDS(x))
   })
-  list_of_all_fits <- stats::setNames(list_of_all_fits,
-                                      gsub(".rds$", "", basename(files)))
+  list_of_all_fits <- stats::setNames(
+    list_of_all_fits,
+    gsub(".rds$", "", basename(files))
+  )
   fits_ids <- list(
     drift_dm_fit_info = list_of_all_fits$drift_dm_fit_info,
     all_fits = list_of_all_fits[names(list_of_all_fits) != "drift_dm_fit_info"]
@@ -661,12 +665,12 @@ validate_fits_ids <- function(fits_ids, progress) {
 
     vp_data <- list_exp_obs_data[[one_vp]]
     for (one_cond in conds) {
-      check_u = model_data$rts_u[[one_cond]] ==
+      check_u <- model_data$rts_u[[one_cond]] ==
         vp_data$RT[vp_data$Cond == one_cond & vp_data[[b_encoding$column]] == b_encoding$u_name_value]
-      check_u = all(check_u)
-      check_l = model_data$rts_l[[one_cond]] ==
+      check_u <- all(check_u)
+      check_l <- model_data$rts_l[[one_cond]] ==
         vp_data$RT[vp_data$Cond == one_cond & vp_data[[b_encoding$column]] == b_encoding$l_name_value]
-      check_l = all(check_l)
+      check_l <- all(check_l)
 
       if (!check_u | !check_l) {
         warning(

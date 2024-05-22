@@ -35,13 +35,14 @@ test_that("snapshot the plotting functions", {
   vdiffr::expect_doppelganger(title = "quantile plot", fig = plot3())
 
   plot4 <- function() {
-    plot_stats(a_model, type = "delta_funs",
-               source = "both",
-               probs_deltas = c(0.2, 0.5, 0.7, 0.9),
-               x_lab_deltas = "foo", y_lab_deltas = "bar",
-               x_lim_deltas = c(0, 1), y_lim_deltas = c(-0.1, 0.3),
-               line_cols = c("black"),
-               minuends_deltas = "incomp", subtrahends_deltas = "comp"
+    plot_stats(a_model,
+      type = "delta_funs",
+      source = "both",
+      probs_deltas = c(0.2, 0.5, 0.7, 0.9),
+      x_lab_deltas = "foo", y_lab_deltas = "bar",
+      x_lim_deltas = c(0, 1), y_lim_deltas = c(-0.1, 0.3),
+      line_cols = c("black"),
+      minuends_deltas = "incomp", subtrahends_deltas = "comp"
     )
   }
   vdiffr::expect_doppelganger(title = "delta plot", fig = plot4())

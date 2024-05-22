@@ -39,4 +39,3 @@ test_that("drift_dm summary and print format", {
     print(sum_obj)
   )
 })
-

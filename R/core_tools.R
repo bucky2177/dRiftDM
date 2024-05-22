@@ -106,8 +106,8 @@ simulate_values <- function(lower, upper, k, distr = "unif",
   if (length(upper) != length(lower)) {
     stop("lower and upper are not of the same length")
   }
-  names_upper = names(upper)
-  names_lower = names(lower)
+  names_upper <- names(upper)
+  names_lower <- names(lower)
   if (!isTRUE(all.equal(names_upper, names_lower))) {
     stop("labels provided in upper and lower don't match!")
   }
@@ -123,7 +123,7 @@ simulate_values <- function(lower, upper, k, distr = "unif",
     stop("cast_to_data_frame must be a single logical value")
   }
 
-  add_id_column = match.arg(add_id_column, c("numeric", "character", "none"))
+  add_id_column <- match.arg(add_id_column, c("numeric", "character", "none"))
 
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1) {
@@ -165,19 +165,19 @@ simulate_values <- function(lower, upper, k, distr = "unif",
   prms <- do.call("cbind", prms)
 
   # wrangle and pass back
-  col_names = paste0("V", 1:length(upper))
-  if (!is.null(names_upper)) col_names = names_upper
-  colnames(prms) = col_names
+  col_names <- paste0("V", 1:length(upper))
+  if (!is.null(names_upper)) col_names <- names_upper
+  colnames(prms) <- col_names
 
-  ids = 1:k
+  ids <- 1:k
   if (add_id_column == "numeric") {
-    prms = cbind(prms, ID = ids)
+    prms <- cbind(prms, ID = ids)
   } else if (add_id_column == "character") {
-    prms = cbind(prms, ID = as.character(ids))
+    prms <- cbind(prms, ID = as.character(ids))
   }
 
 
-  if (cast_to_data_frame) prms = as.data.frame(prms)
+  if (cast_to_data_frame) prms <- as.data.frame(prms)
 
   return(prms)
 }

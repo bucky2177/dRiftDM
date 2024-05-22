@@ -64,4 +64,3 @@ test_that("input checks for draw_from_pdf", {
   pdf <- pdf - 0.1
   expect_warning(draw_from_pdf(pdf, x_def, 1), "negative pdf values")
 })
-

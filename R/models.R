@@ -455,7 +455,7 @@ ssp_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
     b_encoding = NULL
   )
 
-  ssp_dm = set_free_prms(drift_dm_obj = ssp_dm, new_fixed_prms = "r")
+  ssp_dm <- set_free_prms(drift_dm_obj = ssp_dm, new_fixed_prms = "r")
 
   class(ssp_dm) <- c("ssp_dm", class(ssp_dm))
 

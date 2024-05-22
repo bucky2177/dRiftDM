@@ -79,7 +79,6 @@ drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
                      mu_fun = NULL, mu_int_fun = NULL, x_fun = NULL,
                      b_fun = NULL, dt_b_fun = NULL, nt_fun = NULL,
                      b_encoding = NULL) {
-
   # conduct input checks and set defaults
   if (length(prms_model) == 0) {
     stop("prms_model has length 0")
@@ -161,13 +160,17 @@ new_drift_dm <- function(prms_model, conds, free_prms,
   class(drift_dm_obj) <- "drift_dm"
 
   # set encoding
-  drift_dm_obj <- set_b_encoding(drift_dm_obj = drift_dm_obj,
-                                 b_encoding)
+  drift_dm_obj <- set_b_encoding(
+    drift_dm_obj = drift_dm_obj,
+    b_encoding
+  )
 
   # add data if necessary
   if (!is.null(obs_data)) {
-    drift_dm_obj <- set_obs_data(drift_dm_obj = drift_dm_obj,
-                                 obs_data = obs_data)
+    drift_dm_obj <- set_obs_data(
+      drift_dm_obj = drift_dm_obj,
+      obs_data = obs_data
+    )
   }
 
   # return
@@ -378,12 +381,12 @@ validate_drift_dm <- function(drift_dm_obj) {
   if (length(b_encoding$u_name_value) != 1 | length(b_encoding$l_name_value) != 1) {
     stop("u_name_value or l_name_value in b_encoding are not of length 1")
   }
-  names_u = names(b_encoding$u_name_value)
+  names_u <- names(b_encoding$u_name_value)
   if (is.null(names_u)) {
     stop("u_name_value in b_encoding is not a named vector")
   }
 
-  names_l = names(b_encoding$l_name_value)
+  names_l <- names(b_encoding$l_name_value)
   if (is.null(names_l)) {
     stop("l_name_value in b_encoding is not a named vector")
   }
@@ -525,8 +528,6 @@ calc_ic <- function(ll, k, n) {
 #'
 #' @export
 re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
-
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -838,10 +839,9 @@ set_model_prms <- function(drift_dm_obj, new_prm_vals,
   check_if_named_numeric_vector(x = new_prm_vals, var_name = "new_prm_vals")
 
   if (replace == T) {
-    drift_dm_obj$prms_model = new_prm_vals
-    drift_dm_obj$free_prms = names(new_prm_vals)
+    drift_dm_obj$prms_model <- new_prm_vals
+    drift_dm_obj$free_prms <- names(new_prm_vals)
   } else {
-
     if (!all(names(new_prm_vals) %in% names(drift_dm_obj$prms_model))) {
       stop("the names specified in new_prm_vals don't match the model's parameters")
     }
@@ -1039,13 +1039,15 @@ set_obs_data <- function(drift_dm_obj, obs_data, eval_model = F) {
   }
 
 
-  b_encoding = attr(drift_dm_obj, "b_encoding")
-  column = b_encoding$column
-  u_name_value = b_encoding$u_name_value
-  l_name_value = b_encoding$l_name_value
-  obs_data <- check_raw_data(obs_data, b_encoding_column = column,
-                             u_name_value = u_name_value,
-                             l_name_value = l_name_value)
+  b_encoding <- attr(drift_dm_obj, "b_encoding")
+  column <- b_encoding$column
+  u_name_value <- b_encoding$u_name_value
+  l_name_value <- b_encoding$l_name_value
+  obs_data <- check_raw_data(obs_data,
+    b_encoding_column = column,
+    u_name_value = u_name_value,
+    l_name_value = l_name_value
+  )
 
 
   if (!all(unique(obs_data$Cond) %in% drift_dm_obj$conds)) {
@@ -1094,12 +1096,12 @@ set_obs_data <- function(drift_dm_obj, obs_data, eval_model = F) {
 
 check_raw_data <- function(obs_data, b_encoding_column, u_name_value,
                            l_name_value) {
-
   # check if the provided data.frame provides all necessary things
   if (!is.data.frame(obs_data)) stop("obs_data argument is not a data frame")
   if (!("RT" %in% colnames(obs_data))) stop("no RT column in data frame")
-  if (!(b_encoding_column %in% colnames(obs_data)))
+  if (!(b_encoding_column %in% colnames(obs_data))) {
     stop("no ", b_encoding_column, " column in data frame")
+  }
   if (!("Cond" %in% colnames(obs_data))) stop("no Cond column in data frame")
   if (!is.character(obs_data$Cond)) {
     warning(
@@ -1119,24 +1121,30 @@ check_raw_data <- function(obs_data, b_encoding_column, u_name_value,
   if (min(obs_data$RT) < 0) stop("RTs are not >= 0")
 
 
-  type_obs_b_encoding = class(obs_data[[b_encoding_column]])
-  type_b_encoding_u = class(u_name_value)
-  type_b_encoding_l = class(l_name_value)
+  type_obs_b_encoding <- class(obs_data[[b_encoding_column]])
+  type_b_encoding_u <- class(u_name_value)
+  type_b_encoding_l <- class(l_name_value)
 
   if (!isTRUE(all.equal(type_obs_b_encoding, type_b_encoding_u))) {
-    stop("column ", b_encoding_column, " in obs_data expected to be of type ",
-         type_b_encoding_u, ", but it is of type ", type_obs_b_encoding)
+    stop(
+      "column ", b_encoding_column, " in obs_data expected to be of type ",
+      type_b_encoding_u, ", but it is of type ", type_obs_b_encoding
+    )
   }
 
   if (!isTRUE(all.equal(type_obs_b_encoding, type_b_encoding_l))) {
-    stop("column ", b_encoding_column, " in obs_data expected to be of type ",
-         type_b_encoding_l, ", but it is of type ", type_obs_b_encoding)
+    stop(
+      "column ", b_encoding_column, " in obs_data expected to be of type ",
+      type_b_encoding_l, ", but it is of type ", type_obs_b_encoding
+    )
   }
 
   if (!all(unique(obs_data[[b_encoding_column]]) %in%
-           c(u_name_value, l_name_value))) {
-    stop(b_encoding_column, " column should only contain ",
-         u_name_value, " and ", l_name_value)
+    c(u_name_value, l_name_value))) {
+    stop(
+      b_encoding_column, " column should only contain ",
+      u_name_value, " and ", l_name_value
+    )
   }
 
   if ("ID" %in% colnames(obs_data)) {
@@ -1197,29 +1205,32 @@ set_comp_funs <- function(drift_dm_obj, comp_funs, eval_model = F) {
 #' @rdname set_model_prms
 #' @export
 set_b_encoding <- function(drift_dm_obj, b_encoding = NULL, eval_model = F) {
-
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
 
   # check and set encoding
   if (is.null(b_encoding)) {
-    b_encoding = list(column = "Error",
-                      u_name_value = c("corr" = 0),
-                      l_name_value = c("err" = 1))
+    b_encoding <- list(
+      column = "Error",
+      u_name_value = c("corr" = 0),
+      l_name_value = c("err" = 1)
+    )
   }
 
   if (!is.list(b_encoding)) {
     stop("b_encoding is not a list")
   } else {
-    exp_names = c("column", "u_name_value", "l_name_value")
+    exp_names <- c("column", "u_name_value", "l_name_value")
     if (!all(names(b_encoding) %in% exp_names)) {
-      stop("unexpected entries in b_encoding. Expected column, u_name_value,",
-      " l_name_value, found ", paste(names(b_encoding), collapse = ", "))
+      stop(
+        "unexpected entries in b_encoding. Expected column, u_name_value,",
+        " l_name_value, found ", paste(names(b_encoding), collapse = ", ")
+      )
     }
   }
 
-  attr(drift_dm_obj, "b_encoding") = b_encoding
+  attr(drift_dm_obj, "b_encoding") <- b_encoding
 
 
   # ensure that everything is up-to-date (or skip)
@@ -1229,7 +1240,6 @@ set_b_encoding <- function(drift_dm_obj, b_encoding = NULL, eval_model = F) {
   )
 
   drift_dm_obj <- validate_drift_dm(drift_dm_obj)
-
 }
 
 
@@ -1506,9 +1516,9 @@ simulate_one_data_set <- function(drift_dm_obj, n) {
   t_vec <- seq(0, t_max, length.out = nt + 1)
 
 
-  b_encoding = attr(drift_dm_obj, "b_encoding")
+  b_encoding <- attr(drift_dm_obj, "b_encoding")
   sim_data <- data.frame(numeric(), numeric(), character())
-  colnames(sim_data) = c("RT", b_encoding$column, "Cond")
+  colnames(sim_data) <- c("RT", b_encoding$column, "Cond")
 
   if (is.null(drift_dm_obj$pdfs)) {
     drift_dm_obj <- re_evaluate_model(
@@ -1534,12 +1544,15 @@ simulate_one_data_set <- function(drift_dm_obj, n) {
     cond_data <- data.frame(RT = c(samp_u, samp_l))
     cond_data[[b_encoding$column]] <-
       rep(c(b_encoding$u_name_value, b_encoding$l_name_value),
-          times = c(length(samp_u), length(samp_l)))
-    cond_data$Cond = one_cond
+        times = c(length(samp_u), length(samp_l))
+      )
+    cond_data$Cond <- one_cond
     sim_data <- rbind(sim_data, cond_data)
   }
-  check_raw_data(sim_data, b_encoding_column = b_encoding$column,
-                 u_name_value = b_encoding$u_name_value,
-                 l_name_value = b_encoding$l_name_value)
+  check_raw_data(sim_data,
+    b_encoding_column = b_encoding$column,
+    u_name_value = b_encoding$u_name_value,
+    l_name_value = b_encoding$l_name_value
+  )
   return(sim_data)
 }
