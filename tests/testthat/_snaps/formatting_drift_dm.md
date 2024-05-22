@@ -25,11 +25,11 @@
       Class(es): dmc_dm, drift_dm
       
       Observed Data:
-                      min. 1st qu. median  mean 3rd qu.  max.   n
-      correct comp   0.331   0.436  0.479 0.507   0.549 1.075 292
-      correct incomp 0.313   0.474  0.528 0.543   0.592 0.879 268
-      error comp     0.428   0.458  0.526 0.564   0.621 0.871   8
-      error incomp   0.302   0.398  0.452 0.458   0.498 0.771  32
+                   min. 1st qu. median  mean 3rd qu.  max.   n
+      corr comp   0.331   0.436  0.479 0.507   0.549 1.075 292
+      corr incomp 0.313   0.474  0.528 0.543   0.592 0.879 268
+      err comp    0.428   0.458  0.526 0.564   0.621 0.871   8
+      err incomp  0.302   0.398  0.452 0.458   0.498 0.771  32
       
       
       Number of Model Parameters:

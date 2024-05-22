@@ -1,12 +1,12 @@
 # drift_dm summary and print format
 
     Code
-      print(dm_fits_subjects)
+      print(dm_fits_ids)
     Output
       Fit procedure name: test_case_saved
       Fitted model type: ratcliff_dm, drift_dm
-      Time of (last) call: 2024-05-08 19:01:26
-      N Subjects: 2 
+      Time of (last) call: 2024-05-22 14:25:26
+      N Individuals: 2 
 
 ---
 
@@ -14,7 +14,7 @@
       print(sum_obj)
     Output
       Fit procedure name: test_case_saved
-      N Subjects: 2 
+      N Individuals: 2 
       
       Parameter summary:
               muc     b non_dec log_like      aic      bic
@@ -29,5 +29,5 @@
       
       -------
       Fitted model type: ratcliff_dm, drift_dm
-      Time of (last) call: 2024-05-08 19:01:26
+      Time of (last) call: 2024-05-22 14:25:26
 

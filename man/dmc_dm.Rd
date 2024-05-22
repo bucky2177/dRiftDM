@@ -44,3 +44,6 @@ and \code{alpha}
 Per default the shape parameter \code{a} is set to 2 and not allowed to
 vary (i.e., is not listed in \code{free_prms}).
 }
+\references{
+\insertRef{Ulrichetal.2015}{dRiftDM}
+}

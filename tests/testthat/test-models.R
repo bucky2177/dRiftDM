@@ -175,34 +175,34 @@ test_that("testing DMC", {
   expect_true(
     all(abs(
       sim_data$delta$meanComp -
-        dmc_quants$Quant_Corr[dmc_quants$Cond == "comp"] * 1000
+        dmc_quants$Quant_corr[dmc_quants$Cond == "comp"] * 1000
     ) < 10)
   )
 
   expect_true(
     all(abs(
       sim_data$delta$meanIncomp -
-        dmc_quants$Quant_Corr[dmc_quants$Cond == "incomp"] * 1000
+        dmc_quants$Quant_corr[dmc_quants$Cond == "incomp"] * 1000
     ) < 10)
   )
 
   expect_true(
     all(abs(
-      sim_data$caf$accPerComp - dmc_cafs$P_Corr[dmc_cafs$Cond == "comp"]
+      sim_data$caf$accPerComp - dmc_cafs$P_err[dmc_cafs$Cond == "comp"]
     ) < .01)
   )
 
   expect_true(
     all(abs(
       sim_data$caf$accPerIncomp[2:5] -
-        dmc_cafs$P_Corr[dmc_cafs$Cond == "incomp"][2:5]
+        dmc_cafs$P_err[dmc_cafs$Cond == "incomp"][2:5]
     ) < .01)
   )
 
   expect_true(
     all(abs(
       sim_data$caf$accPerIncomp[1] -
-        dmc_cafs$P_Corr[dmc_cafs$Cond == "incomp"][1]
+        dmc_cafs$P_err[dmc_cafs$Cond == "incomp"][1]
     ) < .035)
   ) # kfe predict more fast errors in general
 
@@ -235,34 +235,34 @@ test_that("testing DMC", {
   expect_true(
     all(abs(
       sim_data$delta$meanComp -
-        dmc_quants$Quant_Corr[dmc_quants$Cond == "comp"] * 1000
+        dmc_quants$Quant_corr[dmc_quants$Cond == "comp"] * 1000
     ) < 10)
   )
 
   expect_true(
     all(abs(
       sim_data$delta$meanIncomp -
-        dmc_quants$Quant_Corr[dmc_quants$Cond == "incomp"] * 1000
+        dmc_quants$Quant_corr[dmc_quants$Cond == "incomp"] * 1000
     ) < 10)
   )
 
   expect_true(
     all(abs(
-      sim_data$caf$accPerComp - dmc_cafs$P_Corr[dmc_cafs$Cond == "comp"]
+      sim_data$caf$accPerComp - dmc_cafs$P_err[dmc_cafs$Cond == "comp"]
     ) < .01)
   )
 
   expect_true(
     all(abs(
       sim_data$caf$accPerIncomp[2:5] -
-        dmc_cafs$P_Corr[dmc_cafs$Cond == "incomp"][2:5]
+        dmc_cafs$P_err[dmc_cafs$Cond == "incomp"][2:5]
     ) < .01)
   )
 
   expect_true(
     all(abs(
       sim_data$caf$accPerIncomp[1] -
-        dmc_cafs$P_Corr[dmc_cafs$Cond == "incomp"][1]
+        dmc_cafs$P_err[dmc_cafs$Cond == "incomp"][1]
     ) < .03)
   ) # starting condition kicks in more strongly with kfe
 })
@@ -352,19 +352,19 @@ test_that("ratcliff_simple works as expected", {
   )
   r_cafs <- calc_stats(a_model, type = "cafs", source = "pred")
   r_quants <- calc_stats(a_model, type = "quantiles", source = "pred")
-  r_quants$Quant_Corr <- r_quants$Quant_Corr - 0.3
+  r_quants$Quant_corr <- r_quants$Quant_corr - 0.3
 
   expect_true(
     all(abs(
       sim_data$delta$meanComp -
-        r_quants$Quant_Corr[r_quants$Cond == "null"] * 1000
+        r_quants$Quant_corr[r_quants$Cond == "null"] * 1000
     ) < 10)
   )
 
 
   expect_true(
     all(abs(
-      sim_data$caf$accPerComp - r_cafs$P_Corr[r_cafs$Cond == "null"]
+      sim_data$caf$accPerComp - r_cafs$P_err[r_cafs$Cond == "null"]
     ) < .01)
   )
 })

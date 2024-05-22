@@ -111,24 +111,24 @@ calc_log_like <- function(pdfs, t_vec, obs_data, conds) {
       pdf_u = pdfs[[one_cond]]$pdf_u,
       pdf_l = pdfs[[one_cond]]$pdf_l,
       t_vec = t_vec,
-      rts_corr = obs_data$rts_corr[[one_cond]],
-      rts_err = obs_data$rts_err[[one_cond]]
+      rts_u = obs_data$rts_u[[one_cond]],
+      rts_l = obs_data$rts_l[[one_cond]]
     )
   }
 
   return(log_like)
 }
 
-log_like_heart <- function(pdf_u, pdf_l, t_vec, rts_corr, rts_err) {
+log_like_heart <- function(pdf_u, pdf_l, t_vec, rts_u, rts_l) {
   tryCatch(
     expr = {
       app_like_u <- stats::approx(
         x = t_vec, y = pdf_u,
-        xout = rts_corr
+        xout = rts_u
       )$y
       app_like_l <- stats::approx(
         x = t_vec, y = pdf_l,
-        xout = rts_err
+        xout = rts_l
       )$y
 
       log_like <- sum(log(app_like_u)) + sum(log(app_like_l))

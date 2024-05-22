@@ -1,5 +1,5 @@
 test_that("gathering_parameters works as expected", {
-  fits <- load_fits_subjects(test_path("fixtures", "dm_fits_subjects"),
+  fits <- load_fits_ids(test_path("fixtures", "dm_fits_ids"),
     fit_procedure_name = "test_case_saved"
   )
 
@@ -15,7 +15,7 @@ test_that("gathering_parameters works as expected", {
 
   prms_test <- rbind(prms_1, prms_2)
   prms_test <- as.data.frame(prms_test)
-  prms_test <- data.frame(Subject = c(1, 2), prms_test)
+  prms_test <- data.frame(ID = c(1, 2), prms_test)
   rownames(prms_test) <- 1:2
   expect_identical(prms, prms_test)
 })
@@ -23,7 +23,7 @@ test_that("gathering_parameters works as expected", {
 
 
 test_that("gathering_stats works as expected", {
-  fits <- load_fits_subjects(test_path("fixtures", "dm_fits_subjects"),
+  fits <- load_fits_ids(test_path("fixtures", "dm_fits_ids"),
     fit_procedure_name = "test_case_saved"
   )
 
@@ -32,11 +32,11 @@ test_that("gathering_stats works as expected", {
   quantiles <- gather_stats(fits, type = "quantiles")
 
   quantiles_1 <- calc_stats(fits$all_fits$`1`, type = "quantiles")
-  quantiles_1 <- data.frame(Subject = "1", quantiles_1)
+  quantiles_1 <- data.frame(ID = "1", quantiles_1)
   quantiles_2 <- calc_stats(fits$all_fits$`2`, type = "quantiles")
-  quantiles_2 <- data.frame(Subject = "2", quantiles_2)
+  quantiles_2 <- data.frame(ID = "2", quantiles_2)
   quantiles_test <- rbind(quantiles_1, quantiles_2)
-  quantiles_test <- quantiles_test[order(quantiles_test$Subject), ]
+  quantiles_test <- quantiles_test[order(quantiles_test$ID), ]
   expect_identical(quantiles, quantiles_test)
 
 
@@ -44,11 +44,11 @@ test_that("gathering_stats works as expected", {
   cafs <- gather_stats(fits, type = "cafs")
 
   cafs_1 <- calc_stats(fits$all_fits$`1`, type = "cafs")
-  cafs_1 <- data.frame(Subject = "1", cafs_1)
+  cafs_1 <- data.frame(ID = "1", cafs_1)
   cafs_2 <- calc_stats(fits$all_fits$`2`, type = "cafs")
-  cafs_2 <- data.frame(Subject = "2", cafs_2)
+  cafs_2 <- data.frame(ID = "2", cafs_2)
   cafs_test <- rbind(cafs_1, cafs_2)
-  cafs_test <- cafs_test[order(cafs_test$Subject), ]
+  cafs_test <- cafs_test[order(cafs_test$ID), ]
   expect_identical(cafs, cafs_test)
 
 
@@ -68,13 +68,13 @@ test_that("gathering_stats works as expected", {
     type = "quantiles",
     source = "obs"
   )
-  quantiles_1 <- data.frame(Subject = "1", quantiles_1)
+  quantiles_1 <- data.frame(ID = "1", quantiles_1)
   quantiles_2 <- calc_stats(fits$all_fits$`2`,
     type = "quantiles",
     source = "obs"
   )
-  quantiles_2 <- data.frame(Subject = "2", quantiles_2)
+  quantiles_2 <- data.frame(ID = "2", quantiles_2)
   quantiles_test <- rbind(quantiles_1, quantiles_2)
-  quantiles_test <- quantiles_test[order(quantiles_test$Subject), ]
+  quantiles_test <- quantiles_test[order(quantiles_test$ID), ]
   expect_identical(quantiles, quantiles_test)
 })

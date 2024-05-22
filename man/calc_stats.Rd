@@ -4,7 +4,7 @@
 \alias{calc_stats}
 \title{Calcuating Statistics}
 \usage{
-calc_stats(drift_dm_obj, type, source = "both", ...)
+calc_stats(drift_dm_obj, type, source = "both", unlist_if_possible = T, ...)
 }
 \arguments{
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
@@ -16,15 +16,18 @@ calculated. Currently supported options are "cafs", "quantiles", "delta_funs".}
 the model's predictions ("pred"), or both ("both") should be calculated.
 Default is "both".}
 
+\item{unlist_if_possible}{logical, indicating if the returned value should
+always be a list (FALSE) or if it shall be single data.frame if possible (TRUE).
+Default is TRUE.}
+
 \item{...}{additional optional and necessary parameters passed down to the
 functions handling the calculations. See Details for more information}
 }
 \value{
-The return value depends on the \code{type} argument. If \code{type} is  a character
-vector of length 1, a single data.frame is returned containing the requested
-statistics. If \code{type} is a character vector of length > 1, a named list
-is passed back, with each entry in the list corresponding to a data.frame of
-statistics.
+a named list with each entry in the list corresponding to a data.frame.
+If \code{unlist_if_possible = TRUE} and when only a single
+type of statistic is requested, the corresponding data.frame is directly
+returned (i.e., not within a list).
 }
 \description{
 This function is a wrapper for calculating statistics on model predictions

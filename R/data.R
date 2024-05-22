@@ -37,9 +37,9 @@
 #' \insertCite{Richteretal.2023;textual}{dRiftDM}.
 #'
 #' @format
-#' A data.frame with 16 subjects and the following columns:
+#' A data.frame with 16 individuals and the following columns:
 #' \describe{
-#'   \item{Subject}{Subject ID}
+#'   \item{ID}{Individual IDs}
 #'   \item{RT}{Response Times}
 #'   \item{Error}{Error Coding (Error Response = 1; Correct Response = 0)}
 #'   \item{Cond}{Condition ('comp' and 'incomp')}
@@ -54,9 +54,9 @@
 #' \insertCite{Richteretal.2023;textual}{dRiftDM}.
 #'
 #' @format
-#' A data.frame with 16 subjects and the following columns:
+#' A data.frame with 16 individuals and the following columns:
 #' \describe{
-#'   \item{Subject}{Subject ID}
+#'   \item{ID}{Individual IDs}
 #'   \item{RT}{Response Times}
 #'   \item{Error}{Error Coding (Error Response = 1; Correct Response = 0)}
 #'   \item{Cond}{Condition ('comp' and 'incomp')}

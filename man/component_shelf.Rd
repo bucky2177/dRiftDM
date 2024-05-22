@@ -16,6 +16,10 @@ drift rate with parameter \code{muc}.
 of DMC. Necessary parameters are \code{muc} (drift rate of the controlled
 process), \code{a} (shape..), \code{A} (amplitude...), \code{tau} (scale of the
 automatic process).
+\item \code{mu_ssp}, provides the drift rate for SSP.
+Necessary parameters are \code{p} (perceptual input of flankers and
+target), \code{sd_0} (initial spotlight width), \code{r} (shrinking rate of the
+spotlight). Note that no \code{mu_int_ssp} exists.
 \item \code{mu_int_constant}, provides the complementary integral to \code{mu_constant}.
 \item \code{mu_int_dmc}, provides the complementary integral to \code{mu_dmc}.
 \item \code{x_dirac_0}, provides a dirac delta for a starting point

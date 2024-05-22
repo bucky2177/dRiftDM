@@ -6,9 +6,10 @@
 \alias{set_solver_settings}
 \alias{set_obs_data}
 \alias{set_comp_funs}
+\alias{set_b_encoding}
 \title{Setting attributes/components of a drift_dm model}
 \usage{
-set_model_prms(drift_dm_obj, new_prm_vals, eval_model = F)
+set_model_prms(drift_dm_obj, new_prm_vals, replace = F, eval_model = F)
 
 set_free_prms(drift_dm_obj, new_free_prms = NULL, new_fixed_prms = NULL)
 
@@ -17,12 +18,18 @@ set_solver_settings(drift_dm_obj, new_solver_vals, eval_model = F)
 set_obs_data(drift_dm_obj, obs_data, eval_model = F)
 
 set_comp_funs(drift_dm_obj, comp_funs, eval_model = F)
+
+set_b_encoding(drift_dm_obj, b_encoding = NULL, eval_model = F)
 }
 \arguments{
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}.}
 
 \item{new_prm_vals}{a named numeric vector, specifying new values
 for the model's parameters listed in \code{drift_dm_obj$prms_model}}
+
+\item{replace}{logical, specific for \code{set_model_prms()}, entirely replaces
+old parameters with \code{new_prm_vals}. In this case, \code{free_prms} is updated
+as well (so that all new parameters are considered free).}
 
 \item{eval_model}{logical, indicating whether \link{re_evaluate_model}
 should be called after modifying the model. Default is \code{FALSE}. Note that if
@@ -41,12 +48,18 @@ numerically solving  a model. Labels for each entry must match with
 \code{kfe} at the moment).}
 
 \item{obs_data}{a \link{data.frame} which provides three columns: (1) \code{RT} for
-the response times, (2) \code{Error} for error coding (1 = error, 0 = correct),
-(3) \code{Cond} for specifying the conditions (see
+the response times, (2) a column for boundary coding according \code{b_encoding}
+below, (3) \code{Cond} for specifying the conditions (see
 \code{vignette("use_ddm_models", "dRiftDM")} for more information).}
 
 \item{comp_funs}{list with named entries, containing component functions
 to set (see the details below).}
+
+\item{b_encoding, }{a list, specifying how boundaries are coded.
+The default \code{NULL} will internally result to 'accuracy' encoding:
+\code{list(column = "Error", u_name_value = c("correct" = 0), l_name_value = c("error" = 1))}.
+This means that \code{obs_data} (if provided) must contain a column "Error"
+with values 0 and 1 referring to the upper and lower boundary, respectively.}
 }
 \value{
 Returns the modified \code{drift_dm_obj} object.
@@ -63,6 +76,7 @@ methods is the highly recommended way of changing a model
 deriving the pdfs of the diffusion model
 \item \code{set_obs_data} can be used to pass/set observed data
 \item \code{set_comp_funs} can be used to pass/set component functions of the model
+\item \code{set_b_encoding} is used to specify how a model's boundary shall be labeled
 }
 }
 \details{

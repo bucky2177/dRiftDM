@@ -67,6 +67,11 @@ prms_to_str <- function(prms, names_prms, round_digits = NULL,
   return(current_prms)
 }
 
+first_letter_up <- function(x) {
+  substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+  x
+}
+
 
 # ============ GLOBAL VARIABLES
 drift_dm_approx_error <- function() {

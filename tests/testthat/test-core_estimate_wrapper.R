@@ -1,19 +1,19 @@
-test_that("estimate_model_subject and load_fits_subjects works as expected", {
+test_that("estimate_model_id and load_fits_ids works as expected", {
   unlink(test_path("temp_fits"), recursive = TRUE)
 
   a_model <- ratcliff_dm(t_max = 1, dt = 0.01, dx = 0.1)
-  subject_1 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
-  subject_1$Subject <- 1
-  subject_2 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 2)
-  subject_2$Subject <- 2
-  data_both <- rbind(subject_1, subject_2)
-  a_model <- set_obs_data(a_model, subject_1)
+  id_1 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
+  id_1$ID <- 1
+  id_2 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 2)
+  id_2$ID <- 2
+  data_both <- rbind(id_1, id_2)
+  a_model <- set_obs_data(a_model, id_1)
   a_model <- set_free_prms(a_model, c("muc"))
 
   expect_warning(
-    estimate_model_subjects(
+    estimate_model_ids(
       drift_dm_obj = a_model,
-      obs_data_subject = data_both,
+      obs_data_ids = data_both,
       lower = c(1), upper = c(5),
       fit_procedure_name = "test_case_1",
       seed = 1,
@@ -28,9 +28,9 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
   a_model$obs_data <- NULL
 
 
-  estimate_model_subjects(
+  estimate_model_ids(
     drift_dm_obj = a_model,
-    obs_data_subject = data_both,
+    obs_data_ids = data_both,
     lower = c(1), upper = c(5),
     fit_procedure_name = "test_case_2",
     folder_name = "test_case_no_2",
@@ -43,8 +43,8 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
 
   # input checks
   expect_error(
-    estimate_model_subjects("wrong_input",
-      obs_data_subject = data_both,
+    estimate_model_ids("wrong_input",
+      obs_data_ids = data_both,
       lower = c(1), upper = c(5),
       fit_dir = test_path("temp_fits"),
       fit_procedure_name = "test"
@@ -53,28 +53,28 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
   )
 
   expect_error(
-    estimate_model_subjects(a_model,
-      obs_data_subject = as.matrix(data_both),
+    estimate_model_ids(a_model,
+      obs_data_ids = as.matrix(data_both),
       lower = c(1), upper = c(5),
       fit_dir = test_path("temp_fits"),
       fit_procedure_name = "test"
     ),
-    "obs_data_subject is not a data.frame"
+    "obs_data_ids is not a data.frame"
   )
 
   expect_error(
-    estimate_model_subjects(a_model,
-      obs_data_subject = data_both[, c(1, 2, 3)],
+    estimate_model_ids(a_model,
+      obs_data_ids = data_both[, c(1, 2, 3)],
       lower = c(1), upper = c(5),
       fit_dir = test_path("temp_fits"),
       fit_procedure_name = "test"
     ),
-    "no Subject column"
+    "no ID column"
   )
 
   expect_error(
-    estimate_model_subjects(a_model,
-      obs_data_subject = data_both,
+    estimate_model_ids(a_model,
+      obs_data_ids = data_both,
       seed = NA,
       lower = c(1), upper = c(5),
       fit_dir = test_path("temp_fits"),
@@ -83,8 +83,8 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
     "seed must be a single numeric"
   )
   expect_error(
-    estimate_model_subjects(a_model,
-      obs_data_subject = data_both,
+    estimate_model_ids(a_model,
+      obs_data_ids = data_both,
       lower = c(1), upper = c(5),
       fit_dir = test_path("temp_fits"),
       fit_procedure_name = NA
@@ -93,8 +93,8 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
   )
 
   expect_error(
-    estimate_model_subjects(a_model,
-      obs_data_subject = data_both,
+    estimate_model_ids(a_model,
+      obs_data_ids = data_both,
       lower = c(1), upper = c(5),
       fit_dir = test_path("temp_fits"),
       fit_procedure_name = ""
@@ -102,8 +102,8 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
     "empty name"
   )
   expect_error(
-    estimate_model_subjects(a_model,
-      obs_data_subject = data_both,
+    estimate_model_ids(a_model,
+      obs_data_ids = data_both,
       lower = c(1), upper = c(5),
       fit_dir = test_path("temp_fits"),
       fit_procedure_name = "",
@@ -113,8 +113,8 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
   )
 
   expect_error(
-    estimate_model_subjects(a_model,
-      obs_data_subject = data_both,
+    estimate_model_ids(a_model,
+      obs_data_ids = data_both,
       lower = c(1), upper = c(5),
       fit_procedure_name = "test",
       fit_dir = NA
@@ -123,8 +123,8 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
   )
 
   expect_error(
-    estimate_model_subjects(a_model,
-      obs_data_subject = data_both,
+    estimate_model_ids(a_model,
+      obs_data_ids = data_both,
       lower = c(1), upper = c(5),
       fit_dir = test_path("temp_fits"),
       fit_procedure_name = "test",
@@ -136,52 +136,52 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
 
   # vp is called like the info file
   temp_data <- data_both
-  temp_data$Subject <- ifelse(data_both$Subject == 1, "drift_dm_fit_info",
-    data_both$Subject
+  temp_data$ID <- ifelse(data_both$ID == 1, "drift_dm_fit_info",
+    data_both$ID
   )
   expect_error(
-    estimate_model_subjects(a_model,
-      obs_data_subject = temp_data,
+    estimate_model_ids(a_model,
+      obs_data_ids = temp_data,
       lower = c(1), upper = c(5),
       fit_dir = test_path("temp_fits"),
-      fit_procedure_name = "subject_fail",
+      fit_procedure_name = "id_fail",
       force_refit = FALSE,
       progress = 0
     ),
-    "drift_dm_fit_info not allowed as subject number/identifier"
+    "drift_dm_fit_info not allowed as individual number/identifier"
   )
-  unlink(test_path("temp_fits", "subject_fail"), recursive = T)
+  unlink(test_path("temp_fits", "id_fail"), recursive = T)
 
 
   # lower-level error by estimate_model
-  temp_data <- data_both[data_both$Subject == 1, ]
+  temp_data <- data_both[data_both$ID == 1, ]
   expect_warning(
-    estimate_model_subjects(a_model,
-      obs_data_subject = temp_data,
+    estimate_model_ids(a_model,
+      obs_data_ids = temp_data,
       lower = c(1), upper = c(5, 2),
       fit_dir = test_path("temp_fits"),
       fit_procedure_name = "lower_fail",
       force_refit = FALSE,
       progress = 0
     ),
-    "Happened when fitting subject 1"
+    "Happened when fitting individual 1"
   )
   unlink(test_path("temp_fits", "lower_fail"), recursive = T)
 
 
   # ensure that everything is skipped, tested below when loading data
-  subject_1 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
-  subject_1$Subject <- 1
-  subject_2 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 4)
-  subject_2$Subject <- 2
-  subject_3 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 5)
-  subject_3$Subject <- 3
-  data_all <- rbind(subject_1, subject_2, subject_3)
+  id_1 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
+  id_1$ID <- 1
+  id_2 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 4)
+  id_2$ID <- 2
+  id_3 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 5)
+  id_3$ID <- 3
+  data_all <- rbind(id_1, id_2, id_3)
 
   expect_message(
-    estimate_model_subjects(
+    estimate_model_ids(
       drift_dm_obj = a_model,
-      obs_data_subject = data_all,
+      obs_data_ids = data_all,
       lower = c(1), upper = c(5),
       fit_procedure_name = "test_case_2",
       folder_name = "test_case_no_2",
@@ -196,31 +196,35 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
   #### NOW THE LOADING
 
   # wrong path
-  expect_error(load_fits_subjects(), "no directory")
+  expect_error(load_fits_ids(), "no directory")
 
   # wrong identifier
   expect_error(
-    load_fits_subjects(test_path("temp_fits"), "test_cas_e1"),
+    load_fits_ids(test_path("temp_fits"), "test_cas_e1"),
     "no folder with a \\(suitable\\) file drift_dm_fit_info.rds found"
   )
 
   # load one case
   expect_warning(
-    load_fits_subjects(
-      path = test_path("temp_fits"),
-      fit_procedure_name = "test_case_2"
-    ), "data of subject 2"
+    expect_warning(
+      expect_warning(
+        load_fits_ids(
+          path = test_path("temp_fits"),
+          fit_procedure_name = "test_case_2"
+        ), "data of individual 2"
+      )
+    )
   )
 
   # load one case
   loaded_data <- suppressWarnings(
-    load_fits_subjects(
+    load_fits_ids(
       path = test_path("temp_fits"),
       fit_procedure_name = "test_case_2"
     )
   )
 
-  expect_equal(data_all, loaded_data$drift_dm_fit_info$obs_data_subject)
+  expect_equal(data_all, loaded_data$drift_dm_fit_info$obs_data_ids)
   expect_equal(a_model, loaded_data$drift_dm_fit_info$drift_dm_obj)
   expect_equal(1, loaded_data$drift_dm_fit_info$lower)
   expect_equal(5, loaded_data$drift_dm_fit_info$upper)
@@ -229,19 +233,19 @@ test_that("estimate_model_subject and load_fits_subjects works as expected", {
 })
 
 
-test_that("load_fits_subjects menu and erros work as expected", {
+test_that("load_fits_ids menu and erros work as expected", {
   local({
     # Here, we override the menu function to force expected choice
     suppressWarnings(
       local_mock(menu = function(choices, title = NULL) 1)
     )
 
-    case_1 <- load_fits_subjects(
+    case_1 <- load_fits_ids(
       path = test_path("temp_fits"),
       fit_procedure_name = "test_case_1",
       check_data = F
     )
-    case_1_menu <- load_fits_subjects(
+    case_1_menu <- load_fits_ids(
       path = test_path("temp_fits"),
       fit_procedure_name = "",
       check_data = F,
@@ -257,7 +261,7 @@ test_that("load_fits_subjects menu and erros work as expected", {
 
 
 test_that("validate_models errs as expected", {
-  case_1 <- load_fits_subjects(
+  case_1 <- load_fits_ids(
     path = test_path("temp_fits"),
     fit_procedure_name = "test_case_1",
     check_data = F
@@ -266,47 +270,49 @@ test_that("validate_models errs as expected", {
   temp <- case_1
   class(temp) <- "foo"
   expect_error(
-    validate_fits_subjects(temp), "not of type dm_fits_subjects"
+    validate_fits_ids(temp, progress = 0), "not of type dm_fits_ids"
   )
 
   # wrong entries
   temp <- case_1
   temp$drift_dm_fit_info$bar <- 5
   expect_error(
-    validate_fits_subjects(temp), "unexpected info entries"
+    validate_fits_ids(temp, progress = 0), "unexpected info entries"
   )
 
   temp <- case_1
   temp$drift_dm_fit_info$time_call <- NULL
   expect_error(
-    validate_fits_subjects(temp), "contains not all expected info entries"
+    validate_fits_ids(temp, progress = 0),
+    "contains not all expected info entries"
   )
 
   # no time object
   temp <- case_1
   temp$drift_dm_fit_info$time_call <- "20"
   expect_error(
-    validate_fits_subjects(temp), "time_call"
+    validate_fits_ids(temp, progress = 0), "time_call"
   )
 
   # lower an upper
   temp <- case_1
   temp$drift_dm_fit_info$upper <- NA
   expect_error(
-    validate_fits_subjects(temp), "upper is not of type numeric"
+    validate_fits_ids(temp, progress = 0), "upper is not of type numeric"
   )
 
   temp <- case_1
   temp$drift_dm_fit_info$lower <- NA
   expect_error(
-    validate_fits_subjects(temp), "lower is not of type numeric"
+    validate_fits_ids(temp, progress = 0), "lower is not of type numeric"
   )
 
   temp <- case_1
   temp$drift_dm_fit_info$lower <- c(1, 2)
   temp$drift_dm_fit_info$upper <- c(1, 2, 3)
   expect_error(
-    validate_fits_subjects(temp), "length of upper and lower don't match"
+    validate_fits_ids(temp, progress = 0),
+    "length of upper and lower don't match"
   )
 
   # free_prms
@@ -314,7 +320,7 @@ test_that("validate_models errs as expected", {
   temp$drift_dm_fit_info$lower <- c(1, 2, 3)
   temp$drift_dm_fit_info$upper <- c(1, 2, 3)
   expect_error(
-    validate_fits_subjects(temp),
+    validate_fits_ids(temp, progress = 0),
     "length of upper/lower don't match the number of free parameters"
   )
 
@@ -322,72 +328,74 @@ test_that("validate_models errs as expected", {
   temp <- case_1
   temp$drift_dm_fit_info$seed <- NA
   expect_error(
-    validate_fits_subjects(temp), "seed is not a single number or NULL"
+    validate_fits_ids(temp, progress = 0),
+    "seed is not a single number or NULL"
   )
 
   # data frame
   temp <- case_1
-  temp$drift_dm_fit_info$obs_data_subject <- "foo"
+  temp$drift_dm_fit_info$obs_data_ids <- "foo"
   expect_error(
-    validate_fits_subjects(temp), "obs_data_subject is not a data.frame"
+    validate_fits_ids(temp, progress = 0), "obs_data_ids is not a data.frame"
   )
 
   temp <- case_1
-  temp$drift_dm_fit_info$obs_data_subject$Subject <- NULL
+  temp$drift_dm_fit_info$obs_data_ids$ID <- NULL
   expect_error(
-    validate_fits_subjects(temp), "no column Subject"
+    validate_fits_ids(temp, progress = 0), "no column ID"
   )
 
   # fit procedure name
   temp <- case_1
   temp$drift_dm_fit_info$fit_procedure_name <- c("a", "b")
   expect_error(
-    validate_fits_subjects(temp), "fit_procedure_name is not of type character"
+    validate_fits_ids(temp, progress = 0),
+    "fit_procedure_name is not of type character"
   )
 
-  # modify one subject
+  # modify one individual
   temp <- case_1
   names(temp$all_fits$`2`$prms_model) <- c("muc", "b", "foo")
   expect_error(
-    validate_fits_subjects(temp), "parameters of subject 2"
+    validate_fits_ids(temp, progress = 0), "parameters of individual 2"
   )
 
   temp <- case_1
   temp$all_fits$`2`$conds <- c("comp", "incomp")
   expect_error(
-    validate_fits_subjects(temp), "conditions of subject 2"
+    validate_fits_ids(temp, progress = 0), "conditions of individual 2"
   )
 
   temp <- case_1
   class(temp$all_fits$`2`) <- c("dmc_dm", "drift_dm")
   expect_error(
-    validate_fits_subjects(temp), "class of subject 2"
+    validate_fits_ids(temp, progress = 0), "class of individual 2"
   )
 
 
   temp <- case_1
   temp$all_fits$`2` <- set_solver_settings(temp$all_fits$`2`, c(sigma = 2))
   expect_error(
-    validate_fits_subjects(temp), "prms_solve of subject 2"
+    validate_fits_ids(temp, progress = 0), "prms_solve of individual 2"
   )
 
   temp <- case_1
   temp$all_fits$`2` <- set_free_prms(temp$all_fits$`2`, c("b"))
   expect_error(
-    validate_fits_subjects(temp), "free_prms of subject 2"
+    validate_fits_ids(temp, progress = 0), "free_prms of individual 2"
   )
 
   temp <- case_1
   temp$all_fits$`1`$prms_model[1] <- 0.5
   expect_error(
-    validate_fits_subjects(temp), "that are smaller than"
+    validate_fits_ids(temp, progress = 0), "that are smaller than"
   )
 
 
   temp <- case_1
   temp$all_fits$`1`$prms_model[1] <- Inf
   expect_error(
-    validate_fits_subjects(temp), "that are larger than"
+    validate_fits_ids(temp, progress = 0), "that are larger than"
   )
 
 
@@ -397,22 +405,24 @@ test_that("validate_models errs as expected", {
     return(stats::dbeta(x_vec, 1, 1))
   }
   expect_warning(
-    validate_fits_subjects(temp), "comp_funs"
+    validate_fits_ids(temp, progress = 0), "comp_funs"
   )
 
   # modify the data
   temp <- case_1
-  obs_data <- temp$drift_dm_fit_info$obs_data_subject
-  obs_data <- obs_data[obs_data$Subject == 1, ]
-  temp$drift_dm_fit_info$obs_data_subject <- obs_data
+  obs_data <- temp$drift_dm_fit_info$obs_data_ids
+  obs_data <- obs_data[obs_data$ID == 1, ]
+  temp$drift_dm_fit_info$obs_data_ids <- obs_data
   expect_warning(
-    validate_fits_subjects(temp), "1 subjects are expected but 2 were found"
+    validate_fits_ids(temp, progress = 0),
+    "1 individuals are expected but 2 were found"
   )
 
   temp <- case_1
-  temp$drift_dm_fit_info$obs_data_subject$RT[1] <- 0.1
+  temp$drift_dm_fit_info$obs_data_ids$RT[1] <- 0.1
   expect_warning(
-    validate_fits_subjects(temp), "doesn't match with the expected data"
+    validate_fits_ids(temp, progress = 0),
+    "doesn't match with the expected data"
   )
 
   unlink(test_path("temp_fits"), recursive = TRUE)
@@ -421,11 +431,11 @@ test_that("validate_models errs as expected", {
 
 test_that("start_vals work as expected", {
   a_model <- ratcliff_dm(t_max = 1, dt = 0.01, dx = 0.1)
-  subject_1 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
-  subject_1$Subject <- 1
-  start_vals <- data.frame(Subject = 1, muc = 5, b = 0.4, non_dec = 0.2)
+  id_1 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
+  id_1$ID <- 1
+  start_vals <- data.frame(ID = 1, muc = 5, b = 0.4, non_dec = 0.2)
   expect_warning(
-    estimate_model_subjects(a_model, subject_1,
+    estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_procedure_name = "foo",
@@ -436,12 +446,14 @@ test_that("start_vals work as expected", {
     "passing back unmodified object"
   )
   unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
-  expect_true(all(unmodifed$prms_model == start_vals[c("muc", "b", "non_dec")]))
+  expect_true(
+    all(unmodifed$prms_model == start_vals[c("muc", "b", "non_dec")])
+  )
   unlink(test_path("temp"), recursive = T)
 
   # default
   expect_warning(
-    estimate_model_subjects(a_model, subject_1,
+    estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_procedure_name = "foo",
@@ -457,7 +469,7 @@ test_that("start_vals work as expected", {
 
   # wrong input
   expect_error(
-    estimate_model_subjects(a_model, subject_1,
+    estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_procedure_name = "foo",
@@ -469,20 +481,20 @@ test_that("start_vals work as expected", {
   )
 
   expect_error(
-    estimate_model_subjects(a_model, subject_1,
+    estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_procedure_name = "foo",
       fit_dir = test_path("temp"),
       use_de_optim = F,
-      start_vals = start_vals[c("Subject", "muc")]
+      start_vals = start_vals[c("ID", "muc")]
     ),
     "don't match free_prms"
   )
 
   test_starts <- cbind(start_vals, bla = 3)
   expect_error(
-    estimate_model_subjects(a_model, subject_1,
+    estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_procedure_name = "foo",
@@ -494,9 +506,9 @@ test_that("start_vals work as expected", {
   )
 
   test_starts <- rbind(test_starts, test_starts)
-  test_starts$Subject <- c(1, 2)
+  test_starts$ID <- c(1, 2)
   expect_error(
-    estimate_model_subjects(a_model, subject_1,
+    estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_procedure_name = "foo",
@@ -504,12 +516,12 @@ test_that("start_vals work as expected", {
       use_de_optim = F,
       start_vals = test_starts
     ),
-    "subjects in start_vals that are not in obs_data_subject"
+    "individuals in start_vals that are not in obs_data_ids"
   )
 
-  test_starts$Subject <- c(1, 1)
+  test_starts$ID <- c(1, 1)
   expect_error(
-    estimate_model_subjects(a_model, subject_1,
+    estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_procedure_name = "foo",
@@ -521,9 +533,9 @@ test_that("start_vals work as expected", {
   )
 
   # wrong order relative to free_prms should not matter
-  start_vals <- data.frame(Subject = 1, b = 1, muc = 2, non_dec = 3)
+  start_vals <- data.frame(ID = 1, b = 1, muc = 2, non_dec = 3)
   expect_warning(
-    estimate_model_subjects(a_model, subject_1,
+    estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_procedure_name = "foo",

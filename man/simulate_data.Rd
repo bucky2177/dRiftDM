@@ -13,7 +13,7 @@ simulate_data(drift_dm_obj, n, df_prms = NULL, seed = NULL, verbose = 1)
 
 \item{df_prms}{data.frame, an optional data.frame providing the parameters
 that should be used for simulating the data. \code{df_prms} must provide columns
-named like the parameters in \code{drift_dm_obj$free_prms}, plus a column \code{Subject}
+named like the parameters in \code{drift_dm_obj$free_prms}, plus a column \code{ID}
 that will identify each simulated data set.}
 
 \item{seed}{numeric, an optional seed for reproducable sampling}
@@ -25,7 +25,7 @@ should be displayed. 0 -> no information,
 \value{
 a data.frame containing at least the columns \code{RT}, \code{Error}, and \code{Cond}. If
 \code{df_prms} is provided, then the data.frame will additionally contain the
-column \code{Subject}
+column \code{ID}
 }
 \description{
 This function simulates data based on the provided diffusion model. To this

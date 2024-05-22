@@ -146,8 +146,8 @@ plot_traces <- function(drift_dm_obj, k, conds = NULL, add_x = FALSE, seed = NUL
 plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
                       x_lab_cafs = NULL, y_lab_cafs = NULL, x_lim_cafs = NULL,
                       y_lim_cafs = NULL, line_cols_cafs = NULL, ...) {
-  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
-    stop("obj is not of type drift_dm or dm_fits_subjects")
+  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_ids")) {
+    stop("obj is not of type drift_dm or dm_fits_ids")
   }
 
   # get values
@@ -156,16 +156,21 @@ plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
       drift_dm_obj = obj, type = "cafs", source = source,
       n_bins = n_bins_cafs
     )
+    b_encoding = attr(obj, "b_encoding")
   } else {
     cafs <- gather_stats(
-      fits_subjects = obj, type = "cafs", source = source,
+      fits_ids = obj, type = "cafs", source = source,
       n_bins = n_bins_cafs, verbose = 1
     )
+    b_encoding = attr(obj$drift_dm_fit_info$drift_dm_obj, "b_encoding")
   }
 
   agg_factors <- c("Source", "Cond", "Bin")
   stopifnot(agg_factors %in% colnames(cafs))
-  cafs <- stats::aggregate(cafs["P_Corr"], by = cafs[agg_factors], FUN = mean)
+
+  u_name = names(b_encoding$u_name_value)
+  caf_name = paste0("P_", u_name)
+  cafs <- stats::aggregate(cafs[caf_name], by = cafs[agg_factors], FUN = mean)
 
   unique_conds <- unique(cafs$Cond)
 
@@ -175,7 +180,7 @@ plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
   }
 
   if (is.null(y_lab_cafs)) {
-    y_lab_cafs <- "Accuracy [%]"
+    y_lab_cafs <- paste("%", u_name)
   }
 
   if (is.null(y_lim_cafs)) {
@@ -208,14 +213,14 @@ plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
     sub_dat <- cafs[cafs$Cond == unique_conds[idx], ]
     sub_dat_obs <- sub_dat[sub_dat$Source == "obs", ]
     if (nrow(sub_dat_obs) > 0) {
-      graphics::points(sub_dat_obs$P_Corr ~ sub_dat_obs$Bin,
+      graphics::points(sub_dat_obs[[caf_name]] ~ sub_dat_obs$Bin,
         col = line_cols_cafs[idx]
       )
     }
 
     sub_dat_pred <- sub_dat[sub_dat$Source == "pred", ]
     if (nrow(sub_dat_pred) > 0) {
-      graphics::points(sub_dat_pred$P_Corr ~ sub_dat_pred$Bin,
+      graphics::points(sub_dat_pred[[caf_name]] ~ sub_dat_pred$Bin,
         ty = "l",
         col = line_cols_cafs[idx]
       )
@@ -234,8 +239,8 @@ plot_quantiles <- function(obj, source = "both",
                            x_lab_quantiles = NULL, y_lab_quantiles = NULL,
                            x_lim_quantiles = NULL, y_lim_quantiles = NULL,
                            line_cols_quantiles = NULL, ...) {
-  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
-    stop("obj is not of type drift_dm or dm_fits_subjects")
+  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_ids")) {
+    stop("obj is not of type drift_dm or dm_fits_ids")
   }
 
   # get values
@@ -244,17 +249,22 @@ plot_quantiles <- function(obj, source = "both",
       drift_dm_obj = obj, type = "quantiles", source = source,
       probs = probs_quantiles
     )
+    b_encoding = attr(obj, "b_encoding")
   } else {
     quantiles <- gather_stats(
-      fits_subjects = obj, type = "quantiles", source = source,
+      fits_ids = obj, type = "quantiles", source = source,
       probs = probs_quantiles, verbose = 1
     )
+    b_encoding = attr(obj$drift_dm_fit_info$drift_dm_obj, "b_encoding")
   }
 
+
+
+  u_name = names(b_encoding$u_name_value)
+
   if (is.null(dv_quantiles)) {
-    dv_quantiles <- "Quant_Corr"
+    dv_quantiles <- paste0("Quant_", u_name)
   }
-  dv_quantiles <- match.arg(dv_quantiles, c("Quant_Err", "Quant_Corr"))
 
   agg_factors <- c("Source", "Cond", "Prob")
   stopifnot(agg_factors %in% colnames(quantiles))
@@ -337,8 +347,8 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
                            x_lab_deltas = NULL, y_lab_deltas = NULL,
                            x_lim_deltas = NULL, y_lim_deltas = NULL,
                            line_cols_deltas = NULL, ...) {
-  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
-    stop("obj is not of type drift_dm or dm_fits_subjects")
+  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_ids")) {
+    stop("obj is not of type drift_dm or dm_fits_ids")
   }
 
   # get values
@@ -350,7 +360,7 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
     )
   } else {
     delta_fun <- gather_stats(
-      fits_subjects = obj, type = "delta_funs", source = source,
+      fits_ids = obj, type = "delta_funs", source = source,
       probs = probs_deltas, minuends = minuends_deltas,
       subtrahends = subtrahends_deltas, dv = dvs_deltas, verbose = 1
     )
@@ -444,11 +454,11 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
 #' subsequently creates basic plots.
 #'
 #' @param obj an object inheriting from [dRiftDM::drift_dm] or
-#' `dm_fits_subjects` (see [dRiftDM::load_fits_subjects]). If `obj` is of the
+#' `dm_fits_ids` (see [dRiftDM::load_fits_ids]). If `obj` is of the
 #' latter type, statistics may be calculated via
 #' [dRiftDM::gather_stats], depending on the requested statistics. For
 #' quantiles, delta functions, and CAfs, observed data and model predictions
-#' are averaged across subjects.
+#' are averaged across individuals.
 #'
 #' @param type character vector, indicating which statistics should be
 #'  plotted (see [dRiftDM::calc_stats] for more info).
@@ -476,8 +486,8 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
 #'
 #' Optional arguments
 #' - `probs_quantiles`: the probabilities for which quantiles to compute
-#' - `dv_quantiles`: The dependent variable to plot; options are `Quant_Corr` or
-#'  `Quant_Err` for correct or incorrect responses
+#' - `dv_quantiles`: The dependent variable to plot; default are quantiles
+#' associated with the upper boundary
 #' - `x_lab_quantiles`, `y_lab_quantiles`, `x_lim_quantiles`,
 #'   `y_lim_quantiles`: axes labels and limits
 #' - `line_cols_quantiles`: a character vector defining colors for each condition
@@ -490,8 +500,8 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
 #'
 #' Optional arguments
 #' - `probs_deltas`: the probabilities for which quantiles to calculate
-#' - `dvs_deltas`: The dependent variable to plot; options are `Quant_Corr` or
-#'  `Quant_Err` for correct or incorrect responses
+#' - `dvs_deltas`: The dependent variable to plot; default are quantiles
+#' associated with the upper boundary
 #' - `x_lab_deltas`, `y_lab_deltas`, `x_lim_deltas`, `y_lim_deltas`: axes labels
 #' and limits
 #' - `line_cols_deltas`: a character vector defining colors for each line
@@ -499,8 +509,8 @@ plot_delta_fun <- function(obj, source = "both", minuends_deltas,
 #'
 #' @export
 plot_stats <- function(obj, type, source = "both", mfrow = NULL, ...) {
-  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_subjects")) {
-    stop("obj is not of type drift_dm or dm_fits_subjects")
+  if (!inherits(obj, "drift_dm") & !inherits(obj, "dm_fits_ids")) {
+    stop("obj is not of type drift_dm or dm_fits_ids")
   }
 
   if (!is.character(type) | length(type) == 0) {
@@ -535,10 +545,10 @@ plot_stats <- function(obj, type, source = "both", mfrow = NULL, ...) {
 
 #' Plot Parameter Distribution(s)
 #'
-#' This function creates a histogram for each parameter in `fits_subjects`
+#' This function creates a histogram for each parameter in `fits_ids`
 #'
-#' @param fits_subjects an object inheriting from `dm_fits_subjects` (see
-#' [dRiftDM::load_fits_subjects])
+#' @param fits_ids an object inheriting from `dm_fits_ids` (see
+#' [dRiftDM::load_fits_ids])
 #' @param include_fit_values logical, indicating if a histogram for
 #' `log_like`, `AIC`, and `BIC` should be created as well
 #' @param col the color of the histrogram bars
@@ -547,20 +557,20 @@ plot_stats <- function(obj, type, source = "both", mfrow = NULL, ...) {
 #'
 #' @details
 #' This function uses [dRiftDM::gather_parameters] to gather parameters across
-#' subjects for a single object of type `dm_fits_subjects`. Subsequently it
+#' individuals for a single object of type `dm_fits_ids`. Subsequently it
 #' creates a histogram for each parameter. The final plot has multiple panels,
 #' each for one parameter.
 #'
 #'
 #' @export
-plot_prms <- function(fits_subjects, include_fit_values = F, col = "skyblue",
+plot_prms <- function(fits_ids, include_fit_values = F, col = "skyblue",
                       breaks = "Sturges") {
-  if (!inherits(fits_subjects, "dm_fits_subjects")) {
-    stop("argument fits_subjects is not not of type dm_fits_subjects")
+  if (!inherits(fits_ids, "dm_fits_ids")) {
+    stop("argument fits_ids is not not of type dm_fits_ids")
   }
 
-  prms <- gather_parameters(fits_subjects)
-  to_plot_names <- setdiff(colnames(prms), c("Subject"))
+  prms <- gather_parameters(fits_ids)
+  to_plot_names <- setdiff(colnames(prms), c("ID"))
   if (!include_fit_values) {
     to_plot_names <- setdiff(to_plot_names, c("AIC", "BIC", "log_like"))
   }

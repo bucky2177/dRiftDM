@@ -154,9 +154,9 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
 
   # objective function to minimize
   goal_wrapper <- function(new_model_prms, drift_dm_obj, verbose) {
+
     drift_dm_obj$prms_model[drift_dm_obj$free_prms] <- new_model_prms
     drift_dm_obj <- re_evaluate_model(drift_dm_obj = drift_dm_obj, eval_model = T)
-
 
     if (verbose == 2) {
       current_prms <- prms_to_str(

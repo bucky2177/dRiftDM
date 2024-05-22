@@ -18,7 +18,8 @@ drift_dm(
   x_fun = NULL,
   b_fun = NULL,
   dt_b_fun = NULL,
-  nt_fun = NULL
+  nt_fun = NULL,
+  b_encoding = NULL
 )
 }
 \arguments{
@@ -36,9 +37,6 @@ estimated/changed). The entries of \code{free_prms} have to match
 \code{names(prms_model)}. The default (\code{NULL}) will set
 \code{free_prms <- names(prms_model)}}
 
-\item{obs_data}{A \code{data.frame} used to fill the \code{drift_dm} object with data.
-See \link{set_obs_data} for more information.}
-
 \item{sigma}{The diffusion constant. Default is set to 1.}
 
 \item{t_max}{The maximum of the time space. Default is set to 3 (seconds).}
@@ -52,6 +50,10 @@ to .001.}
 \item{mu_fun, mu_int_fun, x_fun, b_fun, dt_b_fun, nt_fun}{custom functions
 defining the components of a diffusion model. See the respective
 \code{set_comp_funs} function.}
+
+\item{b_encoding, }{a list, specifying how boundaries are coded.
+The default is 'accuracy' encoding, see the default of
+\link{set_b_encoding}.}
 }
 \value{
 A list with the class label "drift_dm". In general, it is not
@@ -76,10 +78,9 @@ diffusion model (i.e., \code{mu_fun}, \code{mu_int_fun}, \code{x_fun}, \code{b_f
 package and will determine the behavior of the model
 }
 
-If observed data were passed to the model, either when calling \code{drift_dm()}
-or when calling \link{set_obs_data}, the list will contain an entry
-called \code{obs_data}. \code{obs_data}, in turn, is again a list, containing the
-response times of the correct or erroneous responses across conditions.
+If observed data were passed viat \link{set_obs_data},
+the list will contain an entry
+called \code{obs_data}.
 
 If the model has been evaluated (see \link{re_evaluate_model}), the
 list will additionally contain...

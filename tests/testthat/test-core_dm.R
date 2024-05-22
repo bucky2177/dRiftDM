@@ -31,9 +31,9 @@ test_that("creating a drift_dm object", {
   expect_identical(a_model$prms_solve, exp_solver_prms)
   expect_identical(a_model$solver, default_solver())
 
-  rts_corr <- list(null = some_data$RT[some_data$Error == 0])
-  rts_err <- list(null = some_data$RT[some_data$Error == 1])
-  exp_data <- list(rts_corr = rts_corr, rts_err = rts_err)
+  rts_u <- list(null = some_data$RT[some_data$Error == 0])
+  rts_l <- list(null = some_data$RT[some_data$Error == 1])
+  exp_data <- list(rts_u = rts_u, rts_l = rts_l)
   expect_identical(a_model$obs_data, exp_data)
 })
 
@@ -528,7 +528,7 @@ test_that("set_obs_data and check_raw_data throw expected errors", {
   expect_error(set_obs_data(a_model, list()), "not a data frame")
 
   temp_data <- data.frame(RT = 1, Error = "1", Cond = "null")
-  expect_warning(set_obs_data(a_model, temp_data), "not of type numeric")
+  expect_error(set_obs_data(a_model, temp_data), "type numeric")
 
   temp_data <- data.frame(RT = "1", Error = 1, Cond = "null")
   expect_warning(set_obs_data(a_model, temp_data), "not of type numeric")
@@ -546,9 +546,124 @@ test_that("set_obs_data and check_raw_data throw expected errors", {
 
   a_model$conds <- c("null")
   temp_data <- data.frame(RT = 1, Error = -1, Cond = "null")
-  expect_error(set_obs_data(a_model, temp_data), "only contain 0s and 1s")
+  expect_error(set_obs_data(a_model, temp_data), "only contain 0 and 1")
   temp_data <- data.frame(RT = -1, Error = 1, Cond = "null")
   expect_error(set_obs_data(a_model, temp_data), "not >= 0")
+})
+
+test_that("set_b_encoding works as expected", {
+
+  # model with other b_encoding
+  a_model = dmc_dm(dt = .005, dx = .005)
+  a_model = set_b_encoding(drift_dm_obj = a_model,
+                           b_encoding = list(column = "Test",
+                                             u_name_value = c("foo" = "a"),
+                                             l_name_value = c("bar" = "c"))
+  )
+  some_data = data.frame(RT = c(0.1, 0.2, 0.3, 0.4),
+                         Test = c("a", "c", "c", "a"),
+                         Cond = c("comp", "incomp", "comp", "incomp"))
+  a_model = set_obs_data(a_model, obs_data = some_data)
+  a_model = re_evaluate_model(a_model)
+
+  # model with default encoding
+  b_model = dmc_dm(dt = .005, dx = .005)
+  some_data = data.frame(RT = c(0.1, 0.2, 0.3, 0.4),
+                         Error = c(0, 1, 1, 0),
+                         Cond = c("comp", "incomp", "comp", "incomp"))
+  b_model = set_obs_data(b_model, obs_data = some_data)
+  b_model = re_evaluate_model(b_model)
+
+  expect_identical(unlist(a_model), unlist(b_model))
+
+  # some stats with other b_encoding
+  some_data = dmc_synth_data
+  colnames(some_data)[2] = "Test"
+  some_data$Test = ifelse(some_data$Test == 0, "a", "c")
+  a_model = set_obs_data(a_model, some_data)
+  stats1 = calc_stats(a_model, type = c("quantiles", "cafs"))
+  expect_equal(colnames(stats1$quantiles)[4:5], c("Quant_foo", "Quant_bar"))
+  expect_equal(colnames(stats1$cafs)[4], c("P_foo"))
+
+  # some stats with default encoding
+  some_data = dmc_synth_data
+  b_model = set_obs_data(b_model, some_data)
+  stats2 = calc_stats(b_model, type = c("quantiles", "cafs"))
+  expect_equal(stats2$quantiles$Quant_corr, stats1$quantiles$Quant_foo)
+  expect_equal(stats2$quantiles$Quant_err, stats1$quantiles$Quant_bar)
+  expect_equal(stats2$cafs$P_corr, stats1$cafs$P_foo)
+
+})
+
+test_that("set_b_encoding errs as expected",  {
+  a_model = dmc_dm()
+
+  expect_error(
+    set_b_encoding(drift_dm_obj = NULL), "not of type drift_dm"
+  )
+
+  expect_error(
+    set_b_encoding(drift_dm_obj = a_model, b_encoding = "a"), "not a list"
+  )
+
+  expect_error(
+    set_b_encoding(drift_dm_obj = a_model,
+                   b_encoding = list(column = "Error",
+                                     u_name_value = c("foo" = 1),
+                                     l_name_value = c("bar" = 1),
+                                     test = 3)),
+    "unexpected entries"
+  )
+
+  expect_error(
+    set_b_encoding(drift_dm_obj = a_model,
+                   b_encoding = list(column = "Error",
+                                     bla = c("foo" = 1),
+                                     l_name_value = c("bar" = 1))),
+    "unexpected entries"
+  )
+
+  expect_error(
+    set_b_encoding(drift_dm_obj = a_model,
+                   b_encoding = list(column = "Error",
+                                     u_name_value = c("foo" = "1"),
+                                     l_name_value = c("bar" = 1))),
+    "not of the same type"
+  )
+
+  expect_error(
+    set_b_encoding(drift_dm_obj = a_model,
+                   b_encoding = list(column = list(123),
+                                     u_name_value = c("foo" = 1, "bla" = 3),
+                                     l_name_value = c("bar" = 1))),
+    "not a single character"
+  )
+
+
+  expect_error(
+    set_b_encoding(drift_dm_obj = a_model,
+                   b_encoding = list(column = c("foo", "bar"),
+                                     u_name_value = c("foo" = 1, "bla" = 3),
+                                     l_name_value = c("bar" = 1))),
+    "not a single character"
+  )
+
+  expect_error(
+    set_b_encoding(drift_dm_obj = a_model,
+                   b_encoding = list(column = "Error",
+                                     u_name_value = c(1),
+                                     l_name_value = c("bar" = 1))),
+    "not a named vector"
+  )
+
+  expect_error(
+    set_b_encoding(drift_dm_obj = a_model,
+                   b_encoding = list(column = "Error",
+                                     u_name_value = c("foo" = 1),
+                                     l_name_value = c(1))),
+    "not a named vector"
+  )
+
 })
 
 test_that("setting model component functions work as expected", {
@@ -710,27 +825,31 @@ test_that("simualte_data works as expected", {
     prms_model = my_prms, conds = conds, dx = .005,
     dt = .001, t_max = 1.5
   )
+  a_model = set_b_encoding(a_model, b_encoding = list(column = "col",
+                                            u_name_value = c(a = 0),
+                                            l_name_value = c(b = -1)))
   sim_data <- simulate_data(a_model, 100000, seed = 1)
-  check_raw_data(sim_data)
+  check_raw_data(sim_data, b_encoding_column = "col", u_name_value = 0,
+                 l_name_value = -1)
 
   # correct quantiles
-  sim_quantiles_corr <- quantile(sim_data$RT[sim_data$Error == 0],
+  sim_quantiles_a <- quantile(sim_data$RT[sim_data$col == 0],
     probs = seq(0.1, 0.9, 0.1)
   )
   exp_quantiles <- calc_stats(a_model, type = "quantiles", source = "pred")
-  exp_quantiles_corr <- round(exp_quantiles$Quant_Corr, 3)
-  expect_true(all(abs(sim_quantiles_corr - exp_quantiles_corr) <= 1))
+  exp_quantiles_a <- round(exp_quantiles$Quant_a, 3)
+  expect_true(all(abs(sim_quantiles_a - exp_quantiles_a) <= 1))
 
   # error quantiles
-  sim_quantiles_err <- quantile(sim_data$RT[sim_data$Error == 1],
+  sim_quantiles_b <- quantile(sim_data$RT[sim_data$col == -1],
     probs = seq(0.1, 0.9, 0.1)
   )
-  exp_quantiles_err <- round(exp_quantiles$Quant_Err, 3)
-  expect_true(all(abs(exp_quantiles_err - exp_quantiles_err) <= 1))
+  exp_quantiles_b <- round(exp_quantiles$Quant_b, 3)
+  expect_true(all(abs(exp_quantiles_b - exp_quantiles_b) <= 1))
 
   # basic diffusion model has symmetric pdfs
   expect_true(all(
-    abs(exp_quantiles$Quant_Corr * 1000 - exp_quantiles$Quant_Err * 1000) <=
+    abs(exp_quantiles$Quant_a * 1000 - exp_quantiles$Quant_b * 1000) <=
       drift_dm_small_approx_error()
   ))
 
@@ -760,19 +879,19 @@ test_that("set_obs_data works as expected", {
   a_model <- set_obs_data(drift_dm_obj = a_model, obs_data = data)
 
   expect_identical(
-    a_model$obs_data$rts_corr$c,
+    a_model$obs_data$rts_u$c,
     rts[err == 0 & conds == "c"]
   )
   expect_identical(
-    a_model$obs_data$rts_corr$i,
+    a_model$obs_data$rts_u$i,
     rts[err == 0 & conds == "i"]
   )
   expect_identical(
-    a_model$obs_data$rts_err$c,
+    a_model$obs_data$rts_l$c,
     rts[err == 1 & conds == "c"]
   )
   expect_identical(
-    a_model$obs_data$rts_err$i,
+    a_model$obs_data$rts_l$i,
     rts[err == 1 & conds == "i"]
   )
 })

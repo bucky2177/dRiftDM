@@ -22,8 +22,6 @@
 #'  estimated/changed). The entries of `free_prms` have to match
 #'  `names(prms_model)`. The default (`NULL`) will set
 #'  `free_prms <- names(prms_model)`
-#' @param obs_data A `data.frame` used to fill the `drift_dm` object with data.
-#'  See [dRiftDM::set_obs_data] for more information.
 #' @param sigma The diffusion constant. Default is set to 1.
 #' @param t_max The maximum of the time space. Default is set to 3 (seconds).
 #' @param dt The step size of the time discretization. Default is set to .001
@@ -33,6 +31,9 @@
 #' @param mu_fun,mu_int_fun,x_fun,b_fun,dt_b_fun,nt_fun custom functions
 #'  defining the components of a diffusion model. See the respective
 #'  `set_comp_funs` function.
+#' @param b_encoding, a list, specifying how boundaries are coded.
+#'  The default is 'accuracy' encoding, see the default of
+#'  [dRiftDM::set_b_encoding].
 #'
 #' @returns A list with the class label "drift_dm". In general, it is not
 #' recommended to directly modify the entries of this list. Users should use the
@@ -56,10 +57,9 @@
 #'  package and will determine the behavior of the model
 #'
 #'
-#'  If observed data were passed to the model, either when calling `drift_dm()`
-#'  or when calling [dRiftDM::set_obs_data], the list will contain an entry
-#'  called `obs_data`. `obs_data`, in turn, is again a list, containing the
-#'  response times of the correct or erroneous responses across conditions.
+#'  If observed data were passed viat [dRiftDM::set_obs_data],
+#'  the list will contain an entry
+#'  called `obs_data`.
 #'
 #'  If the model has been evaluated (see [dRiftDM::re_evaluate_model]), the
 #'  list will additionally contain...
@@ -77,7 +77,9 @@
 drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
                      sigma = 1, t_max = 3, dt = .001, dx = .001,
                      mu_fun = NULL, mu_int_fun = NULL, x_fun = NULL,
-                     b_fun = NULL, dt_b_fun = NULL, nt_fun = NULL) {
+                     b_fun = NULL, dt_b_fun = NULL, nt_fun = NULL,
+                     b_encoding = NULL) {
+
   # conduct input checks and set defaults
   if (length(prms_model) == 0) {
     stop("prms_model has length 0")
@@ -127,8 +129,11 @@ drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
   # pass the arguments further down
   drift_dm_obj <- new_drift_dm(
     prms_model = prms_model, conds = conds,
-    free_prms = free_prms, obs_data = obs_data,
-    prms_solve = prms_solve, comp_funs = comp_funs
+    free_prms = free_prms,
+    prms_solve = prms_solve,
+    obs_data = obs_data,
+    comp_funs = comp_funs,
+    b_encoding = b_encoding
   )
 
   # validate the model to ensure everything is as expected and pass back
@@ -138,8 +143,8 @@ drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
 
 
 # ====== BACKEND FUNCTION FOR CREATING A DRIFT_DM OBJECT
-new_drift_dm <- function(prms_model, conds, free_prms, obs_data = NULL,
-                         prms_solve, comp_funs) {
+new_drift_dm <- function(prms_model, conds, free_prms,
+                         prms_solve, obs_data, comp_funs, b_encoding) {
   # calculate the number of discretization steps
   prms_solve["nt"] <- as.integer(
     prms_solve[["t_max"]] / prms_solve[["dt"]] + 1.e-8
@@ -155,9 +160,14 @@ new_drift_dm <- function(prms_model, conds, free_prms, obs_data = NULL,
   )
   class(drift_dm_obj) <- "drift_dm"
 
-  # convert and add data if necessary
+  # set encoding
+  drift_dm_obj <- set_b_encoding(drift_dm_obj = drift_dm_obj,
+                                 b_encoding)
+
+  # add data if necessary
   if (!is.null(obs_data)) {
-    drift_dm_obj <- set_obs_data(drift_dm_obj, obs_data, eval_model = F)
+    drift_dm_obj <- set_obs_data(drift_dm_obj = drift_dm_obj,
+                                 obs_data = obs_data)
   }
 
   # return
@@ -353,6 +363,33 @@ validate_drift_dm <- function(drift_dm_obj) {
     )
   }
 
+
+  # check boundary encoding
+  # check encoding
+  b_encoding <- attr(drift_dm_obj, "b_encoding")
+  if (!is.character(b_encoding$column) | length(b_encoding$column) != 1) {
+    stop("b_encoding_column is not a single character")
+  }
+
+  if (class(b_encoding$u_name_value) != class(b_encoding$l_name_value)) {
+    stop("u_name_value and l_name_value in b_encoding are not of the same type")
+  }
+
+  if (length(b_encoding$u_name_value) != 1 | length(b_encoding$l_name_value) != 1) {
+    stop("u_name_value or l_name_value in b_encoding are not of length 1")
+  }
+  names_u = names(b_encoding$u_name_value)
+  if (is.null(names_u)) {
+    stop("u_name_value in b_encoding is not a named vector")
+  }
+
+  names_l = names(b_encoding$l_name_value)
+  if (is.null(names_l)) {
+    stop("l_name_value in b_encoding is not a named vector")
+  }
+
+
+
   return(drift_dm_obj)
 }
 
@@ -447,7 +484,7 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
 
 
 
-# ===== FUNCTIONS FOR GETTING THE INFORMATION CRITERIA
+# ===== FUNCTIONS FOR GETTING THE INFORMATION and FITTING CRITERIA
 
 # prms: ll -> log_like_val, k = number of prms, n = number of observed data
 # points
@@ -457,6 +494,8 @@ calc_ic <- function(ll, k, n) {
 
   return(c(aic = aic, bic = bic))
 }
+
+
 
 # ===== FUNCTION FOR ENSURING EVERYTHING IS UP-TO-DATE
 
@@ -486,6 +525,8 @@ calc_ic <- function(ll, k, n) {
 #'
 #' @export
 re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
+
+
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -592,6 +633,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
   drift_dm_obj$pdfs <- pdfs
 
 
+
   # return if no data is supplied, so log_like and ic_vals are not updated
   if (is.null(drift_dm_obj$obs_data)) {
     return(drift_dm_obj)
@@ -638,9 +680,14 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 #'
 #' * `set_comp_funs` can be used to pass/set component functions of the model
 #'
+#' * `set_b_encoding` is used to specify how a model's boundary shall be labeled
+#'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm].
 #' @param new_prm_vals a named numeric vector, specifying new values
 #' for the model's parameters listed in `drift_dm_obj$prms_model`
+#' @param replace logical, specific for `set_model_prms()`, entirely replaces
+#' old parameters with `new_prm_vals`. In this case, `free_prms` is updated
+#' as well (so that all new parameters are considered free).
 #' @param new_free_prms,new_fixed_prms a character vector specifying the names
 #'  of the parameters that are either allowed to vary or which are fixed. When
 #'  calling `set_free_prms`, users can only specify `new_free_prms` or
@@ -651,8 +698,8 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 #'  `solver`, `sigma`, `t_max`, `dt` or `dx` (Note that `solver` can only be
 #'  `kfe` at the moment).
 #' @param obs_data a [data.frame] which provides three columns: (1) `RT` for
-#'  the response times, (2) `Error` for error coding (1 = error, 0 = correct),
-#'  (3) `Cond` for specifying the conditions (see
+#'  the response times, (2) a column for boundary coding according `b_encoding`
+#'  below, (3) `Cond` for specifying the conditions (see
 #'  \code{vignette("use_ddm_models", "dRiftDM")} for more information).
 #'
 #' @param comp_funs list with named entries, containing component functions
@@ -661,6 +708,12 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 #'  should be called after modifying the model. Default is `FALSE`. Note that if
 #'  `eval_model` is set to `FALSE`, the attributes `pdfs`, `log_like_val`,
 #'  and `ic_vals` are deleted from the model.
+#'
+#' @param b_encoding, a list, specifying how boundaries are coded.
+#'  The default `NULL` will internally result to 'accuracy' encoding:
+#' `list(column = "Error", u_name_value = c("correct" = 0), l_name_value = c("error" = 1))`.
+#' This means that `obs_data` (if provided) must contain a column "Error"
+#' with values 0 and 1 referring to the upper and lower boundary, respectively.
 #'
 #' @details
 #'
@@ -771,22 +824,30 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 #'
 #' @export
 set_model_prms <- function(drift_dm_obj, new_prm_vals,
-                           eval_model = F) {
+                           replace = F, eval_model = F) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
   if (!is.logical(eval_model) | length(eval_model) != 1) {
     stop("eval_model must be logical")
   }
+  if (!is.logical(replace) | length(replace) != 1) {
+    stop("replace must be logical")
+  }
 
   check_if_named_numeric_vector(x = new_prm_vals, var_name = "new_prm_vals")
 
-  if (!all(names(new_prm_vals) %in% names(drift_dm_obj$prms_model))) {
-    stop("the names specified in new_prm_vals don't match the model's parameters")
+  if (replace == T) {
+    drift_dm_obj$prms_model = new_prm_vals
+    drift_dm_obj$free_prms = names(new_prm_vals)
+  } else {
+
+    if (!all(names(new_prm_vals) %in% names(drift_dm_obj$prms_model))) {
+      stop("the names specified in new_prm_vals don't match the model's parameters")
+    }
+
+    drift_dm_obj$prms_model[names(new_prm_vals)] <- new_prm_vals
   }
-
-
-  drift_dm_obj$prms_model[names(new_prm_vals)] <- new_prm_vals
 
   # ensure that everything is up-to-date (or skip)
   drift_dm_obj <- re_evaluate_model(
@@ -976,7 +1037,16 @@ set_obs_data <- function(drift_dm_obj, obs_data, eval_model = F) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
-  obs_data <- check_raw_data(obs_data)
+
+
+  b_encoding = attr(drift_dm_obj, "b_encoding")
+  column = b_encoding$column
+  u_name_value = b_encoding$u_name_value
+  l_name_value = b_encoding$l_name_value
+  obs_data <- check_raw_data(obs_data, b_encoding_column = column,
+                             u_name_value = u_name_value,
+                             l_name_value = l_name_value)
+
 
   if (!all(unique(obs_data$Cond) %in% drift_dm_obj$conds)) {
     warning(
@@ -992,19 +1062,22 @@ set_obs_data <- function(drift_dm_obj, obs_data, eval_model = F) {
     )
   }
 
-  # add rts to the model
-  rts_corr <- list()
-  rts_err <- list()
-  for (one_cond in drift_dm_obj$conds) {
-    subDat <- obs_data[obs_data$Cond == one_cond, ]
-    rts_corr[[one_cond]] <- subDat$RT[subDat$Error == 0]
-    rts_err[[one_cond]] <- subDat$RT[subDat$Error == 1]
 
-    if (length(rts_corr[[one_cond]]) == 0 & length(rts_err[[one_cond]]) == 0) {
+
+
+  # add rts to the model
+  rts_u <- list()
+  rts_l <- list()
+  for (one_cond in drift_dm_obj$conds) {
+    sub_dat <- obs_data[obs_data$Cond == one_cond, ]
+    rts_u[[one_cond]] <- sub_dat$RT[sub_dat[[column]] == u_name_value]
+    rts_l[[one_cond]] <- sub_dat$RT[sub_dat[[column]] == l_name_value]
+
+    if (length(rts_u[[one_cond]]) == 0 & length(rts_l[[one_cond]]) == 0) {
       stop("Condition ", one_cond, " did not provide any RTs")
     }
   }
-  drift_dm_obj$obs_data <- list(rts_corr = rts_corr, rts_err = rts_err)
+  drift_dm_obj$obs_data <- list(rts_u = rts_u, rts_l = rts_l)
 
   # ensure that everything is up-to-date (or skip)
   drift_dm_obj <- re_evaluate_model(
@@ -1019,11 +1092,14 @@ set_obs_data <- function(drift_dm_obj, obs_data, eval_model = F) {
 }
 
 
-check_raw_data <- function(obs_data) {
+check_raw_data <- function(obs_data, b_encoding_column, u_name_value,
+                           l_name_value) {
+
   # check if the provided data.frame provides all necessary things
   if (!is.data.frame(obs_data)) stop("obs_data argument is not a data frame")
   if (!("RT" %in% colnames(obs_data))) stop("no RT column in data frame")
-  if (!("Error" %in% colnames(obs_data))) stop("no Error column in data frame")
+  if (!(b_encoding_column %in% colnames(obs_data)))
+    stop("no ", b_encoding_column, " column in data frame")
   if (!("Cond" %in% colnames(obs_data))) stop("no Cond column in data frame")
   if (!is.character(obs_data$Cond)) {
     warning(
@@ -1039,26 +1115,38 @@ check_raw_data <- function(obs_data) {
     )
     obs_data$RT <- as.numeric(obs_data$RT)
   }
-  if (!is.numeric(obs_data$Error)) {
-    warning(
-      "Error column in the provided data frame is not of type numeric",
-      " Trying to fix this by applying as.numeric() on the column"
-    )
-    obs_data$Error <- as.numeric(obs_data$Error)
-  }
+
   if (min(obs_data$RT) < 0) stop("RTs are not >= 0")
-  if (!all(unique(obs_data$Error) %in% c(0, 1))) {
-    stop("Error column should only contain 0s and 1s")
+
+
+  type_obs_b_encoding = class(obs_data[[b_encoding_column]])
+  type_b_encoding_u = class(u_name_value)
+  type_b_encoding_l = class(l_name_value)
+
+  if (!isTRUE(all.equal(type_obs_b_encoding, type_b_encoding_u))) {
+    stop("column ", b_encoding_column, " in obs_data expected to be of type ",
+         type_b_encoding_u, ", but it is of type ", type_obs_b_encoding)
   }
 
-  if ("Subject" %in% colnames(obs_data)) {
-    subject_cond_table <- table(obs_data$Subject, obs_data$Cond)
-    idx_0 <- which(subject_cond_table == 0, arr.ind = T)
+  if (!isTRUE(all.equal(type_obs_b_encoding, type_b_encoding_l))) {
+    stop("column ", b_encoding_column, " in obs_data expected to be of type ",
+         type_b_encoding_l, ", but it is of type ", type_obs_b_encoding)
+  }
+
+  if (!all(unique(obs_data[[b_encoding_column]]) %in%
+           c(u_name_value, l_name_value))) {
+    stop(b_encoding_column, " column should only contain ",
+         u_name_value, " and ", l_name_value)
+  }
+
+  if ("ID" %in% colnames(obs_data)) {
+    id_cond_table <- table(obs_data$ID, obs_data$Cond)
+    idx_0 <- which(id_cond_table == 0, arr.ind = T)
 
     if (nrow(idx_0) > 0) {
-      which_subjs <-
-        paste(rownames(subject_cond_table)[idx_0[, 1]], collapse = ", ")
-      stop("Subject(s) ", which_subjs, " do not provide RTs for all conditions")
+      which_ids <-
+        paste(rownames(id_cond_table)[idx_0[, 1]], collapse = ", ")
+      stop("ID(s) ", which_ids, " do not provide RTs for all conditions")
     }
   }
   return(obs_data)
@@ -1105,6 +1193,44 @@ set_comp_funs <- function(drift_dm_obj, comp_funs, eval_model = F) {
 }
 
 
+
+#' @rdname set_model_prms
+#' @export
+set_b_encoding <- function(drift_dm_obj, b_encoding = NULL, eval_model = F) {
+
+  if (!inherits(drift_dm_obj, "drift_dm")) {
+    stop("drift_dm_obj is not of type drift_dm")
+  }
+
+  # check and set encoding
+  if (is.null(b_encoding)) {
+    b_encoding = list(column = "Error",
+                      u_name_value = c("corr" = 0),
+                      l_name_value = c("err" = 1))
+  }
+
+  if (!is.list(b_encoding)) {
+    stop("b_encoding is not a list")
+  } else {
+    exp_names = c("column", "u_name_value", "l_name_value")
+    if (!all(names(b_encoding) %in% exp_names)) {
+      stop("unexpected entries in b_encoding. Expected column, u_name_value,",
+      " l_name_value, found ", paste(names(b_encoding), collapse = ", "))
+    }
+  }
+
+  attr(drift_dm_obj, "b_encoding") = b_encoding
+
+
+  # ensure that everything is up-to-date (or skip)
+  drift_dm_obj <- re_evaluate_model(
+    drift_dm_obj = drift_dm_obj,
+    eval_model = eval_model
+  )
+
+  drift_dm_obj <- validate_drift_dm(drift_dm_obj)
+
+}
 
 
 # ===== FUNCTIONS FOR SIMULATING DATA/TRIALS
@@ -1272,7 +1398,7 @@ simulate_traces <- function(drift_dm_obj, k, conds = NULL, add_x = FALSE,
 #' @param n numeric, the number of samples per condition to draw
 #' @param df_prms data.frame, an optional data.frame providing the parameters
 #' that should be used for simulating the data. `df_prms` must provide columns
-#' named like the parameters in `drift_dm_obj$free_prms`, plus a column `Subject`
+#' named like the parameters in `drift_dm_obj$free_prms`, plus a column `ID`
 #' that will identify each simulated data set.
 #' @param seed numeric, an optional seed for reproducable sampling
 #' @param verbose integer, indicating if information about the progress
@@ -1282,7 +1408,7 @@ simulate_traces <- function(drift_dm_obj, k, conds = NULL, add_x = FALSE,
 #' @returns
 #' a data.frame containing at least the columns `RT`, `Error`, and `Cond`. If
 #' `df_prms` is provided, then the data.frame will additionally contain the
-#' column `Subject`
+#' column `ID`
 #'
 #' @details
 #' Cdfs are derived from the model's pdfs and response times are drawn by
@@ -1318,10 +1444,10 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
   if (nrow(df_prms) <= 0) {
     stop("df_prms must provide at least one row with prms")
   }
-  if (!("Subject" %in% colnames(df_prms))) {
-    stop("no Subject column found in df_prms")
+  if (!("ID" %in% colnames(df_prms))) {
+    stop("no ID column found in df_prms")
   }
-  if (!all(names(df_prms)[names(df_prms) != "Subject"] %in%
+  if (!all(names(df_prms)[names(df_prms) != "ID"] %in%
     drift_dm_obj$free_prms)) {
     stop(
       "columns indicating parameters in df_prms don't match",
@@ -1329,7 +1455,7 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
     )
   }
   if (!all(drift_dm_obj$free_prms %in%
-    names(df_prms)[names(df_prms) != "Subject"])) {
+    names(df_prms)[names(df_prms) != "ID"])) {
     stop(
       "columns indicating parameters in df_prms don't match",
       " free_prms of the model object drift_dm_obj"
@@ -1348,19 +1474,18 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
   }
 
   all_sim_data <- apply(X = df_prms, MARGIN = 1, FUN = function(one_row) {
-    one_set <- one_row[names(one_row) != "Subject"]
+    one_set <- one_row[names(one_row) != "ID"]
     drift_dm_obj <- set_model_prms(
       drift_dm_obj = drift_dm_obj,
       new_prm_vals = one_set
     )
     one_sim_dat <- simulate_one_data_set(drift_dm_obj = drift_dm_obj, n = n)
-    one_sim_dat$Subject <- one_row[["Subject"]]
+    one_sim_dat$ID <- one_row[["ID"]]
     if (verbose == 1) pb$tick()
     return(one_sim_dat)
   })
 
   all_sim_data <- do.call("rbind", all_sim_data)
-  check_raw_data(all_sim_data)
   return(all_sim_data)
 }
 
@@ -1380,7 +1505,10 @@ simulate_one_data_set <- function(drift_dm_obj, n) {
   nt <- drift_dm_obj$prms_solve[["nt"]]
   t_vec <- seq(0, t_max, length.out = nt + 1)
 
-  sim_data <- data.frame(RT = numeric(), Error = numeric(), Cond = character())
+
+  b_encoding = attr(drift_dm_obj, "b_encoding")
+  sim_data <- data.frame(numeric(), numeric(), character())
+  colnames(sim_data) = c("RT", b_encoding$column, "Cond")
 
   if (is.null(drift_dm_obj$pdfs)) {
     drift_dm_obj <- re_evaluate_model(
@@ -1402,15 +1530,16 @@ simulate_one_data_set <- function(drift_dm_obj, n) {
     # sample upper pdf and lower pdf
     samp_u <- draw_from_pdf(a_pdf = pdf_u, x_def = t_vec, k = n_u)
     samp_l <- draw_from_pdf(a_pdf = pdf_l, x_def = t_vec, k = n - n_u)
-    sim_data <- rbind(
-      sim_data,
-      data.frame(
-        RT = c(samp_u, samp_l),
-        Error = rep(c(0, 1), times = c(length(samp_u), length(samp_l))),
-        Cond = one_cond
-      )
-    )
+
+    cond_data <- data.frame(RT = c(samp_u, samp_l))
+    cond_data[[b_encoding$column]] <-
+      rep(c(b_encoding$u_name_value, b_encoding$l_name_value),
+          times = c(length(samp_u), length(samp_l)))
+    cond_data$Cond = one_cond
+    sim_data <- rbind(sim_data, cond_data)
   }
-  check_raw_data(sim_data)
+  check_raw_data(sim_data, b_encoding_column = b_encoding$column,
+                 u_name_value = b_encoding$u_name_value,
+                 l_name_value = b_encoding$l_name_value)
   return(sim_data)
 }

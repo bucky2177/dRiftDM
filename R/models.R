@@ -38,7 +38,8 @@ ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
     prms_model = prms_model, conds = conds, free_prms = NULL,
     obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt, dx = dx,
     mu_fun = mu_constant, mu_int_fun = mu_int_constant, x_fun = x_dirac_0,
-    b_fun = b_constant, dt_b_fun = dt_b_constant, nt_fun = nt_constant
+    b_fun = b_constant, dt_b_fun = dt_b_constant, nt_fun = nt_constant,
+    b_encoding = NULL
   )
 
   # set other functions if requested
@@ -257,7 +258,8 @@ dmc_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
     free_prms = c("muc", "b", "non_dec", "sd_non_dec", "tau", "A", "alpha"),
     obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt, dx = dx,
     mu_fun = mu_dmc, mu_int_fun = mu_int_dmc, x_fun = x_beta,
-    b_fun = b_constant, dt_b_fun = dt_b_constant, nt_fun = nt_truncated_normal
+    b_fun = b_constant, dt_b_fun = dt_b_constant, nt_fun = nt_truncated_normal,
+    b_encoding = NULL
   )
   class(dmc_dm) <- c("dmc_dm", class(dmc_dm))
 
@@ -449,8 +451,11 @@ ssp_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
     free_prms = NULL, obs_data = obs_data, sigma = sigma,
     t_max = t_max, dt = dt, dx = dx, mu_fun = mu_ssp,
     mu_int_fun = dummy_t, x_fun = x_dirac_0, b_fun = b_constant,
-    dt_b_fun = dt_b_constant, nt_fun = nt_truncated_normal
+    dt_b_fun = dt_b_constant, nt_fun = nt_truncated_normal,
+    b_encoding = NULL
   )
+
+  ssp_dm = set_free_prms(drift_dm_obj = ssp_dm, new_fixed_prms = "r")
 
   class(ssp_dm) <- c("ssp_dm", class(ssp_dm))
 
