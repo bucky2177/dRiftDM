@@ -608,8 +608,8 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
         if (min(vals) < 0) {
           stop("pdf_nt provided negative values, condition ", one_cond)
         }
-        if (abs(sum(vals) * dt - 1) > drift_dm_medium_approx_error()) {
-          stop("pdf_nt doesn't integrate to 1, condition ", one_cond)
+        if (abs(sum(vals) * dt - 1) > drift_dm_small_approx_error()) {
+          stop("pdf_nt doesn't integrate to 1, condition ", one_cond, drift_dm_obj$prms_model)
         }
       }
       return(vals)
