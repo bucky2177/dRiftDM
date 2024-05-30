@@ -388,9 +388,8 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opt
   }
 
   d_val <- stats::dnorm(t_vec, non_dec, sd_non_dec)
-  p_u <- stats::pnorm(t_max, non_dec, sd_non_dec)
-  p_l <- stats::pnorm(0, non_dec, sd_non_dec)
-  d_nt <- d_val / (p_u - p_l)
+  d_nt <- d_val / (sum(d_val) * dt) # ensure it integrates to 1
+
   return(d_nt)
 }
 
