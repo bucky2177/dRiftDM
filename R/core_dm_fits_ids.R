@@ -15,7 +15,7 @@
 #' @param fits_ids an object inheriting from `dm_fits_ids`, see
 #'  [dRiftDM::load_fits_ids]
 #'
-#' @param fit_tats logical, indicating if `gather_parameters` should also return
+#' @param fit_stats logical, indicating if `gather_parameters` should also return
 #'  fit indices.
 #'
 #' @param type character vector when calling [dRiftDM::calc_stats]

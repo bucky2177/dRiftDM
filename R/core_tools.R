@@ -56,7 +56,7 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
 #'
 #' @param lower,upper numeric vectors, indicating the lower/upper boundary of
 #' the drawn values.
-#' @param n numeric, the number of values to be drawn for each value pair of
+#' @param k numeric, the number of values to be drawn for each value pair of
 #' lower/upper. If named numeric, the labels are used for the column names
 #' of the returned object
 #' @param distr character, indicating which distribution to draw from. Currently

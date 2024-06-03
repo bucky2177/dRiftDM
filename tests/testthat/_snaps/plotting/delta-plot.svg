@@ -62,7 +62,7 @@
 <circle cx='327.10' cy='354.72' r='2.70' style='stroke-width: 0.75;' />
 <circle cx='359.80' cy='371.15' r='2.70' style='stroke-width: 0.75;' />
 <circle cx='421.12' cy='389.63' r='2.70' style='stroke-width: 0.75;' />
-<polyline points='293.04,352.88 327.37,358.52 358.59,370.28 418.93,384.56 ' style='stroke-width: 0.75;' />
+<polyline points='293.05,352.88 327.38,358.53 358.60,370.28 418.93,384.56 ' style='stroke-width: 0.75;' />
 <rect x='566.44' y='473.76' width='123.32' height='28.80' style='stroke-width: 0.75; fill: #FFFFFF;' />
 <line x1='577.24' y1='488.16' x2='598.84' y2='488.16' style='stroke-width: 0.75;' />
 <text x='609.64' y='492.29' style='font-size: 12.00px; font-family: sans;' textLength='74.72px' lengthAdjust='spacingAndGlyphs'>incomp_comp</text>

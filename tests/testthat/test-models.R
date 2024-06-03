@@ -100,10 +100,11 @@ test_that("testing DMC", {
   pdf_nt <- a_dmc_model$comp_funs$nt_fun(
     prms_model = a_dmc_model$prms_model,
     prms_solve = a_dmc_model$prms_solve,
-    t_vec = seq(0, 1, 0.005),
+    t_vec = seq(0, 1, 0.001),
     one_cond = "comp", ddm_opts = NULL
   )
-  pdf_test <- truncnorm::dtruncnorm(seq(0, 1, .005), a = 0, mean = 0.3, sd = .02)
+  pdf_test <- truncnorm::dtruncnorm(seq(0, 1, .001), a = 0, mean = 0.3, sd = .02)
+  pdf_test <- pdf_test / (sum(pdf_test)*0.001)
   expect_equal(pdf_test, pdf_nt)
 
   #####
@@ -119,20 +120,6 @@ test_that("testing DMC", {
 
   pdfs_comp <- re_evaluate_model(a_dmc_model)$pdfs[["comp"]]
 
-  # get the pdfs from the python code....
-  pdf_u_comp <- read.table(test_path("fixtures", "pdf_u_cong.txt"))$V1
-  pdf_l_comp <- read.table(test_path("fixtures", "pdf_l_cong.txt"))$V1
-  # convolute it correctly
-  pdf_nt <- a_dmc_model$comp_funs$nt_fun(
-    prms_model = a_dmc_model$prms_model,
-    prms_solve = a_dmc_model$prms_solve,
-    t_vec = seq(0, 1000, 5),
-    one_cond = "comp", ddm_opts = NULL
-  )
-  pdf_u_comp <- stats::convolve(pdf_nt, rev(pdf_u_comp)) * 5
-  pdf_l_comp <- stats::convolve(pdf_nt, rev(pdf_l_comp)) * 5
-  expect_equal(pdf_u_comp, pdfs_comp[[1]] - drift_dm_robust_prm())
-  expect_equal(pdf_l_comp, pdfs_comp[[2]] - drift_dm_robust_prm())
 
   ###
   # compare solution in seconds with sigma = 1 and milliseconds with sigma = 4

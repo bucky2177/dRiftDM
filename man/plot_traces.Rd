@@ -51,6 +51,6 @@ is black.}
 }
 \description{
 This functions creates a basic plot that shows a user-defined number
-of traces (see \link{simulate_trace}).
+of traces (see \link{simulate_traces}).
 May come in handy when developing/testing/exploring a model.
 }

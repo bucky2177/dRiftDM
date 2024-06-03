@@ -22,6 +22,8 @@
 #'  estimated/changed). The entries of `free_prms` have to match
 #'  `names(prms_model)`. The default (`NULL`) will set
 #'  `free_prms <- names(prms_model)`
+#' @param obs_data A data.frame, providing a data set
+#'  (see [dRiftDM::set_obs_data])
 #' @param sigma The diffusion constant. Default is set to 1.
 #' @param t_max The maximum of the time space. Default is set to 3 (seconds).
 #' @param dt The step size of the time discretization. Default is set to .001
@@ -1251,7 +1253,7 @@ set_b_encoding <- function(drift_dm_obj, b_encoding = NULL, eval_model = F) {
 #' (i.e., single evidence accumulation processes) using forward euler.
 #'
 #' Might come in handy when exploring the model's behavior or when
-#' creating figures (see also [dRiftDM::plot_trace])
+#' creating figures (see also [dRiftDM::plot_traces])
 #'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm].
 #'

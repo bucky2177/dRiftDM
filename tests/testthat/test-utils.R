@@ -2,7 +2,7 @@ test_that("global variables are as expected", {
   expect_identical(drift_dm_approx_error(), 1e-20)
   expect_identical(drift_dm_small_approx_error(), .01)
   expect_identical(drift_dm_rough_approx_error(), .1)
-  expect_identical(drift_dm_robust_prm(), 1e-10)
+  expect_identical(drift_dm_robust_prm(), 1e-12)
   expect_identical(drift_dm_default_rounding(), 3)
 })
 

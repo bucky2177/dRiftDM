@@ -13,6 +13,9 @@ gather_stats(fits_ids, type, verbose = 0, ...)
 \item{fits_ids}{an object inheriting from \code{dm_fits_ids}, see
 \link{load_fits_ids}}
 
+\item{fit_stats}{logical, indicating if \code{gather_parameters} should also return
+fit indices.}
+
 \item{type}{character vector when calling \link{calc_stats}}
 
 \item{verbose}{optional, integer, indicating if information about the progress
@@ -20,9 +23,6 @@ should be displayed. Can be set for some of the \verb{gather_*} functions.
 0 -> no information, 1 -> a progress bar. Default is 0.}
 
 \item{...}{further arguments which are passed further down}
-
-\item{fit_tats}{logical, indicating if \code{gather_parameters} should also return
-fit indices.}
 }
 \description{
 \verb{gather_*} functions iterate over the individual model fits in

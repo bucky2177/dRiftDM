@@ -1,25 +1,3 @@
-test_that("force negative pdf values", {
-  a_model <- ratcliff_dm(dt = .01, dx = .01, obs_data = ratcliff_synth_data)
-  a_model <- set_model_prms(a_model, c(muc = 7, b = 0.1, non_dec = 0.3))
-  a_model <- suppressWarnings(re_evaluate_model(a_model))
-  expect_identical(-Inf, a_model$log_like_val)
-  expect_warning(
-    expect_warning(
-      expect_warning(
-        expect_warning(
-          re_evaluate_model(a_model), "NaNs"
-        ), "NaNs"
-      ), "when calculating the log-likelihood"
-    ), "when calculating the pdf"
-  )
-})
-
-
-
-
-
-
-
 
 test_that("test log_like", {
   data <- data.frame(

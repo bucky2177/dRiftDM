@@ -1,3 +1,8 @@
+#' @importFrom stats BIC
+#' @importFrom stats AIC
+
+
+
 #' @export
 logLik.drift_dm <- function(object, ...) {
   return(object$log_like_val)

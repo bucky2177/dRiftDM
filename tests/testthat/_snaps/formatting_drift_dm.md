@@ -44,7 +44,7 @@
       
       Fit Indices:
       log(like)       aic       bic 
-        163.914  -313.828  -283.050 
+        164.669  -315.339  -284.560 
       -------
       
       Conds: comp, incomp

@@ -3,7 +3,7 @@
 #'
 #' @description
 #' This functions creates a basic plot that shows a user-defined number
-#' of traces (see [dRiftDM::simulate_trace]).
+#' of traces (see [dRiftDM::simulate_traces]).
 #' May come in handy when developing/testing/exploring a model.
 #'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
@@ -663,7 +663,7 @@ plot_model_comps <- function(drift_dm_obj, line_cols = NULL,
       )
 
       for (i in seq_along(conds)) {
-        points(drift_rates[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+        graphics::points(drift_rates[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
       }
     },
     silent = T
@@ -690,7 +690,7 @@ plot_model_comps <- function(drift_dm_obj, line_cols = NULL,
       )
 
       for (i in seq_along(conds)) {
-        points(drift_rates_int[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+        graphics::points(drift_rates_int[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
       }
     },
     silent = T
@@ -716,7 +716,7 @@ plot_model_comps <- function(drift_dm_obj, line_cols = NULL,
       )
 
       for (i in seq_along(conds)) {
-        points(x_vals[[conds[i]]] ~ x_vec, ty = "l", col = line_cols[i])
+        graphics::points(x_vals[[conds[i]]] ~ x_vec, ty = "l", col = line_cols[i])
       }
     },
     silent = T
@@ -742,7 +742,7 @@ plot_model_comps <- function(drift_dm_obj, line_cols = NULL,
       )
 
       for (i in seq_along(conds)) {
-        points(bs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+        graphics::points(bs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
       }
     },
     silent = T
@@ -768,7 +768,7 @@ plot_model_comps <- function(drift_dm_obj, line_cols = NULL,
       )
 
       for (i in seq_along(conds)) {
-        points(dt_bs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+        graphics::points(dt_bs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
       }
     },
     silent = T
@@ -795,11 +795,11 @@ plot_model_comps <- function(drift_dm_obj, line_cols = NULL,
       )
 
       for (i in seq_along(conds)) {
-        points(non_dec_vecs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
+        graphics::points(non_dec_vecs[[conds[i]]] ~ t_vec, ty = "l", col = line_cols[i])
       }
     },
     silent = T
   )
 
-  legend("topright", legend = conds, col = line_cols, lty = 1)
+  graphics::legend("topright", legend = conds, col = line_cols, lty = 1)
 }

@@ -37,6 +37,9 @@ estimated/changed). The entries of \code{free_prms} have to match
 \code{names(prms_model)}. The default (\code{NULL}) will set
 \code{free_prms <- names(prms_model)}}
 
+\item{obs_data}{A data.frame, providing a data set
+(see \link{set_obs_data})}
+
 \item{sigma}{The diffusion constant. Default is set to 1.}
 
 \item{t_max}{The maximum of the time space. Default is set to 3 (seconds).}

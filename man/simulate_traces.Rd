@@ -39,7 +39,7 @@ This function simulates single trajectories/traces of a diffusion model
 (i.e., single evidence accumulation processes) using forward euler.
 
 Might come in handy when exploring the model's behavior or when
-creating figures (see also \link{plot_trace})
+creating figures (see also \link{plot_traces})
 }
 \details{
 The algorithm for simulating traces is forward euler. See

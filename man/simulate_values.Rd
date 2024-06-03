@@ -19,6 +19,10 @@ simulate_values(
 \item{lower, upper}{numeric vectors, indicating the lower/upper boundary of
 the drawn values.}
 
+\item{k}{numeric, the number of values to be drawn for each value pair of
+lower/upper. If named numeric, the labels are used for the column names
+of the returned object}
+
 \item{distr}{character, indicating which distribution to draw from. Currently
 available are: \code{"unif"} for a uniform distribution or \code{"tnorm"} for a
 truncated normal distribution}
@@ -36,10 +40,6 @@ to character if the argument \code{cast_to_data_frame} is set to FALSE.}
 (see details)}
 
 \item{...}{further arguments relevant for the distribution to draw from}
-
-\item{n}{numeric, the number of values to be drawn for each value pair of
-lower/upper. If named numeric, the labels are used for the column names
-of the returned object}
 }
 \value{
 If \code{cast_to_data_frame} is TRUE, a data.frame with \code{k} rows and at least
