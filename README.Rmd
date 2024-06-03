@@ -1,0 +1,55 @@
+---
+output: github_document
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# dRiftDM
+
+The package dRiftDM was developed to help psychology researchers apply time-dependent diffusion models in R. It comes with necessary tools for standard analyses, such as building a model, estimating parameters across multiple participants (separately per participant), or creating summary statistics. It also ships with pre-built models. Currently, these are: 
+
+- The Diffusion Model for Conflict Tasks 
+- The Shrinking Spotlight Model 
+- The Standard (Ratcliff) Diffusion Model
+
+With version 0.1.1 model predicitons (i.e., their first-passage time) are derived by numerically solving the Kolmogorov-Forward Equation based on code provided by Richter et al. (2023, JMP). 
+
+
+## Installation
+
+You can install the development version of dRiftDM from [GitHub](https://github.com/) with:
+
+```{r, eval = F}
+# install.packages("devtools")
+devtools::install_github("bucky2177/dRiftDM")
+```
+
+## Example
+
+We are in the progress of publishing a tutorial with more detailed instructions. For now, here is an example on how to fit the Diffusion Model for Conflict Tasks to some synthetic data using bounded Nelder-Mead:
+
+```{r example}
+library(dRiftDM)
+dmc_model = dmc_dm(dx = .002, dt = .002, t_max = 1.2)
+dmc_model = set_obs_data(drift_dm_obj = dmc_model,
+                         obs_data = dmc_synth_data)
+print(dmc_model)
+```
+
+```{r, eval = F}
+est_model = estimate_model(
+  drift_dm_obj = dmc_model,                       # a model
+  lower = c(2, 0.4, 0.2, 0.005, 0.02, 0.02, 2),   # lower boundary - search space
+  upper = c(6, 0.8, 0.5, 0.050, 0.12, 0.30, 7),   # upper boundary - search space
+  verbose = 2,                                    # print out each evaluation
+  use_de_optim = F, use_nmkb = T # use Nelder-Mead for demonstration
+)
+```
