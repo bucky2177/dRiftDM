@@ -104,7 +104,7 @@ test_that("testing DMC", {
     one_cond = "comp", ddm_opts = NULL
   )
   pdf_test <- truncnorm::dtruncnorm(seq(0, 1, .001), a = 0, mean = 0.3, sd = .02)
-  pdf_test <- pdf_test / (sum(pdf_test)*0.001)
+  pdf_test <- pdf_test / (sum(pdf_test) * 0.001)
   expect_equal(pdf_test, pdf_nt)
 
   #####

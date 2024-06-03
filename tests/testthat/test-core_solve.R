@@ -1,4 +1,3 @@
-
 test_that("test log_like", {
   data <- data.frame(
     RT = c(0.431, 0.402, 0.344, 0.3322),

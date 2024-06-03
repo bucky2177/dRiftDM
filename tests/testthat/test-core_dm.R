@@ -472,12 +472,12 @@ test_that("set_solver_settings works as expected", {
     "not implemented yet"
   )
   a_model$solver <- "kfe"
-  a_model = suppressWarnings(
+  a_model <- suppressWarnings(
     set_solver_settings(a_model, new_solver_vals = c(dx = .5, dt = .5))
   )
-  a_model$obs_data = NULL
+  a_model$obs_data <- NULL
   expect_warning(re_evaluate_model(a_model), "negative density values")
-  a_model = set_solver_settings(a_model, new_solver_vals = c(dx = .1, dt = .1))
+  a_model <- set_solver_settings(a_model, new_solver_vals = c(dx = .1, dt = .1))
 
   # further errors
   expect_error(

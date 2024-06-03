@@ -1,5 +1,4 @@
 .onAttach <- function(libname, pkgname) {
-
   msg <- paste(
     "Welcome to dRiftDM", utils::packageVersion("dRiftDM"),
     "\nThis is a first version...",
