@@ -3,7 +3,7 @@ test_that("snapshot the plotting functions", {
   data <- simulate_data(a_model, 5000, seed = 1)
   a_model <- set_obs_data(a_model, data)
   plot1 <- function() {
-    plot_trace(a_model,
+    plot_traces(a_model,
       add_x = T, sigma = 0.2, k = 1,
       x_lab = "foo", y_lab = "bar",
       x_lim = c(0, 0.2), y_lim = c(-0.8, 0.8),
@@ -33,4 +33,17 @@ test_that("snapshot the plotting functions", {
     )
   }
   vdiffr::expect_doppelganger(title = "quantile plot", fig = plot3())
+
+  plot4 <- function() {
+    plot_stats(a_model,
+      type = "delta_funs",
+      source = "both",
+      probs_deltas = c(0.2, 0.5, 0.7, 0.9),
+      x_lab_deltas = "foo", y_lab_deltas = "bar",
+      x_lim_deltas = c(0, 1), y_lim_deltas = c(-0.1, 0.3),
+      line_cols = c("black"),
+      minuends_deltas = "incomp", subtrahends_deltas = "comp"
+    )
+  }
+  vdiffr::expect_doppelganger(title = "delta plot", fig = plot4())
 })

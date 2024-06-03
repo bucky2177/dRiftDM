@@ -11,9 +11,11 @@
       
       Conditions: comp, incomp
       
-      Discretization:
+      Deriving PDFs:
         solver: kfe
         values: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000
+      
+      Observed Data: NULL
 
 # summary works as expected
 
@@ -23,11 +25,11 @@
       Class(es): dmc_dm, drift_dm
       
       Observed Data:
-                      min. 1st qu. median      mean 3rd qu.  max.   n
-      correct comp   0.283  0.3415  0.382 0.4209588   0.479 0.775 291
-      correct incomp 0.275  0.3720  0.423 0.4414249   0.484 0.911 273
-      error comp     0.319  0.3480  0.401 0.4002222   0.450 0.499   9
-      error incomp   0.264  0.3030  0.331 0.3382593   0.367 0.476  27
+                   min. 1st qu. median  mean 3rd qu.  max.   n
+      corr comp   0.331   0.436  0.479 0.507   0.549 1.075 292
+      corr incomp 0.313   0.474  0.528 0.543   0.592 0.879 268
+      err comp    0.428   0.458  0.526 0.564   0.621 0.871   8
+      err incomp  0.302   0.398  0.452 0.458   0.498 0.771  32
       
       
       Number of Model Parameters:
@@ -42,7 +44,7 @@
       
       Fit Indices:
       log(like)       aic       bic 
-       483.9702 -953.9405 -923.1620 
+        164.669  -315.339  -284.560 
       -------
       
       Conds: comp, incomp

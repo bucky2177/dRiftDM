@@ -13,7 +13,7 @@ simulate_data(drift_dm_obj, n, df_prms = NULL, seed = NULL, verbose = 1)
 
 \item{df_prms}{data.frame, an optional data.frame providing the parameters
 that should be used for simulating the data. \code{df_prms} must provide columns
-named like the parameters in \code{drift_dm_obj$free_prms}, plus a column \code{Subject}
+named like the parameters in \code{drift_dm_obj$free_prms}, plus a column \code{ID}
 that will identify each simulated data set.}
 
 \item{seed}{numeric, an optional seed for reproducable sampling}
@@ -25,17 +25,17 @@ should be displayed. 0 -> no information,
 \value{
 a data.frame containing at least the columns \code{RT}, \code{Error}, and \code{Cond}. If
 \code{df_prms} is provided, then the data.frame will additionally contain the
-column \code{Subject}
+column \code{ID}
 }
 \description{
+This function simulates data based on the provided diffusion model. To this
+end, random samples from the model's predicted pdfs are drawn via approximate
+inverse cdf sampling.
+}
+\details{
 Cdfs are derived from the model's pdfs and response times are drawn by
 mapping samples from a uniform distribution (in \eqn{[0, 1]}) to the values
 of the cdf. Note that sampled response times will correspond to the
 the values of the time space (i.e., they will correspond to
 \code{seq(0, t_max, dt)}, see \link{drift_dm}).
-}
-\details{
-This function simulates data based on the provided diffusion model. To this
-end, random samples from the model's predicted pdfs are drawn via approximate
-inverse cdf sampling.
 }

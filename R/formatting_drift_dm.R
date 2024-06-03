@@ -28,7 +28,7 @@ print.drift_dm <- function(x, ...) {
   )
   cat("\n")
 
-  cat("\nDiscretization:")
+  cat("\nDeriving PDFs:")
   cat("\n  solver:", drift_dm_obj$solver)
   to_str <- prms_to_str(
     prms = drift_dm_obj$prms_solve,
@@ -36,12 +36,23 @@ print.drift_dm <- function(x, ...) {
   )
   cat("\n  values:", to_str)
   cat("\n")
+
+  cat("\n")
+  cat("Observed Data: ")
+  if (is.null(drift_dm_obj$obs_data)) {
+    cat("NULL")
+  } else {
+    n_trials <- length(unlist(drift_dm_obj$obs_data))
+    cat(n_trials, "trials")
+  }
+  cat("\n")
 }
 
 
 #' @export
 print.summary.drift_dm <- function(x, ...) {
   summary_obj <- x
+  round_to <- drift_dm_default_rounding()
 
   cat(
     "Class(es):",
@@ -50,7 +61,11 @@ print.summary.drift_dm <- function(x, ...) {
   cat("\n")
 
   cat("\nObserved Data:\n")
-  print(summary_obj$obs_data)
+  obs_data_print <- summary_obj$obs_data
+  if (!is.null(obs_data_print)) {
+    obs_data_print <- round(obs_data_print, round_to)
+  }
+  print(obs_data_print)
   cat("\n")
 
   cat("\nNumber of Model Parameters:\n")
@@ -58,11 +73,16 @@ print.summary.drift_dm <- function(x, ...) {
   cat("\n")
 
   cat("\nModel Parameter Values:\n")
-  print(summary_obj$prms_model)
+  print(round(summary_obj$prms_model, round_to))
   cat("\n")
 
   cat("\nFit Indices:\n")
-  print(summary_obj$fit_stats)
+
+  fit_stats_print <- summary_obj$fit_stats
+  if (!is.null(fit_stats_print)) {
+    fit_stats_print <- round(fit_stats_print, round_to)
+  }
+  print(fit_stats_print)
   cat("-------")
 
   cat("\n")
@@ -99,7 +119,8 @@ summary.drift_dm <- function(object, ...) {
   ans$free_prms <- drift_dm_obj$free_prms
   ans$solver <- drift_dm_obj$solver
 
-  ans$obs_dat <- NULL
+  ans$obs_data <- NULL
+  b_encoding <- attr(drift_dm_obj, "b_encoding")
   if (!is.null(drift_dm_obj$obs_data)) {
     temp_summary <- function(x) {
       temp <- unclass(summary(x))
@@ -107,84 +128,31 @@ summary.drift_dm <- function(object, ...) {
       names(temp) <- tolower(names(temp))
       return(temp)
     }
-    sum_correct <- sapply(
-      drift_dm_obj$obs_data$rts_corr,
+    sum_u <- sapply(
+      drift_dm_obj$obs_data$rts_u,
       temp_summary
     )
-    sum_correct <- t(sum_correct)
-    rownames(sum_correct) <- paste("correct", rownames(sum_correct))
+    sum_u <- t(sum_u)
+
+    rownames(sum_u) <- paste(names(b_encoding$u_name_value), rownames(sum_u))
 
 
-    sum_error <- sapply(drift_dm_obj$obs_data$rts_err, temp_summary)
-    sum_error <- t(sum_error)
-    rownames(sum_error) <- paste("error", rownames(sum_error))
+    sum_l <- sapply(drift_dm_obj$obs_data$rts_l, temp_summary)
+    sum_l <- t(sum_l)
+    rownames(sum_l) <- paste(names(b_encoding$l_name_value), rownames(sum_l))
 
-    ans$obs_data <- rbind(sum_correct, sum_error)
+    ans$obs_data <- rbind(sum_u, sum_l)
   }
 
   ans$fit_stats <- NULL
   if (!is.null(drift_dm_obj$log_like_val)) {
     ans$fit_stats <- c(
       `log(like)` = drift_dm_obj$log_like_val,
-      aic = drift_dm_obj$ic_vals[["AIC"]],
-      bic = drift_dm_obj$ic_vals[["BIC"]]
+      aic = drift_dm_obj$ic_vals[["aic"]],
+      bic = drift_dm_obj$ic_vals[["bic"]]
     )
   }
 
-  # if (F) { # to be implemented in future versions..
-  #
-  #   t_vec = seq(0, ans$prms_solve[["t_max"]], length.out = ans$prms_solve[["nt"]] + 1)
-  #   x_vec = seq(-1, 1, length.out = ans$prms_solve[["nx"]] + 1)
-  #
-  #   # pdf for x
-  #   ans$xs =
-  #   lapply(ans$conds, function(one_cond, x_vec){
-  #     pdf = drift_dm_obj$comp_funs$x_fun(drift_dm_obj = drift_dm_obj,
-  #                                         x_vec = x_vec, one_cond = one_cond)
-  #     return(make_text_pdf(x_vec, pdf))
-  #   }, x_vec = x_vec)
-  #   names(ans$xs) = ans$conds
-  #
-  #   # pdf for nt
-  #   ans$nts =
-  #     lapply(ans$conds, function(one_cond, t_vec){
-  #       pdf = drift_dm_obj$comp_funs$nt_fun(drift_dm_obj = drift_dm_obj,
-  #                                          t_vec = t_vec, one_cond = one_cond)
-  #       return(make_text_pdf(t_vec, pdf))
-  #     }, t_vec = t_vec)
-  #   names(ans$nts) = ans$conds
-  # }
-
   class(ans) <- "summary.drift_dm"
-  ans
+  return(ans)
 }
-
-
-
-# === HELPER FUNCTIONS WHEN FORMATTING THINS ====
-#
-# make_text_pdf = function(x_vec, pdf) {
-#
-#   x_bins = cut(x_vec, breaks = seq(min(x_vec), max(x_vec), length.out = 11),
-#                labels = F, include.lowest = T)
-#   pdf_binned = tapply(pdf, x_bins, sum)
-#   x_bins = unique(x_bins)
-#   pdf_binned = pdf_binned / max(pdf_binned)
-#
-#   prob_cuts = seq(0, 1, length.out = 5)
-#   string = c()
-#   for (y in length(prob_cuts):2) {
-#     to_print = pdf_binned > prob_cuts[y - 1]
-#     symbols <- ifelse(pdf_binned > 0.5*prob_cuts[y - 1] + 0.5*prob_cuts[y],
-#                       ":", ".")
-#     for (x in 1:10) {
-#       if (to_print[x]) {
-#         string = paste0(string, symbols[x])
-#       } else {
-#         string = paste0(string, " ")
-#       }
-#     }
-#     string = paste0(string, "\n")
-#   }
-#   return(string)
-# }

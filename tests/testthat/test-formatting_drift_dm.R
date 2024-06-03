@@ -7,7 +7,7 @@ test_that("print works as expected", {
 
 
 test_that("summary works as expected", {
-  a_dmc_model <- dmc_dm(obs_data = simon_data, dt = .005, dx = .005)
+  a_dmc_model <- dmc_dm(obs_data = dmc_synth_data, dt = .005, dx = .005)
   a_dmc_model <- re_evaluate_model(a_dmc_model)
   summary_model <- summary(a_dmc_model)
   expect_identical(summary_model$class, c("dmc_dm", "drift_dm"))
@@ -29,30 +29,30 @@ test_that("summary works as expected", {
     summary_model$fit_stats,
     c(
       "log(like)" = a_dmc_model$log_like_val,
-      "aic" = a_dmc_model$ic_vals[["AIC"]],
-      "bic" = a_dmc_model$ic_vals[["BIC"]]
+      "aic" = a_dmc_model$ic_vals[["aic"]],
+      "bic" = a_dmc_model$ic_vals[["bic"]]
     )
   )
 
   summary_data <- cbind(
-    summary(a_dmc_model$obs_data$rts_corr$comp),
-    summary(a_dmc_model$obs_data$rts_corr$incomp),
-    summary(a_dmc_model$obs_data$rts_err$comp),
-    summary(a_dmc_model$obs_data$rts_err$incomp)
+    summary(a_dmc_model$obs_data$rts_u$comp),
+    summary(a_dmc_model$obs_data$rts_u$incomp),
+    summary(a_dmc_model$obs_data$rts_l$comp),
+    summary(a_dmc_model$obs_data$rts_l$incomp)
   )
   summary_data <- t(summary_data)
   colnames(summary_data) <- tolower(colnames(summary_data))
   rownames(summary_data) <- c(
-    "correct comp", "correct incomp",
-    "error comp", "error incomp"
+    "corr comp", "corr incomp",
+    "err comp", "err incomp"
   )
   summary_data <- cbind(
     summary_data,
     c(
-      length(a_dmc_model$obs_data$rts_corr$comp),
-      length(a_dmc_model$obs_data$rts_corr$incomp),
-      length(a_dmc_model$obs_data$rts_err$comp),
-      length(a_dmc_model$obs_data$rts_err$incomp)
+      length(a_dmc_model$obs_data$rts_u$comp),
+      length(a_dmc_model$obs_data$rts_u$incomp),
+      length(a_dmc_model$obs_data$rts_l$comp),
+      length(a_dmc_model$obs_data$rts_l$incomp)
     )
   )
   colnames(summary_data)[7] <- "n"

@@ -30,8 +30,8 @@ test_that("calc_caf works as expected", {
     drift_dm_obj = dummy_model, type = "cafs",
     source = "obs", n_bins = 6
   )
-  expect_identical(cafs$P_Corr[cafs$Cond == "null"], exp_1)
-  expect_identical(cafs$P_Corr[cafs$Cond == "foo"], exp_2)
+  expect_identical(cafs$P_corr[cafs$Cond == "null"], exp_1)
+  expect_identical(cafs$P_corr[cafs$Cond == "foo"], exp_2)
 
 
   # input checks
@@ -54,7 +54,7 @@ test_that("calc_caf works as expected", {
   ### PRED
   # get some pdfs/cafs
   a_model <- ratcliff_dm(dx = .005, dt = .005)
-  pdfs <- calc_pdfs(a_model, one_cond = "null")
+  pdfs <- re_evaluate_model(a_model)$pdfs[["null"]]
   pred_cafs <- calc_stats(drift_dm_obj = a_model, type = "cafs", source = "pred")
 
   # calculate cafs by hand
@@ -62,12 +62,12 @@ test_that("calc_caf works as expected", {
   pdfs_l <- pdfs[[2]]
   caf_value_const <- sum(pdfs_u) / (sum(pdfs_l) + sum(pdfs_u))
   caf <- rep(caf_value_const, 5)
-  expect_true(all(abs(caf - pred_cafs$P_Corr) < .001))
+  expect_true(all(abs(caf - pred_cafs$P_corr) < .001))
 
   # another example with non-constant cafs
   a_model <- dmc_dm(dt = 0.001, dx = 0.005, t_max = 1)
-  pdfs_comp <- calc_pdfs(a_model, one_cond = "comp")
-  pdfs_incomp <- calc_pdfs(a_model, one_cond = "incomp")
+  pdfs_comp <- re_evaluate_model(a_model)$pdfs[["comp"]]
+  pdfs_incomp <- re_evaluate_model(a_model)$pdfs[["incomp"]]
   pred_cafs <- calc_stats(
     drift_dm_obj = a_model,
     type = "cafs", source = "pred"
@@ -75,11 +75,11 @@ test_that("calc_caf works as expected", {
 
   # reference obtained by my former package
   expect_true(all(
-    abs(pred_cafs$P_Corr[pred_cafs$Cond == "comp"] -
+    abs(pred_cafs$P_corr[pred_cafs$Cond == "comp"] -
       c(0.9825608, 0.9824196, 0.9804658, 0.9837679, 0.9892333)) < 0.01
   ))
   expect_true(all(
-    abs(pred_cafs$P_Corr[pred_cafs$Cond == "incomp"] -
+    abs(pred_cafs$P_corr[pred_cafs$Cond == "incomp"] -
       c(0.8391671, 0.9725687, 0.9871877, 0.9908459, 0.9918593)) < 0.01
   ))
 
@@ -94,13 +94,13 @@ test_that("calc_caf works as expected", {
 
   expect_true(nrow(caf_final) == 6 * 4)
   expect_identical(
-    caf_final$P_Corr[caf_final$Cond == "comp" & caf_final$Source == "obs"], exp_1
+    caf_final$P_corr[caf_final$Cond == "comp" & caf_final$Source == "obs"], exp_1
   )
   expect_identical(
-    caf_final$P_Corr[caf_final$Cond == "incomp" & caf_final$Source == "obs"], exp_2
+    caf_final$P_corr[caf_final$Cond == "incomp" & caf_final$Source == "obs"], exp_2
   )
   expect_identical(
-    caf_final$P_Corr[caf_final$Source == "pred"], pred_cafs$P_Corr
+    caf_final$P_corr[caf_final$Source == "pred"], pred_cafs$P_corr
   )
 })
 
@@ -127,28 +127,28 @@ test_that("calc_quantiles works as expected", {
     probs = seq(0.2, 0.8, 0.1)
   )
   expect_identical(
-    quants_obs$Quant_Corr[quants_obs$Cond == "comp"],
+    quants_obs$Quant_corr[quants_obs$Cond == "comp"],
     unname(quantile(dat$RT[dat$Cond == "comp" & dat$Error == 0],
       probs = seq(0.2, 0.8, 0.1)
     ))
   )
 
   expect_identical(
-    quants_obs$Quant_Err[quants_obs$Cond == "comp"],
+    quants_obs$Quant_err[quants_obs$Cond == "comp"],
     unname(quantile(dat$RT[dat$Cond == "comp" & dat$Error == 1],
       probs = seq(0.2, 0.8, 0.1)
     ))
   )
 
   expect_identical(
-    quants_obs$Quant_Corr[quants_obs$Cond == "incomp"],
+    quants_obs$Quant_corr[quants_obs$Cond == "incomp"],
     unname(quantile(dat$RT[dat$Cond == "incomp" & dat$Error == 0],
       probs = seq(0.2, 0.8, 0.1)
     ))
   )
 
   expect_identical(
-    quants_obs$Quant_Err[quants_obs$Cond == "incomp"],
+    quants_obs$Quant_err[quants_obs$Cond == "incomp"],
     unname(quantile(dat$RT[dat$Cond == "incomp" & dat$Error == 1],
       probs = seq(0.2, 0.8, 0.1)
     ))
@@ -161,26 +161,25 @@ test_that("calc_quantiles works as expected", {
     source = "pred", type = "quantiles",
     probs = seq(0.2, 0.8, 0.1)
   )
-  pdfs_incomp <- calc_pdfs(dummy_model, "incomp")
 
 
   expect_true(all(
-    abs(quants_pred$Quant_Corr[quants_pred$Cond == "comp"] -
+    abs(quants_pred$Quant_corr[quants_pred$Cond == "comp"] -
       c(0.346, 0.365, 0.385, 0.408, 0.435, 0.467, 0.510)) < 0.001
   )) # values derived by former package
 
   expect_true(all(
-    abs(quants_pred$Quant_Err[quants_pred$Cond == "comp"] -
+    abs(quants_pred$Quant_err[quants_pred$Cond == "comp"] -
       c(0.343, 0.362, 0.380, 0.398, 0.418, 0.443, 0.475)) < 0.001
   ))
 
   expect_true(all(
-    abs(quants_pred$Quant_Corr[quants_pred$Cond == "incomp"] -
+    abs(quants_pred$Quant_corr[quants_pred$Cond == "incomp"] -
       c(0.376, 0.395, 0.413, 0.432, 0.454, 0.480, 0.516)) < 0.001
   ))
 
   expect_true(all(
-    abs(quants_pred$Quant_Err[quants_pred$Cond == "incomp"] -
+    abs(quants_pred$Quant_err[quants_pred$Cond == "incomp"] -
       c(0.314, 0.323, 0.332, 0.341, 0.352, 0.365, 0.386)) < 0.001
   ))
 
@@ -215,6 +214,197 @@ test_that("calc_quantiles works as expected", {
   expect_error(
     calc_stats(dummy_model, type = "quantiles", probs = c(0.1, 1)),
     "must be in the range"
+  )
+})
+
+
+
+test_that("calc_delta_fun works as expected", {
+  a_model <- dmc_dm(dt = .005, dx = .005)
+  a_model$solver <- "kfe"
+  a_model$conds <- c("comp", "incomp", "neutral")
+
+  a_model$comp_funs$mu_fun <- function(prms_model, prms_solve, t_vec, one_cond,
+                                       ddm_opts) {
+    # unpack values and conduct checks
+    muc <- prms_model[["muc"]]
+    tau <- prms_model[["tau"]]
+    A <- prms_model[["A"]]
+
+    mua <- A / tau * exp(1 - t_vec / tau) * (1 - t_vec / tau)
+
+    # get drift rate, depending on the condition
+    if (one_cond == "comp") {
+      return(muc + mua)
+    }
+    if (one_cond == "incomp") {
+      return(muc - mua)
+    }
+    if (one_cond == "neutral") {
+      return(muc + mua * 0)
+    }
+  }
+
+  a_model$comp_funs$mu_int_fun <- function(prms_model, prms_solve, t_vec, one_cond,
+                                           ddm_opts) {
+    return(t_vec)
+  }
+
+  data <- simulate_data(a_model, 1000)
+  a_model <- set_obs_data(a_model, data, eval_model = T)
+  delta_dat <- calc_stats(
+    drift_dm_obj = a_model, type = "delta_fun",
+    minuends = "incomp", subtrahends = "comp"
+  )
+  expect_equal(
+    delta_dat$Delta_incomp_comp,
+    delta_dat$Quant_corr_incomp - delta_dat$Quant_corr_comp
+  )
+  expect_equal(
+    delta_dat$Avg_incomp_comp,
+    0.5 * delta_dat$Quant_corr_incomp + 0.5 * delta_dat$Quant_corr_comp
+  )
+
+  # incomp vs comp Corr
+  delta_dat <- calc_stats(
+    drift_dm_obj = a_model, type = "delta_fun",
+    minuends = "incomp", subtrahends = "comp"
+  )
+  expect_equal(
+    delta_dat$Delta_incomp_comp,
+    delta_dat$Quant_corr_incomp - delta_dat$Quant_corr_comp
+  )
+  expect_equal(
+    delta_dat$Avg_incomp_comp,
+    0.5 * delta_dat$Quant_corr_incomp + 0.5 * delta_dat$Quant_corr_comp
+  )
+
+
+  # incomp vs comp Corr and Err
+  delta_dat <- calc_stats(
+    drift_dm_obj = a_model, type = "delta_fun",
+    minuends = "incomp", subtrahends = "comp",
+    dvs = c("Quant_corr", "Quant_err")
+  )
+  expect_equal(
+    delta_dat$Delta_corr_incomp_comp,
+    delta_dat$Quant_corr_incomp - delta_dat$Quant_corr_comp
+  )
+  expect_equal(
+    delta_dat$Avg_corr_incomp_comp,
+    0.5 * delta_dat$Quant_corr_incomp + 0.5 * delta_dat$Quant_corr_comp
+  )
+
+  expect_equal(
+    delta_dat$Delta_err_incomp_comp,
+    delta_dat$Quant_err_incomp - delta_dat$Quant_err_comp
+  )
+  expect_equal(
+    delta_dat$Avg_err_incomp_comp,
+    0.5 * delta_dat$Quant_err_incomp + 0.5 * delta_dat$Quant_err_comp
+  )
+
+
+  # incomp vs neutral Corr and neutral vs. comp  Err
+  delta_dat <- calc_stats(
+    drift_dm_obj = a_model, type = "delta_fun",
+    minuends = c("incomp", "neutral"),
+    subtrahends = c("comp", "comp"),
+    dvs = c("Quant_corr", "Quant_err")
+  )
+  expect_equal(
+    delta_dat$Delta_corr_incomp_comp,
+    delta_dat$Quant_corr_incomp - delta_dat$Quant_corr_comp
+  )
+  expect_equal(
+    delta_dat$Avg_corr_incomp_comp,
+    0.5 * delta_dat$Quant_corr_incomp + 0.5 * delta_dat$Quant_corr_comp
+  )
+
+  expect_equal(
+    delta_dat$Delta_err_neutral_comp,
+    delta_dat$Quant_err_neutral - delta_dat$Quant_err_comp
+  )
+  expect_equal(
+    delta_dat$Avg_err_neutral_comp,
+    0.5 * delta_dat$Quant_err_neutral + 0.5 * delta_dat$Quant_err_comp
+  )
+
+
+  # compare with quantiles
+  quantiles <- calc_stats(drift_dm_obj = a_model, type = "quantiles")
+  expect_equal(
+    quantiles$Quant_corr[quantiles$Cond == "comp"],
+    delta_dat$Quant_corr_comp
+  )
+  expect_equal(
+    quantiles$Quant_corr[quantiles$Cond == "neutral"],
+    delta_dat$Quant_corr_neutral
+  )
+
+
+  # input checks
+  expect_error(
+    calc_stats(
+      drift_dm_obj = a_model, type = "delta_fun",
+      minuends = c("incomp", "neutral", "foo"),
+      subtrahends = c("comp", "comp"),
+      dvs = c("Quant_corr", "Quant_err")
+    ), "length of minuends and subtrahends"
+  )
+
+  expect_error(
+    calc_stats(
+      drift_dm_obj = a_model, type = "delta_fun",
+      minuends = c("incomp", "neutral"),
+      subtrahends = c("comp", "comp", "foo"),
+      dvs = c("Quant_corr", "Quant_err")
+    ), "length of minuends and subtrahends"
+  )
+
+  expect_error(
+    calc_stats(
+      drift_dm_obj = "foo", type = "delta_fun",
+      minuends = c("incomp", "neutral"),
+      subtrahends = c("comp", "comp"),
+      dvs = c("Quant_corr", "Quant_err")
+    ), "drift_dm"
+  )
+
+  expect_error(
+    calc_stats(
+      drift_dm_obj = a_model, type = "delta_fun",
+      minuends = c("incomp", "neutral", "bla"),
+      subtrahends = c("comp", "comp", "uff"),
+      dvs = c("Quant_corr", "Quant_err")
+    ), "Conds specified in minuends"
+  )
+
+  expect_error(
+    calc_stats(
+      drift_dm_obj = a_model, type = "delta_fun",
+      minuends = c("incomp", "neutral"),
+      subtrahends = c("comp", "uff"),
+      dvs = c("Quant_corr", "Quant_err")
+    ), "Conds specified in subtrahends"
+  )
+
+  expect_error(
+    calc_stats(
+      drift_dm_obj = a_model, type = "delta_fun",
+      minuends = character(),
+      subtrahends = c("comp", "comp", "comp"),
+      dvs = c("Quant_corr", "Quant_err")
+    ), "minuends"
+  )
+
+  expect_error(
+    calc_stats(
+      drift_dm_obj = a_model, type = "delta_fun",
+      minuends = c("incomp"),
+      subtrahends = character(),
+      dvs = c("Quant_corr", "Quant_err")
+    ), "subtrahends"
   )
 })
 

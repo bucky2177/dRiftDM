@@ -1,18 +1,17 @@
 Type: Package
 Package: dRiftDM
 Title: Fitting and Exploring Drift Diffusion Models
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Valentin", "Koob", , "koob@uni-bremen.de", role = c("cre", "aut")),
     person("Thomas", "Richter", role = "aut"),
     person("Markus", "Janczyk", role = "aut")
   )
-Description: UNDER CONSTRUCTION! This package will help users to fit a drift diffusion model
-    with a time-dependent drift rate. The goal is to provides useful
-    functions to easily implement, fit, and explore a drift diffusion
-    model. The package also comes with pre-implemented drift diffusion
-    models for fitting data from conflict tasks. Version 0.1.0 is not meant for use yet!
 License: MIT + file LICENSE
+Description: Drift Diffusion models (DDMs) are common in cognitive psychology to 
+  desribe decision processes in simple tasks. We provide a wrapper around 
+  the numerical solutions summarized by Richter et al. (2023) to easily apply
+  DDMs via Maximum-Likelihood-Estimation.
 Suggests: 
     testthat (>= 3.0.0), cowsay, knitr, rmarkdown, DMCfun, truncnorm, vdiffr
 Config/testthat/edition: 3
@@ -21,9 +20,9 @@ LazyData: true
 RoxygenNote: 7.3.0
 Roxygen: list(markdown = TRUE)
 Imports: 
-  withr, parallel, DEoptim, dfoptim, Rcpp, Rdpack, progress
+  withr, parallel, DEoptim, dfoptim, Rcpp, Rdpack, progress, stats
 LinkingTo: Rcpp
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5.0)
 VignetteBuilder: knitr
 RdMacros: Rdpack

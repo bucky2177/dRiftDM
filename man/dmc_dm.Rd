@@ -10,8 +10,8 @@ dmc_dm(obs_data = NULL, sigma = 1, t_max = 3, dt = 0.001, dx = 0.001)
 \item{obs_data}{data.frame, an optional data.frame with the observed data.
 See \link{set_obs_data}.}
 
-\item{sigma, t_max, dt, dx}{numeric, providing the settings for the
-discretization (see \link{drift_dm})}
+\item{sigma, t_max, dt, dx}{numeric, providing the settings for the diffusion
+constant and discretization (see \link{drift_dm})}
 }
 \description{
 This function creates a \link{drift_dm} object that corresponds to the
@@ -22,21 +22,20 @@ diffusion model for conflict tasks by
 The diffusion model for conflict tasks is a model for describing conflict
 tasks like the Stroop, Simon, or flanker task.
 
-It has the following properties:
+It has the following properties (see \link{component_shelf}):
 \itemize{
-\item a constant boundary (parameter \code{b}; see \link{b_constant})
+\item a constant boundary (parameter \code{b})
 \item a staring point distribution in the shape of a beta distribution
-(parameter \code{alpha}; see \link{x_beta})
+(parameter \code{alpha})
 \item an evidence accumulation process that results from the sum of two
-subprocesses (see \link{mu_dmc_dm}:
+subprocesses:
 \itemize{
 \item a controlled process with drift rate \code{muc}
 \item a gamma-shaped process with a scale parameter \code{tau}, a shape
 parameter \code{a}, and an amplitude \code{A}.
 }
 \item A non-decision time that follows a truncated normal distribution with
-mean \code{non_dec} and standard deviation \code{sd_non_dec}
-(see \link{nt_truncated_normal}).
+mean \code{non_dec} and standard deviation \code{sd_non_dec}.
 }
 
 Its parameters are:  \code{muc}, \code{b}, \code{non_dec}, \code{sd_non_dec}, \code{tau}, \code{a}, \code{A},
@@ -44,4 +43,7 @@ and \code{alpha}
 
 Per default the shape parameter \code{a} is set to 2 and not allowed to
 vary (i.e., is not listed in \code{free_prms}).
+}
+\references{
+\insertRef{Ulrichetal.2015}{dRiftDM}
 }

@@ -13,7 +13,7 @@ estimate_model(
   use_nmkb = FALSE,
   seed = NULL,
   de_n_cores = 1,
-  de_control = list(reltol = 1e-09, steptol = 50, itermax = 200, trace = FALSE),
+  de_control = list(reltol = 1e-08, steptol = 50, itermax = 200, trace = FALSE),
   nmkb_control = list(tol = 1e-06)
 )
 }
@@ -54,7 +54,7 @@ as this will drastically slow down your machine for any additional task.}
 to \link[DEoptim:DEoptim]{DEoptim::DEoptim} and \link[dfoptim:nmkb]{dfoptim::nmkb}. Default settings will lead
 \link[DEoptim:DEoptim]{DEoptim::DEoptim} to stop if the algorithm is unable to reduce the
 negative log-likelihood by a factor of \code{reltol * (abs(val) + reltol)}
-after \code{steptol = 50} steps, with \code{reltol = 1e-9} (or if the default itermax
+after \code{steptol = 50} steps, with \code{reltol = 1e-8} (or if the default itermax
 of 200 steps is reached).
 Similarly, \link[dfoptim:nmkb]{dfoptim::nmkb}
 will stop if the absolute difference of the log-likelihood between

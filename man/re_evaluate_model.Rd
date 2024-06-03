@@ -15,18 +15,21 @@ If \code{False} pdfs, log_like_val and ic_vals are deleted from the model
 }
 \value{
 Returns the passed \code{drift_dm_obj} object, after (re-)calculating
-the pdfs, log likelihood (and AIC/BIC) of the model.
+the pdfs, log likelihood (and aic/bic) of the model.
 \itemize{
 \item the pdfs an be addressed via \code{drift_dm_obj$pdfs}
 \item the log likelihood can be addressed via \code{drift_dm_obj$log_like_val}
-\item the AIC/BIC values can be addressed via \code{drift_dm_obj$ic_vals}
+\item the aic/bic values can be addressed via \code{drift_dm_obj$ic_vals}
 }
 
 Note that if re_evaluate model is called before observed data was set,
-the function silently updates the \code{pdfs}, but not \code{log_like_val} or \code{ic_vals}
+the function silently updates the \code{pdfs}, but not \code{log_like_val} or
+\code{ic_vals}. More in-depth information about the mathematical details for
+deriving the PDFs can be found in
+\insertCite{Richteretal.2023;textual}{dRiftDM}
 }
 \description{
-Updates the pdfs, log likelihood, and
-the values for the Akaike information criterion (AIC) and the
-Bayesian information criterion (BIC)
+Updates the pdfs of model. If data is set to the model, the log likelihood,
+the Akaike information criterion (aic) and the
+Bayesian information criterion (bic) also updated
 }

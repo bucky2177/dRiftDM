@@ -4,26 +4,51 @@
 \alias{simulate_values}
 \title{Simulate Values}
 \usage{
-simulate_values(lower, upper, n, distr = "unif", seed = NULL, ...)
+simulate_values(
+  lower,
+  upper,
+  k,
+  distr = "unif",
+  cast_to_data_frame = T,
+  add_id_column = "numeric",
+  seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{lower, upper}{numeric vectors, indicating the lower/upper boundary of
 the drawn values.}
 
-\item{n}{numeric, the number of values to be drawn for each value pair of
-lower/upper}
+\item{k}{numeric, the number of values to be drawn for each value pair of
+lower/upper. If named numeric, the labels are used for the column names
+of the returned object}
 
 \item{distr}{character, indicating which distribution to draw from. Currently
 available are: \code{"unif"} for a uniform distribution or \code{"tnorm"} for a
 truncated normal distribution}
 
-\item{seed}{numeric, optional seed for making the simulation reproducable}
+\item{cast_to_data_frame}{logical, controls whether the returned object
+is of type data.frame (TRUE) or matrix (FALSE). Default is TRUE}
 
-\item{...}{further arguments relevant for the distribution to draw from
+\item{add_id_column}{character, controls whether an ID column should be
+added. Options are "numeric", "character", or "none". If "numeric" or
+"character" the column ID provides values from 1 to k of the respective type.
+If none, no column is added. Note that "character" casts all simulated values
+to character if the argument \code{cast_to_data_frame} is set to FALSE.}
+
+\item{seed}{numeric, optional seed for making the simulation reproducable
 (see details)}
+
+\item{...}{further arguments relevant for the distribution to draw from}
 }
 \value{
-A matrix with \code{n} rows and \code{length(lower)/length(upper)} columns.
+If \code{cast_to_data_frame} is TRUE, a data.frame with \code{k} rows and at least
+\code{length(lower)/length(upper)} columns. Otherwise a matrix with
+the same number of rows and columns. Columns are labeled either from
+V1 to Vk or in case \code{lower}and \code{upper} are named numeric vectors using
+the labels of both vectors.
+
+If \code{add_id_column} is not "none", an ID column is provided.
 }
 \description{
 Draw values, most likely model parameters.
@@ -32,5 +57,5 @@ Draw values, most likely model parameters.
 When drawing from a truncated normal distribution, users must provide values
 for the arguments \code{means} and \code{sds}. These are numeric vectors of the same
 size as \code{lower} and \code{upper}, and indicate the mean and the standard deviation
-of the normal distribution.
+of the normal distributions.
 }

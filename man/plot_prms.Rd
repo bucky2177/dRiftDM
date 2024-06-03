@@ -4,23 +4,31 @@
 \alias{plot_prms}
 \title{Plot Parameter Distribution(s)}
 \usage{
-plot_prms(fits_subjects, include_fit_values = F, col = "skyblue")
+plot_prms(
+  fits_ids,
+  include_fit_values = F,
+  col = "skyblue",
+  breaks = "Sturges"
+)
 }
 \arguments{
-\item{fits_subjects}{an object inheriting from \code{dm_fits_subjects} (see
-\link{load_fits_subjects})}
+\item{fits_ids}{an object inheriting from \code{dm_fits_ids} (see
+\link{load_fits_ids})}
 
 \item{include_fit_values}{logical, indicating if a histogram for
 \code{log_like}, \code{AIC}, and \code{BIC} should be created as well}
 
 \item{col}{the color of the histrogram bars}
+
+\item{breaks}{argument controlling the number of break points
+(see the arguments of \link[graphics:hist]{graphics::hist} for more information)}
 }
 \description{
-This function creates a histogram for each parameter in \code{fits_subjects}
+This function creates a histogram for each parameter in \code{fits_ids}
 }
 \details{
 This function uses \link{gather_parameters} to gather parameters across
-subjects for a single object of type \code{dm_fits_subjects}. Subsequently it
+individuals for a single object of type \code{dm_fits_ids}. Subsequently it
 creates a histogram for each parameter. The final plot has multiple panels,
 each for one parameter.
 }

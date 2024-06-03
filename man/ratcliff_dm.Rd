@@ -5,7 +5,8 @@
 \title{Create a basic Diffusion Model}
 \usage{
 ratcliff_dm(
-  type = "simple",
+  var_non_dec = FALSE,
+  var_start = FALSE,
   obs_data = NULL,
   sigma = 1,
   t_max = 3,
@@ -14,25 +15,26 @@ ratcliff_dm(
 )
 }
 \arguments{
-\item{type}{character, indicatnig "which" Ratcliff diffusion model should
-be build. Default and only option currently is "simple".}
+\item{var_non_dec, var_start}{logical, indicating whether the model should have
+a (uniform) variable non-decision time or starting point, respectively
+(see \code{nt_uniform} and \code{x_uniform} in \link{component_shelf})}
 
 \item{obs_data}{data.frame, an optional data.frame with the observed data.
 See \link{set_obs_data}.}
 
-\item{sigma, t_max, dt, dx}{numeric, providing the settings for the
-discretization (see \link{drift_dm})}
+\item{sigma, t_max, dt, dx}{numeric, providing the settings for the diffusion
+constant and discretization (see \link{drift_dm})}
 }
 \description{
 This function creates a \link{drift_dm} that corresponds to the basic
 Ratcliff diffusion model
 }
 \details{
-\subsection{Simple Model}{
-
-With "simple" Ratcliff Diffusion Model we refer to a diffusion model
-with  a constant drift rate \code{muc}, a constant boundary \code{b}, a constant
-non-decision time \code{non_dec}, and no starting point variability. See also
-\link{mu_constant}.
-}
+The Ratcliff diffusion model is a diffusion model with  a constant drift rate
+\code{muc} and a constant boundary \code{b}. If \code{var_non_dec = FALSE},  a constant
+non-decision time \code{non_dec} is assumed, otherwise a uniform non-decision time
+with mean \code{non_dec} and range \code{range_non_dec}. If \code{var_start = FALSE},  a
+constant starting point centered between the boundaries is assumed (i.e.,
+a dirac delta over 0), otherwise a uniform starting point with mean 0 and
+range \code{range_start}.
 }
