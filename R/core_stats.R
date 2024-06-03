@@ -159,10 +159,10 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs,
   sum_pdf_l <- sum(pdf_l)
   sum_pdf_u <- sum(pdf_u)
 
-  if (sum_pdf_u / (sum_pdf_u + sum_pdf_l) >= 1 - skip_if_contr_low) {
+  if (sum_pdf_u / (sum_pdf_u + sum_pdf_l) <= skip_if_contr_low) {
     quants["Quant_U"] <- NA
   }
-  if (sum_pdf_u / (sum_pdf_u + sum_pdf_l) <= skip_if_contr_low) {
+  if (sum_pdf_l / (sum_pdf_u + sum_pdf_l) <= skip_if_contr_low) {
     quants["Quant_L"] <- NA
   }
 

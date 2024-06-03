@@ -37,13 +37,11 @@ kfe_ale <- function(x_vec, t_vec, prms_solve, one_set_comp_vecs, one_cond) {
 
   # decide about Rannacher time-stepping
   x_vals <- one_set_comp_vecs$x_vals
-  r_stepping <- ifelse(sum(x_vals > 0) == 1, T, F)
 
   # solve the pdfs
   errorcode <- cpp_kfe(
     pdf_u = pdf_u, pdf_l = pdf_l, xx = x_vals,
     nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
-    r_stepping = r_stepping,
     b_vals = one_set_comp_vecs$b_vals,
     mu_vals = one_set_comp_vecs$mu_vals,
     dt_b_vals = one_set_comp_vecs$dt_b_vals, x_vec = x_vec

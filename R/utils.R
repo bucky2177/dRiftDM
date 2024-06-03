@@ -87,7 +87,7 @@ drift_dm_rough_approx_error <- function() {
   return(.1)
 }
 drift_dm_robust_prm <- function() {
-  return(1e-10)
+  return(1e-12)
 }
 drift_dm_default_rounding <- function() {
   return(3)

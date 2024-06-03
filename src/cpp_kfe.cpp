@@ -10,7 +10,7 @@ int cpp_kfe(NumericVector& pdf_u,
              NumericVector& xx,
              const int nt, const int nx,
              const double dt, const double dx,
-             double sigma, const bool r_stepping,
+             double sigma,
              const NumericVector b_vals,
              const NumericVector mu_vals,
              const NumericVector dt_b_vals,
@@ -48,11 +48,6 @@ int cpp_kfe(NumericVector& pdf_u,
 
   for (int n=1; n<=nt; ++n) {
     double theta = 0.5;
-    // Rannacher time-stepping, required for Dirac initial. Not required at all
-    // as we adjust theta in each time step to give a stable result
-    //if (n <= 4 && r_stepping) {
-    //  theta = 1.0;
-    //}
 
     // at old time step
     const double J_old = b_vals[n-1];
@@ -69,7 +64,7 @@ int cpp_kfe(NumericVector& pdf_u,
     }
     const double sigma_new = sigma / J_new;
     const double L_new = 1.0 / dx * sigma_new * sigma_new / 2.0;
-    
+
     // decide discretization of 1st order term. if possible central
     // but one-sided if drift dominates
     double dx1 = -0.5;
@@ -88,24 +83,24 @@ int cpp_kfe(NumericVector& pdf_u,
         break;
       }
     }
-  
+
    // assemble rhs side (without old solution)
    // assemble without factor (theta -1)
    // afterwards we determine theta such that the result is
    // always positive
    f[0] = 0.0;
    f[nx] = 0.0;
-   
+
    for (int i=1;i<nx;++i)
      f[i] =
         dt *( (     -Lold + dx1 * mu_old[i]) * xx[i-1]
        +      (+2. * Lold + dx2 * mu_old[i]  ) * xx[i]
        +      (     -Lold + dx3 * mu_old[i]) * xx[i+1] );
-   
+
       // find maximum factor 'tt=theta-1' such that ( dx * x + tt * f >=0 )
    double tt = -0.5;
    for (int i=1;i<nx;++i)
-     if (f[i]>0) 
+     if (f[i]>0)
        tt = std::max(tt, -dx * xx[i] / f[i]);
    theta = std::min(1.0,tt+1.0);
 
@@ -116,23 +111,11 @@ int cpp_kfe(NumericVector& pdf_u,
      f[i] = dx * xx[i] + (theta-1.0) * f[i];
      fmin = std::min(fmin,f[i]);
    }
-  
-  if (fmin<0)
-  {
-    Rcerr << "negative rhs should not be possible" << std::endl;
-  }
-  
-       
+
     NumericVector a(nx+1, 0.), b(nx+1, 0.), c(nx+1, 0.);
     for (int i=0; i<nx+1; ++i) {
 
       //// ASSEMBLE MATRIX
-      // exact mass matrix
-      /*
-        a[i] = 1./6. * dx + dt * theta * (-L_new.     + dx1 * mu_new[i]);
-        b[i] = 2./3. * dx + dt * theta * (2.0 * L_new + dx2 * mu_new[i]);
-        c[i] = 1./6. * dx + dt * theta * (-L_new      + dx3 * mu_new[i]);
-      */
       // lumped mass matrix
       a[i] =      dt * theta * (-L_new      + dx1 * mu_new[i]);
       b[i] = dx + dt * theta * (2.0 * L_new + dx2 * mu_new[i]);
@@ -141,7 +124,7 @@ int cpp_kfe(NumericVector& pdf_u,
     if ( (f[0]!=0) || (f[nx]!=0) ) {
       Rcerr << "rhs not zero on thresholds!" << std::endl; return -1;
     }
-    
+
     // adapt for boundary
     a[0]  = 0.0; b[0]  = 1.0; c[0]  = 0.0;
     a[nx] = 0.0; b[nx] = 1.0; c[nx] = 0.0;
