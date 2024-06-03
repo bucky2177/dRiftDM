@@ -27,13 +27,15 @@ usethis::use_data(dmc_synth_data, overwrite = TRUE)
 ulrich_flanker_data <- DMCfun::flankerData$data
 ulrich_flanker_data <- ulrich_flanker_data[!ulrich_flanker_data$outlier, ]
 ulrich_flanker_data <- ulrich_flanker_data[c("Subject", "RT", "Error", "Comp")]
-names(ulrich_flanker_data) <- c("Subject", "RT", "Error", "Cond")
+names(ulrich_flanker_data) <- c("ID", "RT", "Error", "Cond")
 ulrich_flanker_data$RT <- ulrich_flanker_data$RT / 1000
+ulrich_flanker_data$Error <- as.numeric(ulrich_flanker_data$Error)
 usethis::use_data(ulrich_flanker_data, overwrite = TRUE)
 
 ulrich_simon_data <- DMCfun::simonData$data
 ulrich_simon_data <- ulrich_simon_data[!ulrich_simon_data$outlier, ]
 ulrich_simon_data <- ulrich_simon_data[c("Subject", "RT", "Error", "Comp")]
-names(ulrich_simon_data) <- c("Subject", "RT", "Error", "Cond")
+names(ulrich_simon_data) <- c("ID", "RT", "Error", "Cond")
 ulrich_simon_data$RT <- ulrich_simon_data$RT / 1000
+ulrich_simon_data$Error <- as.numeric(ulrich_simon_data$Error)
 usethis::use_data(ulrich_simon_data, overwrite = TRUE)

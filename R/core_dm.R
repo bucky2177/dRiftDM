@@ -1125,20 +1125,27 @@ check_raw_data <- function(obs_data, b_encoding_column, u_name_value,
 
   type_obs_b_encoding <- class(obs_data[[b_encoding_column]])
   type_b_encoding_u <- class(u_name_value)
-  type_b_encoding_l <- class(l_name_value)
 
   if (!isTRUE(all.equal(type_obs_b_encoding, type_b_encoding_u))) {
-    stop(
+    warning(
       "column ", b_encoding_column, " in obs_data expected to be of type ",
-      type_b_encoding_u, ", but it is of type ", type_obs_b_encoding
+      type_b_encoding_u, ", but it is of type ", type_obs_b_encoding,
+      " trying to fix this by using as.", type_b_encoding_u
     )
+    as_function <- get(paste0("as.", type_b_encoding_u))
+    obs_data[[b_encoding_column]] <- as_function(obs_data[[b_encoding_column]])
   }
 
+  type_obs_b_encoding <- class(obs_data[[b_encoding_column]])
+  type_b_encoding_l <- class(l_name_value)
   if (!isTRUE(all.equal(type_obs_b_encoding, type_b_encoding_l))) {
-    stop(
+    warning(
       "column ", b_encoding_column, " in obs_data expected to be of type ",
-      type_b_encoding_l, ", but it is of type ", type_obs_b_encoding
+      type_b_encoding_l, ", but it is of type ", type_obs_b_encoding,
+      " trying to fix this by using as.", type_b_encoding_u
     )
+    as_function <- get(paste0("as.", type_b_encoding_u))
+    obs_data[[b_encoding_column]] <- as_function(obs_data[[b_encoding_column]])
   }
 
   if (!all(unique(obs_data[[b_encoding_column]]) %in%
