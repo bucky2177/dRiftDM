@@ -8,11 +8,11 @@
       [33mINFO: Parameters muc=2, b=0.5, non_dec=0.2 
       	gave -log_like_val of -267.7863 [0m
       [33mINFO: Parameters muc=4.582, b=0.574, non_dec=0.246 
-      	gave -log_like_val of 412.1942 [0m
+      	gave -log_like_val of 412.1934 [0m
       [33mINFO: Parameters muc=2.489, b=0.729, non_dec=0.246 
       	gave -log_like_val of -1952.079 [0m
       [33mINFO: Parameters muc=2.489, b=0.574, non_dec=0.425 
-      	gave -log_like_val of 21002.77 [0m
+      	gave -log_like_val of 20666.45 [0m
       [33mINFO: Parameters muc=3.349, b=0.658, non_dec=0.131 
       	gave -log_like_val of 1061.246 [0m
       [33mINFO: Parameters muc=3.115, b=0.639, non_dec=0.166 
@@ -24,7 +24,7 @@
       [33mINFO: Parameters muc=1.333, b=0.777, non_dec=0.229 
       	gave -log_like_val of -1007.352 [0m
       [33mINFO: Parameters muc=1.728, b=0.768, non_dec=0.351 
-      	gave -log_like_val of 4816.373 [0m
+      	gave -log_like_val of 4605.005 [0m
       [33mINFO: Parameters muc=1.475, b=0.718, non_dec=0.198 
       	gave -log_like_val of -1071.046 [0m
       [33mINFO: Parameters muc=2.091, b=0.534, non_dec=0.228 
@@ -34,7 +34,7 @@
       [33mINFO: Parameters muc=2.119, b=0.642, non_dec=0.291 
       	gave -log_like_val of -2016.361 [0m
       [33mINFO: Parameters muc=2.633, b=0.591, non_dec=0.349 
-      	gave -log_like_val of 1003.345 [0m
+      	gave -log_like_val of 860.1302 [0m
       [33mINFO: Parameters muc=3.998, b=0.676, non_dec=0.262 
       	gave -log_like_val of -1595.611 [0m
       [33mINFO: Parameters muc=4.171, b=0.725, non_dec=0.309 
@@ -48,11 +48,11 @@
       [33mINFO: Parameters muc=3.348, b=0.709, non_dec=0.289 
       	gave -log_like_val of -2242.657 [0m
       [33mINFO: Parameters muc=3.346, b=0.618, non_dec=0.325 
-      	gave -log_like_val of -1535.252 [0m
+      	gave -log_like_val of -1575.16 [0m
       [33mINFO: Parameters muc=2.683, b=0.708, non_dec=0.264 
       	gave -log_like_val of -2096.765 [0m
       [33mINFO: Parameters muc=4.411, b=0.743, non_dec=0.259 
-      	gave -log_like_val of -1422.324 [0m
+      	gave -log_like_val of -1422.325 [0m
       [33mINFO: Parameters muc=2.571, b=0.675, non_dec=0.283 
       	gave -log_like_val of -2168.145 [0m
       [33mINFO: Parameters muc=3.527, b=0.675, non_dec=0.298 
@@ -267,10 +267,10 @@
         steptol = 50, itermax = 200, trace = TRUE))
     Output
       INFO: Running differential evolution
-      Iteration: 1 bestvalit: -577.124233 bestmemit:    4.147303    0.314631
-      Iteration: 2 bestvalit: -577.124233 bestmemit:    4.147303    0.314631
-      Iteration: 3 bestvalit: -577.124233 bestmemit:    4.147303    0.314631
-      Iteration: 4 bestvalit: -577.124233 bestmemit:    4.147303    0.314631
+      Iteration: 1 bestvalit: -577.124234 bestmemit:    4.147303    0.314631
+      Iteration: 2 bestvalit: -577.124234 bestmemit:    4.147303    0.314631
+      Iteration: 3 bestvalit: -577.124234 bestmemit:    4.147303    0.314631
+      Iteration: 4 bestvalit: -577.124234 bestmemit:    4.147303    0.314631
       Iteration: 5 bestvalit: -581.936340 bestmemit:    4.011332    0.309021
       Iteration: 6 bestvalit: -583.670601 bestmemit:    4.283513    0.308962
       Iteration: 7 bestvalit: -583.670601 bestmemit:    4.283513    0.308962
@@ -381,10 +381,10 @@
         steptol = 50, itermax = 200, trace = TRUE), de_n_cores = 2)
     Output
       INFO: Running differential evolution
-      Iteration: 1 bestvalit: -577.124233 bestmemit:    4.147303    0.314631
-      Iteration: 2 bestvalit: -577.124233 bestmemit:    4.147303    0.314631
-      Iteration: 3 bestvalit: -577.124233 bestmemit:    4.147303    0.314631
-      Iteration: 4 bestvalit: -577.124233 bestmemit:    4.147303    0.314631
+      Iteration: 1 bestvalit: -577.124234 bestmemit:    4.147303    0.314631
+      Iteration: 2 bestvalit: -577.124234 bestmemit:    4.147303    0.314631
+      Iteration: 3 bestvalit: -577.124234 bestmemit:    4.147303    0.314631
+      Iteration: 4 bestvalit: -577.124234 bestmemit:    4.147303    0.314631
       Iteration: 5 bestvalit: -581.936340 bestmemit:    4.011332    0.309021
       Iteration: 6 bestvalit: -583.670601 bestmemit:    4.283513    0.308962
       Iteration: 7 bestvalit: -583.670601 bestmemit:    4.283513    0.308962

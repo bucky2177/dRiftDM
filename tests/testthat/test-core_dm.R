@@ -532,8 +532,8 @@ test_that("set_obs_data and check_raw_data throw expected errors", {
   a_model$conds <- c("null")
   expect_error(set_obs_data(a_model, list()), "not a data frame")
 
-  temp_data <- data.frame(RT = 1, Error = "1", Cond = "null")
-  expect_error(set_obs_data(a_model, temp_data), "type numeric")
+  temp_data <- data.frame(RT = 1, Error = "0", Cond = "null")
+  expect_warning(set_obs_data(a_model, temp_data), "type numeric")
 
   temp_data <- data.frame(RT = "1", Error = 1, Cond = "null")
   expect_warning(set_obs_data(a_model, temp_data), "not of type numeric")
