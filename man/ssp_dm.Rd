@@ -42,7 +42,7 @@ mean \code{non_dec} and standard deviation \code{sd_non_dec}.
 }
 
 Its parameters are:  \code{b}, \code{non_dec}, \code{sd_non_dec}, \code{p}, \code{sd_0}, and \code{r}.
-Per default, all parameters are assumed to be "free".
+Per default, all parameters but \code{r} are assumed to be "free".
 }
 \references{
 \insertRef{Whiteetal.2011}{dRiftDM}

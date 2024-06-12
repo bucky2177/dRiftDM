@@ -430,7 +430,7 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opt
 #'   mean `non_dec` and standard deviation `sd_non_dec`.
 #'
 #' Its parameters are:  `b`, `non_dec`, `sd_non_dec`, `p`, `sd_0`, and `r`.
-#' Per default, all parameters are assumed to be "free".
+#' Per default, all parameters but `r` are assumed to be "free".
 #'
 #' @references
 #' \insertRef{Whiteetal.2011}{dRiftDM}

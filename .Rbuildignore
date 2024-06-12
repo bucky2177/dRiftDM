@@ -5,3 +5,4 @@
 ^playground\.R$
 ^.*\.Rprofile
 ^README\.Rmd$
+^tutorial$

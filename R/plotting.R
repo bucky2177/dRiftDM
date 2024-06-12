@@ -184,7 +184,7 @@ plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
   }
 
   if (is.null(y_lim_cafs)) {
-    y_lim_cafs <- c(0, 1)
+    y_lim_cafs <- c(0, 100)
   }
 
   if (is.null(x_lim_cafs)) {
@@ -213,14 +213,14 @@ plot_cafs <- function(obj, source = "both", n_bins_cafs = NULL,
     sub_dat <- cafs[cafs$Cond == unique_conds[idx], ]
     sub_dat_obs <- sub_dat[sub_dat$Source == "obs", ]
     if (nrow(sub_dat_obs) > 0) {
-      graphics::points(sub_dat_obs[[caf_name]] ~ sub_dat_obs$Bin,
+      graphics::points(sub_dat_obs[[caf_name]]*100 ~ sub_dat_obs$Bin,
         col = line_cols_cafs[idx]
       )
     }
 
     sub_dat_pred <- sub_dat[sub_dat$Source == "pred", ]
     if (nrow(sub_dat_pred) > 0) {
-      graphics::points(sub_dat_pred[[caf_name]] ~ sub_dat_pred$Bin,
+      graphics::points(sub_dat_pred[[caf_name]]*100 ~ sub_dat_pred$Bin,
         ty = "l",
         col = line_cols_cafs[idx]
       )

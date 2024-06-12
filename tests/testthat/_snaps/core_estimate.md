@@ -257,7 +257,7 @@
         solver: kfe
         values: sigma=1, t_max=3, dt=0.005, dx=0.05, nt=600, nx=40
       
-      Observed Data: 3000 trials
+      Observed Data: 3000 trials null
 
 # behavior of DE and nmkb toggles
 
@@ -371,7 +371,7 @@
         solver: kfe
         values: sigma=1, t_max=1, dt=0.01, dx=0.1, nt=100, nx=20
       
-      Observed Data: 600 trials
+      Observed Data: 300 trials comp; 300 trials incomp
 
 ---
 
@@ -485,5 +485,5 @@
         solver: kfe
         values: sigma=1, t_max=1, dt=0.01, dx=0.1, nt=100, nx=20
       
-      Observed Data: 600 trials
+      Observed Data: 300 trials comp; 300 trials incomp
 

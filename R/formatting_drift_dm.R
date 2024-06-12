@@ -42,8 +42,13 @@ print.drift_dm <- function(x, ...) {
   if (is.null(drift_dm_obj$obs_data)) {
     cat("NULL")
   } else {
-    n_trials <- length(unlist(drift_dm_obj$obs_data))
-    cat(n_trials, "trials")
+    n_trials <- sapply(drift_dm_obj$conds, function(one_cond) {
+        n_rts_u = length(unlist(drift_dm_obj$obs_data$rts_u[[one_cond]]))
+        n_rts_l = length(unlist(drift_dm_obj$obs_data$rts_l[[one_cond]]))
+        return(n_rts_u + n_rts_l)
+      })
+    trials_out = paste(n_trials, "trials", names(n_trials))
+    cat(paste(trials_out, collapse = "; "))
   }
   cat("\n")
 }
