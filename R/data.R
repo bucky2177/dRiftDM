@@ -1,6 +1,6 @@
 #' A synthetic data set with one condition
 #'
-#' This dataset was simulated by using the classical ratcliff diffusion model
+#' This dataset was simulated by using the classical Ratcliff diffusion model
 #' (see  [dRiftDM::ratcliff_dm()]).
 #'
 #' @format
@@ -15,7 +15,7 @@
 
 #' A synthetic data set with two conditions
 #'
-#' This dataset was simulated by using the diffusion model for conflict tasks
+#' This dataset was simulated by using the Diffusion Model for Conflict tasks
 #' (see  [dRiftDM::dmc_dm()]) with parameter settings that are typical for a
 #' Simon task.
 #'
@@ -34,7 +34,7 @@
 #' Exemplary Simon Data
 #'
 #' Data of the Simon task collected in the course of the study by
-#' \insertCite{Richteretal.2023;textual}{dRiftDM}.
+#' \insertCite{Ulrichetal.2015;textual}{dRiftDM}.
 #'
 #' @format
 #' A data.frame with 16 individuals and the following columns:
@@ -51,7 +51,7 @@
 #' Exemplary Flanker Data
 #'
 #' Data of the Flanker task collected in the course of the study by
-#' \insertCite{Richteretal.2023;textual}{dRiftDM}.
+#' \insertCite{Ulrichetal.2015;textual}{dRiftDM}.
 #'
 #' @format
 #' A data.frame with 16 individuals and the following columns:

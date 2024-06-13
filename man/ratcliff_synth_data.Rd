@@ -16,7 +16,7 @@ A data frame with 300 rows and 3 columns:
 ratcliff_synth_data
 }
 \description{
-This dataset was simulated by using the classical ratcliff diffusion model
+This dataset was simulated by using the classical Ratcliff diffusion model
 (see  \code{\link[=ratcliff_dm]{ratcliff_dm()}}).
 }
 \keyword{datasets}
