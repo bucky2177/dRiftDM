@@ -44,17 +44,17 @@ estimated/changed). The entries of \code{free_prms} have to match
 
 \item{t_max}{The maximum of the time space. Default is set to 3 (seconds).}
 
-\item{dt}{The step size of the time discretization. Default is set to .001
+\item{dt}{The step size of the time space discretization. Default is set to .001
 (seconds).}
 
 \item{dx}{The step size of the evidence space discretization. Default is set
 to .001.}
 
-\item{mu_fun, mu_int_fun, x_fun, b_fun, dt_b_fun, nt_fun}{custom functions
+\item{mu_fun, mu_int_fun, x_fun, b_fun, dt_b_fun, nt_fun}{Custom functions
 defining the components of a diffusion model. See the respective
 \code{set_comp_funs} function.}
 
-\item{b_encoding, }{a list, specifying how boundaries are coded.
+\item{b_encoding, }{A list, specifying how boundaries are coded.
 The default is 'accuracy' encoding, see the default of
 \link{set_b_encoding}.}
 }
@@ -95,10 +95,10 @@ list will additionally contain...
 \description{
 This function creates an object of type drift_dm, which serves as the parent
 class for all further created drift diffusion models. Its structure is the
-backbone  of the dRiftDM package and every child of the drift_dm class must
-have the attributes  of the parent class. Typically, users will not want to
+backbone of the dRiftDM package and every child of the drift_dm class must
+have the attributes of the parent class. Typically, users will not want to
 create an object of drift_dm alone, as its use is very limited. Rather, they
-will want an object of one of its  child classes. See
+will want an object of one of its child classes. See
 \code{vignette("use_ddm_models", "dRiftDM")} for a list of pre-built diffusion
 models and more information on how to create/use/modify child classes.
 }
