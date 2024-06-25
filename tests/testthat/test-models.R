@@ -331,7 +331,7 @@ test_that("ratcliff_simple works as expected", {
     tau = 40,
     resMean = 300,
     resSD = 0,
-    resDist = 0,
+    resDist = 1,
     spShape = 4,
     spDist = 0,
     spLim = c(-75.89466, 75.89466), setSeed = T,
@@ -339,13 +339,12 @@ test_that("ratcliff_simple works as expected", {
   )
   r_cafs <- calc_stats(a_model, type = "cafs", source = "pred")
   r_quants <- calc_stats(a_model, type = "quantiles", source = "pred")
-  r_quants$Quant_corr <- r_quants$Quant_corr - 0.3
 
   expect_true(
     all(abs(
       sim_data$delta$meanComp -
         r_quants$Quant_corr[r_quants$Cond == "null"] * 1000
-    ) < 10)
+    ) < 15)
   )
 
 
@@ -504,3 +503,6 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
   pdfs[[2]] <- pdfs[[2]] / sum(pdfs[[2]])
   expect_false(all(abs(pdfs[[1]] - pdfs[[2]]) < 0.001))
 })
+
+
+

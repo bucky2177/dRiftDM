@@ -442,7 +442,20 @@ calc_stats <- function(drift_dm_obj, type, source = "both",
       eval_model = T
     )
   }
+
+
   all_pdfs <- drift_dm_obj$pdfs
+  dt <- drift_dm_obj$prms_solve[["dt"]]
+  check_loss <- sapply(all_pdfs, function(one_set_pdfs){
+    sum_both <- sum(one_set_pdfs$pdf_u) * dt + sum(one_set_pdfs$pdf_l) * dt
+    return(sum_both < .99)
+  }, simplify = T, USE.NAMES = T)
+  if (any(check_loss)) {
+    warning("calc_stats called with missing probability mass for some ",
+            "conditions (likely occured after truncating pdfs to the ",
+            "time space). Some statistics scale the pdfs! ",
+            "Interprete 'quantiles' etc. accordingly (or increase t_max).")
+  }
 
   all_rts_u <- drift_dm_obj$obs_data$rts_u
   all_rts_l <- drift_dm_obj$obs_data$rts_l

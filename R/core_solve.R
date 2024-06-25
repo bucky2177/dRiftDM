@@ -55,7 +55,8 @@ kfe_ale <- function(x_vec, t_vec, prms_solve, one_set_comp_vecs, one_cond) {
 
   #  add residual time ...
   pdfs <- add_residual(
-    pdf_nt = one_set_comp_vecs$nt_vals, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt
+    pdf_nt = one_set_comp_vecs$nt_vals, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt,
+    nt = nt
   )
 
   # ... and pass back
@@ -64,7 +65,7 @@ kfe_ale <- function(x_vec, t_vec, prms_solve, one_set_comp_vecs, one_cond) {
 
 
 
-add_residual <- function(pdf_nt, pdf_u, pdf_l, dt) {
+add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
   if (length(pdf_nt) != length(pdf_u)) {
     stop("pdf_u and pdf_nt don't have the same dimension!")
   }
@@ -72,7 +73,7 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt) {
     stop("pdf_l and pdf_nt don't have the same dimension!")
   }
 
-  if (abs(sum(pdf_nt * dt) - (sum(pdf_l * dt) + sum(pdf_u * dt))) >
+  if (abs(sum(pdf_nt) * dt - (sum(pdf_l) * dt + sum(pdf_u) * dt)) >
     drift_dm_medium_approx_error()) {
     warning(
       "pdf of the non-dec-time and pdf_l/pdf_u don't integrate to the",
@@ -80,10 +81,15 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt) {
     )
   }
 
-  pdf_u <- stats::convolve(pdf_nt, rev(pdf_u)) * dt
-  pdf_l <- stats::convolve(pdf_nt, rev(pdf_l)) * dt
+  pdf_u <- stats::convolve(pdf_nt, rev(pdf_u), type = "open") * dt
+  pdf_l <- stats::convolve(pdf_nt, rev(pdf_l), type = "open") * dt
+
+  pdf_u <- pdf_u[1:(nt + 1)]
+  pdf_l <- pdf_l[1:(nt + 1)]
+
 
   stopifnot(length(pdf_u) == length(pdf_nt) & length(pdf_l) == length(pdf_nt))
+
 
   # add robustness prm
   pdf_u <- pdf_u + drift_dm_robust_prm()

@@ -1,5 +1,7 @@
 #' @importFrom stats BIC
 #' @importFrom stats AIC
+#' @importFrom stats coef
+#' @importFrom stats logLik
 
 
 

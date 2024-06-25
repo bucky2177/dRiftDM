@@ -60,14 +60,14 @@
 <text transform='translate(12.96,280.80) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='17.34px' lengthAdjust='spacingAndGlyphs'>bar</text>
 </g>
 <g clip-path='url(#cpNTkuMDR8Njg5Ljc2fDU5LjA0fDUwMi41Ng==)'>
-<circle cx='283.76' cy='383.47' r='2.70' style='stroke-width: 0.75;' />
-<circle cx='318.92' cy='280.80' r='2.70' style='stroke-width: 0.75;' />
-<circle cx='422.87' cy='143.91' r='2.70' style='stroke-width: 0.75;' />
-<polyline points='284.35,383.47 320.28,280.80 419.24,143.91 ' style='stroke-width: 0.75;' />
-<circle cx='303.15' cy='383.47' r='2.70' style='stroke-width: 0.75; stroke: #0000FF;' />
-<circle cx='335.27' cy='280.80' r='2.70' style='stroke-width: 0.75; stroke: #0000FF;' />
-<circle cx='419.37' cy='143.91' r='2.70' style='stroke-width: 0.75; stroke: #0000FF;' />
-<polyline points='301.74,383.47 334.47,280.80 418.62,143.91 ' style='stroke-width: 0.75; stroke: #0000FF;' />
+<circle cx='283.18' cy='383.47' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='318.34' cy='280.80' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='422.29' cy='143.91' r='2.70' style='stroke-width: 0.75;' />
+<polyline points='283.76,383.47 319.70,280.80 418.66,143.91 ' style='stroke-width: 0.75;' />
+<circle cx='302.57' cy='383.47' r='2.70' style='stroke-width: 0.75; stroke: #0000FF;' />
+<circle cx='334.69' cy='280.80' r='2.70' style='stroke-width: 0.75; stroke: #0000FF;' />
+<circle cx='418.78' cy='143.91' r='2.70' style='stroke-width: 0.75; stroke: #0000FF;' />
+<polyline points='301.16,383.47 333.88,280.80 418.04,143.91 ' style='stroke-width: 0.75; stroke: #0000FF;' />
 <rect x='602.47' y='459.36' width='87.29' height='43.20' style='stroke-width: 0.75; fill: #FFFFFF;' />
 <line x1='613.27' y1='473.76' x2='634.87' y2='473.76' style='stroke-width: 0.75;' />
 <line x1='613.27' y1='488.16' x2='634.87' y2='488.16' style='stroke-width: 0.75; stroke: #0000FF;' />
