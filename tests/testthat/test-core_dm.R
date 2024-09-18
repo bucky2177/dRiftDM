@@ -206,6 +206,84 @@ test_that("validate_model fails as expected", {
     validate_drift_dm(temp),
     "the fifth argument of x_fun must be 'ddm_opts'"
   )
+
+  temp <- a_model
+  temp$comp_funs$special_fun <- x_beta
+  expect_error(
+    validate_drift_dm(temp),
+    "unexpected entry in comp_funs"
+  )
+
+  temp <- a_model
+  temp$comp_funs$mu_fun <- NULL
+  expect_error(
+    validate_drift_dm(temp),
+    "some comp_funs are missing"
+  )
+
+
+  temp <- a_model
+  temp$comp_funs$mu_fun <- "a"
+  expect_error(
+    validate_drift_dm(temp),
+    "mu_fun listed in comp_funs is not a function"
+  )
+
+
+  # check pdf labeling and length
+  a_model = dmc_dm(dx = .01, dt = .005)
+  a_model = re_evaluate_model(a_model)
+
+  temp <- a_model
+  temp$pdfs$bla = temp$pdfs$comp
+  expect_error(
+    validate_drift_dm(temp),
+    "not labeled like the conditions"
+  )
+
+  temp <- a_model
+  names(temp$pdfs) = c("bla", "foo")
+  expect_error(
+    validate_drift_dm(temp),
+    "not labeled like the conditions"
+  )
+
+  temp <- a_model
+  names(temp$pdfs$comp) = c("pdf_l", "pdf_asd")
+  expect_error(
+    validate_drift_dm(temp),
+    "not named pdf_u and pdf_l"
+  )
+
+  temp <- a_model
+  temp$pdfs$comp$pdf_l = temp$pdfs$comp$pdf_l[1:19]
+  temp$pdfs$incomp$pdf_u = temp$pdfs$incomp$pdf_u[1:19]
+  expect_error(
+    validate_drift_dm(temp),
+    "one of the pdf vectors has not the expected size"
+  )
+
+  temp <- a_model
+  temp$pdfs$comp$pdf_l = as.character(temp$pdfs$comp$pdf_l)
+  expect_error(
+    validate_drift_dm(temp),
+    "vectors is not of type numeric"
+  )
+
+
+  # check log_like
+  temp <- a_model
+  temp$log_like_val <- "ba"
+  expect_error(
+    validate_drift_dm(temp),
+    "not a single numeric"
+  )
+  a_model$log_like_val <- c(1,2)
+  expect_error(
+    validate_drift_dm(temp),
+    "not a single numeric"
+  )
+
 })
 
 
@@ -605,6 +683,8 @@ test_that("set_b_encoding works as expected", {
   expect_equal(stats2$cafs$P_corr, stats1$cafs$P_foo)
 })
 
+
+
 test_that("set_b_encoding errs as expected", {
   a_model <- dmc_dm()
 
@@ -744,6 +824,9 @@ test_that("setting model component functions work as expected", {
   expect_error(set_comp_funs(a_model, "bla"), "not a list")
   expect_error(set_comp_funs(a_model, list()), "empty")
   expect_error(set_comp_funs(a_model, list(b)), "not named")
+  expect_error(set_comp_funs(a_model, list(ba = "a")), "should be one of")
+  expect_error(set_comp_funs(a_model, list(b_fun = "foo")), "not a function")
+
 })
 
 
@@ -899,6 +982,58 @@ test_that("simualte_data works as expected", {
   expect_error(simulate_data("hello", 1), "not of type drift_dm")
   expect_error(simulate_data(a_model, 10, seed = c("1", "2")), "single numeric")
   expect_error(simulate_data(a_model, 10, seed = c(1, 2)), "single numeric")
+  expect_error(simulate_data(a_model, 10, seed = 1, verbose = 2), "0 or 1")
+
+})
+
+
+
+test_that("simualte_data with multiple data sets works as expected", {
+  # standard behavior
+  my_prms <- c("a" = 2, "b" = 3, "cd" = 4)
+  conds <- c("null")
+  a_model <- ratcliff_dm(dt = .005, dx = .01)
+
+  df_prms = data.frame(ID = c("foo", 2),
+                       muc = c(3,4),
+                       b = c(0.5, 0.6),
+                       non_dec = c(0.3, 0.4))
+
+  sim_data <- simulate_data(drift_dm_obj = a_model, n = 1000,
+                            df_prms = df_prms, seed = 1)
+
+
+
+
+  withr::local_preserve_seed()
+  set.seed(1)
+  a_model <- set_model_prms(drift_dm_obj = a_model,
+                            new_prm_vals = c(muc = 3, b = 0.5, non_dec = 0.3))
+  exp_data_1 <- simulate_data(drift_dm_obj = a_model, n = 1000)
+  a_model <- set_model_prms(drift_dm_obj = a_model,
+                            new_prm_vals = c(muc = 4, b = 0.6, non_dec = 0.4))
+  exp_data_2 <- simulate_data(drift_dm_obj = a_model, n = 1000)
+
+  expect_equal(unique(sim_data$ID), c("foo", "2"))
+  sim_data_1 <- sim_data[sim_data$ID == "foo",][c("RT", "Error", "Cond")]
+  expect_equal(sim_data_1, exp_data_1)
+  sim_data_2 <- sim_data[sim_data$ID == "2",][c("RT", "Error", "Cond")]
+  rownames(sim_data_2) = 1:nrow(sim_data_2)
+  expect_equal(sim_data_2, exp_data_2)
+
+  # input checks
+  expect_error(simulate_data(a_model, 10,
+                             as.matrix(df_prms)), "must be a data.frame")
+  expect_error(simulate_data(a_model, 10,
+                             data.frame(ID = c(), muc = c())), "at least one row")
+  expect_error(simulate_data(a_model, 10,
+                             data.frame(muc = c(1))), "no ID")
+  expect_error(simulate_data(a_model, 10,
+                             data.frame(ID = 1, muc = 1, b = 0.5, non_dec = 0.5, foo = 3)),
+                             "don't match free_prms")
+  expect_error(simulate_data(a_model, 10,
+                             data.frame(ID = 1, b = 0.5, non_dec = 0.5)),
+               "don't match free_prms")
 })
 
 
@@ -935,4 +1070,96 @@ test_that("set_obs_data works as expected", {
     a_model$obs_data$rts_l$i,
     rts[err == 1 & conds == "i"]
   )
+})
+
+
+
+test_that("invalid return vectors of comp_funs fail", {
+  a_model = drift_dm(prms_model = c(a = 2, b = 3),
+                     conds = c("foo", "bar"), dt = .005, dx = .005, t_max = 1)
+
+
+  temp <- a_model
+  temp$comp_funs$mu_fun <- function(foo, prms_solve, t_vec, one_cond, ddm_opts) {
+    mu_vec = rep(3, length(t_vec) + 1)
+    return(mu_vec)
+  }
+  expect_error(re_evaluate_model(temp), "unexpected length")
+
+
+  temp <- a_model
+  temp$comp_funs$mu_fun <- function(foo, prms_solve, t_vec, one_cond, ddm_opts) {
+    mu_vec = rep(3, length(t_vec))
+    return(as.character(mu_vec))
+  }
+  expect_error(re_evaluate_model(temp), "non-numeric values")
+
+
+  temp <- a_model
+  temp$comp_funs$b_fun <- function(foo, prms_solve, t_vec, one_cond, ddm_opts) {
+    b_vec = rep(3, length(t_vec))
+    b_vec[1] = Inf
+    return(b_vec)
+  }
+  expect_error(re_evaluate_model(temp), "infinite")
+
+  temp <- a_model
+  temp$comp_funs$dt_b_fun <- function(foo, prms_solve, t_vec, one_cond, ddm_opts) {
+    b_vec = rep(3, length(t_vec))
+    b_vec[1] = NA
+    return(b_vec)
+  }
+  expect_error(re_evaluate_model(temp), "infinite values or NAs")
+
+
+  # x_fun specific
+  temp <- a_model
+  temp$comp_funs$x_fun <- function(foo, prms_solve, x_vec, one_cond, ddm_opts) {
+    x_vec = rep(1, length(x_vec) + 1)
+    x_vec[1] = NA
+    return(x_vec)
+  }
+  expect_error(re_evaluate_model(temp), "infinite values or NAs")
+
+  temp <- a_model
+  temp$comp_funs$x_fun <- function(foo, prms_solve, x_vec, one_cond, ddm_opts) {
+    x_vec = rep(1, length(x_vec) + 1)
+    x_vec[5] = -1
+    return(x_vec)
+  }
+  expect_error(re_evaluate_model(temp), "negative values")
+
+  temp <- a_model
+  temp$comp_funs$x_fun <- function(foo, prms_solve, x_vec, one_cond, ddm_opts) {
+    x_vec = rep(1, length(x_vec) + 1)
+    return(x_vec)
+  }
+  expect_error(re_evaluate_model(temp), "integrate to 1")
+
+  temp <- a_model
+  temp$comp_funs$x_fun <- function(foo, prms_solve, x_vec, one_cond, ddm_opts) {
+    x_vec = rep(1, length(x_vec))
+    x_vec = x_vec / sum(x_vec) / prms_solve[["dx"]]
+    x_vec = x_vec[1:length(x_vec)-1]
+    return(x_vec)
+  }
+  expect_error(re_evaluate_model(temp), "unexpected length")
+
+
+  # nt_fun specific
+  temp <- a_model
+  temp$comp_funs$nt_fun <- function(foo, prms_solve, t_vec, one_cond, ddm_opts) {
+    t_vec = rep(1, length(t_vec))
+    t_vec[1] = -1
+    return(t_vec)
+  }
+  expect_error(re_evaluate_model(temp), "negative values")
+
+  temp <- a_model
+  temp$comp_funs$nt_fun <- function(foo, prms_solve, t_vec, one_cond, ddm_opts) {
+    t_vec = rep(2, length(t_vec))
+    return(t_vec)
+  }
+  expect_error(re_evaluate_model(temp), "integrate to 1")
+
 })

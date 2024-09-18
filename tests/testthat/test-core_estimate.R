@@ -53,6 +53,38 @@ test_that("input checks estimate_model", {
     "logical"
   )
 
+  expect_error(
+    estimate_model(a_model,
+                   lower = c(a = 1, 2, 3), upper = c(5, 3, 4)
+    ),
+    "lower is a named numeric vector, but upper"
+  )
+
+  expect_error(
+    estimate_model(a_model,
+                       lower = c(1, 2, 3), upper = c(a = 5, 3, 4)
+    ),
+    "upper is a named numeric vector, but lower"
+  )
+
+
+  expect_error(
+    estimate_model(a_model,
+                   lower = c(muc = 1, b = 0.3, foo = 0.4),
+                   upper = c(muc = 3, b = 5, non_dec = 0.4)
+    ),
+    "can not be adressed"
+  )
+
+  expect_error(
+    estimate_model(a_model,
+                       lower = c(muc = 1, b = 0.3, non_dec = 0.4),
+                       upper = c(muc = 3, foo = 5, non_dec = 0.4)
+    ),
+    "can not be adressed"
+  )
+
+
   expect_warning(
     estimate_model(a_model,
       lower = c(1, 0.2, 0.1),

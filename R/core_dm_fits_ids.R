@@ -76,7 +76,7 @@ gather_stats <- function(fits_ids, type, verbose = 0, ...) {
 
   if (!inherits(fits_ids, "dm_fits_ids")) {
     warning("fits_ids not of type dm_fits_ids, calling calc_stats()")
-    calc_stats(drift_dm_obj = fits_ids, type = type, source = "both")
+    calc_stats(drift_dm_obj = fits_ids, type = type, ...)
   }
 
   # create a progress bar

@@ -290,10 +290,12 @@ validate_drift_dm <- function(drift_dm_obj) {
 
   # ensure that each element in comp_funs is a function with the correct
   # arguments
-  names <- names(drift_dm_obj$comp_funs)
+  comp_names <- names(drift_dm_obj$comp_funs)
   nec_names <- c("mu_fun", "mu_int_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
-  if (any(names != nec_names)) stop("unexpected name in comp_funs")
-  for (one_name in names) {
+  if (!all(comp_names %in% nec_names)) stop("unexpected entry in comp_funs")
+  if (!all(nec_names %in% comp_names)) stop("some comp_funs are missing")
+
+  for (one_name in nec_names) {
     if (!is.function(drift_dm_obj$comp_funs[[one_name]])) {
       stop(one_name, " listed in comp_funs is not a function")
     }
@@ -328,12 +330,12 @@ validate_drift_dm <- function(drift_dm_obj) {
 
   # check pdfs
   if (!is.null(drift_dm_obj$pdfs)) {
-    if (any(names(drift_dm_obj$pdfs) != drift_dm_obj$conds)) {
+    if (!identical(names(drift_dm_obj$pdfs), drift_dm_obj$conds)) {
       stop("the pdf entry of drift_dm_obj is not labeled like the conditions")
     }
 
     check <- sapply(drift_dm_obj$pdfs, function(x) {
-      names_check <- all(names(x) == c("pdf_u", "pdf_l"))
+      names_check <- identical(names(x), c("pdf_u", "pdf_l"))
       length_check <-
         as.vector(sapply(x, length)) == drift_dm_obj$prms_solve[["nt"]] + 1
       length_check <- all(length_check)
@@ -341,7 +343,7 @@ validate_drift_dm <- function(drift_dm_obj) {
       return(list(names_check, length_check, numeric_check))
     })
     if (!all(unlist(check[1, ]))) {
-      stop("a pdf by condition entry is not named pdf_u or pdf_l")
+      stop("pdfs within a condition are not named pdf_u and pdf_l")
     }
     if (!all(unlist(check[2, ]))) {
       stop("one of the pdf vectors has not the expected size")
@@ -614,6 +616,12 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
           stop("pdf_nt doesn't integrate to 1, condition ", one_cond, drift_dm_obj$prms_model)
         }
       }
+
+      if (!is.numeric(vals)) {
+        stop("function for ", name_comp_fun,
+             " provided non-numeric values, condition ", one_cond)
+      }
+
       return(vals)
     }, USE.NAMES = T, simplify = F)
     names(one_set_comp_vecs) <- sub(
@@ -1494,6 +1502,7 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
 
   all_sim_data <- apply(X = df_prms, MARGIN = 1, FUN = function(one_row) {
     one_set <- one_row[names(one_row) != "ID"]
+    mode(one_set) <- "numeric" # ID might not be numeric, so re-cast
     drift_dm_obj <- set_model_prms(
       drift_dm_obj = drift_dm_obj,
       new_prm_vals = one_set

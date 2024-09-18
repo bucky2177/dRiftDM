@@ -505,4 +505,100 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
 })
 
 
+test_that("SSP model provides reasonable values", {
+  a_model = ssp_dm(dt = .005, dx = .005)
+
+  # check basic attributes
+  expect_equal(names(a_model$prms_model),
+               c("b", "non_dec", "sd_non_dec", "p", "sd_0", "r"))
+
+  expect_equal(a_model$free_prms,
+               c("b", "non_dec", "sd_non_dec", "p", "sd_0"))
+
+  expect_equal(a_model$conds,
+               c("comp", "incomp"))
+
+
+  a_model = set_model_prms(drift_dm_obj = a_model,
+                           new_prm_vals = c(b=0.6, non_dec=0.3, sd_non_dec=0.01, p=3.3, sd_0=1.2, r=10))
+
+  x_vec = seq(-1, 1, .005)
+  t_vec = seq(0, a_model$prms_solve[["t_max"]], .005)
+
+
+  prms_model = a_model$prms_model
+  conds = a_model$conds
+  prms_solve = a_model$prms_solve
+
+  # b_fun
+  expect_equal(
+    a_model$comp_funs$b_fun(prms_model, prms_solve, t_vec, one_cond = "comp", ddm_opts = NULL),
+    rep(0.6, length(t_vec))
+  )
+
+  expect_equal(
+    a_model$comp_funs$b_fun(prms_model, prms_solve, t_vec, one_cond = "incomp", ddm_opts = NULL),
+    rep(0.6, length(t_vec))
+  )
+
+  # dt_b_fun
+  expect_equal(
+    a_model$comp_funs$dt_b_fun(prms_model, prms_solve, t_vec, one_cond = "comp", ddm_opts = NULL),
+    rep(0, length(t_vec))
+  )
+
+  expect_equal(
+    a_model$comp_funs$dt_b_fun(prms_model, prms_solve, t_vec, one_cond = "incomp", ddm_opts = NULL),
+    rep(0, length(t_vec))
+  )
+
+  # x_fun
+  exp_x = rep(0, length(x_vec))
+  exp_x[201] = 1 / .005
+  expect_equal(
+    a_model$comp_funs$x_fun(prms_model, prms_solve, x_vec, one_cond = "comp", ddm_opts = NULL),
+    exp_x
+  )
+
+  expect_equal(
+    a_model$comp_funs$x_fun(prms_model, prms_solve, x_vec, one_cond = "incomp", ddm_opts = NULL),
+    exp_x
+  )
+
+
+  # mu_fun
+  sd_t = 1.2 - 10 * t_vec
+  sd_t = pmax(sd_t, .001)
+  a_tar = pnorm(q = 0.5, mean = 0, sd = sd_t) - pnorm(q = -0.5, mean = 0, sd = sd_t)
+  a_fl = 1 - a_tar
+  expect_equal(
+    a_model$comp_funs$mu_fun(prms_model, prms_solve, t_vec, one_cond = "comp", ddm_opts = NULL),
+    3.3 * a_tar + 3.3 * a_fl
+  )
+  expect_equal(
+    a_model$comp_funs$mu_fun(prms_model, prms_solve, t_vec, one_cond = "incomp", ddm_opts = NULL),
+    3.3 * a_tar - 3.3 * a_fl
+  )
+
+  # mu_int_fun
+  expect_error(
+    a_model$comp_funs$mu_int_fun(prms_model, prms_solve, t_vec, one_cond = "incomp", ddm_opts = NULL),
+    "this should not be called"
+  )
+
+  expect_error(
+    a_model$comp_funs$mu_int_fun(prms_model, prms_solve, t_vec, one_cond = "comp", ddm_opts = NULL),
+    "this should not be called"
+  )
+
+  # nt_fun
+  exp_nt <- truncnorm::dtruncnorm(t_vec, a = 0, mean = 0.3, sd = 0.01)
+  expect_equal(
+    a_model$comp_funs$nt_fun(prms_model = prms_model, prms_solve = prms_solve, t_vec = t_vec,
+                             one_cond = "comp", ddm_opts = NULL),
+    exp_nt
+  )
+})
+
+
 

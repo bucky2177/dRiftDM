@@ -154,6 +154,15 @@ simulate_values <- function(lower, upper, k, distr = "unif",
     if (!is.numeric(sds) | length(sds) != n_prms) {
       stop("sds is not numeric with length equal to lower/upper")
     }
+    names_means <- names(means)
+    names_sds <- names(sds)
+    if (!isTRUE(all.equal(names_means, names_sds))) {
+      stop("labels provided in means and sds don't match!")
+    }
+    if (!isTRUE(all.equal(names_means, names_upper))) {
+      stop("labels provided in means/sds don't match with upper/lower!")
+    }
+
 
     prms <- lapply(1:n_prms, function(i) {
       cdf_val_l <- stats::pnorm(q = lower[i], mean = means[i], sd = sds[i])

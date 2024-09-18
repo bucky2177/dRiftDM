@@ -46,4 +46,16 @@ test_that("snapshot the plotting functions", {
     )
   }
   vdiffr::expect_doppelganger(title = "delta plot", fig = plot4())
+
+
+  a_model$prms_model[["A"]] = 0.2
+  a_model$prms_model[["tau"]] = 0.1
+  a_model$prms_model[["alpha"]] = 10
+
+  plot5 <- function() {
+    plot_model_comps(drift_dm_obj = a_model, xlim_time = c(0, 0.5),
+                     line_cols = c("green", "red"))
+  }
+  vdiffr::expect_doppelganger(title = "comp_fun", fig = plot5())
+
 })
