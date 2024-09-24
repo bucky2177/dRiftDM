@@ -9,5 +9,5 @@ src/*.so
 src/*.dll
 inst/doc
 data-raw
-^.*\.Rprofile
 playground.R
+.Rprofile

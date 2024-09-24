@@ -1,5 +1,6 @@
 check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
-                                          length = NULL) {
+                                          length = NULL,
+                                          allow_special_chars = FALSE) {
   if (!is.numeric(x)) {
     stop(var_name, " is not a (named) numeric vector")
   }
@@ -27,6 +28,15 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
   }
   if (any(is.na(x))) stop(var_name, " contains NAs")
   if (any(is.infinite(x))) warning(var_name, " contains infinite values")
+
+  if (!allow_special_chars) {
+    given_names = names(x)
+    given_names = grepl('[\\W]', given_names, perl = T)
+    if (any(given_names)) {
+      stop(var_name, "provides illegal special characters like ?,!, etc.")
+    }
+  }
+
 }
 
 prms_to_str <- function(prms, names_prms, round_digits = NULL,

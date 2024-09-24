@@ -26,7 +26,9 @@ print.dm_fits_ids <- function(x, ...) {
 
 
 #' @export
-print.summary.dm_fits_ids <- function(x, round_digits = 3, ...) {
+print.summary.dm_fits_ids <- function(x,
+                                      round_digits = drift_dm_default_rounding(),
+                                      ...) {
   summary_obj <- x
   cat("Fit procedure name:", summary_obj$fit_procedure_name)
   cat("\n")

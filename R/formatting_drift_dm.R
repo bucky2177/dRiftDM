@@ -1,7 +1,7 @@
 # ==== Function for printing/summarizing information of drift_dm class
 
 #' @export
-print.drift_dm <- function(x, ...) {
+print.drift_dm <- function(x, round_digits = drift_dm_default_rounding(), ...) {
   drift_dm_obj <- x
   cat(
     "Class(es):",
@@ -11,7 +11,8 @@ print.drift_dm <- function(x, ...) {
 
   to_str <- prms_to_str(
     prms = drift_dm_obj$prms_model,
-    names_prms = names(drift_dm_obj$prms_model)
+    names_prms = names(drift_dm_obj$prms_model),
+    round_digits = round_digits
   )
   cat("\nModel Parameters:")
   cat("\n  values:", to_str)
@@ -32,7 +33,8 @@ print.drift_dm <- function(x, ...) {
   cat("\n  solver:", drift_dm_obj$solver)
   to_str <- prms_to_str(
     prms = drift_dm_obj$prms_solve,
-    names_prms = names(drift_dm_obj$prms_solve)
+    names_prms = names(drift_dm_obj$prms_solve),
+    round_digits = round_digits
   )
   cat("\n  values:", to_str)
   cat("\n")
@@ -55,9 +57,9 @@ print.drift_dm <- function(x, ...) {
 
 
 #' @export
-print.summary.drift_dm <- function(x, ...) {
+print.summary.drift_dm <- function(x, round_digits = drift_dm_default_rounding(),
+                                   ...) {
   summary_obj <- x
-  round_to <- drift_dm_default_rounding()
 
   cat(
     "Class(es):",
@@ -68,7 +70,7 @@ print.summary.drift_dm <- function(x, ...) {
   cat("\nObserved Data:\n")
   obs_data_print <- summary_obj$obs_data
   if (!is.null(obs_data_print)) {
-    obs_data_print <- round(obs_data_print, round_to)
+    obs_data_print <- round(obs_data_print, round_digits)
   }
   print(obs_data_print)
   cat("\n")
@@ -78,14 +80,14 @@ print.summary.drift_dm <- function(x, ...) {
   cat("\n")
 
   cat("\nModel Parameter Values:\n")
-  print(round(summary_obj$prms_model, round_to))
+  print(round(summary_obj$prms_model, round_digits))
   cat("\n")
 
   cat("\nFit Indices:\n")
 
   fit_stats_print <- summary_obj$fit_stats
   if (!is.null(fit_stats_print)) {
-    fit_stats_print <- round(fit_stats_print, round_to)
+    fit_stats_print <- round(fit_stats_print, round_digits)
   }
   print(fit_stats_print)
   cat("-------")

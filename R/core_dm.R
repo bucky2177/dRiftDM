@@ -82,13 +82,6 @@ drift_dm <- function(prms_model, conds, free_prms = NULL, obs_data = NULL,
                      b_fun = NULL, dt_b_fun = NULL, nt_fun = NULL,
                      b_encoding = NULL) {
   # conduct input checks and set defaults
-  if (length(prms_model) == 0) {
-    stop("prms_model has length 0")
-  }
-  check_if_named_numeric_vector(x = prms_model, var_name = "prms_model")
-  if (!is.character(conds) | length(conds) == 0) {
-    stop("conds is not a character vector of length >= 1")
-  }
   if (!is.numeric(sigma) | length(sigma) != 1) {
     stop("sigma is not a single numeric number")
   }
