@@ -204,6 +204,23 @@ validate_drift_dm <- function(drift_dm_obj) {
     length = 6
   )
 
+  # in case the max RT is larger than expected, adjust the prms_solve
+  if (!is.null(drift_dm_obj$obs_data)) {
+    max_rt <- max(unlist(drift_dm_obj$obs_data))
+    if (max_rt > drift_dm_obj$prms_solve[["t_max"]]) {
+      warning(
+        "RTs in obs_data are larger than the maximum time in prms_solve ",
+        "Trying to fix this by adjusting t_max and nt. Please double-check ",
+        "your data and your model!"
+      )
+
+      prms_solve <- drift_dm_obj$prms_solve
+      prms_solve[["nt"]] <- as.integer(ceiling(max_rt / prms_solve[["dt"]]))
+      prms_solve[["t_max"]] <- prms_solve[["nt"]] * prms_solve[["dt"]]
+      drift_dm_obj$prms_solve <- prms_solve
+    }
+  }
+
   # check the free prms entry
   if (!is.character(drift_dm_obj$free_prms) |
     length(drift_dm_obj$free_prms) == 0) {
@@ -259,27 +276,47 @@ validate_drift_dm <- function(drift_dm_obj) {
     warning("nt seems very small. Double check your model")
   }
 
-  # in case the max RT is larger than expected, adjust the prms_solve
-  if (!is.null(drift_dm_obj$obs_data)) {
-    max_rt <- max(unlist(drift_dm_obj$obs_data))
-    if (max_rt > drift_dm_obj$prms_solve[["t_max"]]) {
-      warning(
-        "RTs in obs_data are larger than the maximum time in prms_solve ",
-        "Trying to fix this by adjusting t_max and nt. Please double-check ",
-        "your data and your model!"
-      )
 
-      prms_solve <- drift_dm_obj$prms_solve
-      prms_solve[["nt"]] <- ceiling(max_rt / prms_solve[["dt"]])
-      prms_solve[["t_max"]] <- prms_solve[["nt"]] * prms_solve[["dt"]]
-      drift_dm_obj$prms_solve <- prms_solve
-    }
-  }
 
-  # check if the solver entry is just a single string
+  # check if the solver entry is just a single string and if it makes sense
   if (!is.character(drift_dm_obj$solver) | length(drift_dm_obj$solver) != 1) {
     stop("solver in drift_dm_obj is not a single character/string")
   }
+
+  if (!drift_dm_obj$solver %in% c("kfe", "im_zero")) {
+    stop("solver should be either kfe or im_zero")
+  }
+
+  if (drift_dm_obj$solver == "im_zero") {
+
+    x_vec = seq(-1, 1, length.out = drift_dm_obj$prms_solve[["nx"]] + 1)
+    x_check = sapply(drift_dm_obj$conds, function(one_cond) {
+      obs_x_vals = drift_dm_obj$comp_funs$x_fun(
+        prms_model = drift_dm_obj$prms_model,
+        prms_solve = drift_dm_obj$prms_solve,
+        x_vec = x_vec, one_cond = one_cond, ddm_opts = drift_dm_obj$ddm_opts
+      )
+
+      nec_x_vals = x_dirac_0(prms_model = NULL,
+                             prms_solve = drift_dm_obj$prms_solve, x_vec = x_vec,
+                             one_cond = NULL, ddm_opts = NULL)
+
+      return(isTRUE(all.equal(obs_x_vals, nec_x_vals)))
+    }, simplify = T, USE.NAMES = T)
+
+    if (any(!x_check)) {
+      names_conds = names(which(!x_check))
+      names_conds = paste(names_conds, collapse = ", ")
+      warning("You selected im_zero for a solver, but the distribution of",
+              " starting conditions (", names_conds, ") is different from ",
+              " dRiftDM's x_dirac_0 function. Note that im_zero assumes that ",
+              " evidence accumulation always starts at 0!")
+    }
+  }
+
+
+
+
 
   # ensure that each element in comp_funs is a function with the correct
   # arguments
@@ -553,8 +590,10 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 
   if (drift_dm_obj$solver == "kfe") {
     comp_fun_names <- c("mu_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
+  } else if (drift_dm_obj$solver == "im_zero") {
+    comp_fun_names <- c("mu_fun", "mu_int_fun", "b_fun", "dt_b_fun", "nt_fun")
   } else {
-    stop("not implemented yet another solver")
+    stop("requested solver ", drift_dm_obj$solver, " not implemented")
   }
 
   all_comp_vecs <- sapply(drift_dm_obj$conds, function(one_cond) {
@@ -579,9 +618,6 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
           stop("unexpected length of x_vals, condition ", one_cond)
         }
       } else {
-        if (name_comp_fun == "mu_int_fun" & drift_dm_obj$solver == "kfe") {
-          return(NULL)
-        }
         vals <- drift_dm_obj$comp_funs[[name_comp_fun]](drift_dm_obj$prms_model,
           drift_dm_obj$prms_solve,
           t_vec,
@@ -606,13 +642,21 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
           stop("pdf_nt provided negative values, condition ", one_cond)
         }
         if (abs(sum(vals) * dt - 1) > drift_dm_small_approx_error()) {
-          stop("pdf_nt doesn't integrate to 1, condition ", one_cond, drift_dm_obj$prms_model)
+          stop("pdf_nt doesn't integrate to 1, condition ", one_cond,
+               drift_dm_obj$prms_model)
         }
       }
+
 
       if (!is.numeric(vals)) {
         stop("function for ", name_comp_fun,
              " provided non-numeric values, condition ", one_cond)
+      }
+
+      if (name_comp_fun == "b_fun") {
+        if (any(vals < 0)) {
+          stop("b_fun provided negative values, condition ", one_cond)
+        }
       }
 
       return(vals)
@@ -631,7 +675,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
       calc_pdfs(
         solver = drift_dm_obj$solver, x_vec = x_vec, t_vec = t_vec,
         prms_solve = drift_dm_obj$prms_solve,
-        one_set_comp_vecs = all_comp_vecs[[one_cond]], one_cond = one_cond
+        one_set_comp_vecs = all_comp_vecs[[one_cond]]
       )
     }, simplify = F, USE.NAMES = T)
   drift_dm_obj$pdfs <- pdfs
