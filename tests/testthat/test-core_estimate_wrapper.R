@@ -134,6 +134,51 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
   )
 
 
+  expect_error(
+    estimate_model_ids(a_model,
+                       obs_data_ids = data_both,
+                       lower = c(a = 1), upper = c(5),
+                       fit_dir = test_path("temp_fits"),
+                       fit_procedure_name = "test"
+    ),
+    "lower is a named numeric vector, but upper"
+  )
+
+  expect_error(
+    estimate_model_ids(a_model,
+                       obs_data_ids = data_both,
+                       lower = c(1), upper = c(a = 5),
+                       fit_dir = test_path("temp_fits"),
+                       fit_procedure_name = "test"
+    ),
+    "upper is a named numeric vector, but lower"
+  )
+
+  expect_error(
+    estimate_model_ids(a_model,
+                       obs_data_ids = data_both,
+                       lower = c(muc = 1), upper = c(b = 5),
+                       fit_dir = test_path("temp_fits"),
+                       fit_procedure_name = "test"
+    ),
+    "can not be adressed"
+  )
+
+  expect_error(
+    estimate_model_ids(a_model,
+                       obs_data_ids = data_both,
+                       lower = c(b = 1), upper = c(muc = 5),
+                       fit_dir = test_path("temp_fits"),
+                       fit_procedure_name = "test"
+    ),
+    "can not be adressed"
+  )
+
+
+
+
+
+
   # vp is called like the info file
   temp_data <- data_both
   temp_data$ID <- ifelse(data_both$ID == 1, "drift_dm_fit_info",

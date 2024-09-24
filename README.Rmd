@@ -14,18 +14,20 @@ knitr::opts_chunk$set(
 
 # dRiftDM
 
-The package dRiftDM was developed to help psychology researchers apply time-dependent diffusion models in R. It comes with necessary tools for standard analyses, such as building a model, estimating parameters across multiple participants (separately per participant), or creating summary statistics. It also ships with pre-built models. Currently, these are: 
+The package dRiftDM was developed to help psychological researchers using and fitting diffusion models to empirical data in the R environment. The most important feature is that dRiftDM can also handle non-stationary problems, that is, diffusion models with time-dependent parameters. The package comes with necessary tools for standard analyses, such as building a model, estimating parameters for multiple participants (separately per participant), or creating summary statistics including a diagnostic plot. Several models are pre-built within the package, and currently these are: 
 
-- The Diffusion Model for Conflict Tasks 
-- The Shrinking Spotlight Model 
-- The Standard (Ratcliff) Diffusion Model
+- The Standard (Ratcliff) Diffusion Model (Ratcliff, 1978, Psychological Review)
+- The Diffusion Model for Conflict Tasks (Ulrich et al., 2015, Cognitive Psychology)
+- The Shrinking Spotlight Model  (White et al., 2011, Cognitive Psychology)
 
-With version 0.1.1 model predicitons (i.e., their first-passage time) are derived by numerically solving the Kolmogorov-Forward Equation based on code provided by Richter et al. (2023, JMP). 
+However, users can flexibibly create other models themselves and use the machinery of dRiftDM for estimating them. 
+
+With Version 0.1.1 model predictions (i.e., their first-passage time) are derived by numerically solving the Kolmogorov-Forward-Equation based on code provided by Richter et al. (2023, Journal of Mathematical Psychology. 
 
 
 ## Installation
 
-You can install the development version of dRiftDM from [GitHub](https://github.com/) with:
+You can install the (current) development version of dRiftDM from [GitHub](https://github.com/) with:
 
 ```{r, eval = F}
 # install.packages("devtools")

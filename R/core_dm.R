@@ -4,10 +4,10 @@
 #' @description
 #' This function creates an object of type drift_dm, which serves as the parent
 #' class for all further created drift diffusion models. Its structure is the
-#' backbone  of the dRiftDM package and every child of the drift_dm class must
-#' have the attributes  of the parent class. Typically, users will not want to
+#' backbone of the dRiftDM package and every child of the drift_dm class must
+#' have the attributes of the parent class. Typically, users will not want to
 #' create an object of drift_dm alone, as its use is very limited. Rather, they
-#' will want an object of one of its  child classes. See
+#' will want an object of one of its child classes. See
 #' \code{vignette("use_ddm_models", "dRiftDM")} for a list of pre-built diffusion
 #' models and more information on how to create/use/modify child classes.
 #'
@@ -26,14 +26,14 @@
 #'  (see [dRiftDM::set_obs_data])
 #' @param sigma The diffusion constant. Default is set to 1.
 #' @param t_max The maximum of the time space. Default is set to 3 (seconds).
-#' @param dt The step size of the time discretization. Default is set to .001
+#' @param dt The step size of the time space discretization. Default is set to .001
 #'  (seconds).
 #' @param dx The step size of the evidence space discretization. Default is set
 #'  to .001.
-#' @param mu_fun,mu_int_fun,x_fun,b_fun,dt_b_fun,nt_fun custom functions
+#' @param mu_fun,mu_int_fun,x_fun,b_fun,dt_b_fun,nt_fun Custom functions
 #'  defining the components of a diffusion model. See the respective
 #'  `set_comp_funs` function.
-#' @param b_encoding, a list, specifying how boundaries are coded.
+#' @param b_encoding, A list, specifying how boundaries are coded.
 #'  The default is 'accuracy' encoding, see the default of
 #'  [dRiftDM::set_b_encoding].
 #'
@@ -283,10 +283,12 @@ validate_drift_dm <- function(drift_dm_obj) {
 
   # ensure that each element in comp_funs is a function with the correct
   # arguments
-  names <- names(drift_dm_obj$comp_funs)
+  comp_names <- names(drift_dm_obj$comp_funs)
   nec_names <- c("mu_fun", "mu_int_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
-  if (any(names != nec_names)) stop("unexpected name in comp_funs")
-  for (one_name in names) {
+  if (!all(comp_names %in% nec_names)) stop("unexpected entry in comp_funs")
+  if (!all(nec_names %in% comp_names)) stop("some comp_funs are missing")
+
+  for (one_name in nec_names) {
     if (!is.function(drift_dm_obj$comp_funs[[one_name]])) {
       stop(one_name, " listed in comp_funs is not a function")
     }
@@ -321,12 +323,12 @@ validate_drift_dm <- function(drift_dm_obj) {
 
   # check pdfs
   if (!is.null(drift_dm_obj$pdfs)) {
-    if (any(names(drift_dm_obj$pdfs) != drift_dm_obj$conds)) {
+    if (!identical(names(drift_dm_obj$pdfs), drift_dm_obj$conds)) {
       stop("the pdf entry of drift_dm_obj is not labeled like the conditions")
     }
 
     check <- sapply(drift_dm_obj$pdfs, function(x) {
-      names_check <- all(names(x) == c("pdf_u", "pdf_l"))
+      names_check <- identical(names(x), c("pdf_u", "pdf_l"))
       length_check <-
         as.vector(sapply(x, length)) == drift_dm_obj$prms_solve[["nt"]] + 1
       length_check <- all(length_check)
@@ -334,7 +336,7 @@ validate_drift_dm <- function(drift_dm_obj) {
       return(list(names_check, length_check, numeric_check))
     })
     if (!all(unlist(check[1, ]))) {
-      stop("a pdf by condition entry is not named pdf_u or pdf_l")
+      stop("pdfs within a condition are not named pdf_u and pdf_l")
     }
     if (!all(unlist(check[2, ]))) {
       stop("one of the pdf vectors has not the expected size")
@@ -499,7 +501,7 @@ calc_ic <- function(ll, k, n) {
 
 #' Re-evaluate the model
 #'
-#' Updates the pdfs of model. If data is set to the model, the log likelihood,
+#' Updates the pdfs of a model. If data are set to the model, the log-likelihood,
 #' the Akaike information criterion (aic) and the
 #' Bayesian information criterion (bic) also updated
 #'
@@ -509,7 +511,7 @@ calc_ic <- function(ll, k, n) {
 #'  (used in the internals of dRiftDM)
 #'
 #' @returns Returns the passed `drift_dm_obj` object, after (re-)calculating
-#' the pdfs, log likelihood (and aic/bic) of the model.
+#' the pdfs, log-likelihood (and aic/bic) of the model.
 #'
 #' * the pdfs an be addressed via `drift_dm_obj$pdfs`
 #' * the log likelihood can be addressed via `drift_dm_obj$log_like_val`
@@ -607,6 +609,12 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
           stop("pdf_nt doesn't integrate to 1, condition ", one_cond, drift_dm_obj$prms_model)
         }
       }
+
+      if (!is.numeric(vals)) {
+        stop("function for ", name_comp_fun,
+             " provided non-numeric values, condition ", one_cond)
+      }
+
       return(vals)
     }, USE.NAMES = T, simplify = F)
     names(one_set_comp_vecs) <- sub(
@@ -1487,6 +1495,7 @@ simulate_data <- function(drift_dm_obj, n, df_prms = NULL, seed = NULL,
 
   all_sim_data <- apply(X = df_prms, MARGIN = 1, FUN = function(one_row) {
     one_set <- one_row[names(one_row) != "ID"]
+    mode(one_set) <- "numeric" # ID might not be numeric, so re-cast
     drift_dm_obj <- set_model_prms(
       drift_dm_obj = drift_dm_obj,
       new_prm_vals = one_set

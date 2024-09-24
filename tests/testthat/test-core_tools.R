@@ -64,3 +64,117 @@ test_that("input checks for draw_from_pdf", {
   pdf <- pdf - 0.1
   expect_warning(draw_from_pdf(pdf, x_def, 1), "negative pdf values")
 })
+
+
+
+test_that("simualte_values works as expected", {
+
+  withr::local_preserve_seed()
+  set.seed(1)
+
+  probs = c(0.15, 0.3, 0.5, 0.7, 0.85)
+
+  # uniform
+  dat = simulate_values(lower = c(1,2), upper = c(2,5),
+                        k = 10000)
+
+  test1 = runif(n = 10000, min = 1, max = 2)
+  test2 = runif(n = 10000, min = 2, max = 5)
+  test1 = quantile(test1, probs = probs)
+  test2 = quantile(test2, probs = probs)
+
+  expect_true(
+    all(abs(quantile(dat$V1, probs = probs) - test1) < .1)
+  )
+
+  expect_true(
+    all(abs(quantile(dat$V2, probs = probs) - test2) < .1)
+  )
+
+
+  # truncated normal
+  dat = simulate_values(lower = c(1,2), upper = c(2,5),
+                        k = 10000, distr = "tnorm",
+                        means = c(1.3,3), sds = c(0.4, 0.1))
+
+  test1 = truncnorm::rtruncnorm(n = 10000, a = 1, b = 2, mean = 1.3, sd = 0.4)
+  test2 = truncnorm::rtruncnorm(n = 10000, a = 2, b = 5, mean = 3, sd = 0.1)
+  test1 = quantile(test1, probs = probs)
+  test2 = quantile(test2, probs = probs)
+
+  expect_true(
+    all(abs(quantile(dat$V1, probs = probs) - test1) < .1)
+  )
+
+  expect_true(
+    all(abs(quantile(dat$V2, probs = probs) - test2) < .1)
+  )
+
+  # returned value checks
+  dat = simulate_values(lower = c(a = 1, b = 2), upper = c(a = 2, b = 5),
+                        k = 2, distr = "tnorm",
+                        means = c(1.3,3), sds = c(0.4, 0.1))
+  expect_equal(colnames(dat), c("a", "b", "ID"))
+  expect_true(is.data.frame(dat))
+
+
+  dat = simulate_values(lower = c(a = 1, b = 2), upper = c(a = 2, b = 5),
+                        k = 2, distr = "tnorm",
+                        means = c(1.3,3), sds = c(0.4, 0.1),
+                        cast_to_data_frame = F, add_id_column = "none")
+  expect_equal(colnames(dat), c("a", "b"))
+  expect_true(is.matrix(dat))
+
+
+  # input checks
+  expect_error(simulate_values(lower = c(), upper = 3, k = 2),
+               "length >= 1")
+  expect_error(simulate_values(lower = c(1), upper = c(), k = 2),
+               "length >= 1")
+  expect_error(simulate_values(lower = c(1), upper = c(2,2), k = 2),
+               "not of the same length")
+  expect_error(simulate_values(lower = c(a = 1, b = 1), upper = c(a = 2, c = 2), k = 2),
+               "don't match")
+  expect_error(simulate_values(lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+                               k = 2, distr = "foo"),
+               "should be one of")
+  expect_error(simulate_values(lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+                               k = NULL, distr = "foo"),
+               "a single numeric")
+  expect_error(simulate_values(lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+                               k = "a", distr = "foo"),
+               "a single numeric")
+
+  expect_error(simulate_values(lower = c(a = "a", b = 1), upper = c(a = 2, b = 2),
+                               k = "a", distr = "foo"),
+               "numeric")
+  expect_error(simulate_values(lower = c(a = "a", b = 1), upper = c(a = 2, b = 2),
+                               k = c(1,2), distr = "foo"),
+               "numeric")
+  expect_error(simulate_values(lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+                               k = 2, cast_to_data_frame = NULL),
+               "a single logical")
+  expect_error(simulate_values(lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+                               k = 2, cast_to_data_frame = c(T, F)),
+               "a single logical")
+
+  expect_error(simulate_values(lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+                               k = 2, add_id_column = "foo"),
+               "should be one of")
+
+  expect_error(simulate_values(lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+                               k = 2, seed = "foo"),
+               "must be a single numeric")
+
+  expect_error(simulate_values(lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+                               k = 2, seed = c(1,2)),
+               "must be a single numeric")
+
+  # check the seed
+  withr::local_preserve_seed()
+  set.seed(1)
+  test1 = simulate_values(lower = c(1,2), upper = c(2,3), k = 2)
+  test2 = simulate_values(lower = c(1,2), upper = c(2,3), k = 2, seed = 1)
+  expect_equal(test1, test2)
+
+})

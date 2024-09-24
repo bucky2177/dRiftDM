@@ -108,6 +108,7 @@ x_dirac_0 <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
 
 x_uniform <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
   range_start <- prms_model[["range_start"]]
+  dx <- prms_solve[["dx"]]
   if (!is.numeric(range_start) | length(range_start) != 1) {
     stop("parameter range_start is not a single number")
   }
@@ -117,6 +118,7 @@ x_uniform <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
 
   # uniform around staring point of 0
   x <- stats::dunif(x = x_vec, min = 0 - range_start / 2, max = 0 + range_start / 2)
+  x <- x / (sum(x) * dx) # ensure it integrates to 1
   return(x)
 }
 

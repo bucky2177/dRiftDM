@@ -14,7 +14,7 @@ these are:
 
 With version 0.1.1 model predicitons (i.e., their first-passage time)
 are derived by numerically solving the Kolmogorov-Forward Equation based
-on code provided by Richter et al. (2023, JMP).
+on code provided by Richter et al. (2023, JMP).
 
 ## Installation
 

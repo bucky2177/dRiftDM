@@ -54,23 +54,23 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
 #'
 #' Draw values, most likely model parameters.
 #'
-#' @param lower,upper numeric vectors, indicating the lower/upper boundary of
+#' @param lower,upper Numeric vectors, indicating the lower/upper boundary of
 #' the drawn values.
-#' @param k numeric, the number of values to be drawn for each value pair of
+#' @param k Numeric, the number of values to be drawn for each value pair of
 #' lower/upper. If named numeric, the labels are used for the column names
 #' of the returned object
-#' @param distr character, indicating which distribution to draw from. Currently
+#' @param distr Character, indicating which distribution to draw from. Currently
 #'  available are: `"unif"` for a uniform distribution or `"tnorm"` for a
 #'  truncated normal distribution
-#' @param cast_to_data_frame logical, controls whether the returned object
+#' @param cast_to_data_frame Logical, controls whether the returned object
 #' is of type data.frame (TRUE) or matrix (FALSE). Default is TRUE
-#' @param add_id_column character, controls whether an ID column should be
+#' @param add_id_column Character, controls whether an ID column should be
 #' added. Options are "numeric", "character", or "none". If "numeric" or
 #' "character" the column ID provides values from 1 to k of the respective type.
 #' If none, no column is added. Note that "character" casts all simulated values
 #' to character if the argument `cast_to_data_frame` is set to FALSE.
-#' @param ... further arguments relevant for the distribution to draw from
-#' @param seed numeric, optional seed for making the simulation reproducable
+#' @param ... Further arguments relevant for the distribution to draw from
+#' @param seed Numeric, optional seed for making the simulation reproducable
 #'  (see details)
 #'
 #' @details
@@ -84,7 +84,7 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
 #' If `cast_to_data_frame` is TRUE, a data.frame with `k` rows and at least
 #' \code{length(lower)/length(upper)} columns. Otherwise a matrix with
 #'  the same number of rows and columns. Columns are labeled either from
-#'  V1 to Vk or in case `lower`and `upper` are named numeric vectors using
+#'  V1 to Vk or in case `lower` and `upper` are named numeric vectors using
 #'  the labels of both vectors.
 #'
 #' If `add_id_column` is not "none", an ID column is provided.
@@ -154,6 +154,15 @@ simulate_values <- function(lower, upper, k, distr = "unif",
     if (!is.numeric(sds) | length(sds) != n_prms) {
       stop("sds is not numeric with length equal to lower/upper")
     }
+    names_means <- names(means)
+    names_sds <- names(sds)
+    if (!isTRUE(all.equal(names_means, names_sds))) {
+      stop("labels provided in means and sds don't match!")
+    }
+    if (!isTRUE(all.equal(names_means, names_upper))) {
+      stop("labels provided in means/sds don't match with upper/lower!")
+    }
+
 
     prms <- lapply(1:n_prms, function(i) {
       cdf_val_l <- stats::pnorm(q = lower[i], mean = means[i], sd = sds[i])

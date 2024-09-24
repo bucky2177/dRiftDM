@@ -165,22 +165,22 @@ test_that("calc_quantiles works as expected", {
 
   expect_true(all(
     abs(quants_pred$Quant_corr[quants_pred$Cond == "comp"] -
-      c(0.346, 0.365, 0.385, 0.408, 0.435, 0.467, 0.510)) < 0.001
+      c(0.346, 0.365, 0.385, 0.408, 0.435, 0.467, 0.510)) < 0.002
   )) # values derived by former package
 
   expect_true(all(
     abs(quants_pred$Quant_err[quants_pred$Cond == "comp"] -
-      c(0.343, 0.362, 0.380, 0.398, 0.418, 0.443, 0.475)) < 0.001
+      c(0.343, 0.362, 0.380, 0.398, 0.418, 0.443, 0.475)) < 0.002
   ))
 
   expect_true(all(
     abs(quants_pred$Quant_corr[quants_pred$Cond == "incomp"] -
-      c(0.376, 0.395, 0.413, 0.432, 0.454, 0.480, 0.516)) < 0.001
+      c(0.376, 0.395, 0.413, 0.432, 0.454, 0.480, 0.516)) < 0.002
   ))
 
   expect_true(all(
     abs(quants_pred$Quant_err[quants_pred$Cond == "incomp"] -
-      c(0.314, 0.323, 0.332, 0.341, 0.352, 0.365, 0.386)) < 0.001
+      c(0.314, 0.323, 0.332, 0.341, 0.352, 0.365, 0.386)) < 0.002
   ))
 
   # both

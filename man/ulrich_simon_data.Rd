@@ -18,6 +18,6 @@ ulrich_simon_data
 }
 \description{
 Data of the Simon task collected in the course of the study by
-\insertCite{Richteretal.2023;textual}{dRiftDM}.
+\insertCite{Ulrichetal.2015;textual}{dRiftDM}.
 }
 \keyword{datasets}
