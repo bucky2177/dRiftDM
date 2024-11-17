@@ -2,18 +2,16 @@
 % Please edit documentation in R/core_flex_prms.R
 \name{is_empty}
 \alias{is_empty}
-\title{Check if a vector is either empty or only contains one entry with ""
-(internal docu)}
+\title{Check if an object of length <= 1 is either empty or contains entry with ""}
 \usage{
 is_empty(x)
 }
 \arguments{
-\item{x}{a vector}
+\item{x}{a single value or empty vector}
 }
 \value{
 TRUE or FALSE otherwise
 }
 \description{
-Check if a vector is either empty or only contains one entry with ""
-(internal docu)
+Check if an object of length <= 1 is either empty or contains entry with ""
 }

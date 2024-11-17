@@ -2,31 +2,53 @@
 % Please edit documentation in R/models.R
 \name{dmc_dm}
 \alias{dmc_dm}
-\title{Create the diffusion model for conflict tasks}
+\title{Create the Diffusion Model for Conflict Tasks}
 \usage{
-dmc_dm(obs_data = NULL, sigma = 1, t_max = 3, dt = 0.001, dx = 0.001)
+dmc_dm(
+  var_non_dec = TRUE,
+  var_start = TRUE,
+  instr = NULL,
+  obs_data = NULL,
+  sigma = 1,
+  t_max = 3,
+  dt = 0.001,
+  dx = 0.001,
+  b_coding = NULL
+)
 }
 \arguments{
+\item{var_non_dec, var_start}{logical, indicating whether the model should
+have a normally-distributed non-decision time or beta-shaped starting point
+distribution, respectively.
+(see \code{nt_truncated_normal} and \code{x_beta} in \link{component_shelf}).
+Defaults are \code{TRUE}. If \code{FALSE}, a constant non-decision time and
+starting point is set (see \code{nt_constant} and \code{x_dirac_0} in
+\link{component_shelf}).}
+
+\item{instr}{optional string with additional "instructions", see
+\code{\link[=modify_flex_prms]{modify_flex_prms()}} and the Details below.}
+
 \item{obs_data}{data.frame, an optional data.frame with the observed data.
-See \link{set_obs_data}.}
+See \link{obs_data}.}
 
 \item{sigma, t_max, dt, dx}{numeric, providing the settings for the diffusion
 constant and discretization (see \link{drift_dm})}
+
+\item{b_coding}{list, an optional list with the boundary encoding (see
+\link{b_coding})}
 }
 \description{
 This function creates a \link{drift_dm} object that corresponds to the
-diffusion model for conflict tasks by
+Diffusion Model for Conflict Tasks by
 \insertCite{Ulrichetal.2015;textual}{dRiftDM}.
 }
 \details{
-The diffusion model for conflict tasks is a model for describing conflict
+The Diffusion Model for Conflict Tasks is a model for describing conflict
 tasks like the Stroop, Simon, or flanker task.
 
 It has the following properties (see \link{component_shelf}):
 \itemize{
 \item a constant boundary (parameter \code{b})
-\item a staring point distribution in the shape of a beta distribution
-(parameter \code{alpha})
 \item an evidence accumulation process that results from the sum of two
 subprocesses:
 \itemize{
@@ -34,15 +56,21 @@ subprocesses:
 \item a gamma-shaped process with a scale parameter \code{tau}, a shape
 parameter \code{a}, and an amplitude \code{A}.
 }
-\item A non-decision time that follows a truncated normal distribution with
-mean \code{non_dec} and standard deviation \code{sd_non_dec}.
 }
 
-Its parameters are:  \code{muc}, \code{b}, \code{non_dec}, \code{sd_non_dec}, \code{tau}, \code{a}, \code{A},
-and \code{alpha}
+If \code{var_non_dec = TRUE}, a (truncated) normally distributed non-decision with
+mean \code{non_dec} and standard deviation \code{sd_non_dec} is assumed. If
+\code{var_start = TRUE},  a beta-shaped starting point distribution is assumed
+with shape and scale parameter \code{alpha}.
+
+If \code{var_non_dec = TRUE}, a constant non-decision time at \code{non_dec} is set. If
+\code{var_start = FALSE}, a starting point centered between the boundaries is
+assumed (i.e., a dirac delta over 0).
 
 Per default the shape parameter \code{a} is set to 2 and not allowed to
-vary (i.e., is not listed in \code{free_prms}).
+vary. The model assumes the amplitude \code{A} to be negative for
+incompatible trials. Also, the model contains the custom parameter
+\code{peak_l}, containing the peak latency (\code{(a-2)*tau}).
 }
 \references{
 \insertRef{Ulrichetal.2015}{dRiftDM}

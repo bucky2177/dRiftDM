@@ -2,13 +2,13 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
   unlink(test_path("temp_fits"), recursive = TRUE)
 
   a_model <- ratcliff_dm(t_max = 1, dt = 0.01, dx = 0.1)
-  id_1 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
+  id_1 <- simulate_data(a_model, n = 300, seed = 1)
   id_1$ID <- 1
-  id_2 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 2)
+  id_2 <- simulate_data(a_model, n = 300, seed = 2)
   id_2$ID <- 2
   data_both <- rbind(id_1, id_2)
-  a_model <- set_obs_data(a_model, id_1)
-  a_model <- set_free_prms(a_model, c("muc"))
+  obs_data(a_model) <- id_1
+  a_model <- modify_flex_prms(a_model, instr = "b + non_dec <!>")
 
   expect_warning(
     estimate_model_ids(
@@ -134,50 +134,6 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
   )
 
 
-  expect_error(
-    estimate_model_ids(a_model,
-                       obs_data_ids = data_both,
-                       lower = c(a = 1), upper = c(5),
-                       fit_dir = test_path("temp_fits"),
-                       fit_procedure_name = "test"
-    ),
-    "lower is a named numeric vector, but upper"
-  )
-
-  expect_error(
-    estimate_model_ids(a_model,
-                       obs_data_ids = data_both,
-                       lower = c(1), upper = c(a = 5),
-                       fit_dir = test_path("temp_fits"),
-                       fit_procedure_name = "test"
-    ),
-    "upper is a named numeric vector, but lower"
-  )
-
-  expect_error(
-    estimate_model_ids(a_model,
-                       obs_data_ids = data_both,
-                       lower = c(muc = 1), upper = c(b = 5),
-                       fit_dir = test_path("temp_fits"),
-                       fit_procedure_name = "test"
-    ),
-    "can not be adressed"
-  )
-
-  expect_error(
-    estimate_model_ids(a_model,
-                       obs_data_ids = data_both,
-                       lower = c(b = 1), upper = c(muc = 5),
-                       fit_dir = test_path("temp_fits"),
-                       fit_procedure_name = "test"
-    ),
-    "can not be adressed"
-  )
-
-
-
-
-
 
   # vp is called like the info file
   temp_data <- data_both
@@ -215,11 +171,11 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
 
 
   # ensure that everything is skipped, tested below when loading data
-  id_1 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
+  id_1 <- simulate_data(a_model, n = 300, seed = 1)
   id_1$ID <- 1
-  id_2 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 4)
+  id_2 <- simulate_data(a_model, n = 300, seed = 4)
   id_2$ID <- 2
-  id_3 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 5)
+  id_3 <- simulate_data(a_model, n = 300, seed = 5)
   id_3$ID <- 3
   data_all <- rbind(id_1, id_2, id_3)
 
@@ -241,7 +197,7 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
   #### NOW THE LOADING
 
   # wrong path
-  expect_error(load_fits_ids(), "no directory")
+  expect_error(load_fits_ids("falkenhorst"), "no directory")
 
   # wrong identifier
   expect_error(
@@ -250,16 +206,13 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
   )
 
   # load one case
-  expect_warning(
+
     expect_warning(
-      expect_warning(
-        load_fits_ids(
-          path = test_path("temp_fits"),
-          fit_procedure_name = "test_case_2"
-        ), "data of individual 2"
-      )
+      load_fits_ids(
+        path = test_path("temp_fits"),
+        fit_procedure_name = "test_case_2"
+      ), "data of individual 2"
     )
-  )
 
   # load one case
   loaded_data <- suppressWarnings(
@@ -306,6 +259,8 @@ test_that("load_fits_ids menu and erros work as expected", {
 
 
 test_that("validate_models errs as expected", {
+
+  # requires estimate_model_id and load_fits_ids works as expected
   case_1 <- load_fits_ids(
     path = test_path("temp_fits"),
     fit_procedure_name = "test_case_1",
@@ -315,7 +270,7 @@ test_that("validate_models errs as expected", {
   temp <- case_1
   class(temp) <- "foo"
   expect_error(
-    validate_fits_ids(temp, progress = 0), "not of type dm_fits_ids"
+    validate_fits_ids(temp, progress = 0), "not of type fits_ids_dm"
   )
 
   # wrong entries
@@ -343,31 +298,16 @@ test_that("validate_models errs as expected", {
   temp <- case_1
   temp$drift_dm_fit_info$upper <- NA
   expect_error(
-    validate_fits_ids(temp, progress = 0), "upper is not of type numeric"
+    validate_fits_ids(temp, progress = 0), "valid numeric values"
   )
 
   temp <- case_1
   temp$drift_dm_fit_info$lower <- NA
   expect_error(
-    validate_fits_ids(temp, progress = 0), "lower is not of type numeric"
+    validate_fits_ids(temp, progress = 0), "valid numeric values"
   )
 
-  temp <- case_1
-  temp$drift_dm_fit_info$lower <- c(1, 2)
-  temp$drift_dm_fit_info$upper <- c(1, 2, 3)
-  expect_error(
-    validate_fits_ids(temp, progress = 0),
-    "length of upper and lower don't match"
-  )
 
-  # free_prms
-  temp <- case_1
-  temp$drift_dm_fit_info$lower <- c(1, 2, 3)
-  temp$drift_dm_fit_info$upper <- c(1, 2, 3)
-  expect_error(
-    validate_fits_ids(temp, progress = 0),
-    "length of upper/lower don't match the number of free parameters"
-  )
 
   # seed
   temp <- case_1
@@ -400,15 +340,15 @@ test_that("validate_models errs as expected", {
 
   # modify one individual
   temp <- case_1
-  names(temp$all_fits$`2`$prms_model) <- c("muc", "b", "foo")
+  temp$all_fits$`2`$flex_prms_obj$linear_internal_list$muc$null <- 2
   expect_error(
-    validate_fits_ids(temp, progress = 0), "parameters of individual 2"
+    validate_fits_ids(temp, progress = 0), "linear_list of individual 2"
   )
 
   temp <- case_1
-  temp$all_fits$`2`$conds <- c("comp", "incomp")
+  temp$all_fits$`1`$flex_prms_obj$internal_list$muc$null <- 2
   expect_error(
-    validate_fits_ids(temp, progress = 0), "conditions of individual 2"
+    validate_fits_ids(temp, progress = 0), "internal_list of individual 1"
   )
 
   temp <- case_1
@@ -419,26 +359,20 @@ test_that("validate_models errs as expected", {
 
 
   temp <- case_1
-  temp$all_fits$`2` <- set_solver_settings(temp$all_fits$`2`, c(sigma = 2))
+  prms_solve(temp$all_fits$`2`)["sigma"] <- 2
   expect_error(
     validate_fits_ids(temp, progress = 0), "prms_solve of individual 2"
   )
 
   temp <- case_1
-  temp$all_fits$`2` <- set_free_prms(temp$all_fits$`2`, c("b"))
-  expect_error(
-    validate_fits_ids(temp, progress = 0), "free_prms of individual 2"
-  )
-
-  temp <- case_1
-  temp$all_fits$`1`$prms_model[1] <- 0.5
+  temp$all_fits$`1`$flex_prms_obj$prms_matrix[1,1] <- 0.5
   expect_error(
     validate_fits_ids(temp, progress = 0), "that are smaller than"
   )
 
 
   temp <- case_1
-  temp$all_fits$`1`$prms_model[1] <- Inf
+  temp$all_fits$`1`$flex_prms_obj$prms_matrix[1,1] <- Inf
   expect_error(
     validate_fits_ids(temp, progress = 0), "that are larger than"
   )
@@ -476,9 +410,13 @@ test_that("validate_models errs as expected", {
 
 test_that("start_vals work as expected", {
   a_model <- ratcliff_dm(t_max = 1, dt = 0.01, dx = 0.1)
-  id_1 <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
+  flex_prms(a_model) <- flex_prms(c(muc = 2, b = 0.5, non_dec = 0.3),
+                                  conds = c("comp", "incomp"),
+                                  instr = "b ~")
+  id_1 <- simulate_data(a_model, n = 300, seed = 1)
   id_1$ID <- 1
-  start_vals <- data.frame(ID = 1, muc = 5, b = 0.4, non_dec = 0.2)
+  start_vals <- data.frame(ID = 1, muc = 5, b.comp = 0.4, b.incomp = 0.5,
+                           non_dec = 0.2)
   expect_warning(
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
@@ -492,7 +430,12 @@ test_that("start_vals work as expected", {
   )
   unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
   expect_true(
-    all(unmodifed$prms_model == start_vals[c("muc", "b", "non_dec")])
+    all(unmodifed$flex_prms_obj$prms_matrix[1,] ==
+          start_vals[c("muc", "b.comp", "non_dec")])
+  )
+  expect_true(
+    all(unmodifed$flex_prms_obj$prms_matrix[2,] ==
+          start_vals[c("muc", "b.incomp", "non_dec")])
   )
   unlink(test_path("temp"), recursive = T)
 
@@ -509,7 +452,7 @@ test_that("start_vals work as expected", {
     "passing back unmodified object"
   )
   unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
-  expect_equal(a_model$prms_model, unmodifed$prms_model)
+  expect_equal(a_model$flex_prms_obj, unmodifed$flex_prms_obj)
   unlink(test_path("temp"), recursive = T)
 
   # wrong input
@@ -534,7 +477,7 @@ test_that("start_vals work as expected", {
       use_de_optim = F,
       start_vals = start_vals[c("ID", "muc")]
     ),
-    "don't match free_prms"
+    "don't match the unique free parameters"
   )
 
   test_starts <- cbind(start_vals, bla = 3)
@@ -547,7 +490,7 @@ test_that("start_vals work as expected", {
       use_de_optim = F,
       start_vals = test_starts
     ),
-    "don't match free_prms"
+    "don't match the unique free parameters"
   )
 
   test_starts <- rbind(test_starts, test_starts)
@@ -578,7 +521,8 @@ test_that("start_vals work as expected", {
   )
 
   # wrong order relative to free_prms should not matter
-  start_vals <- data.frame(ID = 1, b = 1, muc = 2, non_dec = 3)
+  start_vals <- data.frame(ID = 1, b.incomp = 1, b.comp = 0.5, muc = 2,
+                           non_dec = 3)
   expect_warning(
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
@@ -591,6 +535,7 @@ test_that("start_vals work as expected", {
     "passing back unmodified object"
   )
   unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
-  expect_true(all(unmodifed$prms_model == c(2, 1, 3)))
+  expect_true(all(unmodifed$flex_prms_obj$prms_matrix[1,] == c(2, 0.5, 3)))
+  expect_true(all(unmodifed$flex_prms_obj$prms_matrix[2,] == c(2, 1, 3)))
   unlink(test_path("temp"), recursive = T)
 })

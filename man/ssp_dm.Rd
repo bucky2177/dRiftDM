@@ -4,14 +4,28 @@
 \alias{ssp_dm}
 \title{Create the Shrinking Spotlight Model}
 \usage{
-ssp_dm(obs_data = NULL, sigma = 1, t_max = 3, dt = 0.001, dx = 0.001)
+ssp_dm(
+  instr = NULL,
+  obs_data = NULL,
+  sigma = 1,
+  t_max = 3,
+  dt = 0.001,
+  dx = 0.001,
+  b_coding = NULL
+)
 }
 \arguments{
+\item{instr}{optional string with additional "instructions", see
+\code{\link[=modify_flex_prms]{modify_flex_prms()}} and the Details below.}
+
 \item{obs_data}{data.frame, an optional data.frame with the observed data.
-See \link{set_obs_data}.}
+See \link{obs_data}.}
 
 \item{sigma, t_max, dt, dx}{numeric, providing the settings for the diffusion
 constant and discretization (see \link{drift_dm})}
+
+\item{b_coding}{list, an optional list with the boundary encoding (see
+\link{b_coding})}
 }
 \description{
 This function creates a \link{drift_dm} object that corresponds to a
@@ -39,10 +53,14 @@ by \code{p} which controls the strength of evidence accumulation
 }
 \item A non-decision time that follows a truncated normal distribution with
 mean \code{non_dec} and standard deviation \code{sd_non_dec}.
+\item The model also contains the auxiliary parameter \code{sign}, which is used to
+control the influence of the flankers across conditions. It is not really
+a parameter and should not be estimated!
 }
 
-Its parameters are:  \code{b}, \code{non_dec}, \code{sd_non_dec}, \code{p}, \code{sd_0}, and \code{r}.
-Per default, all parameters but \code{r} are assumed to be "free".
+Per default, the parameter \code{r} is assumed to be fixed (i.e., is not estimated
+freely). The model also contains the custom parameter \code{interf_t}, quantifying
+the interference time (\code{sd_0 / r})
 }
 \references{
 \insertRef{Whiteetal.2011}{dRiftDM}

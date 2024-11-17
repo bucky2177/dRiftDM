@@ -2,17 +2,17 @@
 % Please edit documentation in R/core_flex_prms.R
 \name{count_unique_prms_one_internal_entry}
 \alias{count_unique_prms_one_internal_entry}
-\title{Count the number of digits > 0 (internal docu)}
+\title{Count the number of digits > 0}
 \usage{
 count_unique_prms_one_internal_entry(one_internal_entry)
 }
 \arguments{
-\item{one_internal_entry}{such as internal_list[\link{'A'}]}
+\item{one_internal_entry}{such as \code{internal_list[["A"]]}}
 }
 \value{
 a number
 }
 \description{
 This function takes one entry of the internal_list (i.e., all conditions for
-one parameter) and counts how often it counts unique digits > 0
+one parameter) and counts how often there are unique digits > 0
 }

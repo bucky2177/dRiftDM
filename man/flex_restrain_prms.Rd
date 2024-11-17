@@ -2,14 +2,15 @@
 % Please edit documentation in R/core_flex_prms.R
 \name{flex_restrain_prms}
 \alias{flex_restrain_prms}
-\title{Set parmaeters as equal across conditions (internal docu)}
+\title{Set parmaeters as equal across conditions}
 \usage{
 flex_restrain_prms(flex_prms_obj, formula_instr)
 }
 \arguments{
 \item{flex_prms_obj}{flex_prms object}
 
-\item{formula_instr}{instruction (see the notes of flex_prms)}
+\item{formula_instr}{a string referring to "restrain"
+(see \link{modify_flex_prms})}
 }
 \value{
 a modified flex_prms object

@@ -2,8 +2,7 @@
 % Please edit documentation in R/core_flex_prms.R
 \name{prms_conds_to_modify}
 \alias{prms_conds_to_modify}
-\title{Extract the conditions and paramters from an instruction string
-(internal docu)}
+\title{Extract the conditions and parameters from an instruction string}
 \usage{
 prms_conds_to_modify(formula_instr, operation, all_conds, all_prms)
 }
@@ -18,6 +17,10 @@ condition specification)}
 
 \item{all_prms}{all potential paramters (necessary for extending missing
 condition specification)}
+}
+\value{
+a named list prms_to_adress and conds_to_adress as character
+vectors.
 }
 \description{
 This function takes an instruction as a string and then extracts the

@@ -2,8 +2,7 @@
 % Please edit documentation in R/core_flex_prms.R
 \name{check_digit_larger_0}
 \alias{check_digit_larger_0}
-\title{Checks if a variable/vector of length 1 is a number > 0 or 0/expression
-(internal docu)}
+\title{Checks if a variable/vector of length 1 is a number > 0 or 0/expression}
 \usage{
 check_digit_larger_0(x)
 }

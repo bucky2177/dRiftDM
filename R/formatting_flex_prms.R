@@ -1,3 +1,5 @@
+
+
 #' Summarizing Flex Parameters
 #'
 #' summary method for class "flex_prms".
@@ -7,45 +9,29 @@
 #' @param x an object of class "summary.flex_prms"; a result of a call to
 #' summary.flex_prms.
 #' @param round_digits integer, indicating the number of decimal places (round)
-#'  to be used (default is 3)
+#'  to be used (default is 3).
 #' @param dependencies  logical, controlling if a summary of the special
 #' dependencies shall be printed (see the "special dependency
 #' instruction" in the details of [dRiftDM::flex_prms])
 #' @param cust_parameters logical, controlling if a summary of the custom
 #' parameters shall be printed (see the "additional/custom parameter
 #' instruction" in the details of [dRiftDM::flex_prms])
+#' @param ... additional arguments passed forward to the respective method
 #'
 #' @details
-#' `print.summary.flex_prms` and [dRiftDM::print.flex_prms] are identical. Both
-#' will print out information about:
+#' The `summary.flex_prms` function creates a summary object containing:
+#' - **prms_matrix**: All parameter values across all conditions.
+#' - **unique_matrix**: A character matrix, showing how parameters relate across
+#' conditions.
+#' - **depend_strings**: Special Dependencies, formatted as a string.
+#' - **cust_prms_matrix**: (if they exist), a matrix containing all custom
+#' parameters.
 #'
-#' * The actual parameter values currently set
-#' * Unique parameters, which also inform about restrains, fixations, or
-#'   special dependencies
-#' * (if applicable) A list of all special dependencies and how they are
-#'    defined as strings
-#' * (if applicable) A matrix of the custom paramters and their current values
-#'
-#' @returns The function `summary.flex_prms` computes and returns a list of
-#' summary statistics of the `flex_prms` object given in `object`. The result
-#' contains:
-#'
-#' * `prms_matrix`: All parameter values (unrounded) across all conditions with
-#'   conditions as rows and the actual parameters as columns.
-#' * `unique_matrix`: A matrix with either numbers or "d"s, indicating how each
-#'    parameter varies across conditions. The maximum number of this matrix also
-#'    indicates the maximum number of parameters of the model. The "d"s indicate
-#'    if for specifc parameter x condition combination, special dependencies are
-#'    set
-#' * `depend_strings`: A vector of strings with all special dependencies,
-#'    in a readable format (non-existant if no dependencies exist)
-#' * `cust_prms_matrix`: A matrix of the custom paramters and their current
-#'    values (non-existant if no custom parameters exist)
-#'
-#' @seealso [dRiftDM::flex_prms]
+#' The `print.summary.flex_prms` function displays the summary object in a
+#' formatted manner.
 #'
 #' @export
-summary.flex_prms <- function(object) {
+summary.flex_prms <- function(object, ...) {
   flex_prms_obj <- object
 
   ans <- list()
@@ -75,18 +61,55 @@ summary.flex_prms <- function(object) {
 
   # custom parameter matrix (if they exist)
   if (!is.null(flex_prms_obj$cust_prms)) {
-    ans$cust_prms_matrix = sapply(flex_prms_obj$cust_prms$values,
-                                  \(x) return(x))
+    cust_prms_matrix = lapply(flex_prms_obj$cust_prms$values,
+                              \(x) return(x))
+    ans$cust_prms_matrix = do.call(cbind, cust_prms_matrix)
   }
 
   class(ans) <- "summary.flex_prms"
   return(ans)
 }
 
+#' @rdname summary.flex_prms
+#' @export
+print.summary.flex_prms <- function(x, ...,
+                                    round_digits = drift_dm_default_rounding(),
+                                    dependencies = T, cust_parameters = T) {
+  summary_obj <- x
+
+  cat("Current Parameter Matrix:\n")
+  prm_mat = summary_obj$prms_matrix
+  print(round(prm_mat, round_digits))
+  cat("\n")
+
+
+  cat("Unique Parameters:\n")
+  unique_mat = summary_obj$unique_matrix
+  print(noquote(unique_mat))
+  cat("\n")
+
+  if (dependencies & !is.null(summary_obj$depend_strings)) {
+    cat("Special Dependencies:\n")
+    depend_string = paste(summary_obj$depend_strings, collapse = "\n")
+    cat(noquote(depend_string))
+    cat("\n\n")
+  }
+
+
+  cust_prms_matrix = summary_obj$cust_prms_matrix
+  if (cust_parameters & !is.null(cust_prms_matrix)) {
+    cat("Custom Parameters:\n")
+    print(round(cust_prms_matrix, round_digits))
+    cat("\n")
+  }
+
+  invisible(x)
+}
+
 
 #' @rdname flex_prms
 #' @export
-print.flex_prms <- function(x, round_digits = drift_dm_default_rounding(),
+print.flex_prms <- function(x, ..., round_digits = drift_dm_default_rounding(),
                             dependencies = T, cust_parameters = T) {
   flex_prms_obj <- x
   print(summary(flex_prms_obj),
@@ -94,60 +117,4 @@ print.flex_prms <- function(x, round_digits = drift_dm_default_rounding(),
         dependencies = dependencies)
 }
 
-#' @rdname summary.flex_prms
-#' @export
-print.summary.flex_prms <- function(x,
-                                    round_digits = drift_dm_default_rounding(),
-                                    dependencies = T, cust_parameters = T) {
-  summary_obj <- x
 
-  cat("Current Parameter Matrix:\n")
-  print(round(summary_obj$prms_matrix, round_digits))
-  cat("\n")
-
-
-  cat("Unique Parameters:\n")
-  print(noquote(summary_obj$unique_matrix))
-  cat("\n")
-
-  if (dependencies & !is.null(summary_obj$depend_strings)) {
-    cat("Special Dependencies:\n")
-    depend_string = paste(summary_obj$depend_strings, collapse = "\n")
-    print(noquote(depend_string))
-    cat("\n")
-  }
-
-
-  if (cust_parameters & !is.null(summary_obj$cust_prms_matrix)) {
-    cat("Custom Parameters:\n")
-    print(round(summary_obj$cust_prms_matrix, round_digits))
-    cat("\n")
-  }
-
-}
-
-
-
-
-#### HELPER FUNCTIONS  #########
-
-
-internal_list_to_matrix = function(internal_list) {
-
-  prms = names(internal_list)
-  conds = names(internal_list[[1]])
-
-  values = mapply(function(cond, prm){
-
-    value = internal_list[[prm]][[cond]]
-    if (is.numeric(value))
-      return(value)
-    return("d")
-
-  }, conds, rep(prms, each = length(conds)))
-  matrix = matrix(values, nrow = length(conds))
-  rownames(matrix) = conds
-  colnames(matrix) = prms
-
-  return(matrix)
-}

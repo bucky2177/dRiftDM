@@ -2,7 +2,7 @@
 % Please edit documentation in R/core_flex_prms.R
 \name{linearize_internal_list}
 \alias{linearize_internal_list}
-\title{Relabel the internal list (internal docu)}
+\title{Relabel the internal list}
 \usage{
 linearize_internal_list(internal_list)
 }
@@ -11,11 +11,16 @@ linearize_internal_list(internal_list)
 condition combination}
 }
 \value{
-another list, but with remapped digits, while leaving expressions or digits
-of 0 untouched.
+another list, but with remapped digits in increasing order, while leaving
+expressions or digits of 0 untouched.
 }
 \description{
 The entries of the internal list are either digits (0-x) or expressions.
 To ensure a valid mapping of these values to an input vector (as done when an
-optimizer provides input parameters), we have to linearlize the list.
+optimizer provides input parameters), we have to linearize the list
+(done whenever modifying the list, see the different flex_* functions )
+}
+\seealso{
+\code{\link[=flex_vary_prms]{flex_vary_prms()}}, \code{\link[=flex_restrain_prms]{flex_restrain_prms()}},
+\code{\link[=flex_fix_prms]{flex_fix_prms()}}, \code{\link[=flex_special_dependency]{flex_special_dependency()}}
 }

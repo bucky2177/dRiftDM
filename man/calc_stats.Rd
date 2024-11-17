@@ -2,58 +2,96 @@
 % Please edit documentation in R/core_stats.R
 \name{calc_stats}
 \alias{calc_stats}
-\title{Calcuating Statistics}
+\alias{calc_stats.data.frame}
+\alias{calc_stats.drift_dm}
+\alias{calc_stats.fits_ids_dm}
+\title{Calculate Statistics}
 \usage{
-calc_stats(drift_dm_obj, type, source = "both", unlist_if_possible = T, ...)
+calc_stats(object, type, ...)
+
+\method{calc_stats}{data.frame}(
+  object,
+  type,
+  ...,
+  conds = NULL,
+  verbose = 0,
+  average = F,
+  split_by_ID = T,
+  b_coding = NULL
+)
+
+\method{calc_stats}{drift_dm}(object, type, ..., conds = NULL)
+
+\method{calc_stats}{fits_ids_dm}(object, type, ..., verbose = 1, average = F)
 }
 \arguments{
-\item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
+\item{object}{an object for which statistics are calculated. This can be a
+\link{data.frame} of observed data, a \link{drift_dm} object, or a
+\code{fits_ids_dm} object (see \link{estimate_model_ids}).}
 
-\item{type}{character vector, indicating which statistics should be
-calculated. Currently supported options are "cafs", "quantiles", "delta_funs".}
+\item{type}{a character vector, specifying the statistics to calculate.
+Supported values include \code{"cafs"}, \code{"quantiles"}, \code{"delta_funs"}, and
+\code{"fit_stats"}.}
 
-\item{source}{character, indicating whether statistics for observed data ("obs"),
-the model's predictions ("pred"), or both ("both") should be calculated.
-Default is "both".}
+\item{...}{additional arguments passed to the respective method and the
+underlying calculation functions (see Details for mandatory arguments).}
 
-\item{unlist_if_possible}{logical, indicating if the returned value should
-always be a list (FALSE) or if it shall be single data.frame if possible (TRUE).
-Default is TRUE.}
+\item{conds}{optional character vector specifying conditions to include.
+Conditions must match those found in the \code{object}.}
 
-\item{...}{additional optional and necessary parameters passed down to the
-functions handling the calculations. See Details for more information}
+\item{verbose}{integer, indicating if information about the progress
+should be displayed. 0 -> no information, 1 -> a progress bar. Default is 0.}
+
+\item{average}{logical. If \code{TRUE}, averages the statistics across individuals
+where applicable. Default is \code{FALSE}.}
+
+\item{split_by_ID}{logical. If \code{TRUE}, statistics are calculated separately
+for each individual ID in \code{object} (when \code{object} is a \link{data.frame}). Default
+is \code{TRUE}.}
+
+\item{b_coding}{a list for boundary coding (see \link{b_coding}). Only
+relevant when \code{object} is a \link{data.frame}. For other \code{object} types, the
+\code{b_coding} of the \code{Object} is used.}
 }
 \value{
-a named list with each entry in the list corresponding to a data.frame.
-If \code{unlist_if_possible = TRUE} and when only a single
-type of statistic is requested, the corresponding data.frame is directly
-returned (i.e., not within a list).
+If \code{type} is a single character string, then a \link{data.frame} is returned.
+If \code{type} contains multiple character strings (i.e., is a character vector)
+a list with the calculated statistics (with entries being \link{data.frame}s) is
+returned.
+
+Each returned \link{data.frame} has a certain class label and may store additional
+attributes required for the custom \code{plot()} functions. If a list is returned,
+then that list will have the class label \code{list_stats_dm} (to easily create
+multiple panels using the respective \code{plot()} method).
 }
 \description{
-This function is a wrapper for calculating statistics on model predictions
-or observed data. Currently supported are:
-\itemize{
-\item Conditional Accuracy Functions (CAFs)
-\item Quantiles
-\item Delta Functions
+\code{calc_stats} provides an interface for calculating statistics/metrics on
+model predictions and/or observed data. Supported statistics include
+Conditional Accuracy Functions (CAFs), Quantiles, Delta Functions, and Fit
+Statistics. Results can be aggregated across individuals.
 }
-}
-\section{Conditional Accuracy Function (CAFs)}{
+\details{
+\code{calc_stats} is a generic function to handle the calculation of different
+statistics/metrics for the supported object types. Per default, it returns
+the requested statistics/metrics.
+\subsection{Conditional Accuracy Function (CAFs)}{
+
 CAFs are a way to quantify response accuracy against speed. To calculate
 CAFs, RTs (whether correct or incorrect) are first binned and then the
 percent correct responses per bin is calculated.
 
-When calculating model-based CAFs, a joint cdf combining both the pdf
-of correct and incorrect responses is calculated. Afterwards, this cdf
+When calculating model-based CAFs, a joint CDF combining both the pdf
+of correct and incorrect responses is calculated. Afterwards, this CDF
 is separated into even-spaced segments and the contribution of
-the pdf associated with a correct response relative to the joint cdf is
+the pdf associated with a correct response relative to the joint CDF is
 calculated.
 
 The number of bins can be controlled by passing the argument \code{n_bins}.
 The default is 5.
 }
 
-\section{Quantiles}{
+\subsection{Quantiles}{
+
 For observed response times, the function \link[stats:quantile]{stats::quantile} is used with
 default settings.
 
@@ -62,7 +100,8 @@ probabilites, \code{probs}, with values in \eqn{[0, 1]}. Default is
 \code{seq(0.1, 0.9, 0.1)}.
 }
 
-\section{Delta Functions}{
+\subsection{Delta Functions}{
+
 Delta functions calculate the difference between quantiles
 of two conditions against their mean:
 \itemize{
@@ -75,12 +114,22 @@ With i indicating a quantile, and j and k two conditions.
 To calculate delta functions, users have to specify:
 \itemize{
 \item \code{minuends}: character vector, specifying condition(s) j. Must be in
-\code{drift_dm_obj$conds}.
+\code{conds(drift_dm_obj)}.
 \item \code{subtrahends}: character vector, specifying condition(s) k. Must be in
-\code{drift_dm_obj$conds}
-\item \code{dvs}: character vector, specifying the dependent variable(s) to use.
-Supported are \code{Quant_Corr} and \code{Quant_Err}
-\item optional: \code{probs}, see the section on quantiles
+\code{conds(drift_dm_obj)}
+\item \code{dvs}: character, indicating which quantile columns to use.
+Default is "Quant_<u_label>". If multiple dvs are provided,
+then minuends and subtrahends must have the same length,
+and matching occurs pairwise. In this case, if only one
+minuend/subtrahend is specified, minuend and subtrahend are recycled to
+the necessary length.
 }
 }
 
+\subsection{Fit Statistics}{
+
+Calculates the Akaike and Bayesian Information Criteria (AIC and BIC). Users
+can provide a \code{k} argument to penalize the AIC statistic (see \link[stats:AIC]{stats::AIC}
+and \link{AIC.fits_ids_dm})
+}
+}

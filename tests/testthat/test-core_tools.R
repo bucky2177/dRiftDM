@@ -40,7 +40,7 @@ test_that("input checks for draw_from_pdf", {
 
   expect_error(
     draw_from_pdf(a_pdf = pdf, x_def = x_def, k = c(1, 1)),
-    "single numeric"
+    "single valid numeric"
   )
   expect_error(
     draw_from_pdf(a_pdf = pdf, x_def = x_def, k = -1),
@@ -65,9 +65,7 @@ test_that("input checks for draw_from_pdf", {
   expect_warning(draw_from_pdf(pdf, x_def, 1), "negative pdf values")
 })
 
-
-
-test_that("simualte_values works as expected", {
+test_that("simulate_values works as expected", {
 
   withr::local_preserve_seed()
   set.seed(1)
@@ -113,19 +111,28 @@ test_that("simualte_values works as expected", {
   # returned value checks
   dat = simulate_values(lower = c(a = 1, b = 2), upper = c(a = 2, b = 5),
                         k = 2, distr = "tnorm",
-                        means = c(1.3,3), sds = c(0.4, 0.1))
+                        means = c(a = 1.3, b = 3), sds = c(a = 0.4, b = 0.1))
   expect_equal(colnames(dat), c("a", "b", "ID"))
   expect_true(is.data.frame(dat))
 
 
   dat = simulate_values(lower = c(a = 1, b = 2), upper = c(a = 2, b = 5),
                         k = 2, distr = "tnorm",
-                        means = c(1.3,3), sds = c(0.4, 0.1),
+                        means = c(a = 1.3, b = 3), sds = c(a = 0.4, b = 0.1),
                         cast_to_data_frame = F, add_id_column = "none")
   expect_equal(colnames(dat), c("a", "b"))
   expect_true(is.matrix(dat))
 
 
+  # check the seed
+  withr::local_preserve_seed()
+  set.seed(1)
+  test1 = simulate_values(lower = c(1,2), upper = c(2,3), k = 2)
+  test2 = simulate_values(lower = c(1,2), upper = c(2,3), k = 2, seed = 1)
+  expect_equal(test1, test2)
+})
+
+test_that("input checks for simulate_values", {
   # input checks
   expect_error(simulate_values(lower = c(), upper = 3, k = 2),
                "length >= 1")
@@ -170,11 +177,7 @@ test_that("simualte_values works as expected", {
                                k = 2, seed = c(1,2)),
                "must be a single numeric")
 
-  # check the seed
-  withr::local_preserve_seed()
-  set.seed(1)
-  test1 = simulate_values(lower = c(1,2), upper = c(2,3), k = 2)
-  test2 = simulate_values(lower = c(1,2), upper = c(2,3), k = 2, seed = 1)
-  expect_equal(test1, test2)
-
+  expect_error(simulate_values(lower = c(a = 2, b = 1), upper = c(a = 2, b = 2),
+                               k = 2),
+               "values in lower are not always smaller")
 })

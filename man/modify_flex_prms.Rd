@@ -2,21 +2,127 @@
 % Please edit documentation in R/core_flex_prms.R
 \name{modify_flex_prms}
 \alias{modify_flex_prms}
-\title{Modify the flex_prms object using the user instructions (internal docu)}
+\alias{modify_flex_prms.drift_dm}
+\alias{modify_flex_prms.flex_prms}
+\title{Set Instructions to a flex_prms object}
 \usage{
-modify_flex_prms(flex_prms_obj, instr, messaging = T)
+modify_flex_prms(object, instr, ...)
+
+\method{modify_flex_prms}{drift_dm}(object, instr, ..., eval_model = F)
+
+\method{modify_flex_prms}{flex_prms}(object, instr, ..., messaging = NULL)
 }
 \arguments{
-\item{flex_prms_obj}{an object of type flex_prms}
+\item{object}{an object of type \code{drift_dm} or \code{flex_prms}.}
 
-\item{instr}{a character string with the instructions; with "\n" separating
-each instruction}
+\item{instr}{a character string, specifying a set of instructions (see
+Details).}
 
-\item{messaging}{shall additional messages be displayed?}
+\item{...}{further arguments passed forward to the respective method.}
+
+\item{eval_model}{logical, indicating if the model should be re-evaluated or
+not when updating modifying the flex_prms object
+(see \link{re_evaluate_model}). Default is \code{FALSE}.}
+
+\item{messaging}{logical, indicating if messages shall be ushered or not.
+Can happen, for example, when setting specific parameter values in a
+condition for which special dependencies were defined.}
 }
 \value{
-an updated flex_prms object
+For \link{drift_dm} objects, the updated \link{drift_dm} object.
+
+For \link{flex_prms}, the updated \link{flex_prms} object.
 }
 \description{
-Modify the flex_prms object using the user instructions (internal docu)
+Functions to carry out the "instructions" on how to modify a flex_prms
+object, specified as a string.
+}
+\details{
+\code{modify_flex_prms} is a generic function. The default methods pass forward
+a set of "instructions" to modify the (underlying) \link{flex_prms}
+object.
+
+These instructions are inspired by the model syntax of
+the \code{lavaan} package. Note that
+specifying multiple instructions is possible, but each instruction
+has to be defined in its own line. Comments with '#' are possible, also
+line continuations are possible, if the last symbol
+is a "+","-", "*", "/", "(", or "[".
+The following instructions are implemented:
+
+The \strong{"vary"} instruction:
+\itemize{
+\item Looks something like "a ~ foo + bar"
+\item This means that the parameter 'a' is allowed to vary independently for the
+conditions 'foo' and 'bar'
+\item Thus, when estimating the model, the user will have independent values
+for 'a' in conditions 'foo' and 'bar'
+}
+
+The \strong{"restrain"} instruction:
+\itemize{
+\item Looks something like "a ~! foo + bar "
+\item This means that the parameter 'a' is assumed to be identical for the
+conditions 'foo' and 'bar'
+\item Thus, when estimating the model, the user will have only a single value
+for 'a' in conditions 'foo' and 'bar'
+}
+
+The \strong{"set"} instruction:
+\itemize{
+\item Users may not always estimate a model directly but rather explore the
+model behavior. In this case setting the value of a parameter is necessary.
+\item The corresponding instruction looks something like "a ~ foo => 0.3"
+\item This will set the value for 'a' in condition 'foo' to the value of 0.3
+}
+
+The \strong{"fix"} instruction:
+\itemize{
+\item Oftentimes, certain parameters of a model are considered "fixed", so that
+they don't vary while the remaining parameters are estimated. An example
+would be the shape parameter 'a' of DMC (see \link{dmc_dm}).
+\item The corresponding instruction looks something like "a <!> foo + bar"
+\item Usually, users want to call the "set" instruction prior or after the "fix"
+instruction, to set the corresponding parameter to a certain value.
+}
+
+The \strong{"special dependency"} instruction:
+\itemize{
+\item Sometimes, users wish to allow one parameter to depend on another. For
+instance, in DMC (see \link{dmc_dm}), the parameter A is positive in
+the congruent condition, but negative in the incongruent condition. Thus,
+parameters may have a 'special depencency' which can be expressed as an
+equation.
+\item To define a special dependency, users can use the operation "==".
+The parameter that should have the dependency is on the left-hand side,
+while the mathematical relationship to other parameters is defined on the
+right-hand side.
+\item This then looks something like "a ~ foo == -(a ~ bar)".
+\item This means that the parameter a in condition foo will always be
+-1 * the parameter a in condition bar. Thus, if a in condition bar
+has the value 5, then a in condition foo will be -5.
+\item The expression on the right-side can refer to any arbitrary
+mathematical relation.
+\item Important: Make sure that each 'parameter ~ condition' combination are set
+in brackets.
+\item Another example: Parameter a in condition foo should be the mean of the
+parameter b in conditions bar and baz; this would be the instruction
+"a ~ foo == 0.5*(b ~ bar) + 0.5*(b ~ baz)"
+}
+
+The \strong{"additional/custom parameter combination"} instruction:
+\itemize{
+\item Sometimes, users may wish to combine multiple parameters to summarize
+a certain property of the model. For example, in DMC (see \link{dmc_dm}),
+the shape and rate parameter jointly determine the peak latency.
+\item To avoid to manually calculate this, users can define "custom"
+parameter combinations with the ":=" operation:
+\item An examplary instruction might look like this:
+"peak_l := (a - 2) * tau"
+\item Expressions and values that provide calculations for those parameters are
+stored in a separate list \code{cust_prms}.
+}
+}
+\seealso{
+\code{\link[=flex_prms]{flex_prms()}}
 }

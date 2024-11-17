@@ -1,24 +1,46 @@
 
 # dRiftDM
 
-The package dRiftDM was developed to help psychology researchers apply
-time-dependent diffusion models in R. It comes with necessary tools for
-standard analyses, such as building a model, estimating parameters
-across multiple participants (separately per participant), or creating
-summary statistics. It also ships with pre-built models. Currently,
-these are:
+The package dRiftDM was developed to help psychological researchers
+apply and fit diffusion models to empirical data in the R environment.
+The most important feature is that dRiftDM can also handle
+non-stationary problems, that is, diffusion models with time-dependent
+parameters. The package comes with necessary tools for standard
+analyses, such as building a model, estimating parameters for multiple
+participants (separately per participant), or creating summary
+statistics. Pre-built models that are available within the package are:
 
-- The Diffusion Model for Conflict Tasks
-- The Shrinking Spotlight Model
-- The Standard (Ratcliff) Diffusion Model
+- The Standard (Ratcliff) Diffusion Model (Ratcliff, 1978, Psychological
+  Review)
+- The Diffusion Model for Conflict Tasks (Ulrich et al., 2015, Cognitive
+  Psychology)
+- The Shrinking Spotlight Model (White et al., 2011, Cognitive
+  Psychology)
 
-With version 0.1.1 model predicitons (i.e., their first-passage time)
-are derived by numerically solving the Kolmogorov-Forward Equation based
-on code provided by Richter et al. (2023, JMP).
+Users can flexibly create other models and use the machinery of dRiftDM
+for estimating them.
+
+With Version 0.2.0 model predictions (i.e., their first-passage time)
+are derived by numerically solving the Kolmogorov-Forward-Equation or a
+coupled set of integral equations, based on code provided by Richter et
+al. (2023, Journal of Mathematical Psychology.
+
+## Notes
+
+The current version is 0.2.0. In contrast to the former version 0.1.1,
+version 0.2.0 leverages more strongly the S3 object system. We also
+introduced a new way to handle parameters across conditions using
+so-called “flex_prms” objects.
+
+If you want install the old version 0.1.1. You can use:
+
+``` r
+devtools::install_github("bucky2177/dRiftDM", ref = "0.1.1")
+```
 
 ## Installation
 
-You can install the development version of dRiftDM from
+You can install the (current) development version of dRiftDM from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -29,15 +51,16 @@ devtools::install_github("bucky2177/dRiftDM")
 ## Example
 
 We are in the progress of publishing a tutorial with more detailed
-instructions. For now, here is an example on how to fit the Diffusion
-Model for Conflict Tasks to some synthetic data using bounded
-Nelder-Mead:
+instructions (see the respective [OSF
+pre-print](https://osf.io/preprints/osf/3t2vf). For now, here is an
+example on how to fit the Diffusion Model for Conflict Tasks to some
+synthetic data using bounded Nelder-Mead:
 
 ``` r
 library(dRiftDM)
 #> 
 #>  ----- 
-#> Welcome to dRiftDM 0.1.1 
+#> Welcome to dRiftDM 0.2.0 
 #> This is a first version... 
 #> Please report any bugs/unexpected  
 #> behavior to koob@uni-bremen.de 
@@ -48,22 +71,33 @@ library(dRiftDM)
 #>              ||------w|
 #>              ||      ||
 dmc_model = dmc_dm(dx = .002, dt = .002, t_max = 1.2)
-dmc_model = set_obs_data(drift_dm_obj = dmc_model,
-                         obs_data = dmc_synth_data)
+obs_data(dmc_model) = dmc_synth_data
 print(dmc_model)
 #> Class(es): dmc_dm, drift_dm
 #> 
-#> Model Parameters:
-#>   values: muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, a=2, A=0.1, alpha=4
-#>   free: muc, b, non_dec, sd_non_dec, tau, A, alpha
+#> Current Parameter Matrix:
+#>        muc   b non_dec sd_non_dec  tau a    A alpha
+#> comp     4 0.6     0.3       0.02 0.04 2  0.1     4
+#> incomp   4 0.6     0.3       0.02 0.04 2 -0.1     4
 #> 
-#> Conditions: comp, incomp
+#> Unique Parameters:
+#>        muc b non_dec sd_non_dec tau a A alpha
+#> comp   1   2 3       4          5   0 6 7    
+#> incomp 1   2 3       4          5   0 d 7    
+#> 
+#> Special Dependencies:
+#> A ~ incomp == -(A ~ comp)
+#> 
+#> Custom Parameters:
+#>        peak_l
+#> comp     0.04
+#> incomp   0.04
 #> 
 #> Deriving PDFs:
 #>   solver: kfe
 #>   values: sigma=1, t_max=1.2, dt=0.002, dx=0.002, nt=600, nx=1000
 #> 
-#> Observed Data: 600 trials
+#> Observed Data: 300 trials comp; 300 trials incomp
 ```
 
 ``` r

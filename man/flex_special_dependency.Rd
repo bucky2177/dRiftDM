@@ -9,7 +9,8 @@ flex_special_dependency(flex_prms_obj, formula_instr)
 \arguments{
 \item{flex_prms_obj}{a flex_prms object}
 
-\item{formula_instr}{an instruction}
+\item{formula_instr}{a string referring to "special dependency"
+(see \link{modify_flex_prms})}
 }
 \value{
 a modified flex_prms_object with a modified (linear) internal list

@@ -9,7 +9,8 @@ flex_cust_prm(flex_prms_obj, formula_instr)
 \arguments{
 \item{flex_prms_obj}{a flex_prms object}
 
-\item{formula_instr}{an instruction}
+\item{formula_instr}{a string referring to "custom parameter combination"
+(see \link{modify_flex_prms})}
 }
 \value{
 a modified flex_prms object with respect to the \code{cust_prms} entry
@@ -25,4 +26,11 @@ Each of these is again a named list, that either contains the expression
 with instructions on how to calculate the custom parameter (e.g., "peak_l")
 or the respective values. Values are getting updated/calculated in
 \code{update_special_values()}
+
+The \code{cust_prms} exists of two entries "expressions" and values".
+"expressions" contains a named list, with expressions referring to
+\code{prms_matrix} (see \link{flex_prms}) on how to calculate the custom
+parameter (across all conditions). The "values" contain a named list,
+with named numeric vectors (names are conditions, values the calculated
+custom parameter values)
 }

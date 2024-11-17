@@ -5,10 +5,11 @@
 \alias{print.summary.flex_prms}
 \title{Summarizing Flex Parameters}
 \usage{
-\method{summary}{flex_prms}(object)
+\method{summary}{flex_prms}(object, ...)
 
 \method{print}{summary.flex_prms}(
   x,
+  ...,
   round_digits = drift_dm_default_rounding(),
   dependencies = T,
   cust_parameters = T
@@ -18,11 +19,13 @@
 \item{object}{an object of class "flex_prms", resulting from a call to
 \link{flex_prms}.}
 
+\item{...}{additional arguments passed forward to the respective method}
+
 \item{x}{an object of class "summary.flex_prms"; a result of a call to
 summary.flex_prms.}
 
 \item{round_digits}{integer, indicating the number of decimal places (round)
-to be used (default is 3)}
+to be used (default is 3).}
 
 \item{dependencies}{logical, controlling if a summary of the special
 dependencies shall be printed (see the "special dependency
@@ -32,39 +35,20 @@ instruction" in the details of \link{flex_prms})}
 parameters shall be printed (see the "additional/custom parameter
 instruction" in the details of \link{flex_prms})}
 }
-\value{
-The function \code{summary.flex_prms} computes and returns a list of
-summary statistics of the \code{flex_prms} object given in \code{object}. The result
-contains:
-\itemize{
-\item \code{prms_matrix}: All parameter values (unrounded) across all conditions with
-conditions as rows and the actual parameters as columns.
-\item \code{unique_matrix}: A matrix with either numbers or "d"s, indicating how each
-parameter varies across conditions. The maximum number of this matrix also
-indicates the maximum number of parameters of the model. The "d"s indicate
-if for specifc parameter x condition combination, special dependencies are
-set
-\item \code{depend_strings}: A vector of strings with all special dependencies,
-in a readable format (non-existant if no dependencies exist)
-\item \code{cust_prms_matrix}: A matrix of the custom paramters and their current
-values (non-existant if no custom parameters exist)
-}
-}
 \description{
 summary method for class "flex_prms".
 }
 \details{
-\code{print.summary.flex_prms} and \link{print.flex_prms} are identical. Both
-will print out information about:
+The \code{summary.flex_prms} function creates a summary object containing:
 \itemize{
-\item The actual parameter values currently set
-\item Unique parameters, which also inform about restrains, fixations, or
-special dependencies
-\item (if applicable) A list of all special dependencies and how they are
-defined as strings
-\item (if applicable) A matrix of the custom paramters and their current values
+\item \strong{prms_matrix}: All parameter values across all conditions.
+\item \strong{unique_matrix}: A character matrix, showing how parameters relate across
+conditions.
+\item \strong{depend_strings}: Special Dependencies, formatted as a string.
+\item \strong{cust_prms_matrix}: (if they exist), a matrix containing all custom
+parameters.
 }
-}
-\seealso{
-\link{flex_prms}
+
+The \code{print.summary.flex_prms} function displays the summary object in a
+formatted manner.
 }

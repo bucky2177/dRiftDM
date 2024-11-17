@@ -19,17 +19,23 @@ test_that("input checks estimate_model", {
   expect_error(estimate_model(a_model,
     lower = c(0.2, 0.1),
     upper = c(7, 0.8, 0.6)
-  ), "length")
+  ), "Check your lower/upper")
 
   expect_error(estimate_model(a_model,
     lower = c("1", 0.2, 0.1),
     upper = c(7, 0.8, 0.6)
-  ), "numeric")
+  ), "illegal data type")
+
+  expect_error(estimate_model(a_model,
+    lower = c(0.2, 0.2, 0.1),
+    upper = c(1, Inf, 0.6)
+  ), "illegal data type")
+
 
   expect_error(estimate_model(a_model,
     lower = c(0.2, 0.1),
     upper = c(7, 0.8)
-  ), "number of free_prms")
+  ), "Check your lower/upper")
 
   expect_error(
     estimate_model(a_model,
@@ -57,23 +63,15 @@ test_that("input checks estimate_model", {
     estimate_model(a_model,
                    lower = c(a = 1, 2, 3), upper = c(5, 3, 4)
     ),
-    "lower is a named numeric vector, but upper"
+    "does not provide a name for each entry"
   )
-
-  expect_error(
-    estimate_model(a_model,
-                       lower = c(1, 2, 3), upper = c(a = 5, 3, 4)
-    ),
-    "upper is a named numeric vector, but lower"
-  )
-
 
   expect_error(
     estimate_model(a_model,
                    lower = c(muc = 1, b = 0.3, foo = 0.4),
                    upper = c(muc = 3, b = 5, non_dec = 0.4)
     ),
-    "can not be adressed"
+    "don't match with the model parameters"
   )
 
   expect_error(
@@ -81,7 +79,7 @@ test_that("input checks estimate_model", {
                        lower = c(muc = 1, b = 0.3, non_dec = 0.4),
                        upper = c(muc = 3, foo = 5, non_dec = 0.4)
     ),
-    "can not be adressed"
+    "don't match with the model parameters"
   )
 
 
@@ -127,14 +125,26 @@ test_that("input checks estimate_model", {
     ),
     "nmkb_control"
   )
+
+  # some check with list
+  expect_error(
+    estimate_model(a_model,
+                   lower = list(
+                     default_values = c(muc = 1, b = 0.3, non_dec = 0.4),
+                     null = c(foo = 3)
+                   ),
+                   upper = c(muc = 3, b = 5, non_dec = 0.4)
+    ),
+    "not part of the default values"
+  )
 })
 
 test_that("snapshot of the model running through nmkb", {
   a_model <- ratcliff_dm(dt = .005, dx = .05)
 
   new_data <- simulate_data(a_model, n = 3000, seed = 1)
-  a_model <- set_obs_data(a_model, new_data)
-  a_model <- set_model_prms(a_model, c(muc = 2, b = 0.5, non_dec = 0.2))
+  obs_data(a_model) <- new_data
+  coef(a_model) <- c(muc = 2, b = 0.5, non_dec = 0.2)
   expect_snapshot(
     estimate_model(a_model,
       lower = c(1, 0.2, 0.1), upper = c(7, 0.8, 0.6),
@@ -143,13 +153,12 @@ test_that("snapshot of the model running through nmkb", {
   )
 })
 
-
-
 test_that("behavior of DE and nmkb toggles", {
-  a_model <- dmc_dm(t_max = 1, dt = 0.01, dx = 0.1)
-  subject <- simulate_data(drift_dm_obj = a_model, n = 300, seed = 1)
-  a_model <- set_obs_data(a_model, subject)
-  a_model <- set_free_prms(a_model, c("muc", "non_dec"))
+  a_model <- suppressWarnings(dmc_dm(t_max = 1, dt = 0.01, dx = 0.1,
+                    instr = "b + sd_non_dec + tau + a + A + alpha <!>")
+  )
+  subject <- simulate_data(a_model, n = 300, seed = 1)
+  obs_data(a_model) <- subject
 
   # both toggles FALSE
   expect_warning(
@@ -180,7 +189,7 @@ test_that("behavior of DE and nmkb toggles", {
   # DE FALSE and nmkb TRUE -> see above
 
   # nmkb TRUE but univariate case
-  a_model <- set_free_prms(a_model, c("muc"))
+  a_model <- modify_flex_prms(a_model, instr = "non_dec <!>")
   expect_warning(
     estimate_model(
       drift_dm_obj = a_model,
@@ -195,7 +204,7 @@ test_that("behavior of DE and nmkb toggles", {
   # skip on cran: multiple cores use
   # DE TRUE nmkb FALSE
   skip_on_cran()
-  a_model <- set_free_prms(a_model, c("muc", "non_dec"))
+  a_model <- modify_flex_prms(a_model, instr = "non_dec ~!")
   expect_snapshot(
     estimate_model(
       drift_dm_obj = a_model,

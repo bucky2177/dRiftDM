@@ -1,28 +1,58 @@
-# print works as expected
+# print.drift_dm works as expected
 
     Code
       print(a_dmc_model)
     Output
       Class(es): dmc_dm, drift_dm
       
-      Model Parameters:
-        values: muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, a=2, A=0.1, alpha=4
-        free: muc, b, non_dec, sd_non_dec, tau, A, alpha
+      Current Parameter Matrix:
+             muc   b non_dec sd_non_dec  tau a    A alpha
+      comp     4 0.6     0.3       0.02 0.04 2  0.1     4
+      incomp   4 0.6     0.3       0.02 0.04 2 -0.1     4
       
-      Conditions: comp, incomp
+      Unique Parameters:
+             muc b non_dec sd_non_dec tau a A alpha
+      comp   1   2 3       4          5   0 6 7    
+      incomp 1   2 3       4          5   0 d 7    
+      
+      Special Dependencies:
+      A ~ incomp == -(A ~ comp)
+      
+      Custom Parameters:
+             peak_l
+      comp     0.04
+      incomp   0.04
       
       Deriving PDFs:
         solver: kfe
         values: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000
       
-      Observed Data: NULL
+      Observed Data: 300 trials comp; 300 trials incomp
 
-# summary works as expected
+# summary.drift_dm works as expected
 
     Code
       print(summary_model)
     Output
       Class(es): dmc_dm, drift_dm
+      
+      Current Parameter Matrix:
+             muc   b non_dec sd_non_dec  tau a    A alpha
+      comp     4 0.6     0.3       0.02 0.04 2  0.1     4
+      incomp   4 0.6     0.3       0.02 0.04 2 -0.1     4
+      
+      Unique Parameters:
+             muc b non_dec sd_non_dec tau a A alpha
+      comp   1   2 3       4          5   0 6 7    
+      incomp 1   2 3       4          5   0 d 7    
+      
+      Special Dependencies:
+      A ~ incomp == -(A ~ comp)
+      
+      Custom Parameters:
+             peak_l
+      comp     0.04
+      incomp   0.04
       
       Observed Data:
                    min. 1st qu. median  mean 3rd qu.  max.   n
@@ -31,24 +61,10 @@
       err comp    0.428   0.458  0.526 0.564   0.621 0.871   8
       err incomp  0.302   0.398  0.452 0.458   0.498 0.771  32
       
-      
-      Number of Model Parameters:
-      total  free 
-          8     7 
-      
-      
-      Model Parameter Values:
-       muc   b non_dec sd_non_dec  tau a   A alpha
-         4 0.6     0.3       0.02 0.04 2 0.1     4
-      
-      
       Fit Indices:
-      log(like)       aic       bic 
-        138.222  -262.443  -231.665 
+      Log_Like      AIC      BIC 
+       137.067 -260.133 -229.355 
       -------
-      
-      Conds: comp, incomp
-      Free Parameters: muc, b, non_dec, sd_non_dec, tau, A, alpha
       Solver: kfe
-      Settings: sigma=1, t_max=3, dt=0.005, dx=0.005, nt=600, nx=400
+      Settings: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000
 

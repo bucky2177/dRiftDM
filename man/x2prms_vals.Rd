@@ -9,14 +9,17 @@ x2prms_vals(x, flex_prms_obj)
 \arguments{
 \item{x}{a numeric vector with new values to set}
 
-\item{flex_prms_obj}{a flex_prms_obj with the (linearized) internal list and
-the parameter matrix}
+\item{flex_prms_obj}{a \link{flex_prms} with the (linearized) internal
+list and the parameter matrix}
 }
 \value{
 a flex_prms_obj with updated parameter matrix
 }
 \description{
 This function takes a numeric vector and maps the values to the parameter
-matrix using the linearlized internal list. This will also lead to an update
+matrix using the linearized internal list. This will also lead to an update
 of the values for which special dependencies were set
+}
+\details{
+Does not perform input checks!
 }

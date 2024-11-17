@@ -9,7 +9,8 @@ flex_fix_prms(flex_prms_obj, formula_instr)
 \arguments{
 \item{flex_prms_obj}{a flex_prms object}
 
-\item{formula_instr}{an instruction including <!>}
+\item{formula_instr}{a string referring to "fix"
+(see \link{modify_flex_prms})}
 }
 \value{
 a modified flex_prms_obj with respect to the linear internal list

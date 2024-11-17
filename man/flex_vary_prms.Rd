@@ -2,14 +2,15 @@
 % Please edit documentation in R/core_flex_prms.R
 \name{flex_vary_prms}
 \alias{flex_vary_prms}
-\title{Allow parameters to vary (internal docu)}
+\title{Allow parameters to vary}
 \usage{
 flex_vary_prms(flex_prms_obj, formula_instr)
 }
 \arguments{
 \item{flex_prms_obj}{an object of type flex_prms}
 
-\item{formula_instr}{a string refering to "vary"}
+\item{formula_instr}{a string referring to "vary"
+(see \link{modify_flex_prms})}
 }
 \value{
 an updated flex_prms_obj with an updated (linear) internal list

@@ -2,7 +2,7 @@
 % Please edit documentation in R/models.R
 \name{component_shelf}
 \alias{component_shelf}
-\title{Diffusion model components}
+\title{Diffusion Model Components}
 \usage{
 component_shelf()
 }
@@ -12,7 +12,7 @@ model component functions. It returns a list of the following functions.
 \itemize{
 \item \code{mu_constant}, provides the component function for a constant
 drift rate with parameter \code{muc}.
-\item \code{mu_dmc}, provides the superimposed diffusion process
+\item \code{mu_dmc}, provides the drift rate of the superimposed diffusion process
 of DMC. Necessary parameters are \code{muc} (drift rate of the controlled
 process), \code{a} (shape..), \code{A} (amplitude...), \code{tau} (scale of the
 automatic process).
@@ -52,7 +52,7 @@ a normally distributed non-decision time with parameters \code{non_dec},
 \code{sd_non_dec}. The Distribution is truncated to \eqn{[0, t_{max}]}.
 \item \code{dummy_t} a function that accepts all required arguments for \code{mu_fun} or
 \code{mu_int_fun} but which throws an error. Might come in handy when a user
-doesn't require a drift rate or its integral.
+doesn't require the integral of the drift rate.
 }
 }
 \details{

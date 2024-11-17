@@ -9,7 +9,8 @@ flex_specific_value(flex_prms_obj, formula_instr)
 \arguments{
 \item{flex_prms_obj}{flex_prms object}
 
-\item{formula_instr}{an instruction}
+\item{formula_instr}{a string referring to "set"
+(see \link{modify_flex_prms})}
 }
 \value{
 an updated flex_prms object with a modified prms_matrix object

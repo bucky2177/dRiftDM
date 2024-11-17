@@ -2,19 +2,20 @@
 % Please edit documentation in R/core_flex_prms.R
 \name{sort_one_internal_entry}
 \alias{sort_one_internal_entry}
-\title{Sorts the numbers in ascending order (internal docu)}
+\title{Sorts the numbers in ascending order}
 \usage{
 sort_one_internal_entry(one_internal_entry)
 }
 \arguments{
-\item{one_internal_entry}{one entry of a (linearlized) internal_list}
+\item{one_internal_entry}{one entry of a (linearized) internal_list, must be
+named}
 }
 \value{
 the newly sorted entry as a list
 }
 \description{
 .... within one entry (i.e., one prm
-across all conditions, such as when calling internal_list[\link{"A"}]); which
+across all conditions, such as when calling \code{internal_list[["A"]]}); which
 is a list. Used to ensure that parameter ordering remains logical
 }
 \details{

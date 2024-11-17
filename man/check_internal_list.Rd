@@ -5,12 +5,19 @@
 \title{checks if all entries of internal_list are an expression or integer.
 Throws an error if not (internal docu)}
 \usage{
-check_internal_list(internal_list)
+check_internal_list(internal_list, prm_names, cond_names)
 }
 \arguments{
-\item{internal_list}{}
+\item{internal_list}{a list, referring to a (linear) internal list of
+a \link{flex_prms} object.}
+
+\item{prm_names}{the expected parameter of the flex_prms object}
+
+\item{cond_names}{the expected conditions of the flex_prms object}
+}
+\value{
+the internal list for convenience
 }
 \description{
-checks if all entries of internal_list are an expression or integer.
-Throws an error if not (internal docu)
+Checks also if there are entries for each parameter and condition
 }
