@@ -75,9 +75,9 @@ It includes a legend with condition labels.
 \code{plot_traces_dm} only plots the traces provided (i.e., traces for one
 condition)
 
-The functions plot traces. Boundaries and traces are
-color-coded according to \code{col} and \code{col_b}. The function automatically
-generates boundaries for both positive and negative accumulation paths
+Boundaries and traces are color-coded according to \code{col} and \code{col_b}. The
+function automatically generates the upper and lower boundaries based on
+the information stored within \code{x}.
 }
 \seealso{
 \link{simulate_traces}

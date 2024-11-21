@@ -889,7 +889,8 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' * `mu_ssp`, provides the drift rate for SSP.
 #'   Necessary parameters are `p` (perceptual input of flankers and
 #'  target), `sd_0` (initial spotlight width), `r` (shrinking rate of the
-#'  spotlight). Note that no `mu_int_ssp` exists.
+#'  spotlight) and 'sign' (an auxiliary parameter for controlling the
+#'  contribution of the flanker stimuli). Note that no `mu_int_ssp` exists.
 #'
 #'
 #' * `mu_int_constant`, provides the complementary integral to `mu_constant`.
@@ -897,7 +898,7 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' * `mu_int_dmc`, provides the complementary integral to `mu_dmc`.
 #'
 #' * `x_dirac_0`, provides a dirac delta for a starting point
-#' centered between the boundaries (now parameter required).
+#' centered between the boundaries (no parameter required).
 #'
 #' * `x_uniform`, provides a uniform distribution for a start point
 #'  centered between the boundaries. Requires a parameter `range_start`

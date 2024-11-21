@@ -70,9 +70,9 @@ plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
 #' `plot_traces_dm` only plots the traces provided (i.e., traces for one
 #' condition)
 #'
-#' The functions plot traces. Boundaries and traces are
-#' color-coded according to `col` and `col_b`. The function automatically
-#' generates boundaries for both positive and negative accumulation paths
+#' Boundaries and traces are color-coded according to `col` and `col_b`. The
+#' function automatically generates the upper and lower boundaries based on
+#' the information stored within `x`.
 #'
 #'
 #' @seealso [dRiftDM::simulate_traces]
@@ -105,13 +105,12 @@ plot.traces_dm_list <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
   }
 
   # iterate over all traces
-  all_traces = unpack_traces(x, unpack = F)
-  plot_one_traces(all_traces[[1]], col[1], col_b[1], xlab, ylab, xlim, ylim,
+  plot_one_traces(x[[1]], col[1], col_b[1], xlab, ylab, xlim, ylim,
                   lty, type, new_plot = T)
-  n_all = length(all_traces)
-  if (n_all == 1) return(NULL)
+  n_all = length(x)
+  if (n_all == 1) return(invisible(NULL))
   for (idx in 2:n_all) {
-    plot_one_traces(all_traces[[idx]], col[idx], col_b[idx], xlab, ylab, xlim, ylim,
+    plot_one_traces(x[[idx]], col[idx], col_b[idx], xlab, ylab, xlim, ylim,
                     lty, type, new_plot = F)
   }
 
@@ -272,10 +271,12 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   if (!any(cafs$Source == "obs")) {
     pch = NA
   }
-  graphics::legend(x = legend_pos,
-    legend = legend,
-    col = col, lty = lty, pch = pch, ...
-  )
+  if (length(legend) > 1) {
+    graphics::legend(x = legend_pos,
+      legend = legend,
+      col = col, lty = lty, pch = pch, ...
+    )
+  }
 }
 
 
@@ -393,10 +394,12 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
   if (!any(quantiles$Source == "obs")) {
     pch = NA
   }
-  graphics::legend(x = legend_pos,
-    legend = legend,
-    col = col, lty = lty, pch = pch, ...
-  )
+  if (length(legend) > 1) {
+    graphics::legend(x = legend_pos,
+      legend = legend,
+      col = col, lty = lty, pch = pch, ...
+    )
+  }
 }
 
 
@@ -526,10 +529,12 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
     pch = NA
   }
   legend = gsub(pattern = "Delta_", replacement = "", x = dv)
-  graphics::legend(x = legend_pos,
-    legend = legend,
-    col = col, lty = lty, pch = pch, ...
-  )
+  if (length(legend) > 1) {
+    graphics::legend(x = legend_pos,
+      legend = legend,
+      col = col, lty = lty, pch = pch, ...
+    )
+  }
 }
 
 
@@ -684,7 +689,7 @@ hist.coefs_dm <- function(x, ..., separate_plots = T, alpha = 0.5,
 #' @param x an object of class [dRiftDM::drift_dm]
 #' @param conds character vector, specifying conditions to plot. Defaults to all
 #' conditions in `x`.
-#' @param color character vector, specifying colors for each condition. If a
+#' @param col character vector, specifying colors for each condition. If a
 #' single color is provided, it will be repeated for each condition.
 #' @param xlim numeric vector of length 2, specifying the x-axis limits for
 #' components related to the time space.
@@ -707,8 +712,12 @@ hist.coefs_dm <- function(x, ..., separate_plots = T, alpha = 0.5,
 #' For each component, if multiple conditions are specified, they will be
 #' plotted using different colors as specified in `color`.
 #'
+#' When the evaluation of a model component fails, the respective component
+#' will not be plotted, but no warning is ushered.
+#'
+#'
 #' @export
-plot.drift_dm <- function(x, ..., conds = NULL, color = NULL, xlim = NULL,
+plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
                           legend = NULL, legend_pos = "topright") {
 
   drift_dm_obj <- x
@@ -722,8 +731,8 @@ plot.drift_dm <- function(x, ..., conds = NULL, color = NULL, xlim = NULL,
                     several.ok = T)
 
   # get default parameters
-  color <- set_default_colors(
-    colors = color, unique_conds = conds,
+  col <- set_default_colors(
+    colors = col, unique_conds = conds,
     default_colors = grDevices::rainbow(n = length(conds))
   )
 
@@ -792,7 +801,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, color = NULL, xlim = NULL,
 
     for (i in seq_along(conds)) {
       graphics::points(mu_vals[[conds[i]]] ~ t_vec, ty = "l",
-                       col = color[i])
+                       col = col[i])
     }
   }
 
@@ -808,7 +817,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, color = NULL, xlim = NULL,
 
     for (i in seq_along(conds)) {
       graphics::points(mu_int_vals[[conds[i]]] ~ t_vec, ty = "l",
-                       col = color[i])
+                       col = col[i])
     }
   }
 
@@ -823,7 +832,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, color = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(x_vals[[conds[i]]] ~ x_vec, ty = "l", col = color[i])
+      graphics::points(x_vals[[conds[i]]] ~ x_vec, ty = "l", col = col[i])
     }
   }
 
@@ -838,7 +847,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, color = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(b_vals[[conds[i]]] ~ t_vec, ty = "l", col = color[i])
+      graphics::points(b_vals[[conds[i]]] ~ t_vec, ty = "l", col = col[i])
     }
   }
 
@@ -853,7 +862,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, color = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(dt_b_vals[[conds[i]]] ~ t_vec, ty = "l", col = color[i])
+      graphics::points(dt_b_vals[[conds[i]]] ~ t_vec, ty = "l", col = col[i])
     }
   }
 
@@ -869,11 +878,11 @@ plot.drift_dm <- function(x, ..., conds = NULL, color = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(nt_vals[[conds[i]]] ~ t_vec, ty = "l", col = color[i])
+      graphics::points(nt_vals[[conds[i]]] ~ t_vec, ty = "l", col = col[i])
     }
   }
 
-  graphics::legend(x = legend_pos, legend = legend, col = color, lty = 1)
+  graphics::legend(x = legend_pos, legend = legend, col = col, lty = 1)
 }
 
 

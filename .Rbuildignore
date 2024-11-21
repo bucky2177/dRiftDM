@@ -6,3 +6,5 @@
 ^.*\.Rprofile
 ^README\.Rmd$
 ^tutorial$
+^drift_dm_fits$
+^figures$

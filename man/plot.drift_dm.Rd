@@ -54,4 +54,7 @@ which include:
 
 For each component, if multiple conditions are specified, they will be
 plotted using different colors as specified in \code{color}.
+
+When the evaluation of a model component fails, the respective component
+will not be plotted, but no warning is ushered.
 }

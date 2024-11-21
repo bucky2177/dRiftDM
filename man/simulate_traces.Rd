@@ -49,7 +49,7 @@ simulated. If \code{NULL}, then traces for all conditions are simulated.}
 variable starting point. If \code{TRUE}, samples from \code{x_fun} (see
 \link{comp_vals}) are added to each trace. Default is \code{FALSE}.}
 
-\item{sigma}{optional numeric, providing a value > 0 for the diffusion
+\item{sigma}{optional numeric, providing a value >= 0 for the diffusion
 constant "sigma" to temporally override \link{prms_solve}. Useful for
 exploring the model without noise.}
 
@@ -72,16 +72,18 @@ printing out traces (default is 4).}
 }
 \value{
 \code{simulate_traces()} returns either a list of type \code{traces_dm_list}, or
-a plain list with the traces (if \code{unpack = T}).
+directly the plain traces as matrices across conditions (if \code{unpack = T}).
+If the model has only one condition (and \code{unpack = T}), then the matrix of
+traces for this one condition is directly returned.
 
 The returned list has as many entries as conditions requested. For example,
 if only one condition is requested via the \code{conds} argument, then the list is
-of length 1. If \code{conds} is set to \code{NULL} (default), then the list will have
-as many entries as conditions specified in the supplied \code{object} (see also
-\link{conds}). If \code{unpack = F}, the list contains an additional attribute
-with the time space.
+of length 1 (if \code{unpack = F}). If \code{conds} is set to \code{NULL} (default), then
+the list will have as many entries as conditions specified in the supplied
+\code{object} (see also \link{conds}). If \code{unpack = F}, the list contains an
+additional attribute with the time space.
 
-Each entry of the list provides \code{k} traces of length \code{nt + 1}, stored as an
+Each matrix of traces has \code{k} rows and \code{nt + 1} columns, stored as an
 array of size (\code{k}, \code{nt + 1}). Note that \code{nt} is the number of steps in the
 discretization of time; see \link{drift_dm}. If \code{unpack = F}, the array
 is of type \code{traces_dm}. It contains some additional attributes about

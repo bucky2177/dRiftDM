@@ -37,6 +37,8 @@
 #'  the numerical discretization of the Kolmogorov Forward Equation.
 #' @param mu_fun,mu_int_fun,x_fun,b_fun,dt_b_fun,nt_fun Optional custom
 #'  functions defining the components of a diffusion model. See
+#'  [dRiftDM::comp_funs()]. If an argument is `NULL`, dRiftDM falls
+#'  back to the respective default function, which are document in
 #'  [dRiftDM::comp_funs()].
 #' @param b_coding an optional list, specifying how boundaries are coded. See
 #'  [dRiftDM::b_coding()]. Default refers to accuracy coding.
@@ -80,10 +82,8 @@
 #'
 #' @details
 #'
-#' In general, it is not recommended to directly modify the
-#' entries of this list unless you are familiar with how the package works.
-#' Users should use the replacement methods and the
-#' [dRiftDM::modify_flex_prms()] method to modify the model. See
+#' To modify the entries of a model users can use the replacement methods and
+#' the [dRiftDM::modify_flex_prms()] method . See
 #' \code{vignette("use_ddm_models", "dRiftDM")} and
 #' \code{vignette("create_ddm_models", "dRiftDM")} for more information.
 #'
@@ -1852,6 +1852,7 @@ b_coding.fits_ids_dm <- function(object, ...) {
 
 
 
+
 ## coef, AIC, BIC, logLik #####
 # see extended_s3_methods
 
@@ -2044,7 +2045,7 @@ prms_cond_combo = function(drift_dm_obj) {
 #' @param add_x logical, indicating whether traces should contain a
 #' variable starting point. If `TRUE`, samples from `x_fun` (see
 #' [dRiftDM::comp_vals]) are added to each trace. Default is `FALSE`.
-#' @param sigma optional numeric, providing a value > 0 for the diffusion
+#' @param sigma optional numeric, providing a value >= 0 for the diffusion
 #'  constant "sigma" to temporally override [dRiftDM::prms_solve]. Useful for
 #'  exploring the model without noise.
 #' @param seed optional numerical, a seed for reproducible sampling
@@ -2080,16 +2081,18 @@ prms_cond_combo = function(drift_dm_obj) {
 #'
 #' @returns
 #' `simulate_traces()` returns either a list of type `traces_dm_list`, or
-#' a plain list with the traces (if `unpack = T`).
+#' directly the plain traces as matrices across conditions (if `unpack = T`).
+#' If the model has only one condition (and `unpack = T`), then the matrix of
+#' traces for this one condition is directly returned.
 #'
 #' The returned list has as many entries as conditions requested. For example,
 #' if only one condition is requested via the `conds` argument, then the list is
-#' of length 1. If `conds` is set to `NULL` (default), then the list will have
-#' as many entries as conditions specified in the supplied `object` (see also
-#' [dRiftDM::conds]). If `unpack = F`, the list contains an additional attribute
-#' with the time space.
+#' of length 1 (if `unpack = F`). If `conds` is set to `NULL` (default), then
+#' the list will have as many entries as conditions specified in the supplied
+#' `object` (see also [dRiftDM::conds]). If `unpack = F`, the list contains an
+#' additional attribute with the time space.
 #'
-#' Each entry of the list provides `k` traces of length `nt + 1`, stored as an
+#' Each matrix of traces has `k` rows and `nt + 1` columns, stored as an
 #' array of size (`k`, `nt + 1`). Note that `nt` is the number of steps in the
 #' discretization of time; see [dRiftDM::drift_dm]. If `unpack = F`, the array
 #' is of type `traces_dm`. It contains some additional attributes about

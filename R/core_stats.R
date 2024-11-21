@@ -659,9 +659,8 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
     )
   }
 
-
   result <- result[order(result$Source), ]
-  rownames(result) <- 1:nrow(result)
+  rownames(result) <- NULL
 
   return(result)
 }
@@ -837,6 +836,8 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
       return(stat_id)
     })
     results = do.call("rbind", all_results) # preserves class and attributes
+    results = results[order(results$ID),]
+    rownames(results) = NULL
 
   } else { # else "ignore" ID column (also the case when it does not exist)
 
@@ -973,6 +974,8 @@ calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
       return(stat_id)
     })
   results = do.call("rbind", all_results) # preserves class and attributes
+  results = results[order(results$ID),]
+  rownames(results) = NULL
 
   # average if desired
   if (average) {

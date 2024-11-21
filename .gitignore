@@ -11,3 +11,5 @@ inst/doc
 data-raw
 playground.R
 .Rprofile
+drift_dm_fits
+figures

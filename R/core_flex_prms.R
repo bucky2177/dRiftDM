@@ -393,7 +393,7 @@ modify_flex_prms.flex_prms = function(object, instr, ..., messaging = NULL) {
     stop("messaging must be single logical")
 
   # remove comments from instr
-  instr <- gsub("#[^\\n]*", "", instr)
+  instr <- gsub("#[^\n]*", "", instr)
 
   # Remove line breaks if preceded by special characters or brackets
   # (We consider +, -, *, /, (, and [ as "special characters" here)

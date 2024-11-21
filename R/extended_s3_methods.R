@@ -213,6 +213,8 @@ coef.fits_ids_dm <- function(object, ...) {
   all_coefs = do.call("rbind", all_coefs)
   rownames(all_coefs) <- NULL
   all_coefs$ID = try_cast_numeric(all_coefs$ID)
+  all_coefs = all_coefs[order(all_coefs$ID),]
+  rownames(all_coefs) = NULL
   class(all_coefs) = c("coefs_dm", "data.frame")
   return(all_coefs)
 }
