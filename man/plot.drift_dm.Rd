@@ -8,7 +8,7 @@
   x,
   ...,
   conds = NULL,
-  color = NULL,
+  col = NULL,
   xlim = NULL,
   legend = NULL,
   legend_pos = "topright"
@@ -22,7 +22,7 @@
 \item{conds}{character vector, specifying conditions to plot. Defaults to all
 conditions in \code{x}.}
 
-\item{color}{character vector, specifying colors for each condition. If a
+\item{col}{character vector, specifying colors for each condition. If a
 single color is provided, it will be repeated for each condition.}
 
 \item{xlim}{numeric vector of length 2, specifying the x-axis limits for

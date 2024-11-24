@@ -19,11 +19,12 @@ automatic process).
 \item \code{mu_ssp}, provides the drift rate for SSP.
 Necessary parameters are \code{p} (perceptual input of flankers and
 target), \code{sd_0} (initial spotlight width), \code{r} (shrinking rate of the
-spotlight). Note that no \code{mu_int_ssp} exists.
+spotlight) and 'sign' (an auxiliary parameter for controlling the
+contribution of the flanker stimuli). Note that no \code{mu_int_ssp} exists.
 \item \code{mu_int_constant}, provides the complementary integral to \code{mu_constant}.
 \item \code{mu_int_dmc}, provides the complementary integral to \code{mu_dmc}.
 \item \code{x_dirac_0}, provides a dirac delta for a starting point
-centered between the boundaries (now parameter required).
+centered between the boundaries (no parameter required).
 \item \code{x_uniform}, provides a uniform distribution for a start point
 centered between the boundaries. Requires a parameter \code{range_start}
 (between 0 and 2).

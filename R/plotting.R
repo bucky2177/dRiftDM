@@ -758,8 +758,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   t_vec <- seq(0, t_max, length.out = nt + 1)
 
   # get all components
-  all_vals = comp_vals(drift_dm_obj, x_vec = x_vec, t_vec = t_vec,
-                           nx = nx, nt = nt, dx = dx, dt = dt, t_max = t_max)
+  all_vals = comp_vals(drift_dm_obj)
   mu_vals = lapply(all_vals, \(x) x$mu_vals)
   mu_int_vals = lapply(all_vals, \(x) x$mu_int_vals)
   x_vals = lapply(all_vals, \(x) x$x_vals)

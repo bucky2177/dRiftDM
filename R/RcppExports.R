@@ -5,3 +5,7 @@ cpp_kfe <- function(pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt
     .Call(`_dRiftDM_cpp_kfe`, pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec)
 }
 
+cpp_kfe_drift <- function(E, V, pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_val) {
+    .Call(`_dRiftDM_cpp_kfe_drift`, E, V, pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_val)
+}
+

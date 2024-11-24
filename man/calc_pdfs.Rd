@@ -4,17 +4,17 @@
 \alias{calc_pdfs}
 \title{Calculate the PDFs}
 \usage{
-calc_pdfs(solver, x_vec, t_vec, prms_solve, one_set_comp_vecs)
+calc_pdfs(drift_dm_obj, x_vec, t_vec, prms_solve, solver)
 }
 \arguments{
-\item{solver}{a single character, specifying the approach to derive
-the first passage time (i.e., "kfe" or "im_zero")}
-
 \item{x_vec}{numeric vector, the evidence space}
 
 \item{t_vec}{numeric vector, the time space}
 
 \item{prms_solve}{the discretization (see \link{prms_solve})}
+
+\item{solver}{a single character, specifying the approach to derive
+the first passage time (i.e., "kfe" or "im_zero")}
 
 \item{one_set_comp_vecs}{a list with all vectors for each model component
 (i.e., mu_vals, b_vals etc.)}

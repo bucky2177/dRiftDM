@@ -595,62 +595,42 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
 #' @seealso [dRiftDM::drift_dm()]
 #'
 #' @export
-re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
+re_evaluate_model <- function(drift_dm_obj, eval_model = T, only_log_like = F) {
+
   if (!inherits(drift_dm_obj, "drift_dm")) {
-    stop("drift_dm_obj is not of type drift_dm")
+    stop("drift_dm_obj is not of type drift_dm") 
   }
   stopifnot(is.logical(eval_model) & !is.na(eval_model))
-
-  # set all fit indices and the pdfs to NULL
-  drift_dm_obj$log_like_val <- NULL
-  drift_dm_obj$pdfs <- NULL
-
+  
   # pass back if no evaluation is requested
   if (!eval_model) {
+    # set all fit indices and the pdfs to NULL
+    drift_dm_obj$log_like_val <- NULL
+    drift_dm_obj$pdfs <- NULL
     return(drift_dm_obj)
   }
 
-  # First evaluate all component functions
   # unpack values and create time and evidence vector
-  t_max <- drift_dm_obj$prms_solve[["t_max"]]
-  nt <- drift_dm_obj$prms_solve[["nt"]]
-  dt <- drift_dm_obj$prms_solve[["dt"]]
-  nx <- drift_dm_obj$prms_solve[["nx"]]
-  dx <- drift_dm_obj$prms_solve[["dx"]]
+  prms_solve <- drift_dm_obj$prms_solve
+  x_vec <- seq(-1, 1, length.out = prms_solve[["nx"]] + 1)
+  t_vec <- seq(0,  prms_solve[["t_max"]], length.out = prms_solve[["nt"]] + 1)
 
-  x_vec <- seq(-1, 1, length.out = nx + 1)
-  t_vec <- seq(0, t_max, length.out = nt + 1)
+  # get the PDFs
+  pdfs <- calc_pdfs(drift_dm_obj = drift_dm_obj, x_vec = x_vec, t_vec = t_vec, 
+                    prms_solve = prms_solve, solver = solver)
 
-  comp_vals = comp_vals(drift_dm_obj = drift_dm_obj, x_vec = x_vec,
-                        t_vec = t_vec, nx = nx, nt = nt, dx = dx, dt = dt,
-                        t_max = t_max)
-
-  # Second, calculate the pdfs
-  pdfs <- sapply(conds(drift_dm_obj), function(one_cond) {
-      calc_pdfs(
-        solver = drift_dm_obj$solver, x_vec = x_vec, t_vec = t_vec,
-        prms_solve = drift_dm_obj$prms_solve,
-        one_set_comp_vecs = comp_vals[[one_cond]]
-      )
-    }, simplify = F, USE.NAMES = T)
-  drift_dm_obj$pdfs <- pdfs
-
-
-
-  # return if no data is supplied, so log_like are not updated
-  if (is.null(drift_dm_obj$obs_data)) {
-    return(drift_dm_obj)
-  }
+  obs_data = drift_dm_obj$obs_data
 
   # update log_like_val and pass back
   log_like_val <- calc_log_like(
     pdfs = pdfs, t_vec = t_vec,
-    obs_data = drift_dm_obj$obs_data,
+    obs_data = obs_data,
     conds = conds(drift_dm_obj)
   )
-  stopifnot(is.numeric(log_like_val) & length(log_like_val) == 1)
-  drift_dm_obj$log_like_val = log_like_val
+  if (only_log_like) return(log_like_val)
 
+  drift_dm_obj$log_like_val = log_like_val
+  drift_dm_obj$pdfs <- pdfs
   return(drift_dm_obj)
 }
 
@@ -1885,51 +1865,69 @@ b_coding.fits_ids_dm <- function(object, ...) {
 #'
 #'
 comp_vals = function(drift_dm_obj, x_vec = NULL, t_vec = NULL,
-                     nx = NULL, nt = NULL, dx = NULL, dt = NULL,
-                     t_max = NULL) {
+                     nt = NULL, dt = NULL, nx = NULL, dx = NULL, 
+                     prms_solve = NULL, solver = NULL, prms_matrix = NULL) {
 
-  # unpack values and create time and evidence vector (if not alrady supplied
-  # for speed)
+  # unpack values
   if (is.null(nt)) nt <- drift_dm_obj$prms_solve[["nt"]]
   if (is.null(dt)) dt <- drift_dm_obj$prms_solve[["dt"]]
-  if (is.null(t_max)) t_max <- drift_dm_obj$prms_solve[["t_max"]]
-
-  if (is.null(dx)) dx <- drift_dm_obj$prms_solve[["dx"]]
+  
   if (is.null(nx)) nx <- drift_dm_obj$prms_solve[["nx"]]
+  if (is.null(dx)) dx <- drift_dm_obj$prms_solve[["dx"]]
 
   if (is.null(x_vec)) x_vec <- seq(-1, 1, length.out = nx + 1)
-  if (is.null(t_vec)) t_vec <- seq(0, t_max, length.out = nt + 1)
+  if (is.null(t_vec)) t_vec <- seq(0, drift_dm_obj$prms_solve[["t_max"]], 
+                                   length.out = nt + 1)
 
-  if (drift_dm_obj$solver == "kfe") {
+  
+  if (is.null(prms_solve)){
+    prms_solve = drift_dm_obj$prms_solve
+  }
+  
+  if (is.null(solver)){
+    solver = drift_dm_obj$solver
+  }
+
+  if (is.null(prms_matrix)) {
+    prms_matrix <- drift_dm_obj$flex_prms_obj$prms_matrix
+  }
+  
+  # get the functions to call
+  if (solver == "kfe") {
     comp_fun_names <- c("mu_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
-  } else if (drift_dm_obj$solver == "im_zero") {
+  } else if (solver == "im_zero") {
     comp_fun_names <- c("mu_fun", "mu_int_fun", "x_fun", "b_fun", "dt_b_fun",
                         "nt_fun")
   } else {
-    stop("requested solver ", drift_dm_obj$solver, " not implemented")
+    stop("requested solver ", solver, " not implemented")
   }
 
-  conds <- conds(drift_dm_obj)
+  # get conds, ddm_opts, and comp_funs
+  conds <- rownames(prms_matrix)
+  ddm_opts = drift_dm_obj$ddm_opts
+  comp_funs <- drift_dm_obj$comp_funs
+  
 
+  # iterate over conds and get all model components
   all_comp_vecs <- sapply(conds, function(one_cond) {
 
-    prms_model = drift_dm_obj$flex_prms_obj$prms_matrix[one_cond,]
+    prms_model = prms_matrix[one_cond,]
 
     one_set_comp_vecs <- sapply(comp_fun_names, function(name_comp_fun) {
 
       if (name_comp_fun == "x_fun") {
-        vals <- drift_dm_obj$comp_funs[[name_comp_fun]](prms_model,
-                                                        drift_dm_obj$prms_solve,
-                                                        x_vec,
-                                                        one_cond,
-                                                        drift_dm_obj$ddm_opts)
+        vals <- comp_funs[[name_comp_fun]](prms_model,
+                                           prms_solve,
+                                           x_vec,
+                                           one_cond,
+                                           ddm_opts)
 
       } else {
-        vals <- drift_dm_obj$comp_funs[[name_comp_fun]](prms_model,
-                                                        drift_dm_obj$prms_solve,
-                                                        t_vec,
-                                                        one_cond,
-                                                        drift_dm_obj$ddm_opts)
+        vals <- comp_funs[[name_comp_fun]](prms_model,
+                                           prms_solve,
+                                           t_vec,
+                                           one_cond,
+                                           ddm_opts)
       }
 
       # checks

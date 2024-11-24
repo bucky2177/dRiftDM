@@ -209,9 +209,5 @@
 <circle cx='619.48' cy='368.07' r='1.78' style='stroke-width: 0.75;' />
 <circle cx='641.79' cy='396.34' r='1.78' style='stroke-width: 0.75;' />
 <polyline points='555.69,216.96 563.40,200.68 570.10,199.17 576.92,209.86 584.38,230.98 592.97,260.48 603.45,295.20 617.46,333.28 640.31,373.46 ' style='stroke-width: 0.75;' />
-<rect x='623.64' y='38.97' width='76.40' height='19.01' style='stroke-width: 0.75; fill: #FFFFFF;' />
-<line x1='625.78' y1='48.47' x2='640.03' y2='48.47' style='stroke-width: 0.75;' />
-<circle cx='632.91' cy='48.47' r='1.78' style='stroke-width: 0.75;' />
-<text x='647.16' y='51.20' style='font-size: 7.92px; font-family: sans;' textLength='49.32px' lengthAdjust='spacingAndGlyphs'>incomp_comp</text>
 </g>
 </svg>

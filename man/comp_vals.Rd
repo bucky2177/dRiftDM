@@ -8,11 +8,13 @@ comp_vals(
   drift_dm_obj,
   x_vec = NULL,
   t_vec = NULL,
-  nx = NULL,
   nt = NULL,
-  dx = NULL,
   dt = NULL,
-  t_max = NULL
+  nx = NULL,
+  dx = NULL,
+  prms_solve = NULL,
+  solver = NULL,
+  prms_matrix = NULL
 )
 }
 \arguments{

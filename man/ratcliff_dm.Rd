@@ -7,6 +7,7 @@
 ratcliff_dm(
   var_non_dec = FALSE,
   var_start = FALSE,
+  var_drift = FALSE,
   instr = NULL,
   obs_data = NULL,
   sigma = 1,

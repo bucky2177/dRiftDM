@@ -60,6 +60,8 @@ the numerical discretization of the Kolmogorov Forward Equation.}
 
 \item{mu_fun, mu_int_fun, x_fun, b_fun, dt_b_fun, nt_fun}{Optional custom
 functions defining the components of a diffusion model. See
+\code{\link[=comp_funs]{comp_funs()}}. If an argument is \code{NULL}, dRiftDM falls
+back to the respective default function, which are document in
 \code{\link[=comp_funs]{comp_funs()}}.}
 
 \item{b_coding}{an optional list, specifying how boundaries are coded. See
@@ -119,10 +121,8 @@ will want an object of one of its child classes. See
 to create/use/modify child classes.
 }
 \details{
-In general, it is not recommended to directly modify the
-entries of this list unless you are familiar with how the package works.
-Users should use the replacement methods and the
-\code{\link[=modify_flex_prms]{modify_flex_prms()}} method to modify the model. See
+To modify the entries of a model users can use the replacement methods and
+the \code{\link[=modify_flex_prms]{modify_flex_prms()}} method . See
 \code{vignette("use_ddm_models", "dRiftDM")} and
 \code{vignette("create_ddm_models", "dRiftDM")} for more information.
 }
