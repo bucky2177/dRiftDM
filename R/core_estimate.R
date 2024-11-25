@@ -1,4 +1,3 @@
-
 # FUNCTIONS FOR ESTIMATING THE PARAMETERS OF A MODEL -----------------------
 
 #' Estimate the Parameters of a drift_dm Model
@@ -108,14 +107,14 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
 
 
   # get lower upper vectors
-  lower_upper = get_lower_upper_smart(
+  lower_upper <- get_lower_upper_smart(
     drift_dm_obj = drift_dm_obj,
     lower = lower,
     upper = upper,
     labels = F
   )
-  lower = lower_upper$lower
-  upper = lower_upper$upper
+  lower <- lower_upper$lower
+  upper <- lower_upper$upper
 
   # continue checks
   if (!is.numeric(verbose) | length(verbose) != 1 | !(verbose %in% c(0, 1, 2))) {
@@ -161,25 +160,28 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
 
   # objective function to minimize
   goal_wrapper <- function(new_model_prms, drift_dm_obj, verbose) {
-
     # set (must re_evaluate! Did not use set_x_2_flex_prms to circumpass
     # validate_drift_dm)
-    drift_dm_obj$flex_prms_obj = x2prms_vals(
+    drift_dm_obj$flex_prms_obj <- x2prms_vals(
       x = new_model_prms,
       flex_prms_obj = drift_dm_obj$flex_prms_obj
     )
 
     # evaluate
-    drift_dm_obj <- tryCatch({
-      re_evaluate_model(drift_dm_obj = drift_dm_obj, eval_model = T)
-    }, silent = T, error = function(e) {
-      prms = prms_to_str(drift_dm_obj)
-      stop("Evaluation of the model failed, tried values: \n", prms)
-    })
+    drift_dm_obj <- tryCatch(
+      {
+        re_evaluate_model(drift_dm_obj = drift_dm_obj, eval_model = T)
+      },
+      silent = T,
+      error = function(e) {
+        prms <- prms_to_str(drift_dm_obj)
+        stop("Evaluation of the model failed, tried values: \n", prms)
+      }
+    )
 
     # maybe print
     if (verbose == 2) {
-      prms = prms_to_str(x = drift_dm_obj)
+      prms <- prms_to_str(x = drift_dm_obj)
       cat(
         "\033[33mINFO: Parameters\n", prms,
         "\n==> gave -log_like_val of ", -drift_dm_obj$log_like_val, "\033[0m\n",
@@ -194,9 +196,11 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
     # create clusters
     cl <- NULL
     if (de_n_cores > 1) {
-      all_funs <- c("goal_wrapper", "re_evaluate_model", "prms_to_str",
-                    "x2prms_vals", "update_special_values",
-                    "drift_dm_default_rounding", "is_numeric")
+      all_funs <- c(
+        "goal_wrapper", "re_evaluate_model", "prms_to_str",
+        "x2prms_vals", "update_special_values",
+        "drift_dm_default_rounding", "is_numeric"
+      )
       cl <- parallel::makeCluster(de_n_cores)
       parallel::clusterExport(
         cl = cl,
@@ -275,7 +279,7 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
   coef(drift_dm_obj, eval_model = T) <- final_vals
 
   if (verbose >= 1) {
-    prms = prms_to_str(drift_dm_obj)
+    prms <- prms_to_str(drift_dm_obj)
     cat(
       "\033[33mINFO: Parameters\n", prms,
       "\n==> gave -log_like_val of ", -drift_dm_obj$log_like_val, "\033[0m\n",

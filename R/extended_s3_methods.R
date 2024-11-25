@@ -1,4 +1,3 @@
-
 # FOR DRIFT_DM OBJECTS ----------------------------------------------------
 
 
@@ -48,20 +47,19 @@ nobs.drift_dm <- function(object, ...) {
 #'
 #' @export
 logLik.drift_dm <- function(object, ...) {
-
   # check if data is supplied and maybe re_evaluate
   if (is.null(object$obs_data)) {
     warning("No data in model. Returning NULL")
     return(NULL)
   }
   if (is.null(object$log_like_val)) {
-    object = re_evaluate_model(object)
+    object <- re_evaluate_model(object)
   }
 
-  val = object$log_like_val
-  class(val) = "logLik"
-  attr(val, "nobs") = nobs(object)
-  attr(val, "df") = get_number_prms(object$flex_prms_obj)
+  val <- object$log_like_val
+  class(val) <- "logLik"
+  attr(val, "nobs") <- nobs(object)
+  attr(val, "df") <- get_number_prms(object$flex_prms_obj)
   return(val)
 }
 
@@ -120,28 +118,27 @@ logLik.drift_dm <- function(object, ...) {
 #'
 #' @export
 coef.drift_dm <- function(object, ..., select_unique = T) {
-
   # if unique, get labels for prm cond combos, extract the respective
   # values from the parameter matrix, and simplify parameter.cond labels
   # if cond is the same
   if (select_unique) {
-    prms_cond_combo = prms_cond_combo(object)
-    prm_matrix = object$flex_prms_obj$prms_matrix
-    prms = sapply(1:ncol(prms_cond_combo), function(idx){
-      prm = prms_cond_combo[1, idx]
-      cond = prms_cond_combo[2, idx]
+    prms_cond_combo <- prms_cond_combo(object)
+    prm_matrix <- object$flex_prms_obj$prms_matrix
+    prms <- sapply(1:ncol(prms_cond_combo), function(idx) {
+      prm <- prms_cond_combo[1, idx]
+      cond <- prms_cond_combo[2, idx]
       prm_matrix[cond, prm]
     })
-    names(prms) = prm_cond_combo_2_labels(prms_cond_combo)
+    names(prms) <- prm_cond_combo_2_labels(prms_cond_combo)
     return(prms)
   } else {
-    prms_matrix = object$flex_prms_obj$prms_matrix
-    cust_prms_matrix = lapply(
+    prms_matrix <- object$flex_prms_obj$prms_matrix
+    cust_prms_matrix <- lapply(
       object$flex_prms_obj$cust_prms$values,
       \(x) return(x)
     )
-    cust_prms_matrix = do.call(cbind, cust_prms_matrix)
-    all_prms = cbind(prms_matrix, cust_prms_matrix)
+    cust_prms_matrix <- do.call(cbind, cust_prms_matrix)
+    all_prms <- cbind(prms_matrix, cust_prms_matrix)
     return(all_prms)
   }
 }
@@ -173,7 +170,7 @@ coef.drift_dm <- function(object, ..., select_unique = T) {
 #'
 #' @export
 logLik.fits_ids_dm <- function(object, ...) {
-  stats = calc_stats(object, type = "fit_stats")
+  stats <- calc_stats(object, type = "fit_stats")
   return(stats[c("ID", "Log_Like")])
 }
 
@@ -181,7 +178,7 @@ logLik.fits_ids_dm <- function(object, ...) {
 #' @importFrom stats AIC
 #' @export
 AIC.fits_ids_dm <- function(object, ..., k = 2) {
-  stats = calc_stats(object, type = "fit_stats", k = k)
+  stats <- calc_stats(object, type = "fit_stats", k = k)
   return(stats[c("ID", "AIC")])
 }
 
@@ -189,7 +186,7 @@ AIC.fits_ids_dm <- function(object, ..., k = 2) {
 #' @importFrom stats BIC
 #' @export
 BIC.fits_ids_dm <- function(object, ...) {
-  stats = calc_stats(object, type = "fit_stats")
+  stats <- calc_stats(object, type = "fit_stats")
   return(stats[c("ID", "BIC")])
 }
 
@@ -198,24 +195,25 @@ BIC.fits_ids_dm <- function(object, ...) {
 coef.fits_ids_dm <- function(object, ...) {
   all_coefs <- lapply(object$all_fits, function(x) coef(x, ...))
   # special treatment of the ID, because coef might return a matrix or vector
-  all_coefs = lapply(names(all_coefs), function(x){
-
-    one_coef = all_coefs[[x]]
+  all_coefs <- lapply(names(all_coefs), function(x) {
+    one_coef <- all_coefs[[x]]
     if (is.vector(one_coef)) {
-      one_coef = t(as.matrix(one_coef))
-      return_val = data.frame(ID = x, one_coef)
+      one_coef <- t(as.matrix(one_coef))
+      return_val <- data.frame(ID = x, one_coef)
     } else {
-      return_val = cbind(ID = x, Cond = rownames(one_coef),
-                         data.frame(one_coef))
+      return_val <- cbind(
+        ID = x, Cond = rownames(one_coef),
+        data.frame(one_coef)
+      )
     }
     return(return_val)
   })
-  all_coefs = do.call("rbind", all_coefs)
+  all_coefs <- do.call("rbind", all_coefs)
   rownames(all_coefs) <- NULL
-  all_coefs$ID = try_cast_numeric(all_coefs$ID)
-  all_coefs = all_coefs[order(all_coefs$ID),]
-  rownames(all_coefs) = NULL
-  class(all_coefs) = c("coefs_dm", "data.frame")
+  all_coefs$ID <- try_cast_numeric(all_coefs$ID)
+  all_coefs <- all_coefs[order(all_coefs$ID), ]
+  rownames(all_coefs) <- NULL
+  class(all_coefs) <- c("coefs_dm", "data.frame")
   return(all_coefs)
 }
 
@@ -233,7 +231,7 @@ coef.fits_ids_dm <- function(object, ...) {
 #' @return a numeric vector if conversion succeeds; otherwise, the original
 #' vector is returned.
 #'
-try_cast_numeric = function(values) {
+try_cast_numeric <- function(values) {
   values <- tryCatch(
     as.numeric(values),
     error = function(e) values,
@@ -241,5 +239,3 @@ try_cast_numeric = function(values) {
   )
   return(values)
 }
-
-

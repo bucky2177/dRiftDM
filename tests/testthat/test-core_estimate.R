@@ -61,23 +61,23 @@ test_that("input checks estimate_model", {
 
   expect_error(
     estimate_model(a_model,
-                   lower = c(a = 1, 2, 3), upper = c(5, 3, 4)
+      lower = c(a = 1, 2, 3), upper = c(5, 3, 4)
     ),
     "does not provide a name for each entry"
   )
 
   expect_error(
     estimate_model(a_model,
-                   lower = c(muc = 1, b = 0.3, foo = 0.4),
-                   upper = c(muc = 3, b = 5, non_dec = 0.4)
+      lower = c(muc = 1, b = 0.3, foo = 0.4),
+      upper = c(muc = 3, b = 5, non_dec = 0.4)
     ),
     "don't match with the model parameters"
   )
 
   expect_error(
     estimate_model(a_model,
-                       lower = c(muc = 1, b = 0.3, non_dec = 0.4),
-                       upper = c(muc = 3, foo = 5, non_dec = 0.4)
+      lower = c(muc = 1, b = 0.3, non_dec = 0.4),
+      upper = c(muc = 3, foo = 5, non_dec = 0.4)
     ),
     "don't match with the model parameters"
   )
@@ -129,11 +129,11 @@ test_that("input checks estimate_model", {
   # some check with list
   expect_error(
     estimate_model(a_model,
-                   lower = list(
-                     default_values = c(muc = 1, b = 0.3, non_dec = 0.4),
-                     null = c(foo = 3)
-                   ),
-                   upper = c(muc = 3, b = 5, non_dec = 0.4)
+      lower = list(
+        default_values = c(muc = 1, b = 0.3, non_dec = 0.4),
+        null = c(foo = 3)
+      ),
+      upper = c(muc = 3, b = 5, non_dec = 0.4)
     ),
     "not part of the default values"
   )
@@ -154,9 +154,10 @@ test_that("snapshot of the model running through nmkb", {
 })
 
 test_that("behavior of DE and nmkb toggles", {
-  a_model <- suppressWarnings(dmc_dm(t_max = 1, dt = 0.01, dx = 0.1,
-                    instr = "b + sd_non_dec + tau + a + A + alpha <!>")
-  )
+  a_model <- suppressWarnings(dmc_dm(
+    t_max = 1, dt = 0.01, dx = 0.1,
+    instr = "b + sd_non_dec + tau + a + A + alpha <!>"
+  ))
   subject <- simulate_data(a_model, n = 300, seed = 1)
   obs_data(a_model) <- subject
 

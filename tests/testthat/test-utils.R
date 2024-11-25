@@ -7,7 +7,7 @@ test_that("global variables are as expected", {
   expect_identical(drift_dm_default_rounding(), 3)
   expect_identical(drift_dm_default_probs(), seq(0.1, 0.9, 0.1))
 
-  b_coding_list = drift_dm_default_b_coding()
+  b_coding_list <- drift_dm_default_b_coding()
   expect_identical(b_coding_list$column, "Error")
   expect_identical(b_coding_list$u_name_value, c(corr = 0))
   expect_identical(b_coding_list$l_name_value, c(err = 1))
@@ -17,7 +17,7 @@ test_that("global variables are as expected", {
 
 test_that("prms_to_str works as expected", {
   expect_equal(
-    prms_to_str(c("as", "bas", "mu_"), c(1,2,3)),
+    prms_to_str(c("as", "bas", "mu_"), c(1, 2, 3)),
     "as=>1\nbas=>2\nmu_=>3"
   )
 
@@ -47,7 +47,7 @@ test_that("prms_to_str input checks", {
   ), "not a valid numeric")
 
   expect_error(prms_to_str(
-    x = c("a", "b"),  prms = c(1, 2, 3),
+    x = c("a", "b"), prms = c(1, 2, 3),
     round_digits = 3
   ), "don't match")
 
@@ -123,43 +123,54 @@ test_that("check_if_named_vector input checks", {
 
 
 test_that("prm_cond_combo_2_labels and prms_cond_combo", {
-
   # test case 1
-  a_model = drift_dm(prms_model = c(a = 2, b = 2), conds = c("i", "c"),
-                     subclass = "test")
+  a_model <- drift_dm(
+    prms_model = c(a = 2, b = 2), conds = c("i", "c"),
+    subclass = "test"
+  )
 
-  prms_cond_combo_1 = prms_cond_combo(a_model)
-  expect_identical(prms_cond_combo_1,
-                   matrix(c("a", "b", "i", "i"), nrow = 2, byrow = T))
+  prms_cond_combo_1 <- prms_cond_combo(a_model)
+  expect_identical(
+    prms_cond_combo_1,
+    matrix(c("a", "b", "i", "i"), nrow = 2, byrow = T)
+  )
 
-  expect_identical(prm_cond_combo_2_labels(prms_cond_combo_1),
-                   c("a", "b"))
+  expect_identical(
+    prm_cond_combo_2_labels(prms_cond_combo_1),
+    c("a", "b")
+  )
 
   # test case 2
-  a_model = drift_dm(prms_model = c(a = 2, b = 2, c = 2),
-                     conds = c("i", "c", "d"),
-                     subclass = "test", instr = "b ~ ")
+  a_model <- drift_dm(
+    prms_model = c(a = 2, b = 2, c = 2),
+    conds = c("i", "c", "d"),
+    subclass = "test", instr = "b ~ "
+  )
 
-  prms_cond_combo_2 = prms_cond_combo(a_model)
-  expect_identical(prms_cond_combo_2,
-                   matrix(c("a", "b", "b", "b", "c",
-                            "i", "i", "c", "d", "i"), nrow = 2, byrow = T))
+  prms_cond_combo_2 <- prms_cond_combo(a_model)
+  expect_identical(
+    prms_cond_combo_2,
+    matrix(c(
+      "a", "b", "b", "b", "c",
+      "i", "i", "c", "d", "i"
+    ), nrow = 2, byrow = T)
+  )
 
-  expect_identical(prm_cond_combo_2_labels(prms_cond_combo_2),
-                   c("a", "b.i", "b.c", "b.d", "c"))
-
+  expect_identical(
+    prm_cond_combo_2_labels(prms_cond_combo_2),
+    c("a", "b.i", "b.c", "b.d", "c")
+  )
 })
 
 
 test_that("prm_con_combo_2_labels input checks", {
-
-  temp = matrix(sample(1:10, 6, TRUE))
+  temp <- matrix(sample(1:10, 6, TRUE))
   expect_error(
     prm_cond_combo_2_labels(temp),
     "is.character"
   )
 
-  temp = matrix(sample(LETTERS, 6, TRUE))
+  temp <- matrix(sample(LETTERS, 6, TRUE))
   expect_error(
     prm_cond_combo_2_labels(temp),
     "nrow"
@@ -169,29 +180,33 @@ test_that("prm_con_combo_2_labels input checks", {
     prm_cond_combo_2_labels(as.vector(temp)),
     "is.matrix"
   )
-
 })
 
 
 test_that("get_lower_upper_smart works as expected", {
-
   # test case 1 - just vectors
-  a_model = drift_dm(prms_model = c(a = 2, b = 2, c = 2),
-                    conds = c("i", "c"),
-                    subclass = "test", instr = "b ~ ")
+  a_model <- drift_dm(
+    prms_model = c(a = 2, b = 2, c = 2),
+    conds = c("i", "c"),
+    subclass = "test", instr = "b ~ "
+  )
 
-  expect_list = list(lower = c("a" = 1, "b.i" = 2, "b.c" = 2, "c" = 3),
-                     upper = c("a" = 4, "b.i" = 5, "b.c" = 5, "c" = 6))
+  expect_list <- list(
+    lower = c("a" = 1, "b.i" = 2, "b.c" = 2, "c" = 3),
+    upper = c("a" = 4, "b.i" = 5, "b.c" = 5, "c" = 6)
+  )
   expect_identical(
-    get_lower_upper_smart(a_model, c(1,2,3), c(4,5,6)),
+    get_lower_upper_smart(a_model, c(1, 2, 3), c(4, 5, 6)),
     expect_list
   )
 
 
   # continue with test case 2 - named numeric vectors
   expect_identical(
-    get_lower_upper_smart(a_model, c(b = 2, a = 1, c = 3),
-                          c(a = 4, c = 6, b = 5)),
+    get_lower_upper_smart(
+      a_model, c(b = 2, a = 1, c = 3),
+      c(a = 4, c = 6, b = 5)
+    ),
     expect_list
   )
 
@@ -199,7 +214,7 @@ test_that("get_lower_upper_smart works as expected", {
   expect_identical(
     get_lower_upper_smart(
       a_model,
-      list(default_values = c(1,2,3)),
+      list(default_values = c(1, 2, 3)),
       list(default_values = c(c = 6, b = 5, a = 4))
     ),
     expect_list
@@ -207,60 +222,70 @@ test_that("get_lower_upper_smart works as expected", {
 
 
   # continue with test case 3 - lists, but with special variation
-  expect_list$lower["b.i"] = 4
+  expect_list$lower["b.i"] <- 4
   expect_identical(
     get_lower_upper_smart(
       a_model,
-      list(default_values = c(a = 1, b = 2,c = 3),
-           i = c(b = 4)), # in cond i, let lower of b be 4
+      list(
+        default_values = c(a = 1, b = 2, c = 3),
+        i = c(b = 4)
+      ), # in cond i, let lower of b be 4
       list(default_values = c(c = 6, b = 5, a = 4))
     ),
     expect_list
   )
 
   # final check for label
-  a_model = drift_dm(prms_model = c(a = 2, b = 2, c = 2),
-                     conds = c("i", "c"),
-                     subclass = "test", instr = "b ~ ")
+  a_model <- drift_dm(
+    prms_model = c(a = 2, b = 2, c = 2),
+    conds = c("i", "c"),
+    subclass = "test", instr = "b ~ "
+  )
 
-  expect_list = list(lower = c(1, 2, 2, 3),
-                     upper = c(4, 5, 5, 6))
+  expect_list <- list(
+    lower = c(1, 2, 2, 3),
+    upper = c(4, 5, 5, 6)
+  )
   expect_identical(
     get_lower_upper_smart(
       a_model,
-      c(1,2,3),
-      c(4,5,6), labels = F
+      c(1, 2, 3),
+      c(4, 5, 6),
+      labels = F
     ),
     expect_list
   )
-
 })
 
 
 test_that("get_lower_upper_smart input checks", {
-
   # general input errors
-  a_model = drift_dm(prms_model = c(a = 2, b = 2, c = 2),
-                     conds = c("i", "c"),
-                     subclass = "test", instr = "b ~ ")
+  a_model <- drift_dm(
+    prms_model = c(a = 2, b = 2, c = 2),
+    conds = c("i", "c"),
+    subclass = "test", instr = "b ~ "
+  )
   expect_error(
     get_lower_upper_smart(
-      a_model, lower = c("1","2","3"),
+      a_model,
+      lower = c("1", "2", "3"),
       upper = c("1")
     ), "illegal data type"
   )
 
   expect_error(
     get_lower_upper_smart(
-      a_model, lower = c(1, 2),
+      a_model,
+      lower = c(1, 2),
       upper = c("1")
     ), "must match"
   )
 
   expect_error(
     get_lower_upper_smart(
-      a_model, lower = c(1, 2, 3),
-      upper = c(1,2,3),
+      a_model,
+      lower = c(1, 2, 3),
+      upper = c(1, 2, 3),
       labels = NULL
     ), "is.logical"
   )
@@ -268,8 +293,9 @@ test_that("get_lower_upper_smart input checks", {
   # check if lower < upper
   expect_warning(
     get_lower_upper_smart(
-      a_model, lower = c(1, 2, 3),
-      upper = c(0,2,3)
+      a_model,
+      lower = c(1, 2, 3),
+      upper = c(0, 2, 3)
     ), "larger than"
   )
 
@@ -277,8 +303,10 @@ test_that("get_lower_upper_smart input checks", {
   expect_error(
     get_lower_upper_smart(
       a_model,
-      list(i = c(b = 4),
-           i = c(b = 4)), # in cond i, let lower of b be 4
+      list(
+        i = c(b = 4),
+        i = c(b = 4)
+      ), # in cond i, let lower of b be 4
       list(default_values = c(c = 6, b = 5, a = 4))
     ),
     "with the name \\'default_values\\'"
@@ -287,8 +315,10 @@ test_that("get_lower_upper_smart input checks", {
   expect_error(
     get_lower_upper_smart(
       a_model,
-      list(default_valu = c(a = 1, b = 2,c = 3),
-           i = c(b = 4)),
+      list(
+        default_valu = c(a = 1, b = 2, c = 3),
+        i = c(b = 4)
+      ),
       list(default_values = c(c = 6, b = 5, a = 4))
     ),
     "not part of the model"
@@ -297,13 +327,12 @@ test_that("get_lower_upper_smart input checks", {
   expect_error(
     get_lower_upper_smart(
       a_model,
-      list(default_values = c(a = 1, b = 2,c = 3),
-           i = c(a = 4)),
+      list(
+        default_values = c(a = 1, b = 2, c = 3),
+        i = c(a = 4)
+      ),
       list(default_values = c(c = 6, b = 5, a = 4))
     ),
     "not unique across conditions"
   )
-
-
 })
-

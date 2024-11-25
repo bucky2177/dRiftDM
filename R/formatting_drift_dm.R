@@ -31,9 +31,9 @@ print.drift_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
   if (is.null(drift_dm_obj$obs_data)) {
     cat("NULL")
   } else {
-    n_trials <- lapply(drift_dm_obj$obs_data,lengths,)
+    n_trials <- lapply(drift_dm_obj$obs_data, lengths, )
     n_trials <- rowSums(do.call(cbind, n_trials))
-    trials_out = paste(n_trials, "trials", names(n_trials))
+    trials_out <- paste(n_trials, "trials", names(n_trials))
     cat(paste(trials_out, collapse = "; "))
   }
   cat("\n")
@@ -106,7 +106,7 @@ summary.drift_dm <- function(object, ...) {
 
   ans$fit_stats <- NULL
   if (!is.null(drift_dm_obj$log_like_val)) {
-    fit_stats = calc_stats(drift_dm_obj, type = "fit_stats")
+    fit_stats <- calc_stats(drift_dm_obj, type = "fit_stats")
     ans$fit_stats <- c(
       Log_Like = fit_stats[["Log_Like"]],
       AIC = fit_stats[["AIC"]],
@@ -150,7 +150,6 @@ print.summary.drift_dm <- function(x, ...,
   fit_stats_print <- summary_obj$fit_stats
   if (!is.null(fit_stats_print)) {
     fit_stats_print <- round(fit_stats_print, round_digits)
-
   }
   print(fit_stats_print)
   cat("-------")
@@ -167,5 +166,3 @@ print.summary.drift_dm <- function(x, ...,
 
   invisible(x)
 }
-
-

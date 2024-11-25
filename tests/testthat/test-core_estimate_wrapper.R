@@ -207,12 +207,12 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
 
   # load one case
 
-    expect_warning(
-      load_fits_ids(
-        path = test_path("temp_fits"),
-        fit_procedure_name = "test_case_2"
-      ), "data of individual 2"
-    )
+  expect_warning(
+    load_fits_ids(
+      path = test_path("temp_fits"),
+      fit_procedure_name = "test_case_2"
+    ), "data of individual 2"
+  )
 
   # load one case
   loaded_data <- suppressWarnings(
@@ -259,7 +259,6 @@ test_that("load_fits_ids menu and erros work as expected", {
 
 
 test_that("validate_models errs as expected", {
-
   # requires estimate_model_id and load_fits_ids works as expected
   case_1 <- load_fits_ids(
     path = test_path("temp_fits"),
@@ -365,14 +364,14 @@ test_that("validate_models errs as expected", {
   )
 
   temp <- case_1
-  temp$all_fits$`1`$flex_prms_obj$prms_matrix[1,1] <- 0.5
+  temp$all_fits$`1`$flex_prms_obj$prms_matrix[1, 1] <- 0.5
   expect_error(
     validate_fits_ids(temp, progress = 0), "that are smaller than"
   )
 
 
   temp <- case_1
-  temp$all_fits$`1`$flex_prms_obj$prms_matrix[1,1] <- Inf
+  temp$all_fits$`1`$flex_prms_obj$prms_matrix[1, 1] <- Inf
   expect_error(
     validate_fits_ids(temp, progress = 0), "that are larger than"
   )
@@ -411,12 +410,15 @@ test_that("validate_models errs as expected", {
 test_that("start_vals work as expected", {
   a_model <- ratcliff_dm(t_max = 1, dt = 0.01, dx = 0.1)
   flex_prms(a_model) <- flex_prms(c(muc = 2, b = 0.5, non_dec = 0.3),
-                                  conds = c("comp", "incomp"),
-                                  instr = "b ~")
+    conds = c("comp", "incomp"),
+    instr = "b ~"
+  )
   id_1 <- simulate_data(a_model, n = 300, seed = 1)
   id_1$ID <- 1
-  start_vals <- data.frame(ID = 1, muc = 5, b.comp = 0.4, b.incomp = 0.5,
-                           non_dec = 0.2)
+  start_vals <- data.frame(
+    ID = 1, muc = 5, b.comp = 0.4, b.incomp = 0.5,
+    non_dec = 0.2
+  )
   expect_warning(
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
@@ -430,12 +432,12 @@ test_that("start_vals work as expected", {
   )
   unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
   expect_true(
-    all(unmodifed$flex_prms_obj$prms_matrix[1,] ==
-          start_vals[c("muc", "b.comp", "non_dec")])
+    all(unmodifed$flex_prms_obj$prms_matrix[1, ] ==
+      start_vals[c("muc", "b.comp", "non_dec")])
   )
   expect_true(
-    all(unmodifed$flex_prms_obj$prms_matrix[2,] ==
-          start_vals[c("muc", "b.incomp", "non_dec")])
+    all(unmodifed$flex_prms_obj$prms_matrix[2, ] ==
+      start_vals[c("muc", "b.incomp", "non_dec")])
   )
   unlink(test_path("temp"), recursive = T)
 
@@ -521,8 +523,10 @@ test_that("start_vals work as expected", {
   )
 
   # wrong order relative to free_prms should not matter
-  start_vals <- data.frame(ID = 1, b.incomp = 1, b.comp = 0.5, muc = 2,
-                           non_dec = 3)
+  start_vals <- data.frame(
+    ID = 1, b.incomp = 1, b.comp = 0.5, muc = 2,
+    non_dec = 3
+  )
   expect_warning(
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
@@ -535,7 +539,7 @@ test_that("start_vals work as expected", {
     "passing back unmodified object"
   )
   unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
-  expect_true(all(unmodifed$flex_prms_obj$prms_matrix[1,] == c(2, 0.5, 3)))
-  expect_true(all(unmodifed$flex_prms_obj$prms_matrix[2,] == c(2, 1, 3)))
+  expect_true(all(unmodifed$flex_prms_obj$prms_matrix[1, ] == c(2, 0.5, 3)))
+  expect_true(all(unmodifed$flex_prms_obj$prms_matrix[2, ] == c(2, 1, 3)))
   unlink(test_path("temp"), recursive = T)
 })

@@ -1,7 +1,6 @@
-
 # ETC ---------------------------------------------------------------------
 
-is_numeric = function(x) {
+is_numeric <- function(x) {
   is.numeric(x) & all(!is.na(x)) & all(!is.infinite(x))
 }
 
@@ -74,8 +73,8 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
   if (any(is.infinite(x))) warning(var_name, " contains infinite values")
 
   if (!allow_non_word_chars) {
-    given_names = names(x)
-    given_names = grepl('[\\W]', given_names, perl = T)
+    given_names <- names(x)
+    given_names <- grepl("[\\W]", given_names, perl = T)
     if (any(given_names)) {
       stop(var_name, " provides illegal non-alphanumeric characters")
     }
@@ -104,14 +103,12 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
 #'
 prms_to_str <- function(x, prms = NULL, round_digits = NULL,
                         sep = "=>", collapse = "\n") {
-
   if (inherits(x, "drift_dm")) {
-    prms = coef(x, select_unique = T)
-    names_prms = names(prms)
-    prms = unname(prms)
-
+    prms <- coef(x, select_unique = T)
+    names_prms <- names(prms)
+    prms <- unname(prms)
   } else {
-    names_prms = x
+    names_prms <- x
   }
 
 
@@ -172,8 +169,7 @@ prms_to_str <- function(x, prms = NULL, round_digits = NULL,
 #' vary across conditions or are selectively used for one condition), then
 #' only these parameter labels are returned
 #'
-prm_cond_combo_2_labels = function(prms_cond_combo, sep = ".") {
-
+prm_cond_combo_2_labels <- function(prms_cond_combo, sep = ".") {
   stopifnot(is.character(prms_cond_combo))
   stopifnot(is.matrix(prms_cond_combo))
   stopifnot(nrow(prms_cond_combo) == 2)
@@ -234,10 +230,7 @@ prm_cond_combo_2_labels = function(prms_cond_combo, sep = ".") {
 #' length of the entry "default_values" if it is a list).
 #'
 #' @seealso [dRiftDM::simulate_data()], [dRiftDM::simulate_values()]
-create_matrix_l_u = function(l_u, conds, prm_labels=NULL) {
-
-
-
+create_matrix_l_u <- function(l_u, conds, prm_labels = NULL) {
   if (!is.character(conds) | length(conds) == 0) {
     stop("conds must be a character vector")
   }
@@ -247,19 +240,23 @@ create_matrix_l_u = function(l_u, conds, prm_labels=NULL) {
   # otherwise, just use the vector directly
   if (is.list(l_u)) {
     if (sum(names(l_u) == "default_values") != 1) {
-      stop("remember to have (only) one entry of lower/upper with the name",
-           " 'default_values', to ensure 'default' parameter ranges")
+      stop(
+        "remember to have (only) one entry of lower/upper with the name",
+        " 'default_values', to ensure 'default' parameter ranges"
+      )
     }
 
     if ("default_values" %in% conds) {
-      stop("damn, that's unfortunate.. Your model has a condition named ",
-           "'default_values' and that clashes with the internal programming of",
-           "dRiftDM. Please rename your conditions...")
+      stop(
+        "damn, that's unfortunate.. Your model has a condition named ",
+        "'default_values' and that clashes with the internal programming of",
+        "dRiftDM. Please rename your conditions..."
+      )
     }
-    def_values = l_u$default_values
-    l_u = l_u[which(names(l_u) != "default_values")]
+    def_values <- l_u$default_values
+    l_u <- l_u[which(names(l_u) != "default_values")]
   } else if (is_numeric(l_u)) {
-    def_values = l_u
+    def_values <- l_u
   } else {
     stop("illegal data type for (values in) l_u")
   }
@@ -268,23 +265,25 @@ create_matrix_l_u = function(l_u, conds, prm_labels=NULL) {
   # if there are no parameter names coming with the default values,
   # use the supplied argument
   if (is.null(names(def_values))) {
-
     if (!is.character(prm_labels) | length(prm_labels) == 0) {
       stop("prm_labels must be a character vector")
     }
 
     if (length(def_values) != length(prm_labels)) {
-      stop("number of parameter names (prm_labels) must match the number of ",
-           "default parameters. Check your lower/upper and the model parameters")
+      stop(
+        "number of parameter names (prm_labels) must match the number of ",
+        "default parameters. Check your lower/upper and the model parameters"
+      )
     }
-    names(def_values) = prm_labels
+    names(def_values) <- prm_labels
   }
 
   # create a matrix of default values
   check_if_named_numeric_vector(x = def_values, var_name = "default_values")
   result <- do.call(rbind, replicate(length(conds), def_values,
-                                     simplify = FALSE))
-  rownames(result) = conds
+    simplify = FALSE
+  ))
+  rownames(result) <- conds
 
   # if there is a remaining list, then fill in the specific lower/upper
   # values
@@ -292,25 +291,28 @@ create_matrix_l_u = function(l_u, conds, prm_labels=NULL) {
     rem_prms_conds <- lapply(l_u, names)
 
     if (!all(unlist(rem_prms_conds) %in% colnames(result))) {
-      stop("specific lower/upper value specified for a parameter ",
-           "that is not part of the default values")
+      stop(
+        "specific lower/upper value specified for a parameter ",
+        "that is not part of the default values"
+      )
     }
 
     if (!all(names(rem_prms_conds) %in% conds)) {
-      stop("specific lower/upper values specified for a condition ",
-           "that is not part of the provided conditions")
+      stop(
+        "specific lower/upper values specified for a condition ",
+        "that is not part of the provided conditions"
+      )
     }
 
     # Fill the matrix with values from the list
     for (i in seq_along(rem_prms_conds)) {
-
-      one_cond = names(rem_prms_conds)[i]
-      prm_vals = l_u[[i]]
+      one_cond <- names(rem_prms_conds)[i]
+      prm_vals <- l_u[[i]]
 
       if (is.null(prm_vals)) {
         stop("specific lower/upper values must provide parameter names")
       }
-      prm_names = names(prm_vals)
+      prm_names <- names(prm_vals)
       result[one_cond, prm_names] <- l_u[[one_cond]]
     }
   }
@@ -352,8 +354,7 @@ create_matrix_l_u = function(l_u, conds, prm_labels=NULL) {
 #' space. The length and names (if requested) matches with
 #' coef(model, select_unique = T).
 #'
-get_lower_upper_smart = function(drift_dm_obj, lower, upper, labels = T) {
-
+get_lower_upper_smart <- function(drift_dm_obj, lower, upper, labels = T) {
   # input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -362,57 +363,65 @@ get_lower_upper_smart = function(drift_dm_obj, lower, upper, labels = T) {
 
   # specific check that non_default values are unique!
   if (is.list(lower)) {
-    lower = check_unique_special_boundary(
+    lower <- check_unique_special_boundary(
       drift_dm_obj = drift_dm_obj,
       l_u = lower
     )
   }
   if (is.list(upper)) {
-    upper = check_unique_special_boundary(
+    upper <- check_unique_special_boundary(
       drift_dm_obj = drift_dm_obj,
       l_u = upper
     )
   }
 
   # get the unique parameters
-  prm_cond_combo = prms_cond_combo(drift_dm_obj = drift_dm_obj)
-  conds = conds(drift_dm_obj)
-  prm_labels = unique(prm_cond_combo[1,])
+  prm_cond_combo <- prms_cond_combo(drift_dm_obj = drift_dm_obj)
+  conds <- conds(drift_dm_obj)
+  prm_labels <- unique(prm_cond_combo[1, ])
 
   # get the upper and lower matrices
-  lower_matrix = create_matrix_l_u(l_u = lower, conds = conds,
-                                   prm_labels = prm_labels)
-  upper_matrix = create_matrix_l_u(l_u = upper, conds = conds,
-                                   prm_labels = prm_labels)
+  lower_matrix <- create_matrix_l_u(
+    l_u = lower, conds = conds,
+    prm_labels = prm_labels
+  )
+  upper_matrix <- create_matrix_l_u(
+    l_u = upper, conds = conds,
+    prm_labels = prm_labels
+  )
 
   if (!all(colnames(lower_matrix) %in% prm_labels) ||
-      !all(colnames(upper_matrix) %in% prm_labels)) {
-    stop("parameter labels in the created lower/upper matrices for the upper ",
-         "don't match with the model parameters that are considered free")
+    !all(colnames(upper_matrix) %in% prm_labels)) {
+    stop(
+      "parameter labels in the created lower/upper matrices for the upper ",
+      "don't match with the model parameters that are considered free"
+    )
   }
 
   # get the upper and lower vectors (which works with unsorted matrices)
-  lower_vec = sapply(1:ncol(prm_cond_combo), function(idx){
-    prm = prm_cond_combo[1,idx]
-    cond = prm_cond_combo[2,idx]
+  lower_vec <- sapply(1:ncol(prm_cond_combo), function(idx) {
+    prm <- prm_cond_combo[1, idx]
+    cond <- prm_cond_combo[2, idx]
     lower_matrix[cond, prm]
   })
 
-  upper_vec = sapply(1:ncol(prm_cond_combo), function(idx){
-    prm = prm_cond_combo[1,idx]
-    cond = prm_cond_combo[2,idx]
+  upper_vec <- sapply(1:ncol(prm_cond_combo), function(idx) {
+    prm <- prm_cond_combo[1, idx]
+    cond <- prm_cond_combo[2, idx]
     upper_matrix[cond, prm]
   })
 
   if (labels) {
-    names_prms = prm_cond_combo_2_labels(prm_cond_combo)
-    names(lower_vec) = names_prms
-    names(upper_vec) = names_prms
+    names_prms <- prm_cond_combo_2_labels(prm_cond_combo)
+    names(lower_vec) <- names_prms
+    names(upper_vec) <- names_prms
   }
 
   if (any(lower_vec > upper_vec)) {
-    warning("values in the created lower vector are sometimes larger than",
-            " in the created upper vector. This likely isn't intended.")
+    warning(
+      "values in the created lower vector are sometimes larger than",
+      " in the created upper vector. This likely isn't intended."
+    )
   }
 
   return(list(lower = lower_vec, upper = upper_vec))
@@ -435,31 +444,36 @@ get_lower_upper_smart = function(drift_dm_obj, lower, upper, labels = T) {
 #' value specified is unique with respect to the `linear_internal_list`.
 #' Non-unique values for a parameter-condition combination raise an error.
 #'
-check_unique_special_boundary = function(drift_dm_obj, l_u) {
+check_unique_special_boundary <- function(drift_dm_obj, l_u) {
+  lin_list <- drift_dm_obj$flex_prms_obj$linear_internal_list
 
-  lin_list = drift_dm_obj$flex_prms_obj$linear_internal_list
-
-  red_list = l_u
-  red_list$default_values = NULL
-  conds = names(red_list)
-  check = setdiff(conds, conds(drift_dm_obj))
+  red_list <- l_u
+  red_list$default_values <- NULL
+  conds <- names(red_list)
+  check <- setdiff(conds, conds(drift_dm_obj))
   if (length(check) > 0) {
-    stop("special value specified for conditions ", paste(check, sep = ", "),
-         ". This condition is not part of the model.")
+    stop(
+      "special value specified for conditions ", paste(check, sep = ", "),
+      ". This condition is not part of the model."
+    )
   }
 
   for (one_cond in conds) {
-    prms = names(red_list[[one_cond]])
+    prms <- names(red_list[[one_cond]])
     for (one_prm in prms) {
-      lin_list_vals = sapply(lin_list[[one_prm]], function(x){
-        if (is.expression(x)) return(NULL)
+      lin_list_vals <- sapply(lin_list[[one_prm]], function(x) {
+        if (is.expression(x)) {
+          return(NULL)
+        }
         return(x)
       })
-      lin_list_vals = unlist(lin_list_vals)
-      value_to_check = lin_list_vals[[one_cond]]
+      lin_list_vals <- unlist(lin_list_vals)
+      value_to_check <- lin_list_vals[[one_cond]]
       if (sum(lin_list_vals == value_to_check) > 1) {
-        stop("specified a special lower/upper value for the parameter ",
-             one_prm, ", which, however is not unique across conditions")
+        stop(
+          "specified a special lower/upper value for the parameter ",
+          one_prm, ", which, however is not unique across conditions"
+        )
       }
     }
   }

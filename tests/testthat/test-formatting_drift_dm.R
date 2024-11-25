@@ -54,7 +54,9 @@ test_that("summary.drift_dm works as expected", {
 
   expect_identical(
     names(summary_model),
-    c("class", "summary_flex_prms", "prms_solve", "solver", "obs_data",
-      "fit_stats")
+    c(
+      "class", "summary_flex_prms", "prms_solve", "solver", "obs_data",
+      "fit_stats"
+    )
   )
 })

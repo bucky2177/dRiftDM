@@ -1,4 +1,3 @@
-
 # FUNCTIONS FOR GETTING THE PDF OF A MODEL --------------------------------
 
 #' Calculate the PDFs
@@ -40,9 +39,8 @@ calc_pdfs <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
 #' @rdname calc_pdfs
 #' @export
 calc_pdfs.ratcliff_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
-
   # check if variability in drift rate is requested
-  prms_matrix = drift_dm_obj$flex_prms_obj$prms_matrix
+  prms_matrix <- drift_dm_obj$flex_prms_obj$prms_matrix
   if (all("sd_muc" != colnames(prms_matrix))) {
     return(NextMethod("calc_pdfs", drift_dm_obj))
   }
@@ -52,32 +50,40 @@ calc_pdfs.ratcliff_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
     stop("parameter sd_muc found, but no parameter muc")
   }
 
+  # and check if constant drift rate was not modified
+  if (!all.equal(drift_dm_obj$comp_funs$mu_fun, mu_constant)) {
+    stop("Ratcliff DDM with variable drift rate requires dRiftDM's",
+         " mu_constant function")
+  }
+
+
   # do the quadrature
-  X = c(-2.02018287, -0.95857246,  0. ,  0.95857246,  2.02018287)
-  W = c(0.01995324, 0.39361932, 0.94530872, 0.39361932, 0.01995324)
-  wgts = W/sqrt(3.141592653589793)
+  X <- c(-2.02018287, -0.95857246, 0., 0.95857246, 2.02018287)
+  W <- c(0.01995324, 0.39361932, 0.94530872, 0.39361932, 0.01995324)
+  wgts <- W / sqrt(3.141592653589793)
 
   # iterate multiple times over calc_pdfs
-  all_pdfs = lapply(1:length(W), \(q) {
-
+  all_pdfs <- lapply(1:length(W), \(q) {
     # update muc
-    drift_dm_obj$flex_prms_obj$prms_matrix[,"muc"] =
-      sqrt(2.0) * prms_matrix[,"sd_muc"] * X[q] + prms_matrix[, "muc"]
+    drift_dm_obj$flex_prms_obj$prms_matrix[, "muc"] <-
+      sqrt(2.0) * prms_matrix[, "sd_muc"] * X[q] + prms_matrix[, "muc"]
 
     # get PDFs
-    pdfs = calc_pdfs.drift_dm(drift_dm_obj = drift_dm_obj, x_vec = x_vec,
-                              t_vec = t_vec, prms_solve = prms_solve)
+    pdfs <- calc_pdfs.drift_dm(
+      drift_dm_obj = drift_dm_obj, x_vec = x_vec,
+      t_vec = t_vec, prms_solve = prms_solve
+    )
     return(pdfs)
   })
 
   # add up
-  conds = rownames(prms_matrix)
-  pdfs = sapply(conds, \(one_cond){
-    pdf_u = rowSums(sapply(1:length(all_pdfs), \(idx){
+  conds <- rownames(prms_matrix)
+  pdfs <- sapply(conds, \(one_cond){
+    pdf_u <- rowSums(sapply(1:length(all_pdfs), \(idx){
       all_pdfs[[idx]][[one_cond]]$pdf_u * wgts[idx]
     }))
 
-    pdf_l = rowSums(sapply(1:length(all_pdfs), \(idx){
+    pdf_l <- rowSums(sapply(1:length(all_pdfs), \(idx){
       all_pdfs[[idx]][[one_cond]]$pdf_l * wgts[idx]
     }))
     return(list(pdf_u = pdf_u, pdf_l = pdf_l))
@@ -89,7 +95,6 @@ calc_pdfs.ratcliff_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
 #' @rdname calc_pdfs
 #' @export
 calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
-
   # unpack parameters and conditions
   nt <- prms_solve[["nt"]]
   dt <- prms_solve[["dt"]]
@@ -97,27 +102,28 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
   dx <- prms_solve[["dx"]]
   sigma <- prms_solve[["sigma"]]
   solver <- drift_dm_obj$solver
-  prms_matrix = drift_dm_obj$flex_prms_obj$prms_matrix
+  prms_matrix <- drift_dm_obj$flex_prms_obj$prms_matrix
   conds <- rownames(prms_matrix)
 
   # get the component functions
-  comp_vals = comp_vals(drift_dm_obj = drift_dm_obj, x_vec = x_vec,
-                        t_vec = t_vec, nt = nt, dt = dt, nx = nx, dx = dx,
-                        prms_solve = prms_solve, solver = solver,
-                        prms_matrix = prms_matrix)
+  comp_vals <- comp_vals(
+    drift_dm_obj = drift_dm_obj, x_vec = x_vec,
+    t_vec = t_vec, nt = nt, dt = dt, nx = nx, dx = dx,
+    prms_solve = prms_solve, solver = solver,
+    prms_matrix = prms_matrix
+  )
 
 
   # Second, calculate the pdfs
   pdfs <- sapply(conds, function(one_cond) {
-
     # unpack component values
-    comp_vals_one_cond = comp_vals[[one_cond]]
-    x_vals = comp_vals_one_cond$x_vals
-    b_vals = comp_vals_one_cond$b_vals
-    mu_vals = comp_vals_one_cond$mu_vals
-    mu_int_vals = comp_vals_one_cond$mu_int_vals
-    dt_b_vals = comp_vals_one_cond$dt_b_vals
-    nt_vals = comp_vals_one_cond$nt_vals
+    comp_vals_one_cond <- comp_vals[[one_cond]]
+    x_vals <- comp_vals_one_cond$x_vals
+    b_vals <- comp_vals_one_cond$b_vals
+    mu_vals <- comp_vals_one_cond$mu_vals
+    mu_int_vals <- comp_vals_one_cond$mu_int_vals
+    dt_b_vals <- comp_vals_one_cond$dt_b_vals
+    nt_vals <- comp_vals_one_cond$nt_vals
 
     # Initializing containers
     pdf_u <- numeric(nt + 1)
@@ -131,13 +137,12 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
         b_vals = b_vals, mu_vals = mu_vals,
         dt_b_vals = dt_b_vals, x_vec = x_vec
       )
-
     } else if (solver == "im_zero") {
-      im_pdfs = im_zero(t_vec, prms_solve,
-                        one_set_comp_vecs = comp_vals_one_cond)
-      pdf_u = im_pdfs$pdf_u
-      pdf_l = im_pdfs$pdf_l # TODO
-
+      im_pdfs <- im_zero(t_vec, prms_solve,
+        one_set_comp_vecs = comp_vals_one_cond
+      )
+      pdf_u <- im_pdfs$pdf_u
+      pdf_l <- im_pdfs$pdf_l # TODO
     } else {
       stop("solver '", solver, "' not implemented yet!")
     }
@@ -152,7 +157,7 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
     pdfs_one_cond <- add_residual(
       pdf_nt = nt_vals, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt,
       nt = nt
-     )
+    )
 
     return(pdfs_one_cond)
   }, simplify = F, USE.NAMES = T)
@@ -177,7 +182,6 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
 #' @returns a list of PDFs for one condition "pdf_u" and "pdf_l"
 #'
 im_zero <- function(t_vec, prms_solve, one_set_comp_vecs) {
-
   # Getting the necessary parameters
   dt <- prms_solve[["dt"]]
   nt <- prms_solve[["nt"]]
@@ -189,34 +193,46 @@ im_zero <- function(t_vec, prms_solve, one_set_comp_vecs) {
 
   # precompute and extract
   sqrt_sigma_vals <- sqrt(2.0 * pi * sigma^2 * t_vec)
-  mu_vals = one_set_comp_vecs$mu_vals
-  mu_int_vals = one_set_comp_vecs$mu_int_vals
-  b_vals = one_set_comp_vecs$b_vals
-  dt_b_vals = one_set_comp_vecs$dt_b_vals
+  mu_vals <- one_set_comp_vecs$mu_vals
+  mu_int_vals <- one_set_comp_vecs$mu_int_vals
+  b_vals <- one_set_comp_vecs$b_vals
+  dt_b_vals <- one_set_comp_vecs$dt_b_vals
 
 
   for (t_i in 2:nt) {
     # @Thomas: Muss mu_int_vals[1] nicht immer logischerweise 0 sein?
-    pdf_u[t_i] <- -2 * psi(b_vals[t_i], t_vec[t_i], dt_b_vals[t_i], mu_vals[t_i],
-                        mu_int_vals[t_i], mu_int_vals[1], sqrt_sigma_vals[t_i])
-    pdf_l[t_i] <- +2 * psi(-b_vals[t_i], t_vec[t_i], -dt_b_vals[t_i], mu_vals[t_i],
-                        mu_int_vals[t_i], mu_int_vals[1], sqrt_sigma_vals[t_i])
+    pdf_u[t_i] <- -2 * psi(
+      b_vals[t_i], t_vec[t_i], dt_b_vals[t_i], mu_vals[t_i],
+      mu_int_vals[t_i], mu_int_vals[1], sqrt_sigma_vals[t_i]
+    )
+    pdf_l[t_i] <- +2 * psi(
+      -b_vals[t_i], t_vec[t_i], -dt_b_vals[t_i], mu_vals[t_i],
+      mu_int_vals[t_i], mu_int_vals[1], sqrt_sigma_vals[t_i]
+    )
 
 
     if (t_i > 2) {
-      F11 <- ff(t_vec, b_vals, b_vals, mu_int_vals, sqrt_sigma_vals,
-                2 * sigma^2, dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2))
-      F12 <- ff(t_vec, b_vals, -b_vals, mu_int_vals, sqrt_sigma_vals,
-                2 * sigma^2, dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2))
-      F21 <- ff(t_vec, -b_vals, b_vals, mu_int_vals, sqrt_sigma_vals,
-                2 * sigma^2, -dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2))
-      F22 <- ff(t_vec, -b_vals, -b_vals, mu_int_vals, sqrt_sigma_vals,
-                2 * sigma^2, -dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2))
+      F11 <- ff(
+        t_vec, b_vals, b_vals, mu_int_vals, sqrt_sigma_vals,
+        2 * sigma^2, dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2)
+      )
+      F12 <- ff(
+        t_vec, b_vals, -b_vals, mu_int_vals, sqrt_sigma_vals,
+        2 * sigma^2, dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2)
+      )
+      F21 <- ff(
+        t_vec, -b_vals, b_vals, mu_int_vals, sqrt_sigma_vals,
+        2 * sigma^2, -dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2)
+      )
+      F22 <- ff(
+        t_vec, -b_vals, -b_vals, mu_int_vals, sqrt_sigma_vals,
+        2 * sigma^2, -dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2)
+      )
 
       pdf_u[t_i] <- pdf_u[t_i] +
-        2 * dt * (sum(pdf_u[2:(t_i-1)] * F11) + sum(pdf_l[2:(t_i-1)] * F12))
+        2 * dt * (sum(pdf_u[2:(t_i - 1)] * F11) + sum(pdf_l[2:(t_i - 1)] * F12))
       pdf_l[t_i] <- pdf_l[t_i] -
-        2 * dt * (sum(pdf_u[2:(t_i-1)] * F21) + sum(pdf_l[2:(t_i-1)] * F22))
+        2 * dt * (sum(pdf_u[2:(t_i - 1)] * F21) + sum(pdf_l[2:(t_i - 1)] * F22))
     }
   }
 
@@ -226,36 +242,32 @@ im_zero <- function(t_vec, prms_solve, one_set_comp_vecs) {
 # psi for Z = 0 and ta = 0
 psi <- function(b_val_i, t_val_i, dt_b_val_i, mu_val_i, mu_int_val_i,
                 mu_int_val_0, sqrt_sigma_i) {
-
   # f() wenn Z = 0 und ta = 0
-  num1 = 1 / sqrt_sigma_i * exp(
-    -(b_val_i - mu_int_val_i + mu_int_val_0)^2 / (sqrt_sigma_i^2/pi)
+  num1 <- 1 / sqrt_sigma_i * exp(
+    -(b_val_i - mu_int_val_i + mu_int_val_0)^2 / (sqrt_sigma_i^2 / pi)
   )
 
-  num2 = (dt_b_val_i - mu_val_i -
-            (b_val_i - mu_int_val_i + mu_int_val_0) / t_val_i)
+  num2 <- (dt_b_val_i - mu_val_i -
+    (b_val_i - mu_int_val_i + mu_int_val_0) / t_val_i)
 
-  return(num1*num2/2)
+  return(num1 * num2 / 2)
 }
 
 
 # ff of thomas
 ff <- function(t_vec, b_vals_1, b_vals_2, mu_int_vals, sqrt_sigma_vals,
                sigma_sq, dt_b_val_i, mu_val_i, t_i, idxs) {
+  temp <- b_vals_1[t_i] - b_vals_2[idxs + 1] - mu_int_vals[t_i] + mu_int_vals[idxs + 1]
 
+  t_temp <- t_vec[t_i] - t_vec[idxs + 1]
 
-  temp = b_vals_1[t_i] - b_vals_2[idxs + 1] - mu_int_vals[t_i] + mu_int_vals[idxs + 1]
+  multipl <- 1 / sqrt_sigma_vals[t_i - idxs]
 
-  t_temp = t_vec[t_i] - t_vec[idxs + 1]
+  exp_val <- exp(-temp^2 / (sigma_sq * t_temp))
 
-  multipl = 1 / sqrt_sigma_vals[t_i - idxs]
+  denom <- (dt_b_val_i - mu_val_i - temp / t_temp)
 
-  exp_val = exp(-temp^2 / (sigma_sq * t_temp))
-
-  denom = (dt_b_val_i - mu_val_i - temp / t_temp)
-
-  return(multipl * exp_val/2 * denom)
-
+  return(multipl * exp_val / 2 * denom)
 }
 
 
@@ -356,8 +368,9 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
 #' @returns a single value of the log-likelihood
 #'
 calc_log_like <- function(pdfs, t_vec, obs_data, conds) {
-
-  if (is.null(obs_data)) return(NULL)
+  if (is.null(obs_data)) {
+    return(NULL)
+  }
 
   log_like <- 0
 

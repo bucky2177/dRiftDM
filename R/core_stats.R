@@ -1,4 +1,3 @@
-
 # FUNCTIONS FOR CALCULATING THE CAF ---------------------------------------
 
 #' Calculate CAFs
@@ -27,7 +26,6 @@
 #'
 #'
 calc_cafs_obs <- function(rts_u, rts_l, one_cond, n_bins) {
-
   # cut (all) RTs into n bins
   rts <- c(rts_u, rts_l)
   probs <- seq(0, 1, length.out = n_bins + 1)
@@ -115,7 +113,6 @@ calc_cafs_pred <- function(pdf_u, pdf_l, one_cond, n_bins) {
 #'
 calc_cafs <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL, rts_l = NULL,
                       one_cond, n_bins = NULL, b_coding) {
-
   # default settings and parameter extraction
   if (is.null(n_bins)) {
     n_bins <- 5
@@ -143,7 +140,7 @@ calc_cafs <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL, rts_l = NULL,
 
   # calculate the respective statistics
   # if pdfs are supplied ...
-  result_pred = NULL
+  result_pred <- NULL
   if (!is.null(pdf_u)) {
     result_pred <- calc_cafs_pred(
       pdf_u = pdf_u, pdf_l = pdf_l,
@@ -154,7 +151,7 @@ calc_cafs <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL, rts_l = NULL,
       paste("P", u_name, sep = "_")
   }
 
-  result_obs = NULL
+  result_obs <- NULL
   if (!is.null(rts_u)) {
     result_obs <- calc_cafs_obs(
       rts_u = rts_u, rts_l = rts_l,
@@ -168,11 +165,13 @@ calc_cafs <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL, rts_l = NULL,
 
 
   # combine
-  result = rbind(result_obs, result_pred)
+  result <- rbind(result_obs, result_pred)
 
   # make it stats_dm class and pass back
-  stats_dm_obj = new_stats_dm(stat_df = result, type = "cafs",
-                              b_coding = b_coding)
+  stats_dm_obj <- new_stats_dm(
+    stat_df = result, type = "cafs",
+    b_coding = b_coding
+  )
   return(stats_dm_obj)
 }
 
@@ -286,7 +285,6 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs,
 calc_quantiles <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL,
                            rts_u = NULL, rts_l = NULL, one_cond,
                            probs = NULL, b_coding) {
-
   # default settings and parameter extraction
   if (is.null(probs)) {
     probs <- drift_dm_default_probs()
@@ -315,7 +313,7 @@ calc_quantiles <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL,
 
   # calculate the respective statistics
   # if pdfs are supplied ...
-  result_pred = NULL
+  result_pred <- NULL
   if (!is.null(pdf_u)) {
     result_pred <- calc_quantiles_pred(
       pdf_u = pdf_u, pdf_l = pdf_l,
@@ -332,7 +330,7 @@ calc_quantiles <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL,
 
 
   # if rts are supplied ...
-  result_obs = NULL
+  result_obs <- NULL
   if (!is.null(rts_u)) {
     result_obs <- calc_quantiles_obs(
       rts_u = rts_u, rts_l = rts_l,
@@ -349,11 +347,13 @@ calc_quantiles <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL,
 
 
   # maybe combine
-  result = rbind(result_obs, result_pred)
+  result <- rbind(result_obs, result_pred)
 
   # make it dm_* class and pass back
-  stats_dm_obj = new_stats_dm(stat_df = result, type = "quantiles",
-                              b_coding = b_coding)
+  stats_dm_obj <- new_stats_dm(
+    stat_df = result, type = "quantiles",
+    b_coding = b_coding
+  )
   return(stats_dm_obj)
 }
 
@@ -398,7 +398,7 @@ calc_quantiles <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL,
 #' @seealso [dRiftDM::new_stats_dm()]
 #'
 calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
-                           dvs = NULL, b_coding) {
+                            dvs = NULL, b_coding) {
   # input checks on data frame
   if (!is.data.frame(quantiles_dat)) {
     stop("the provided quantiles_dat is not a data.frame")
@@ -455,8 +455,10 @@ calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
       minuends <- rep(minuends, length(dvs))
       subtrahends <- rep(subtrahends, length(dvs))
     } else {
-      stop("if several dvs are provided, the length must match",
-      " minuends/subtrahends")
+      stop(
+        "if several dvs are provided, the length must match",
+        " minuends/subtrahends"
+      )
     }
   }
 
@@ -480,20 +482,24 @@ calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
   # calculate delta functions
   if (length(dvs) == 1) {
     delta_names <- paste("Delta",
-                         paste(minuends, subtrahends, sep = "_"),
-                         sep = "_")
+      paste(minuends, subtrahends, sep = "_"),
+      sep = "_"
+    )
     avg_names <- paste("Avg",
-                       paste(minuends, subtrahends, sep = "_"),
-                       sep = "_")
+      paste(minuends, subtrahends, sep = "_"),
+      sep = "_"
+    )
   } else {
     delta_names <- paste("Delta", gsub("^Quant_", "", dvs), sep = "_")
     avg_names <- paste("Avg", gsub("^Quant_", "", dvs), sep = "_")
     delta_names <- paste(delta_names,
-                         paste(minuends, subtrahends, sep = "_"),
-                         sep = "_")
+      paste(minuends, subtrahends, sep = "_"),
+      sep = "_"
+    )
     avg_names <- paste(avg_names,
-                       paste(minuends, subtrahends, sep = "_"),
-                       sep = "_")
+      paste(minuends, subtrahends, sep = "_"),
+      sep = "_"
+    )
   }
   minuends_wide <- paste(dvs, minuends, sep = "_")
   subtrahends_wide <- paste(dvs, subtrahends, sep = "_")
@@ -509,8 +515,10 @@ calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
 
   # make it stats_dm class and pass back
   # since delta_funs depends on quantiles, this will remove the quantiles class
-  stats_dm_obj = new_stats_dm(stat_df = quantiles_dat, type = "delta_funs",
-                              b_coding = b_coding)
+  stats_dm_obj <- new_stats_dm(
+    stat_df = quantiles_dat, type = "delta_funs",
+    b_coding = b_coding
+  )
   return(stats_dm_obj)
 }
 
@@ -543,20 +551,19 @@ calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
 #' @seealso [dRiftDM::new_stats_dm()], [dRiftDM::logLik.drift_dm]
 #'
 calc_ic <- function(drift_dm_obj, ...) {
-
-  dots = list(...)
+  dots <- list(...)
   if (is.null(dots$k)) {
-    k = 2
+    k <- 2
   } else {
-    k = dots$k
+    k <- dots$k
   }
 
-  ll = logLik(drift_dm_obj)
+  ll <- logLik(drift_dm_obj)
   aic <- stats::AIC(ll, k = k)
   bic <- stats::BIC(ll)
 
-  result = data.frame(Log_Like = ll, AIC = aic, BIC = bic)
-  stats_obj = new_stats_dm(stat_df = result, type = "fit_stats")
+  result <- data.frame(Log_Like = ll, AIC = aic, BIC = bic)
+  stats_obj <- new_stats_dm(stat_df = result, type = "fit_stats")
   return(stats_obj)
 }
 
@@ -774,13 +781,12 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #'
 #' @export
 calc_stats <- function(object, type, ...) {
-
   if (length(type) > 1) {
-    all_stats = sapply(type, function(one_type){
+    all_stats <- sapply(type, function(one_type) {
       calc_stats(object = object, type = one_type, ...)
     }, simplify = F, USE.NAMES = T)
 
-    class(all_stats) = c("list_stats_dm", "list")
+    class(all_stats) <- c("list_stats_dm", "list")
     return(all_stats)
   }
 
@@ -793,7 +799,6 @@ calc_stats <- function(object, type, ...) {
 calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
                                   average = F, split_by_ID = T,
                                   b_coding = NULL) {
-
   obs_data <- object
 
   # verbose check
@@ -803,17 +808,17 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
 
   # get b_coding
   if (is.null(b_coding)) {
-    b_coding = drift_dm_default_b_coding()
+    b_coding <- drift_dm_default_b_coding()
   }
 
   #  split by ID, but check if it actually exists
   if (split_by_ID & ("ID" %in% colnames(obs_data))) {
-
-
-    obs_data <- check_raw_data(obs_data = obs_data,
-                               b_coding_column = b_coding$column,
-                               u_value = b_coding$u_name_value,
-                               l_value = b_coding$l_name_value)
+    obs_data <- check_raw_data(
+      obs_data = obs_data,
+      b_coding_column = b_coding$column,
+      u_value = b_coding$u_name_value,
+      l_value = b_coding$l_name_value
+    )
     list_obs_data <- split(x = obs_data, f = obs_data$ID)
 
 
@@ -827,22 +832,23 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
       pb$tick(0)
     }
 
-    all_results = lapply(names(list_obs_data), function(id){
-      stat = calc_stats(object = list_obs_data[[id]], type = type,
-                        split_by_ID = F, ...)
-      stat_id = cbind(ID = try_cast_numeric(id), stat)
-      stat_id = copy_class_attributes(old = stat, new = stat_id)
+    all_results <- lapply(names(list_obs_data), function(id) {
+      stat <- calc_stats(
+        object = list_obs_data[[id]], type = type,
+        split_by_ID = F, ...
+      )
+      stat_id <- cbind(ID = try_cast_numeric(id), stat)
+      stat_id <- copy_class_attributes(old = stat, new = stat_id)
       if (verbose == 1) pb$tick()
       return(stat_id)
     })
-    results = do.call("rbind", all_results) # preserves class and attributes
-    results = results[order(results$ID),]
-    rownames(results) = NULL
-
+    results <- do.call("rbind", all_results) # preserves class and attributes
+    results <- results[order(results$ID), ]
+    rownames(results) <- NULL
   } else { # else "ignore" ID column (also the case when it does not exist)
 
     # turn to list of rts, as stored in any dm_object
-    rts = obs_data_to_rt_lists(obs_data = obs_data, b_coding = b_coding)
+    rts <- obs_data_to_rt_lists(obs_data = obs_data, b_coding = b_coding)
 
     all_rts_u <- rts$rts_u
     all_rts_l <- rts$rts_l
@@ -851,23 +857,25 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
 
 
     # get the conds
-    data_conds = unique(obs_data$Cond)
+    data_conds <- unique(obs_data$Cond)
     if (is.null(conds)) {
-      conds = data_conds
+      conds <- data_conds
     } else {
-      conds = match.arg(arg = conds, choices = data_conds, several.ok = T)
+      conds <- match.arg(arg = conds, choices = data_conds, several.ok = T)
     }
 
     # call the internal calc_stats function
-    results = calc_stats_pred_obs(type = type, b_coding = b_coding,
-                                  conds = conds,
-                                  all_rts_u = all_rts_u,
-                                  all_rts_l = all_rts_l, ...)
+    results <- calc_stats_pred_obs(
+      type = type, b_coding = b_coding,
+      conds = conds,
+      all_rts_u = all_rts_u,
+      all_rts_l = all_rts_l, ...
+    )
   }
 
   # average if necessary
   if (average) {
-    results = aggregate_stats(results)
+    results <- aggregate_stats(results)
   }
 
   return(results)
@@ -877,13 +885,12 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
 #' @rdname calc_stats
 #' @export
 calc_stats.drift_dm <- function(object, type, ..., conds = NULL) {
-
   drift_dm_obj <- object
   type <- match.arg(type, c("cafs", "quantiles", "delta_funs", "fit_stats"))
 
 
   # get b_coding
-  b_coding = attr(drift_dm_obj, "b_coding")
+  b_coding <- attr(drift_dm_obj, "b_coding")
 
   # get all rts and pdfs for quick reference
   if (is.null(drift_dm_obj$pdfs)) {
@@ -904,15 +911,17 @@ calc_stats.drift_dm <- function(object, type, ..., conds = NULL) {
   # extract pdfs and check if at least 1% of the PDFs is missing
   all_pdfs <- drift_dm_obj$pdfs
   dt <- drift_dm_obj$prms_solve[["dt"]]
-  check_loss <- sapply(all_pdfs, function(one_set_pdfs){
+  check_loss <- sapply(all_pdfs, function(one_set_pdfs) {
     sum_both <- sum(one_set_pdfs$pdf_u) * dt + sum(one_set_pdfs$pdf_l) * dt
     return(sum_both < .99)
   }, simplify = T, USE.NAMES = T)
   if (any(check_loss)) {
-    warning("calc_stats called with missing probability mass for some ",
-            "conditions (likely occured after truncating pdfs to the ",
-            "time space). Some statistics scale the pdfs! ",
-            "Interprete 'quantiles' etc. accordingly (or increase t_max).")
+    warning(
+      "calc_stats called with missing probability mass for some ",
+      "conditions (likely occured after truncating pdfs to the ",
+      "time space). Some statistics scale the pdfs! ",
+      "Interprete 'quantiles' etc. accordingly (or increase t_max)."
+    )
   }
 
 
@@ -922,19 +931,21 @@ calc_stats.drift_dm <- function(object, type, ..., conds = NULL) {
   t_vec <- seq(0, t_max, length.out = nt + 1)
 
   # get the conds
-  model_conds = conds(drift_dm_obj)
+  model_conds <- conds(drift_dm_obj)
   if (is.null(conds)) {
-    conds = model_conds
+    conds <- model_conds
   } else {
-    conds = match.arg(arg = conds, choices = model_conds, several.ok = T)
+    conds <- match.arg(arg = conds, choices = model_conds, several.ok = T)
   }
 
   # and call the underlying internal function calc_stats_pred_obs
-  result = calc_stats_pred_obs(type = type, b_coding = b_coding,
-                               conds = conds, all_pdfs = all_pdfs,
-                               all_rts_u = drift_dm_obj$obs_data$rts_u,
-                               all_rts_l = drift_dm_obj$obs_data$rts_l,
-                               t_vec = t_vec, ...)
+  result <- calc_stats_pred_obs(
+    type = type, b_coding = b_coding,
+    conds = conds, all_pdfs = all_pdfs,
+    all_rts_u = drift_dm_obj$obs_data$rts_u,
+    all_rts_l = drift_dm_obj$obs_data$rts_l,
+    t_vec = t_vec, ...
+  )
 
   return(result)
 }
@@ -944,8 +955,6 @@ calc_stats.drift_dm <- function(object, type, ..., conds = NULL) {
 #' @export
 calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
                                    average = F) {
-
-
   fits_ids <- object
 
   if (!(verbose %in% c(0, 1))) {
@@ -968,18 +977,18 @@ calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
   all_results <-
     lapply(names(fits_ids$all_fits), function(id) {
       stat <- calc_stats(object = fits_ids$all_fits[[id]], type = type, ...)
-      stat_id = cbind(ID = try_cast_numeric(id), stat)
-      stat_id = copy_class_attributes(old = stat, new = stat_id)
+      stat_id <- cbind(ID = try_cast_numeric(id), stat)
+      stat_id <- copy_class_attributes(old = stat, new = stat_id)
       if (verbose == 1) pb$tick()
       return(stat_id)
     })
-  results = do.call("rbind", all_results) # preserves class and attributes
-  results = results[order(results$ID),]
-  rownames(results) = NULL
+  results <- do.call("rbind", all_results) # preserves class and attributes
+  results <- results[order(results$ID), ]
+  rownames(results) <- NULL
 
   # average if desired
   if (average) {
-    results = aggregate_stats(results)
+    results <- aggregate_stats(results)
   }
 
   return(results)
@@ -1021,31 +1030,32 @@ calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
 #' @return An object of class `stats_dm`, with additional classes and attributes
 #' depending on `type`.
 #'
-new_stats_dm = function(stat_df, type, ...) {
-
+new_stats_dm <- function(stat_df, type, ...) {
   # input checks
   stopifnot(is.data.frame(stat_df))
-  type = match.arg(arg = type,
-                   choices = c("cafs", "quantiles", "delta_funs", "fit_stats"))
+  type <- match.arg(
+    arg = type,
+    choices = c("cafs", "quantiles", "delta_funs", "fit_stats")
+  )
 
   # define the stat_df object as an object of class stats_dm
-  class(stat_df) = c("stats_dm", "data.frame")
+  class(stat_df) <- c("stats_dm", "data.frame")
 
   # if cafs, quantiles, delta_funs, add b_coding and more info about object
-  dots = list(...)
+  dots <- list(...)
   if (type %in% c("cafs", "quantiles", "delta_funs")) {
-    b_coding = dots$b_coding
+    b_coding <- dots$b_coding
     stopifnot(!is.null(b_coding))
-    attr(stat_df, "b_coding") = b_coding
-    class(stat_df) = c(type, "sum_dist", class(stat_df))
+    attr(stat_df, "b_coding") <- b_coding
+    class(stat_df) <- c(type, "sum_dist", class(stat_df))
 
-  # if fit_stats, add the object info
+    # if fit_stats, add the object info
   } else if (type == "fit_stats") {
-    class(stat_df) = c(type, class(stat_df))
+    class(stat_df) <- c(type, class(stat_df))
   }
 
   # check if everything went well
-  stat_df = validate_stats_dm(stat_df)
+  stat_df <- validate_stats_dm(stat_df)
   return(stat_df)
 }
 
@@ -1087,15 +1097,14 @@ new_stats_dm = function(stat_df, type, ...) {
 #'
 #' @return Returns the unmodified `stat_df` for convenience.
 #'
-validate_stats_dm = function(stat_df) {
+validate_stats_dm <- function(stat_df) {
   UseMethod("validate_stats_dm")
 }
 
 
 #' @rdname validate_stats_dm
 #' @export
-validate_stats_dm.cafs = function(stat_df) {
-
+validate_stats_dm.cafs <- function(stat_df) {
   NextMethod() # to validate sum_dist objects
 
 
@@ -1107,7 +1116,7 @@ validate_stats_dm.cafs = function(stat_df) {
     stop("no column 'Cond' in stats_dm")
   }
 
-  if (sum("P_" == substr(colnames(stat_df), 1,2)) != 1) {
+  if (sum("P_" == substr(colnames(stat_df), 1, 2)) != 1) {
     stop("no unique column 'P_' in stats_dm")
   }
   return(stat_df)
@@ -1115,8 +1124,7 @@ validate_stats_dm.cafs = function(stat_df) {
 
 #' @rdname validate_stats_dm
 #' @export
-validate_stats_dm.quantiles = function(stat_df) {
-
+validate_stats_dm.quantiles <- function(stat_df) {
   NextMethod() # to validate sum_dist objects
 
   if (!("Prob" %in% colnames(stat_df))) {
@@ -1127,7 +1135,7 @@ validate_stats_dm.quantiles = function(stat_df) {
     stop("no column 'Cond' in stats_dm")
   }
 
-  if (sum("Quant_" == substr(colnames(stat_df), 1,6)) != 2) {
+  if (sum("Quant_" == substr(colnames(stat_df), 1, 6)) != 2) {
     stop("couldn't find two Quant_ columns")
   }
 
@@ -1136,32 +1144,29 @@ validate_stats_dm.quantiles = function(stat_df) {
 
 #' @rdname validate_stats_dm
 #' @export
-validate_stats_dm.delta_funs = function(stat_df) {
-
+validate_stats_dm.delta_funs <- function(stat_df) {
   NextMethod() # to validate sum_dist objects
 
   if (!("Prob" %in% colnames(stat_df))) {
     stop("no column 'Prob' in stats_dm")
   }
 
-  if (sum("Quant_" == substr(colnames(stat_df), 1,6)) < 2) {
+  if (sum("Quant_" == substr(colnames(stat_df), 1, 6)) < 2) {
     stop("couldn't find at least two Quant_ columns")
   }
 
-  if (sum("Avg_" == substr(colnames(stat_df), 1,4)) < 1) {
+  if (sum("Avg_" == substr(colnames(stat_df), 1, 4)) < 1) {
     stop("couldn't find a Avg_ column")
   }
-  if (sum("Delta_" == substr(colnames(stat_df), 1,6)) < 1) {
+  if (sum("Delta_" == substr(colnames(stat_df), 1, 6)) < 1) {
     stop("couldn't find a Delta_ column")
   }
   return(stat_df)
-
 }
 
 #' @rdname validate_stats_dm
 #' @export
-validate_stats_dm.sum_dist = function(stat_df) {
-
+validate_stats_dm.sum_dist <- function(stat_df) {
   NextMethod() # to validate stats_dm objects
 
   if (!("Source" %in% colnames(stat_df))) {
@@ -1171,15 +1176,13 @@ validate_stats_dm.sum_dist = function(stat_df) {
     stop("no attribute b_coding in stats_dm")
   }
   return(stat_df)
-
 }
 
 
 
 #' @rdname validate_stats_dm
 #' @export
-validate_stats_dm.fit_stats = function(stat_df) {
-
+validate_stats_dm.fit_stats <- function(stat_df) {
   NextMethod() # to validate stats_dm objects
 
   if (!("Log_Like" %in% colnames(stat_df))) {
@@ -1194,14 +1197,12 @@ validate_stats_dm.fit_stats = function(stat_df) {
     stop("no column 'BIC' in stats_dm")
   }
   return(stat_df)
-
 }
 
 
 #' @rdname validate_stats_dm
 #' @export
-validate_stats_dm.stats_dm = function(stat_df) {
-
+validate_stats_dm.stats_dm <- function(stat_df) {
   if (!is.data.frame(stat_df)) {
     stop("stats_dm object to validate is not of type data.frame")
   }
@@ -1235,8 +1236,7 @@ validate_stats_dm.stats_dm = function(stat_df) {
 #' [dRiftDM::internal_aggregate()]
 #'
 aggregate_stats <- function(stat_df) {
-
-  if (!("ID" %in% colnames(stat_df))){
+  if (!("ID" %in% colnames(stat_df))) {
     return(stat_df)
   }
 
@@ -1246,37 +1246,37 @@ aggregate_stats <- function(stat_df) {
 #' @rdname aggregate_stats
 #' @export
 aggregate_stats.cafs <- function(stat_df) {
-
-  internal_aggregate(data = stat_df,
-                     group_cols = c("Source", "Cond", "Bin"))
-
+  internal_aggregate(
+    data = stat_df,
+    group_cols = c("Source", "Cond", "Bin")
+  )
 }
 
 #' @rdname aggregate_stats
 #' @export
 aggregate_stats.quantiles <- function(stat_df) {
-
-  internal_aggregate(data = stat_df,
-                     group_cols = c("Source", "Cond", "Prob"))
-
+  internal_aggregate(
+    data = stat_df,
+    group_cols = c("Source", "Cond", "Prob")
+  )
 }
 
 #' @rdname aggregate_stats
 #' @export
 aggregate_stats.delta_funs <- function(stat_df) {
-
-  internal_aggregate(data = stat_df,
-                     group_cols = c("Source", "Prob"))
-
+  internal_aggregate(
+    data = stat_df,
+    group_cols = c("Source", "Prob")
+  )
 }
 
 #' @rdname aggregate_stats
 #' @export
 aggregate_stats.fit_stats <- function(stat_df) {
-
-  internal_aggregate(data = stat_df,
-                     group_cols = NULL)
-
+  internal_aggregate(
+    data = stat_df,
+    group_cols = NULL
+  )
 }
 
 
@@ -1303,26 +1303,26 @@ aggregate_stats.fit_stats <- function(stat_df) {
 #' @seealso [dRiftDM::aggregate_stats()], [dRiftDM::calc_stats()],
 #' [dRiftDM::new_stats_dm()]
 #'
-internal_aggregate = function(data, group_cols) {
-
-  all_cols = colnames(data)
+internal_aggregate <- function(data, group_cols) {
+  all_cols <- colnames(data)
 
   # Select columns that start don't start with the group_cols or ID
   dv_cols <- all_cols[!(colnames(data) %in% c("ID", group_cols))]
 
   # Aggregate by ID for those columns
   agg_df <- stats::aggregate(data[dv_cols],
-                             data[rev(group_cols)],
-                             FUN = mean,
-                             na.rm = T)
+    data[rev(group_cols)],
+    FUN = mean,
+    na.rm = T
+  )
 
   # reorder columns to have consistency with the supplied data.frame
   agg_df <- agg_df[c(group_cols, dv_cols)]
 
   # keep class and attriubtes and pass back
-  agg_df = copy_class_attributes(old = data, new = agg_df)
+  agg_df <- copy_class_attributes(old = data, new = agg_df)
 
-  agg_df = validate_stats_dm(agg_df)
+  agg_df <- validate_stats_dm(agg_df)
 
   return(agg_df)
 }
@@ -1347,21 +1347,20 @@ internal_aggregate = function(data, group_cols) {
 #' `old`. Note also, that the order of attributes is not ensured.
 #'
 #'
-copy_class_attributes = function(old, new) {
+copy_class_attributes <- function(old, new) {
   UseMethod("copy_class_attributes")
 }
 
 
 #' @rdname copy_class_attributes
 #' @export
-copy_class_attributes.stats_dm = function(old, new) {
-
+copy_class_attributes.stats_dm <- function(old, new) {
   stopifnot(class(new) %in% class(old))
-  lost_attribtues = setdiff(names(attributes(old)), names(attributes(new)))
+  lost_attribtues <- setdiff(names(attributes(old)), names(attributes(new)))
 
-  class(new) = class(old) #ensures sorting
+  class(new) <- class(old) # ensures sorting
   for (one_attr in lost_attribtues) { # doesn't ensure sorting
-    attr(new, one_attr) = attr(old, one_attr)
+    attr(new, one_attr) <- attr(old, one_attr)
   }
 
   return(new)

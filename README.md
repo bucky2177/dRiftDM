@@ -61,17 +61,15 @@ library(dRiftDM)
 #> 
 #>  ----- 
 #> Welcome to dRiftDM 0.2.0 
-#> This is a first version... 
-#> Please report any bugs/unexpected  
-#> behavior to koob@uni-bremen.de 
+#> Please report any bugs or unexpected behavior 
 #>  ------ 
 #>     \   ^__^ 
 #>      \  (oo)\ ________ 
 #>         (__)\         )\ /\ 
 #>              ||------w|
 #>              ||      ||
-dmc_model = dmc_dm(dx = .002, dt = .002, t_max = 1.2)
-obs_data(dmc_model) = dmc_synth_data
+dmc_model <- dmc_dm(dx = .002, dt = .002, t_max = 1.2)
+obs_data(dmc_model) <- dmc_synth_data
 print(dmc_model)
 #> Class(es): dmc_dm, drift_dm
 #> 
@@ -101,11 +99,11 @@ print(dmc_model)
 ```
 
 ``` r
-est_model = estimate_model(
-  drift_dm_obj = dmc_model,                       # a model
-  lower = c(2, 0.4, 0.2, 0.005, 0.02, 0.02, 2),   # lower boundary - search space
-  upper = c(6, 0.8, 0.5, 0.050, 0.12, 0.30, 7),   # upper boundary - search space
-  verbose = 2,                                    # print out each evaluation
+est_model <- estimate_model(
+  drift_dm_obj = dmc_model, # a model
+  lower = c(2, 0.4, 0.2, 0.005, 0.02, 0.02, 2), # lower boundary - search space
+  upper = c(6, 0.8, 0.5, 0.050, 0.12, 0.30, 7), # upper boundary - search space
+  verbose = 2, # print out each evaluation
   use_de_optim = F, use_nmkb = T # use Nelder-Mead for demonstration
 )
 ```

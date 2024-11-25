@@ -136,8 +136,10 @@ for a \code{fits_ids_dm} object) doesn't make sense.
 conds <- c("foo", "bar")
 prms <- c(a = 3, b = 4)
 one_instr <- "a ~ foo + bar"
-flex_prms_obj <- flex_prms(prms, conds = conds,
-                           instr = one_instr)
+flex_prms_obj <- flex_prms(prms,
+  conds = conds,
+  instr = one_instr
+)
 
 }
 \seealso{

@@ -1,4 +1,3 @@
-
 # FUNCTONS FOR PRINTING/SUMMARIZING ---------------------------------------
 
 #' @rdname load_fits_ids
@@ -99,7 +98,7 @@ summary.fits_ids_dm <- function(object, ...) {
   ans$fit_procedure_name <- fits_ids$drift_dm_fit_info$fit_procedure_name
   ans$time_call <- fits_ids$drift_dm_fit_info$time_call
 
-  l_u = get_lower_upper_smart(
+  l_u <- get_lower_upper_smart(
     drift_dm_obj = fits_ids$drift_dm_fit_info$drift_dm_obj,
     lower = fits_ids$drift_dm_fit_info$lower,
     upper = fits_ids$drift_dm_fit_info$upper
@@ -112,15 +111,17 @@ summary.fits_ids_dm <- function(object, ...) {
   )
   all_prms <- coef(fits_ids, select_unique = F)
   ans$prms <- all_prms
-  prm_names = colnames(all_prms)[!(colnames(all_prms) %in% c("ID", "Cond"))]
+  prm_names <- colnames(all_prms)[!(colnames(all_prms) %in% c("ID", "Cond"))]
   means <- stats::aggregate(all_prms[prm_names], by = all_prms["Cond"], mean)
-  std_errs <- stats::aggregate(all_prms[prm_names], by = all_prms["Cond"],
-                         \(x) stats::sd(x) / sqrt(length(x)))
-  ans$stats <- sapply(conds(fits_ids), function(one_cond){
-    mean = means[means$Cond == one_cond,-1]
-    std_err = std_errs[means$Cond == one_cond,-1]
-    matrix = rbind(mean, std_err)
-    rownames(matrix) = c("mean", "std_err")
+  std_errs <- stats::aggregate(all_prms[prm_names],
+    by = all_prms["Cond"],
+    \(x) stats::sd(x) / sqrt(length(x))
+  )
+  ans$stats <- sapply(conds(fits_ids), function(one_cond) {
+    mean <- means[means$Cond == one_cond, -1]
+    std_err <- std_errs[means$Cond == one_cond, -1]
+    matrix <- rbind(mean, std_err)
+    rownames(matrix) <- c("mean", "std_err")
     return(matrix)
   }, simplify = F, USE.NAMES = T)
   ans$N <- length(fits_ids$all_fits)

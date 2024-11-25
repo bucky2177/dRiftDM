@@ -146,7 +146,7 @@ simulate_values <- function(lower, upper, k, distr = NULL,
   }
 
   if (is.null(distr)) {
-    distr = "unif"
+    distr <- "unif"
   }
   distr <- match.arg(distr, c("unif", "tnorm"))
 
@@ -154,7 +154,7 @@ simulate_values <- function(lower, upper, k, distr = NULL,
     stop("cast_to_data_frame must be a single logical value")
   }
 
-  if (is.logical(add_id_column) && !add_id_column) add_id_column = "none"
+  if (is.logical(add_id_column) && !add_id_column) add_id_column <- "none"
   add_id_column <- match.arg(add_id_column, c("numeric", "character", "none"))
 
   if (!is.null(seed)) {
@@ -221,5 +221,3 @@ simulate_values <- function(lower, upper, k, distr = NULL,
 
   return(prms)
 }
-
-

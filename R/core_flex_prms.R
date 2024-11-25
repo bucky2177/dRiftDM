@@ -1,5 +1,3 @@
-
-
 # FUNCTION FOR CREATING FLEX_PRMS -----------------------------------------
 
 #' Flex_Prms
@@ -106,8 +104,10 @@
 #' conds <- c("foo", "bar")
 #' prms <- c(a = 3, b = 4)
 #' one_instr <- "a ~ foo + bar"
-#' flex_prms_obj <- flex_prms(prms, conds = conds,
-#'                            instr = one_instr)
+#' flex_prms_obj <- flex_prms(prms,
+#'   conds = conds,
+#'   instr = one_instr
+#' )
 #'
 #' @export
 flex_prms <- function(object, ...) {
@@ -117,9 +117,8 @@ flex_prms <- function(object, ...) {
 
 #' @rdname flex_prms
 #' @export
-flex_prms.numeric = function(object, ..., conds, instr = NULL,
-                             messaging = NULL) {
-
+flex_prms.numeric <- function(object, ..., conds, instr = NULL,
+                              messaging = NULL) {
   prms_model <- object
 
   # input checks
@@ -131,48 +130,53 @@ flex_prms.numeric = function(object, ..., conds, instr = NULL,
     stop("conds is not a character vector of length >= 1")
   }
 
-  if (any(grepl('\\W', conds, perl = T))){
+  if (any(grepl("\\W", conds, perl = T))) {
     stop("some condition name contain illegal non-alphanumeric characters")
   }
 
 
   # extract the parmaeter values and the parameter names
-  prms_vals = unname(prms_model)
-  name_prms_model = names(prms_model)
+  prms_vals <- unname(prms_model)
+  name_prms_model <- names(prms_model)
 
 
   # create the internal_list
   internal_list <- vector("list", length(name_prms_model))
   names(internal_list) <- name_prms_model
-  internal_list = lapply(internal_list, function(x){
-    one_internal_entry = as.list(rep(1L, length(conds)))
-    names(one_internal_entry) = conds
+  internal_list <- lapply(internal_list, function(x) {
+    one_internal_entry <- as.list(rep(1L, length(conds)))
+    names(one_internal_entry) <- conds
     return(one_internal_entry)
   })
 
 
   # create the linearized internal_list
-  linear_internal_list = linearize_internal_list(internal_list)
+  linear_internal_list <- linearize_internal_list(internal_list)
 
 
   # create the matrix of all prms
-  prms_vals_matrix = matrix(rep(prms_vals, length(conds)),
-                            nrow = length(conds), byrow = TRUE)
-  rownames(prms_vals_matrix) = conds
-  colnames(prms_vals_matrix) = name_prms_model
+  prms_vals_matrix <- matrix(rep(prms_vals, length(conds)),
+    nrow = length(conds), byrow = TRUE
+  )
+  rownames(prms_vals_matrix) <- conds
+  colnames(prms_vals_matrix) <- name_prms_model
 
 
   # assemble everything
-  flex_prms_obj <- list(internal_list = internal_list,
-                        linear_internal_list = linear_internal_list,
-                        prms_matrix = prms_vals_matrix)
+  flex_prms_obj <- list(
+    internal_list = internal_list,
+    linear_internal_list = linear_internal_list,
+    prms_matrix = prms_vals_matrix
+  )
 
   class(flex_prms_obj) <- "flex_prms"
 
 
   # run optional instructions
-  flex_prms_obj = modify_flex_prms(object = flex_prms_obj, instr = instr,
-                                   messaging = messaging)
+  flex_prms_obj <- modify_flex_prms(
+    object = flex_prms_obj, instr = instr,
+    messaging = messaging
+  )
 
 
   # and pass back
@@ -198,27 +202,26 @@ flex_prms.numeric = function(object, ..., conds, instr = NULL,
 #' @details
 #' Does not perform input checks!
 #'
-x2prms_vals = function(x, flex_prms_obj) {
-
+x2prms_vals <- function(x, flex_prms_obj) {
   stopifnot(inherits(flex_prms_obj, "flex_prms"))
 
   # extract for easier adressing
-  linear_internal_list = flex_prms_obj$linear_internal_list
-  prms_matrix = flex_prms_obj$prms_matrix
+  linear_internal_list <- flex_prms_obj$linear_internal_list
+  prms_matrix <- flex_prms_obj$prms_matrix
 
   # iterate through all and update values according to x
   for (one_prm in colnames(prms_matrix)) {
     for (one_cond in rownames(prms_matrix)) {
-      prm_pos = linear_internal_list[[one_prm]][[one_cond]]
+      prm_pos <- linear_internal_list[[one_prm]][[one_cond]]
       if (is.expression(prm_pos)) next
       if (prm_pos == 0) next
-      prms_matrix[one_cond, one_prm] = x[prm_pos]
+      prms_matrix[one_cond, one_prm] <- x[prm_pos]
     }
   }
 
   # update the remaining special dependencies or custom parameters
-  flex_prms_obj$prms_matrix = prms_matrix
-  flex_prms_obj = update_special_values(flex_prms_obj)
+  flex_prms_obj$prms_matrix <- prms_matrix
+  flex_prms_obj <- update_special_values(flex_prms_obj)
 
   # and pass back
   return(flex_prms_obj)
@@ -334,17 +337,16 @@ x2prms_vals = function(x, flex_prms_obj) {
 #' @seealso [flex_prms()]
 #'
 #' @export
-modify_flex_prms = function(object, instr, ...){
+modify_flex_prms <- function(object, instr, ...) {
   UseMethod("modify_flex_prms")
 }
 
 
 #' @rdname modify_flex_prms
 #' @export
-modify_flex_prms.drift_dm = function(object, instr, ..., eval_model = F) {
-
+modify_flex_prms.drift_dm <- function(object, instr, ..., eval_model = F) {
   # replace old flex_prms_object
-  object$flex_prms_obj = modify_flex_prms(
+  object$flex_prms_obj <- modify_flex_prms(
     object$flex_prms_obj,
     instr = instr, ...
   )
@@ -364,33 +366,39 @@ modify_flex_prms.drift_dm = function(object, instr, ..., eval_model = F) {
 
 #' @rdname modify_flex_prms
 #' @export
-modify_flex_prms.flex_prms = function(object, instr, ..., messaging = NULL) {
+modify_flex_prms.flex_prms <- function(object, instr, ..., messaging = NULL) {
+  flex_prms_obj <- object
 
-  flex_prms_obj = object
-
-  if (is.null(messaging)) messaging = T
+  if (is.null(messaging)) messaging <- T
 
   if (!messaging) {
-    flex_prms_obj = suppressMessages(
-      modify_flex_prms(object = flex_prms_obj,
-                       instr = instr) # messaging = F would lead to inf. recusion
+    flex_prms_obj <- suppressMessages(
+      modify_flex_prms(
+        object = flex_prms_obj,
+        instr = instr
+      ) # messaging = F would lead to inf. recusion
     )
     return(flex_prms_obj)
   }
 
   # input checks
-  if (!inherits(flex_prms_obj, "flex_prms"))
+  if (!inherits(flex_prms_obj, "flex_prms")) {
     stop("flex_prms_obj is not of type flex_prms")
+  }
 
-  if (is.null(instr)) return(flex_prms_obj)
+  if (is.null(instr)) {
+    return(flex_prms_obj)
+  }
 
-  if (!is.character(instr))
+  if (!is.character(instr)) {
     stop("argument 'instr' must be character")
+  }
 
-  instr = paste(instr, collapse = "\n")
+  instr <- paste(instr, collapse = "\n")
 
-  if (!is.logical(messaging) | length(messaging) != 1)
+  if (!is.logical(messaging) | length(messaging) != 1) {
     stop("messaging must be single logical")
+  }
 
   # remove comments from instr
   instr <- gsub("#[^\n]*", "", instr)
@@ -399,57 +407,66 @@ modify_flex_prms.flex_prms = function(object, instr, ..., messaging = NULL) {
   # (We consider +, -, *, /, (, and [ as "special characters" here)
   instr <- gsub("([+*/\\(\\[\\-])\\s*\\n\\s*", "\\1 ", instr)
 
-  sep_instr = unlist(strsplit(x = instr, split = "\n"))
-  sep_instr = trimws(sep_instr)
-  sep_instr = sep_instr[!sapply(sep_instr, is_empty)]
+  sep_instr <- unlist(strsplit(x = instr, split = "\n"))
+  sep_instr <- trimws(sep_instr)
+  sep_instr <- sep_instr[!sapply(sep_instr, is_empty)]
 
   # if there are multiple instructions, call each sequentially and pass back
   if (length(sep_instr) > 1) {
     for (one_instr in sep_instr) {
-      flex_prms_obj = modify_flex_prms(object = flex_prms_obj,
-                                       instr = one_instr)
+      flex_prms_obj <- modify_flex_prms(
+        object = flex_prms_obj,
+        instr = one_instr
+      )
     }
     return(flex_prms_obj)
   }
 
   # otherwise run the instruction
-  one_instr = sep_instr
+  one_instr <- sep_instr
 
-  vary_string_check = "^[\\w\\s\\+]*\\s*~\\s*[\\w\\s\\+]*\\s*$"
+  vary_string_check <- "^[\\w\\s\\+]*\\s*~\\s*[\\w\\s\\+]*\\s*$"
   if (grepl(vary_string_check, one_instr, perl = TRUE)) {
     # let parameters vary - instruction
-    flex_prms_obj = flex_vary_prms(flex_prms_obj = flex_prms_obj,
-                                   formula_instr = one_instr)
-
+    flex_prms_obj <- flex_vary_prms(
+      flex_prms_obj = flex_prms_obj,
+      formula_instr = one_instr
+    )
   } else if (grepl("~!", one_instr)) {
     # set parameter fixed - instruction
-    flex_prms_obj = flex_restrain_prms(flex_prms_obj = flex_prms_obj,
-                                       formula_instr = one_instr)
-
+    flex_prms_obj <- flex_restrain_prms(
+      flex_prms_obj = flex_prms_obj,
+      formula_instr = one_instr
+    )
   } else if (grepl("=>", one_instr)) {
     # set a single parameter to a specific value
-    flex_prms_obj = flex_specific_value(flex_prms_obj = flex_prms_obj,
-                                        formula_instr = one_instr)
-
+    flex_prms_obj <- flex_specific_value(
+      flex_prms_obj = flex_prms_obj,
+      formula_instr = one_instr
+    )
   } else if (grepl("<!>", one_instr)) {
     # exclude a parameter from estimation
-    flex_prms_obj = flex_fix_prms(flex_prms_obj = flex_prms_obj,
-                                  formula_instr = one_instr)
-
+    flex_prms_obj <- flex_fix_prms(
+      flex_prms_obj = flex_prms_obj,
+      formula_instr = one_instr
+    )
   } else if (grepl("==", one_instr)) {
     # set a special dependency
-    flex_prms_obj = flex_special_dependency(flex_prms_obj = flex_prms_obj,
-                                            formula_instr = one_instr)
-
+    flex_prms_obj <- flex_special_dependency(
+      flex_prms_obj = flex_prms_obj,
+      formula_instr = one_instr
+    )
   } else if (grepl(":=", one_instr)) {
     # set a custom parameters
-    flex_prms_obj = flex_cust_prm(flex_prms_obj = flex_prms_obj,
-                                  formula_instr = one_instr)
+    flex_prms_obj <- flex_cust_prm(
+      flex_prms_obj = flex_prms_obj,
+      formula_instr = one_instr
+    )
   } else {
     stop("couldn't interprete instruction: ", one_instr)
   }
 
-  flex_prms_obj = validate_flex_prms(flex_prms_obj)
+  flex_prms_obj <- validate_flex_prms(flex_prms_obj)
 
   return(flex_prms_obj)
 }
@@ -471,44 +488,45 @@ modify_flex_prms.flex_prms = function(object, instr, ..., messaging = NULL) {
 #'
 #' @return an updated flex_prms_obj with an updated (linear) internal list
 #'
-flex_vary_prms = function(flex_prms_obj, formula_instr) {
+flex_vary_prms <- function(flex_prms_obj, formula_instr) {
+  new_list <- flex_prms_obj$internal_list
 
-  new_list = flex_prms_obj$internal_list
-
-  prms_conds = prms_conds_to_modify(
+  prms_conds <- prms_conds_to_modify(
     formula_instr = formula_instr, operation = "vary",
     all_conds = rownames(flex_prms_obj$prms_matrix),
     all_prms = colnames(flex_prms_obj$prms_matrix)
   )
-  prms_to_adress = prms_conds$prms_to_adress
-  conds_to_adress = prms_conds$conds_to_adress
+  prms_to_adress <- prms_conds$prms_to_adress
+  conds_to_adress <- prms_conds$conds_to_adress
 
   # find the special links between parameters and maybe usher a warning
   for (one_prm in prms_to_adress) {
-    one_entry = new_list[[one_prm]]
+    one_entry <- new_list[[one_prm]]
     for (one_cond in conds_to_adress) {
-      cur_val = one_entry[[one_cond]]
+      cur_val <- one_entry[[one_cond]]
 
       # check if the current value is an expression
       if (is.expression(cur_val)) {
-        warning("Freeing parameter ", one_prm, " for condition ",
-                one_cond, ". Special depencies were overwritten.")
+        warning(
+          "Freeing parameter ", one_prm, " for condition ",
+          one_cond, ". Special depencies were overwritten."
+        )
       }
     }
   }
 
   # now iterate through all parameters and modify the internal list
   for (one_prm in prms_to_adress) {
-    max_curr_number = max_number_one_internal_entry(new_list[[one_prm]])
-    new_vals = (1:length(conds_to_adress)) + max_curr_number
-    new_list[[one_prm]][conds_to_adress] = as.integer(new_vals)
-    new_list[[one_prm]] = sort_one_internal_entry(new_list[[one_prm]])
+    max_curr_number <- max_number_one_internal_entry(new_list[[one_prm]])
+    new_vals <- (1:length(conds_to_adress)) + max_curr_number
+    new_list[[one_prm]][conds_to_adress] <- as.integer(new_vals)
+    new_list[[one_prm]] <- sort_one_internal_entry(new_list[[one_prm]])
   }
 
   # set and  re-linearize to ensure everything is up-to-date
-  flex_prms_obj$internal_list = new_list
-  new_linear_list = linearize_internal_list(internal_list = new_list)
-  flex_prms_obj$linear_internal_list = new_linear_list
+  flex_prms_obj$internal_list <- new_list
+  new_linear_list <- linearize_internal_list(internal_list = new_list)
+  flex_prms_obj$linear_internal_list <- new_linear_list
 
   return(flex_prms_obj)
 }
@@ -525,34 +543,37 @@ flex_vary_prms = function(flex_prms_obj, formula_instr) {
 #'  (see [dRiftDM::modify_flex_prms])
 #' @return a modified flex_prms object
 #'
-flex_restrain_prms = function(flex_prms_obj, formula_instr) {
+flex_restrain_prms <- function(flex_prms_obj, formula_instr) {
+  new_list <- flex_prms_obj$internal_list
+  new_prms_matrix <- flex_prms_obj$prms_matrix
 
-  new_list = flex_prms_obj$internal_list
-  new_prms_matrix = flex_prms_obj$prms_matrix
-
-  prms_conds = prms_conds_to_modify(
+  prms_conds <- prms_conds_to_modify(
     formula_instr = formula_instr, operation = "restrain",
     all_conds = rownames(new_prms_matrix),
     all_prms = colnames(new_prms_matrix)
   )
-  prms_to_adress = prms_conds$prms_to_adress
-  conds_to_adress = prms_conds$conds_to_adress
+  prms_to_adress <- prms_conds$prms_to_adress
+  conds_to_adress <- prms_conds$conds_to_adress
 
   if (length(conds_to_adress) == 1) {
-    warning("restraining parameter(s) ", paste(prms_to_adress, collapse = ", "),
-            " only for one condition (", conds_to_adress, ") makes rarely",
-            " sense; double-check if your instructions led to the intended",
-            " result")
+    warning(
+      "restraining parameter(s) ", paste(prms_to_adress, collapse = ", "),
+      " only for one condition (", conds_to_adress, ") makes rarely",
+      " sense; double-check if your instructions led to the intended",
+      " result"
+    )
   }
 
   # find the special links between parameters and maybe usher a warning
   for (one_prm in prms_to_adress) {
     for (one_cond in conds_to_adress) {
-      cur_val = new_list[[one_prm]][[one_cond]]
+      cur_val <- new_list[[one_prm]][[one_cond]]
       # check if the current value is an expression
       if (is.expression(cur_val)) {
-        warning("Restraining parameter ", one_prm, " for condition ",
-                one_cond, ". Special depencies were overwritten.")
+        warning(
+          "Restraining parameter ", one_prm, " for condition ",
+          one_cond, ". Special depencies were overwritten."
+        )
       }
     }
   }
@@ -560,22 +581,22 @@ flex_restrain_prms = function(flex_prms_obj, formula_instr) {
 
   # now iterate through all parameters and modify the internal list
   for (one_prm in prms_to_adress) {
-    max_curr_number = max_number_one_internal_entry(new_list[[one_prm]])
-    new_vals = max_curr_number + 1
-    new_list[[one_prm]][conds_to_adress] = as.integer(new_vals)
-    new_list[[one_prm]] = sort_one_internal_entry(new_list[[one_prm]])
+    max_curr_number <- max_number_one_internal_entry(new_list[[one_prm]])
+    new_vals <- max_curr_number + 1
+    new_list[[one_prm]][conds_to_adress] <- as.integer(new_vals)
+    new_list[[one_prm]] <- sort_one_internal_entry(new_list[[one_prm]])
   }
 
   # afterward update the prms_matrix (average prms that are now fixed)
   for (one_prm in prms_to_adress) {
-    cur_vals = new_prms_matrix[conds_to_adress, one_prm]
-    new_prms_matrix[conds_to_adress, one_prm] = mean(cur_vals)
+    cur_vals <- new_prms_matrix[conds_to_adress, one_prm]
+    new_prms_matrix[conds_to_adress, one_prm] <- mean(cur_vals)
   }
 
   # set and re-linearize and check to ensure everything is up-to-date
-  flex_prms_obj$internal_list = new_list
-  new_linear_list = linearize_internal_list(internal_list = new_list)
-  flex_prms_obj$linear_internal_list = new_linear_list
+  flex_prms_obj$internal_list <- new_list
+  new_linear_list <- linearize_internal_list(internal_list = new_list)
+  flex_prms_obj$linear_internal_list <- new_linear_list
 
   return(flex_prms_obj)
 }
@@ -592,82 +613,88 @@ flex_restrain_prms = function(flex_prms_obj, formula_instr) {
 #'  (see [dRiftDM::modify_flex_prms])
 #' @returns an updated flex_prms object with a modified prms_matrix object
 #'
-flex_specific_value = function(flex_prms_obj, formula_instr) {
-
+flex_specific_value <- function(flex_prms_obj, formula_instr) {
   # extract the necessary information
-  prms_matrix = flex_prms_obj$prms_matrix
-  internal_list = flex_prms_obj$internal_list
+  prms_matrix <- flex_prms_obj$prms_matrix
+  internal_list <- flex_prms_obj$internal_list
 
   # get the conditions and parameters to specify
-  prms_conds = prms_conds_to_modify(
+  prms_conds <- prms_conds_to_modify(
     formula_instr = formula_instr,
     operation = "set",
     all_conds = rownames(prms_matrix),
     all_prms = colnames(prms_matrix)
   )
 
-  prms_to_adress = prms_conds$prms_to_adress
-  conds_to_adress = prms_conds$conds_to_adress
+  prms_to_adress <- prms_conds$prms_to_adress
+  conds_to_adress <- prms_conds$conds_to_adress
 
   # find the number to set and cast it to numeric
   # a check of only => being present was already done
-  formula_instr_sep = strsplit(formula_instr, "=>")[[1]]
-  vals_to_set = formula_instr_sep[2]
-  vals_to_set = strsplit(vals_to_set, split = "\\+")[[1]]
-  vals_to_set = trimws(vals_to_set)
+  formula_instr_sep <- strsplit(formula_instr, "=>")[[1]]
+  vals_to_set <- formula_instr_sep[2]
+  vals_to_set <- strsplit(vals_to_set, split = "\\+")[[1]]
+  vals_to_set <- trimws(vals_to_set)
   if (length(vals_to_set) > 1) {
-    if (length(vals_to_set) != length(conds_to_adress))
-      stop("values right of => don't match with the number of conditions",
-           " left of =>")
+    if (length(vals_to_set) != length(conds_to_adress)) {
+      stop(
+        "values right of => don't match with the number of conditions",
+        " left of =>"
+      )
+    }
   }
 
   # convert the character input to numeric
-  vals_to_set = sapply(vals_to_set, function(one_val){
+  vals_to_set <- sapply(vals_to_set, function(one_val) {
     tryCatch(as.numeric(one_val),
-             warning = function(w){
-               stop("Couldn't convert input right of => to ",
-                    "numbers. This is the expression for which ",
-                    "conversions crashed; ", formula_instr)
-             })
+      warning = function(w) {
+        stop(
+          "Couldn't convert input right of => to ",
+          "numbers. This is the expression for which ",
+          "conversions crashed; ", formula_instr
+        )
+      }
+    )
   })
 
   # find the special links between parameters and maybe usher a message
   for (one_prm in prms_to_adress) {
-    one_entry = internal_list[[one_prm]]
-    all_vals = unlist(one_entry[sapply(one_entry, is.numeric)])
+    one_entry <- internal_list[[one_prm]]
+    all_vals <- unlist(one_entry[sapply(one_entry, is.numeric)])
     for (one_cond in conds_to_adress) {
-      cur_val = one_entry[[one_cond]]
+      cur_val <- one_entry[[one_cond]]
 
       # check if the current value is an expression
       if (is.expression(cur_val)) {
-        warning("Setting a specific value for parameter ", one_prm,
-                " in condition ", one_cond, ", which has a special dependency",
-                " on other parameters. This will not have an effect.")
-
+        warning(
+          "Setting a specific value for parameter ", one_prm,
+          " in condition ", one_cond, ", which has a special dependency",
+          " on other parameters. This will not have an effect."
+        )
       } else {
-
         # check if conds_to_adress match with the number of conditions for
         # which a specific parameter is restrained
-        ident_conds = names(all_vals)[which(cur_val == all_vals)]
+        ident_conds <- names(all_vals)[which(cur_val == all_vals)]
         if (cur_val == 0) next()
-        if (length(ident_conds) >= 2 & !all(ident_conds %in% conds_to_adress))
-          message("Setting a specific value for parameter ", one_prm,
-                  " in condition ", one_cond, ". This parameter is assumed to",
-                  " be identical across conditions ",
-                  paste(ident_conds, collapse = ", "), ".",
-                  " Not problematic per se, just be aware of this"
+        if (length(ident_conds) >= 2 & !all(ident_conds %in% conds_to_adress)) {
+          message(
+            "Setting a specific value for parameter ", one_prm,
+            " in condition ", one_cond, ". This parameter is assumed to",
+            " be identical across conditions ",
+            paste(ident_conds, collapse = ", "), ".",
+            " Not problematic per se, just be aware of this"
           )
-
+        }
       }
     }
   }
 
   # then set the specific values
-  prms_matrix[conds_to_adress, prms_to_adress] = vals_to_set
-  flex_prms_obj$prms_matrix = prms_matrix
+  prms_matrix[conds_to_adress, prms_to_adress] <- vals_to_set
+  flex_prms_obj$prms_matrix <- prms_matrix
 
   # update the special dependencies etc:
-  flex_prms_obj = update_special_values(flex_prms_obj)
+  flex_prms_obj <- update_special_values(flex_prms_obj)
 
   return(flex_prms_obj)
 }
@@ -687,30 +714,30 @@ flex_specific_value = function(flex_prms_obj, formula_instr) {
 #'
 #' @return a modified flex_prms_obj with respect to the linear internal list
 #'
-flex_fix_prms = function(flex_prms_obj, formula_instr) {
+flex_fix_prms <- function(flex_prms_obj, formula_instr) {
+  new_list <- flex_prms_obj$internal_list
 
-
-  new_list = flex_prms_obj$internal_list
-
-  prms_conds = prms_conds_to_modify(
+  prms_conds <- prms_conds_to_modify(
     formula_instr = formula_instr, operation = "fix",
     all_conds = rownames(flex_prms_obj$prms_matrix),
     all_prms = colnames(flex_prms_obj$prms_matrix)
   )
-  prms_to_adress = prms_conds$prms_to_adress
-  conds_to_adress = prms_conds$conds_to_adress
+  prms_to_adress <- prms_conds$prms_to_adress
+  conds_to_adress <- prms_conds$conds_to_adress
 
 
   # find the special links between parameters and maybe usher a warning
   for (one_prm in prms_to_adress) {
-    one_entry = new_list[[one_prm]]
+    one_entry <- new_list[[one_prm]]
     for (one_cond in conds_to_adress) {
-      cur_val = one_entry[[one_cond]]
+      cur_val <- one_entry[[one_cond]]
 
       # check if the current value is an expression
       if (is.expression(cur_val)) {
-        warning("Setting parameter ", one_prm, " as fixed for condition ",
-                one_cond, ". Special depencies were overwritten.")
+        warning(
+          "Setting parameter ", one_prm, " as fixed for condition ",
+          one_cond, ". Special depencies were overwritten."
+        )
       }
     }
   }
@@ -718,14 +745,14 @@ flex_fix_prms = function(flex_prms_obj, formula_instr) {
 
   # now iterate through all parameters and modify the internal list
   for (one_prm in prms_to_adress) {
-    new_list[[one_prm]][conds_to_adress] = 0L
-    new_list[[one_prm]] = sort_one_internal_entry(new_list[[one_prm]])
+    new_list[[one_prm]][conds_to_adress] <- 0L
+    new_list[[one_prm]] <- sort_one_internal_entry(new_list[[one_prm]])
   }
 
   # set and re-linearize and check to ensure everything is up-to-date
-  flex_prms_obj$internal_list = new_list
-  new_linear_list = linearize_internal_list(internal_list = new_list)
-  flex_prms_obj$linear_internal_list = new_linear_list
+  flex_prms_obj$internal_list <- new_list
+  new_linear_list <- linearize_internal_list(internal_list = new_list)
+  flex_prms_obj$linear_internal_list <- new_linear_list
 
   return(flex_prms_obj)
 }
@@ -744,21 +771,20 @@ flex_fix_prms = function(flex_prms_obj, formula_instr) {
 #'
 #' @returns a modified flex_prms_object with a modified (linear) internal list
 #'
-flex_special_dependency = function(flex_prms_obj, formula_instr) {
-
-  new_list = flex_prms_obj$internal_list
-  model_conds = rownames(flex_prms_obj$prms_matrix)
-  model_prms = colnames(flex_prms_obj$prms_matrix)
+flex_special_dependency <- function(flex_prms_obj, formula_instr) {
+  new_list <- flex_prms_obj$internal_list
+  model_conds <- rownames(flex_prms_obj$prms_matrix)
+  model_prms <- colnames(flex_prms_obj$prms_matrix)
 
   # find the parameters for which special dependencies shall be set
-  prms_conds = prms_conds_to_modify(
+  prms_conds <- prms_conds_to_modify(
     formula_instr = formula_instr,
     operation = "dependency",
     all_conds = model_conds,
     all_prms = model_prms
   )
-  prms_to_adress = prms_conds$prms_to_adress
-  conds_to_adress = prms_conds$conds_to_adress
+  prms_to_adress <- prms_conds$prms_to_adress
+  conds_to_adress <- prms_conds$conds_to_adress
 
 
 
@@ -766,13 +792,15 @@ flex_special_dependency = function(flex_prms_obj, formula_instr) {
   # parameter that has a special instruction
   # also check if prm~cond combo is as on the left hand side and if legit names
 
-  depends_on = trimws(strsplit(formula_instr, "==")[[1]][2])
+  depends_on <- trimws(strsplit(formula_instr, "==")[[1]][2])
 
   # find the parameters and conditions on which the intended dependency builds
-  prms_regex = gregexpr("(?<=\\()[\\s]*[\\w]+[\\s]*(?=~)", depends_on,
-                        perl = TRUE)
-  conds_regex = gregexpr("(?<=~)[\\s]*[\\w]+[\\s]*(?=\\))", depends_on,
-                         perl = TRUE)
+  prms_regex <- gregexpr("(?<=\\()[\\s]*[\\w]+[\\s]*(?=~)", depends_on,
+    perl = TRUE
+  )
+  conds_regex <- gregexpr("(?<=~)[\\s]*[\\w]+[\\s]*(?=\\))", depends_on,
+    perl = TRUE
+  )
   prms_depend <- unlist(regmatches(depends_on, prms_regex))
   prms_depend <- trimws(prms_depend)
   conds_depend <- unlist(regmatches(depends_on, conds_regex))
@@ -780,23 +808,29 @@ flex_special_dependency = function(flex_prms_obj, formula_instr) {
 
   # check for legit names
   if (!any(prms_depend %in% model_prms)) {
-    stop("prms on the right hand side don't match with the model parameters. ",
-         "Found in ", formula_instr)
+    stop(
+      "prms on the right hand side don't match with the model parameters. ",
+      "Found in ", formula_instr
+    )
   }
   if (!any(conds_depend %in% model_conds)) {
-    stop("conds on the right hand side don't match with the model parameters. ",
-         "Found in ", formula_instr)
+    stop(
+      "conds on the right hand side don't match with the model parameters. ",
+      "Found in ", formula_instr
+    )
   }
 
   # go through all prms_conds_depends_on combos and check with prms_to_adress
   for (i in seq_along(conds_depend)) {
-    prms_conds_depends = paste(prms_depend, conds_depend, sep = ".")
-    prms_conds_adress = paste(prms_to_adress, conds_to_adress, sep = ".")
+    prms_conds_depends <- paste(prms_depend, conds_depend, sep = ".")
+    prms_conds_adress <- paste(prms_to_adress, conds_to_adress, sep = ".")
 
     if (any(prms_conds_depends %in% prms_conds_adress)) {
-      stop("prms~conds on the right side match with prms~conds on the left ",
-           "side. Recursive dependencies are not allowed. Found in ",
-           formula_instr)
+      stop(
+        "prms~conds on the right side match with prms~conds on the left ",
+        "side. Recursive dependencies are not allowed. Found in ",
+        formula_instr
+      )
     }
   }
 
@@ -804,33 +838,35 @@ flex_special_dependency = function(flex_prms_obj, formula_instr) {
   # now iterate through all parameters and modify the internal list
   expr <- gsub("(\\w+)\\s*~\\s*(\\w+)", "prms_matrix['\\2', '\\1']", depends_on)
   for (i in seq_along(prms_to_adress)) {
-    one_prm = prms_to_adress[i]
+    one_prm <- prms_to_adress[i]
     for (one_cond in conds_to_adress) {
-      new_list[[one_prm]][[one_cond]] = parse(text = expr)
+      new_list[[one_prm]][[one_cond]] <- parse(text = expr)
     }
-    new_list[[one_prm]] = sort_one_internal_entry(new_list[[one_prm]])
+    new_list[[one_prm]] <- sort_one_internal_entry(new_list[[one_prm]])
   }
 
 
   # set and re-linearize and check to ensure everything is up-to-date
-  flex_prms_obj$internal_list = new_list
-  new_linear_list = linearize_internal_list(internal_list = new_list)
-  flex_prms_obj$linear_internal_list = new_linear_list
+  flex_prms_obj$internal_list <- new_list
+  new_linear_list <- linearize_internal_list(internal_list = new_list)
+  flex_prms_obj$linear_internal_list <- new_linear_list
 
   # message when special dependencies are already present to be careful with
   # recursive dependencies
-  unique_mat = internal_list_to_matrix(flex_prms_obj$internal_list)
+  unique_mat <- internal_list_to_matrix(flex_prms_obj$internal_list)
   if (sum(unique_mat == "d") > 1) {
-    message("Multiple special dependencies found. dRiftDM is not yet smart ",
-            "enough to figure out all potential relationships and simply ",
-            "processes special dependencies sequentially when iterating over ",
-            "the parameter matrix. Double-check that this is not an issue in ",
-            "your case (see print(<model>))")
+    message(
+      "Multiple special dependencies found. dRiftDM is not yet smart ",
+      "enough to figure out all potential relationships and simply ",
+      "processes special dependencies sequentially when iterating over ",
+      "the parameter matrix. Double-check that this is not an issue in ",
+      "your case (see print(<model>))"
+    )
   }
 
 
   # update the special dependencies
-  flex_prms_obj = update_special_values(flex_prms_obj)
+  flex_prms_obj <- update_special_values(flex_prms_obj)
 
   return(flex_prms_obj)
 }
@@ -864,26 +900,31 @@ flex_special_dependency = function(flex_prms_obj, formula_instr) {
 #'
 #' @returns a modified flex_prms object with respect to the `cust_prms` entry
 #'
-flex_cust_prm = function(flex_prms_obj, formula_instr) {
-
+flex_cust_prm <- function(flex_prms_obj, formula_instr) {
   # extract the prm name on the left
   reg_ex <- "^\\s*(\\b\\w+)\\s*:=\\s*"
-  cust_prm_name <- regmatches(formula_instr,
-                              regexec(reg_ex, formula_instr))[[1]][2]
+  cust_prm_name <- regmatches(
+    formula_instr,
+    regexec(reg_ex, formula_instr)
+  )[[1]][2]
 
   if (is.na(cust_prm_name)) {
-    stop("left side of ", paste("'", formula_instr, "'", sep = ""), "is not ",
-         "a valid name")
+    stop(
+      "left side of ", paste("'", formula_instr, "'", sep = ""), "is not ",
+      "a valid name"
+    )
   }
 
   # derive an expression for updating the custom parameter
   # separate the right side
   split_expr <- strsplit(formula_instr, ":=")[[1]]
-  math_exp <- trimws(split_expr[2])  # Right-hand side (e.g., "(a - 2) * tau")
+  math_exp <- trimws(split_expr[2]) # Right-hand side (e.g., "(a - 2) * tau")
 
   if (is.na(math_exp)) {
-    stop("right side of ", paste("'", formula_instr, "'", sep = ""),
-         " is empty")
+    stop(
+      "right side of ", paste("'", formula_instr, "'", sep = ""),
+      " is empty"
+    )
   }
 
   # insert the prms_matrix addition
@@ -891,48 +932,50 @@ flex_cust_prm = function(flex_prms_obj, formula_instr) {
   string_exp <- gsub(pattern, "prms_matrix[, '\\2']", math_exp, perl = T)
 
   # check that the parameter names are legit
-  prms_regex = gregexpr(pattern, math_exp, perl = TRUE)
-  depends_on = unlist(regmatches(math_exp, prms_regex))
+  prms_regex <- gregexpr(pattern, math_exp, perl = TRUE)
+  depends_on <- unlist(regmatches(math_exp, prms_regex))
   if (!all(depends_on %in% colnames(flex_prms_obj$prms_matrix))) {
-    stop("right side of ", paste("'", formula_instr, "'", sep = ""),
-         " specifies parameters that are not part of the model")
+    stop(
+      "right side of ", paste("'", formula_instr, "'", sep = ""),
+      " specifies parameters that are not part of the model"
+    )
   }
 
 
   # make an expression and pack it up
-  cust_expr = list(parse(text = string_exp))
-  names(cust_expr) = cust_prm_name
+  cust_expr <- list(parse(text = string_exp))
+  names(cust_expr) <- cust_prm_name
 
   # add NA for the value to ensure the named entry is there
-  place_holder = list(NA)
-  names(place_holder) = cust_prm_name
+  place_holder <- list(NA)
+  names(place_holder) <- cust_prm_name
 
   # build up the list (if it is non_existing)
-  cust_prms = flex_prms_obj$cust_prms
+  cust_prms <- flex_prms_obj$cust_prms
   if (is.null(cust_prms)) {
     # add the expression
-    cust_prms$expressions = cust_expr
-    cust_prms$values = place_holder
-
+    cust_prms$expressions <- cust_expr
+    cust_prms$values <- place_holder
   } else {
-
     if (cust_prm_name %in% names(cust_prms$expressions)) {
-      message("Custom parameter ", cust_prm_name, " already exists.",
-           " Replacing old one")
+      message(
+        "Custom parameter ", cust_prm_name, " already exists.",
+        " Replacing old one"
+      )
     }
 
-    cust_prms$expressions[[cust_prm_name]] = NULL
-    cust_prms$values[[cust_prm_name]] = NULL
+    cust_prms$expressions[[cust_prm_name]] <- NULL
+    cust_prms$values[[cust_prm_name]] <- NULL
 
 
-    cust_prms$expressions = c(cust_prms$expressions, cust_expr)
-    cust_prms$values = c(cust_prms$values, place_holder)
+    cust_prms$expressions <- c(cust_prms$expressions, cust_expr)
+    cust_prms$values <- c(cust_prms$values, place_holder)
   }
 
 
   # update the values
-  flex_prms_obj$cust_prms = cust_prms
-  flex_prms_obj = update_special_values(flex_prms_obj)
+  flex_prms_obj$cust_prms <- cust_prms
+  flex_prms_obj <- update_special_values(flex_prms_obj)
 
   return(flex_prms_obj)
 }
@@ -959,18 +1002,17 @@ flex_cust_prm = function(flex_prms_obj, formula_instr) {
 #' [dRiftDM::flex_fix_prms()], [dRiftDM::flex_special_dependency()]
 #'
 #'
-linearize_internal_list = function(internal_list) {
-
+linearize_internal_list <- function(internal_list) {
   # count how many free parameters are there for each parameter
-  count_prms = sapply(internal_list, count_unique_prms_one_internal_entry)
-  cumsum_prms = as.integer(cumsum(count_prms))
+  count_prms <- sapply(internal_list, count_unique_prms_one_internal_entry)
+  cumsum_prms <- as.integer(cumsum(count_prms))
 
-  linear_internal_list = internal_list
+  linear_internal_list <- internal_list
 
   # create the continously increasing values for the number of parameters
   # this is a list containing the new values (requires the numbers in
   # internal list to be digits from 1 onward for those parameters that are free)
-  mapping = lapply(seq_along(count_prms), function(i) {
+  mapping <- lapply(seq_along(count_prms), function(i) {
     if (count_prms[i] == 0) {
       return(0)
     }
@@ -984,14 +1026,12 @@ linearize_internal_list = function(internal_list) {
   # the corresponding new value for those entries that are digits > 1
   # for each parameter (index) do...
   for (i in seq_along(linear_internal_list)) {
-
     # iterate through all conditions in flattened sublist
     for (j in seq_along(linear_internal_list[[i]])) {
-
-      one_val = linear_internal_list[[i]][[j]]
+      one_val <- linear_internal_list[[i]][[j]]
       # it the actual entry is a a digit larger than 0, remap it
       if (check_digit_larger_0(one_val)) {
-        linear_internal_list[[i]][[j]] = mapping[[i]][as.integer(one_val)]
+        linear_internal_list[[i]][[j]] <- mapping[[i]][as.integer(one_val)]
       }
     }
   }
@@ -1012,13 +1052,13 @@ linearize_internal_list = function(internal_list) {
 #'
 #' @returns a number
 #'
-count_unique_prms_one_internal_entry = function(one_internal_entry) {
-
-  values = one_internal_entry[sapply(one_internal_entry, \(x) !is.expression(x))]
-  if (length(values) == 0) # happens if there are only expressions
+count_unique_prms_one_internal_entry <- function(one_internal_entry) {
+  values <- one_internal_entry[sapply(one_internal_entry, \(x) !is.expression(x))]
+  if (length(values) == 0) { # happens if there are only expressions
     return(0)
-  values = unique(unlist(values))
-  checks = sapply(values, check_digit_larger_0)
+  }
+  values <- unique(unlist(values))
+  checks <- sapply(values, check_digit_larger_0)
   return(sum(checks))
 }
 
@@ -1029,7 +1069,6 @@ count_unique_prms_one_internal_entry = function(one_internal_entry) {
 #'
 #' @return TRUE or FALSE otherwise
 is_empty <- function(x) {
-
   stopifnot(length(x) <= 1)
 
   (length(x) == 0) | (all(x == ""))
@@ -1055,85 +1094,100 @@ is_empty <- function(x) {
 #' @returns a named list prms_to_adress and conds_to_adress as character
 #' vectors.
 #'
-prms_conds_to_modify = function(formula_instr, operation,
-                                all_conds, all_prms) {
-
+prms_conds_to_modify <- function(formula_instr, operation,
+                                 all_conds, all_prms) {
   # input checks
   stopifnot(is.character(formula_instr) & length(formula_instr) == 1)
-  operation = match.arg(
+  operation <- match.arg(
     arg = operation,
-    choices =  c("vary", "set", "restrain", "fix", "dependency")
+    choices = c("vary", "set", "restrain", "fix", "dependency")
   )
   stopifnot(is.character(all_conds) & length(all_conds) >= 1)
   stopifnot(is.character(all_prms) & length(all_prms) >= 1)
 
 
   # checks about the type of instruction should have happend prior to the call
-  if (operation == "vary")
+  if (operation == "vary") {
     split_vector <- strsplit(formula_instr, "~")[[1]]
+  }
 
-  if (operation == "set")
+  if (operation == "set") {
     split_vector <- strsplit(formula_instr, "=>")[[1]]
+  }
 
-  if (operation == "restrain")
+  if (operation == "restrain") {
     split_vector <- strsplit(formula_instr, "~!")[[1]]
+  }
 
-  if (operation == "fix")
+  if (operation == "fix") {
     split_vector <- strsplit(formula_instr, "<!>")[[1]]
+  }
 
-  if (operation == "dependency")
+  if (operation == "dependency") {
     split_vector <- strsplit(formula_instr, "==")[[1]]
+  }
 
 
   if (length(split_vector) > 2 & operation == "vary") {
-    stop("Only a single '~' allowed when setting parameters to vary; ",
-         "found in: ", formula_instr)
+    stop(
+      "Only a single '~' allowed when setting parameters to vary; ",
+      "found in: ", formula_instr
+    )
   }
 
   if (length(split_vector) > 2 & operation == "set") {
-    stop("Only a single '~' allowed when setting specific parameter values; ",
-         "found in: ", formula_instr)
+    stop(
+      "Only a single '~' allowed when setting specific parameter values; ",
+      "found in: ", formula_instr
+    )
   }
 
   if (length(split_vector) > 2 & operation == "restrain") {
-    stop("Only a single '~!' allowed when restraining parameters; ",
-         "found in: ", formula_instr)
+    stop(
+      "Only a single '~!' allowed when restraining parameters; ",
+      "found in: ", formula_instr
+    )
   }
 
   if (length(split_vector) > 2 & operation == "fix") {
-    stop("Only a single '<!>' allowed when setting parameters as fixed; ",
-         "found in: ", formula_instr)
+    stop(
+      "Only a single '<!>' allowed when setting parameters as fixed; ",
+      "found in: ", formula_instr
+    )
   }
 
   if (length(split_vector) > 2 & operation == "dependency") {
-    stop("Only a single '==' allowed when setting special dependencies; ",
-         "found in: ", formula_instr)
+    stop(
+      "Only a single '==' allowed when setting special dependencies; ",
+      "found in: ", formula_instr
+    )
   }
 
 
   # left hand side of == or => must be broken down further
-  if (operation == "set" | operation == "dependency")
-    split_vector = strsplit(split_vector[1], split = "~")[[1]]
+  if (operation == "set" | operation == "dependency") {
+    split_vector <- strsplit(split_vector[1], split = "~")[[1]]
+  }
 
   # check if multiple "~" were found
   if (length(split_vector) > 2) {
-    stop ("there were more than one '~' to indicate conditions and parameters")
+    stop("there were more than one '~' to indicate conditions and parameters")
   }
 
 
   # happens for formula_instr like "~" (i.e., when there is nothing at the
   # start of the string; in this case add "" and proceed
   if (length(split_vector) == 1) {
-    split_vector = append(split_vector, "")
+    split_vector <- append(split_vector, "")
   }
 
   # get the conditions and parameters to set
-  prms_to_adress = split_vector[1]
-  conds_to_adress = split_vector[2]
+  prms_to_adress <- split_vector[1]
+  conds_to_adress <- split_vector[2]
 
   # split based on + signs in case multiple parameters/conditions were specified
-  prms_to_adress = strsplit(prms_to_adress, "\\+")[[1]]
-  conds_to_adress = strsplit(conds_to_adress, "\\+")[[1]]
+  prms_to_adress <- strsplit(prms_to_adress, "\\+")[[1]]
+  conds_to_adress <- strsplit(conds_to_adress, "\\+")[[1]]
 
   # trim remaining white space
   prms_to_adress <- trimws(prms_to_adress)
@@ -1142,26 +1196,32 @@ prms_conds_to_modify = function(formula_instr, operation,
 
   # adress all prms if corresponding vector was ""
   if (all(sapply(prms_to_adress, is_empty))) {
-    prms_to_adress = all_prms
+    prms_to_adress <- all_prms
   }
 
   # adress all conds if corresponding vector was ""
   if (all(sapply(conds_to_adress, is_empty))) {
-    conds_to_adress = all_conds
+    conds_to_adress <- all_conds
   }
 
   # final checks
   if (!all(conds_to_adress %in% all_conds)) {
-    stop("some conditions in the instructions don't match with the conditions",
-         " of the model. Found in: ", formula_instr)
+    stop(
+      "some conditions in the instructions don't match with the conditions",
+      " of the model. Found in: ", formula_instr
+    )
   }
   if (!all(prms_to_adress %in% all_prms)) {
-    stop("some parameters in the instructions don't match with the parameters",
-         " of the model. Found in: ", formula_instr)
+    stop(
+      "some parameters in the instructions don't match with the parameters",
+      " of the model. Found in: ", formula_instr
+    )
   }
 
-  return(list(prms_to_adress = prms_to_adress,
-              conds_to_adress = conds_to_adress))
+  return(list(
+    prms_to_adress = prms_to_adress,
+    conds_to_adress = conds_to_adress
+  ))
 }
 
 
@@ -1179,19 +1239,22 @@ prms_conds_to_modify = function(formula_instr, operation,
 #' expressions). The largest number of the linear_list corresponds to the number
 #' of model parameters.
 #'
-max_number_one_internal_entry = function(one_internal_entry) {
-
-  vals = sapply(one_internal_entry, function(x){
-    if (is.expression(x)) return(0)
+max_number_one_internal_entry <- function(one_internal_entry) {
+  vals <- sapply(one_internal_entry, function(x) {
+    if (is.expression(x)) {
+      return(0)
+    }
     return(x)
   })
   return(max(vals))
 }
 
 #' @rdname max_number_one_internal_entry
-get_number_prms = function(flex_prms_obj) {
-  vals = sapply(flex_prms_obj$linear_internal_list,
-                max_number_one_internal_entry)
+get_number_prms <- function(flex_prms_obj) {
+  vals <- sapply(
+    flex_prms_obj$linear_internal_list,
+    max_number_one_internal_entry
+  )
   return(max(vals))
 }
 
@@ -1209,16 +1272,15 @@ get_number_prms = function(flex_prms_obj) {
 #'
 #' @returns the newly sorted entry as a list
 #'
-sort_one_internal_entry = function(one_internal_entry) {
-
+sort_one_internal_entry <- function(one_internal_entry) {
   stopifnot(!is.null(names(one_internal_entry)))
-  new_entry = one_internal_entry
+  new_entry <- one_internal_entry
 
   # works also for entries with only expressions
-  numbers = new_entry[sapply(new_entry, check_digit_larger_0)]
-  numbers = unlist(numbers)
-  new_numbers = match(numbers, unique(numbers))
-  new_entry[names(numbers)] = new_numbers
+  numbers <- new_entry[sapply(new_entry, check_digit_larger_0)]
+  numbers <- unlist(numbers)
+  new_numbers <- match(numbers, unique(numbers))
+  new_entry[names(numbers)] <- new_numbers
 
   return(new_entry)
 }
@@ -1232,12 +1294,13 @@ sort_one_internal_entry = function(one_internal_entry) {
 #'
 #' @return a single logical
 #'
-check_digit_larger_0 = function(x) {
-
+check_digit_larger_0 <- function(x) {
   stopifnot(length(x) == 1)
   stopifnot(is.expression(x) || is_numeric(x))
 
-  if (is.expression(x)) return(F)
+  if (is.expression(x)) {
+    return(F)
+  }
   return(x > 0)
 }
 
@@ -1253,38 +1316,37 @@ check_digit_larger_0 = function(x) {
 #' @returns the modified flex_prms_obj (i.e,. with the updated prms_matrix and
 #'  the updated cust_prms$values)
 #'
-update_special_values = function(flex_prms_obj) {
+update_special_values <- function(flex_prms_obj) {
+  prms_matrix <- flex_prms_obj$prms_matrix
 
-  prms_matrix = flex_prms_obj$prms_matrix
+  prm_names <- colnames(flex_prms_obj$prms_matrix)
+  cond_names <- rownames(flex_prms_obj$prms_matrix)
 
-  prm_names = colnames(flex_prms_obj$prms_matrix)
-  cond_names = rownames(flex_prms_obj$prms_matrix)
-
-  linear_internal_list = flex_prms_obj$linear_internal_list
+  linear_internal_list <- flex_prms_obj$linear_internal_list
 
 
   # update the special dependencies
   # iterate again to update all special dependencies
   for (one_prm in prm_names) {
     for (one_cond in cond_names) {
-      cur_val = linear_internal_list[[one_prm]][[one_cond]]
+      cur_val <- linear_internal_list[[one_prm]][[one_cond]]
       if (!is.expression(cur_val)) next
-      prms_matrix[one_cond, one_prm] = eval(cur_val) # requires prms_matrix
+      prms_matrix[one_cond, one_prm] <- eval(cur_val) # requires prms_matrix
     }
   }
 
 
   # update the custom parameters (if they exist)
-  cust_prms = flex_prms_obj$cust_prms
+  cust_prms <- flex_prms_obj$cust_prms
   if (!is.null(cust_prms)) {
     for (one_name in names(cust_prms$expressions)) {
-      cust_prms$values[[one_name]] = eval(cust_prms$expressions[[one_name]])
+      cust_prms$values[[one_name]] <- eval(cust_prms$expressions[[one_name]])
     }
   }
 
   # re-assemble and pass back
-  flex_prms_obj$prms_matrix = prms_matrix
-  flex_prms_obj$cust_prms = cust_prms
+  flex_prms_obj$prms_matrix <- prms_matrix
+  flex_prms_obj$cust_prms <- cust_prms
 
   return(flex_prms_obj)
 }
@@ -1302,19 +1364,18 @@ update_special_values = function(flex_prms_obj) {
 #'
 #' @returns the unmodified flex_prms_obj object; only stop/warning statements
 #'
-validate_flex_prms = function(flex_prms_obj) {
-
-  if(!inherits(flex_prms_obj, "flex_prms")) {
-    stop ("provided flex_prms_obj argument is not of type flex_prms")
+validate_flex_prms <- function(flex_prms_obj) {
+  if (!inherits(flex_prms_obj, "flex_prms")) {
+    stop("provided flex_prms_obj argument is not of type flex_prms")
   }
 
-  internal_list = flex_prms_obj$internal_list
-  linear_internal_list = flex_prms_obj$linear_internal_list
-  prms_matrix = flex_prms_obj$prms_matrix
-  cust_prms = flex_prms_obj$cust_prms
+  internal_list <- flex_prms_obj$internal_list
+  linear_internal_list <- flex_prms_obj$linear_internal_list
+  prms_matrix <- flex_prms_obj$prms_matrix
+  cust_prms <- flex_prms_obj$cust_prms
 
-  prm_names = colnames(flex_prms_obj$prms_matrix)
-  cond_names = rownames(flex_prms_obj$prms_matrix)
+  prm_names <- colnames(flex_prms_obj$prms_matrix)
+  cond_names <- rownames(flex_prms_obj$prms_matrix)
 
 
   # check the matrix and names
@@ -1326,7 +1387,7 @@ validate_flex_prms = function(flex_prms_obj) {
     stop("condition with no name found in prms_matrix of flex_prms_obj")
   }
 
-  if (any(grepl('\\W', cond_names, perl = T))) {
+  if (any(grepl("\\W", cond_names, perl = T))) {
     stop("some condition name contain illegal non-alphanumeric characters")
   }
 
@@ -1338,9 +1399,8 @@ validate_flex_prms = function(flex_prms_obj) {
     stop("parameter with no name found in prms_matrix of flex_prms_obj")
   }
 
-  if (any(grepl('\\W', prm_names, perl = T))) {
+  if (any(grepl("\\W", prm_names, perl = T))) {
     stop("some parameter names contain illegal non-alphanumeric characters")
-
   }
 
   if (anyDuplicated(cond_names) > 0) {
@@ -1356,12 +1416,14 @@ validate_flex_prms = function(flex_prms_obj) {
   # involves check that prms_matrix is a numeric matrix with unique parameter
   # entries
   for (one_cond in cond_names) {
-    x = prms_matrix[one_cond,]
-    names(x) = colnames(prms_matrix) # might be dropped if only 1 column exists
-    check_if_named_numeric_vector(x = x,
-                                  labels = prm_names,
-                                  length = ncol(prms_matrix),
-                                  var_name = "one row of parameter matrix")
+    x <- prms_matrix[one_cond, ]
+    names(x) <- colnames(prms_matrix) # might be dropped if only 1 column exists
+    check_if_named_numeric_vector(
+      x = x,
+      labels = prm_names,
+      length = ncol(prms_matrix),
+      var_name = "one row of parameter matrix"
+    )
   }
 
 
@@ -1369,12 +1431,14 @@ validate_flex_prms = function(flex_prms_obj) {
   if (!is.list(internal_list) | !is.list(linear_internal_list)) {
     stop("internal_list or linear_internal_list is not of type list")
   }
-  internal_list = check_internal_list(internal_list = internal_list,
-                                      prm_names = prm_names,
-                                      cond_names = cond_names)
+  internal_list <- check_internal_list(
+    internal_list = internal_list,
+    prm_names = prm_names,
+    cond_names = cond_names
+  )
 
   # check the linear internal list
-  linear_internal_list = check_internal_list(
+  linear_internal_list <- check_internal_list(
     internal_list = linear_internal_list,
     prm_names = prm_names,
     cond_names = cond_names
@@ -1383,20 +1447,23 @@ validate_flex_prms = function(flex_prms_obj) {
   # check the custom parameters
   if (!is.null(cust_prms)) {
     if (length(cust_prms) != 2 ||
-        any(names(cust_prms) != c("expressions", "values"))) {
+      any(names(cust_prms) != c("expressions", "values"))) {
       stop("cust_prms not named with 'expressions' and 'values'")
     }
-    check = sapply(cust_prms$expressions, \(x) !is.expression(x))
-    if (any(check)){
+    check <- sapply(cust_prms$expressions, \(x) !is.expression(x))
+    if (any(check)) {
       stop("'expressions' in cust_prms do not contain expressions")
     }
-    if (any(names(cust_prms$expressions) != names(cust_prms$values)))
+    if (any(names(cust_prms$expressions) != names(cust_prms$values))) {
       stop("names in 'expressions' and 'values' don't match")
+    }
     for (cust_prm_vals in cust_prms$values) {
-      check_if_named_numeric_vector(x = cust_prm_vals,
-                                    labels = cond_names,
-                                    length = nrow(prms_matrix),
-                                    var_name = "a custom parameter")
+      check_if_named_numeric_vector(
+        x = cust_prm_vals,
+        labels = cond_names,
+        length = nrow(prms_matrix),
+        var_name = "a custom parameter"
+      )
     }
   }
 
@@ -1419,36 +1486,43 @@ validate_flex_prms = function(flex_prms_obj) {
 #'
 #' @return the internal list for convenience
 #'
-check_internal_list = function(internal_list, prm_names, cond_names) {
-
-
+check_internal_list <- function(internal_list, prm_names, cond_names) {
   # parameter names check
   if (!isTRUE(all.equal(names(internal_list), prm_names))) {
-    stop("an internal_list in flex_prms_object can not be adressed via",
-         " the names ", paste(prm_names, collapse = ", "))
+    stop(
+      "an internal_list in flex_prms_object can not be adressed via",
+      " the names ", paste(prm_names, collapse = ", ")
+    )
   }
 
   # condition names check and data type of entry
-  check = lapply(internal_list, function(one_entry){
-
+  check <- lapply(internal_list, function(one_entry) {
     if (!isTRUE(all.equal(names(one_entry), cond_names))) {
-      stop("an entry of an internal_list in flex_prms_object can not be ",
-           "adressed via the names ", paste(cond_names, collapse = ", "))
+      stop(
+        "an entry of an internal_list in flex_prms_object can not be ",
+        "adressed via the names ", paste(cond_names, collapse = ", ")
+      )
     }
 
-    lapply(one_entry, function(val){
-      if (is.expression(val)) return(TRUE)
-      if (is.integer(val) & !is.na(val)) return(TRUE)
+    lapply(one_entry, function(val) {
+      if (is.expression(val)) {
+        return(TRUE)
+      }
+      if (is.integer(val) & !is.na(val)) {
+        return(TRUE)
+      }
       return(FALSE)
     })
-
   })
 
-  check = unlist(check)
+  check <- unlist(check)
 
-  if (any(!check))
-    stop("either an internal or linearized internal list provided values",
-         " that are not valid integers or expressions")
+  if (any(!check)) {
+    stop(
+      "either an internal or linearized internal list provided values",
+      " that are not valid integers or expressions"
+    )
+  }
 
   return(internal_list)
 }
@@ -1456,22 +1530,20 @@ check_internal_list = function(internal_list, prm_names, cond_names) {
 
 
 # turn an internal list to a matrix
-internal_list_to_matrix = function(internal_list) {
+internal_list_to_matrix <- function(internal_list) {
+  prms <- names(internal_list)
+  conds <- names(internal_list[[1]])
 
-  prms = names(internal_list)
-  conds = names(internal_list[[1]])
-
-  values = mapply(function(cond, prm){
-
-    value = internal_list[[prm]][[cond]]
-    if (is.numeric(value))
+  values <- mapply(function(cond, prm) {
+    value <- internal_list[[prm]][[cond]]
+    if (is.numeric(value)) {
       return(value)
+    }
     return("d")
-
   }, conds, rep(prms, each = length(conds)))
-  matrix = matrix(values, nrow = length(conds))
-  rownames(matrix) = conds
-  colnames(matrix) = prms
+  matrix <- matrix(values, nrow = length(conds))
+  rownames(matrix) <- conds
+  colnames(matrix) <- prms
 
   return(matrix)
 }
@@ -1493,5 +1565,3 @@ flex_prms.flex_prms <- function(object, ...) {
 flex_prms.drift_dm <- function(object, ...) {
   return(object$flex_prms_obj)
 }
-
-

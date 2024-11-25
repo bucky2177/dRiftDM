@@ -1,5 +1,3 @@
-
-
 # FUNCTION FOR FITTING MULTIPLE SUBJECTS ----------------------------------
 
 
@@ -112,14 +110,14 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
     )
   }
 
-  model_conds = conds(drift_dm_obj)
-  data_cond = conds(obs_data_ids)
+  model_conds <- conds(drift_dm_obj)
+  data_cond <- conds(obs_data_ids)
   if (!all(data_cond %in% model_conds)) {
     warning(
       "The Cond column in the supplied data.frame provides a condition that is",
       " not listed in the model's conditions. This condition will be dropped."
     )
-    obs_data_ids = obs_data_ids[obs_data_ids$Cond %in% model_conds,]
+    obs_data_ids <- obs_data_ids[obs_data_ids$Cond %in% model_conds, ]
   }
 
 
@@ -152,7 +150,7 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
     stop("progress must be numeric of either 0, 1, or 2")
   }
 
-  free_prms = names(coef(drift_dm_obj, select_unique = T))
+  free_prms <- names(coef(drift_dm_obj, select_unique = T))
   if (!is.null(start_vals)) {
     if (!is.data.frame(start_vals)) {
       stop("start_vals must be a data.frame")
@@ -548,9 +546,11 @@ validate_fits_ids <- function(fits_ids, progress) {
   if (!is_numeric(fit_info$upper) & !is.list(fit_info$upper)) {
     stop("upper does not provide valid numeric values or is not a list")
   }
-  exp_l_u = get_lower_upper_smart(drift_dm_obj = fit_info$drift_dm_obj,
-                                  lower = fit_info$lower,
-                                  upper = fit_info$upper)
+  exp_l_u <- get_lower_upper_smart(
+    drift_dm_obj = fit_info$drift_dm_obj,
+    lower = fit_info$lower,
+    upper = fit_info$upper
+  )
   seed <- fit_info$seed
   if (!is.null(seed) & (!is_numeric(seed) | length(seed) != 1)) {
     stop("seed is not a single number or NULL")
@@ -587,14 +587,13 @@ validate_fits_ids <- function(fits_ids, progress) {
 
   # check the model itself (not the data; see below)
   for (one_vp in names(fits_ids$all_fits)) {
-
     one_fit <- fits_ids$all_fits[[one_vp]]
 
     # check flex_prms
-    flatten_exp = as.character(
+    flatten_exp <- as.character(
       unlist(exp_model$flex_prms_obj$linear_internal_list)
     )
-    flatten_one_fit = as.character(
+    flatten_one_fit <- as.character(
       unlist(one_fit$flex_prms_obj$linear_internal_list)
     )
     if (!isTRUE(all.equal(flatten_exp, flatten_one_fit))) {
@@ -604,10 +603,10 @@ validate_fits_ids <- function(fits_ids, progress) {
       )
     }
 
-    flatten_exp = as.character(
+    flatten_exp <- as.character(
       unlist(exp_model$flex_prms_obj$internal_list)
     )
-    flatten_one_fit = as.character(
+    flatten_one_fit <- as.character(
       unlist(one_fit$flex_prms_obj$internal_list)
     )
     if (!isTRUE(all.equal(flatten_exp, flatten_one_fit))) {
@@ -617,8 +616,8 @@ validate_fits_ids <- function(fits_ids, progress) {
       )
     }
 
-    row_names_exp = rownames(exp_model$flex_prms_obj$prms_matrix)
-    row_names_fit = rownames(one_fit$flex_prms_obj$prms_matrix)
+    row_names_exp <- rownames(exp_model$flex_prms_obj$prms_matrix)
+    row_names_fit <- rownames(one_fit$flex_prms_obj$prms_matrix)
     if (!isTRUE(all.equal(row_names_exp, row_names_fit))) {
       stop(
         "row_names in the model of the fit procedure info don't match ",
@@ -626,8 +625,8 @@ validate_fits_ids <- function(fits_ids, progress) {
       )
     }
 
-    col_names_exp = colnames(exp_model$flex_prms_obj$prms_matrix)
-    col_names_fit = colnames(one_fit$flex_prms_obj$prms_matrix)
+    col_names_exp <- colnames(exp_model$flex_prms_obj$prms_matrix)
+    col_names_fit <- colnames(one_fit$flex_prms_obj$prms_matrix)
     if (!isTRUE(all.equal(col_names_exp, col_names_fit))) {
       stop(
         "col_names in the model of the fit procedure info don't match ",
@@ -665,7 +664,7 @@ validate_fits_ids <- function(fits_ids, progress) {
       )
     }
 
-    if (any(fitted_model_prms > exp_upper  - drift_dm_approx_error())) {
+    if (any(fitted_model_prms > exp_upper - drift_dm_approx_error())) {
       stop(
         "individual ", one_vp, " provided model parameters that are larger ",
         "than the upper parameter boundaries found in the procedure info"
@@ -712,9 +711,9 @@ validate_fits_ids <- function(fits_ids, progress) {
   ids_found <- ids_fitted[ids_fitted %in% info_ids]
   list_exp_obs_data <- split(x = exp_obs_data, f = exp_obs_data$ID)
   b_coding <- attr(fit_info$drift_dm_obj, "b_coding")
-  b_name = b_coding$column
-  u_val = b_coding$u_name_value
-  l_val = b_coding$l_name_value
+  b_name <- b_coding$column
+  u_val <- b_coding$u_name_value
+  l_val <- b_coding$l_name_value
 
   # progress bar
   if (progress == 1) {

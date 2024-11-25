@@ -1,34 +1,39 @@
-
-
 # FUNCTION FOR PLOTTING TRACES ---------------------------------------------
 
 
 # Core plotting function to handle trace and boundary plotting
 plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
                             ylim, lty, type, new_plot, ...) {
-
   # Initialize plot
   if (new_plot) {
-    plot(c(1, 2) ~ c(1, 1), col = "white", xlab = xlab, ylab = ylab,
-         xlim = xlim, ylim = ylim, ...)
+    plot(c(1, 2) ~ c(1, 1),
+      col = "white", xlab = xlab, ylab = ylab,
+      xlim = xlim, ylim = ylim, ...
+    )
     graphics::abline(h = 0, col = "gray", cex = 0.5)
   }
 
   # Plot each condition's traces
-  e_samples = unpack_traces(traces_obj)
-  t_vec = attr(traces_obj, "t_vec")
+  e_samples <- unpack_traces(traces_obj)
+  t_vec <- attr(traces_obj, "t_vec")
 
   for (i in 1:nrow(e_samples)) {
-    one_trace = e_samples[i,]
-    graphics::points(one_trace ~ t_vec, type = type, col = col,
-                     lty = lty)
+    one_trace <- e_samples[i, ]
+    graphics::points(one_trace ~ t_vec,
+      type = type, col = col,
+      lty = lty
+    )
   }
 
   b_vals <- attr(traces_obj, "b_vals")
-  graphics::points(b_vals ~ t_vec, type = type, col = col_b, lty = lty,
-                   ...)
-  graphics::points(-b_vals ~ t_vec, type = type, col = col_b, lty = lty,
-                   ...)
+  graphics::points(b_vals ~ t_vec,
+    type = type, col = col_b, lty = lty,
+    ...
+  )
+  graphics::points(-b_vals ~ t_vec,
+    type = type, col = col_b, lty = lty,
+    ...
+  )
 }
 
 
@@ -82,7 +87,6 @@ plot.traces_dm_list <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
                                 ylim = NULL, xlab = "Time", ylab = "Evidence",
                                 lty = 1, type = "l", legend = NULL,
                                 legend_pos = "topright") {
-
   unique_conds <- names(x)
   t_vec <- attr(x, "t_vec")
 
@@ -101,17 +105,23 @@ plot.traces_dm_list <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
     default_lim = c(-max(unlist(x), na.rm = TRUE), max(unlist(x), na.rm = TRUE))
   )
   if (is.null(legend)) {
-    legend = unique_conds
+    legend <- unique_conds
   }
 
   # iterate over all traces
   plot_one_traces(x[[1]], col[1], col_b[1], xlab, ylab, xlim, ylim,
-                  lty, type, new_plot = T)
-  n_all = length(x)
-  if (n_all == 1) return(invisible(NULL))
+    lty, type,
+    new_plot = T
+  )
+  n_all <- length(x)
+  if (n_all == 1) {
+    return(invisible(NULL))
+  }
   for (idx in 2:n_all) {
     plot_one_traces(x[[idx]], col[idx], col_b[idx], xlab, ylab, xlim, ylim,
-                    lty, type, new_plot = F)
+      lty, type,
+      new_plot = F
+    )
   }
 
   # add legend
@@ -125,7 +135,6 @@ plot.traces_dm_list <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
                            ylim = NULL, xlab = "Time", ylab = "Evidence",
                            lty = 1, type = "l") {
-
   t_vec <- attr(x, "t_vec")
   unique_conds <- "one_cond_dummy"
 
@@ -146,7 +155,8 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 
   # plot the trace
   plot_one_traces(x, col, col_b, xlab, ylab, xlim, ylim, lty, type,
-                  new_plot = T)
+    new_plot = T
+  )
 }
 
 
@@ -196,26 +206,27 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
                       ylim = c(0, 1), xlab = "Bins", ylab = NULL, pch = 21,
                       lty = 1, type = "l", legend = NULL,
                       legend_pos = "bottomright") {
-
   cafs <- x
-  caf_name = grep("^P_", colnames(cafs), value = T)
+  caf_name <- grep("^P_", colnames(cafs), value = T)
 
 
-  if ("ID" %in% colnames(cafs) && length(unique(cafs$ID)) >  1) {
+  if ("ID" %in% colnames(cafs) && length(unique(cafs$ID)) > 1) {
     message("Aggregating across ID")
-    cafs = aggregate_stats(stat_df = cafs)
+    cafs <- aggregate_stats(stat_df = cafs)
   }
 
   # set default arguments
   if (is.null(conds)) {
     conds <- unique(cafs$Cond)
   }
-  conds = match.arg(arg = conds, choices = unique(cafs$Cond),
-                    several.ok = T)
+  conds <- match.arg(
+    arg = conds, choices = unique(cafs$Cond),
+    several.ok = T
+  )
 
   if (is.null(ylab)) {
     # f(upper_boundery_name)
-    u_name = substr(caf_name, 3, nchar(caf_name))
+    u_name <- substr(caf_name, 3, nchar(caf_name))
     ylab <- paste("f(", u_name, ")", sep = "")
   }
   xlim <- set_plot_limits(
@@ -228,7 +239,7 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   )
 
   if (is.null(legend)) {
-    legend = conds
+    legend <- conds
   }
 
 
@@ -266,13 +277,14 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 
   # plot the legend
   if (!any(cafs$Source == "pred")) {
-    lty = NA
+    lty <- NA
   }
   if (!any(cafs$Source == "obs")) {
-    pch = NA
+    pch <- NA
   }
   if (length(legend) > 1) {
-    graphics::legend(x = legend_pos,
+    graphics::legend(
+      x = legend_pos,
       legend = legend,
       col = col, lty = lty, pch = pch, ...
     )
@@ -325,14 +337,13 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
                            xlim = NULL, ylim = c(0, 1), xlab = "RT [s]",
                            ylab = "F(RT)", pch = 21, lty = 1, type = "l",
                            legend = NULL, legend_pos = "bottomright") {
-
   quantiles <- x
 
 
   # aggregate
-  if ("ID" %in% colnames(quantiles) && length(unique(quantiles$ID)) >  1) {
+  if ("ID" %in% colnames(quantiles) && length(unique(quantiles$ID)) > 1) {
     message("Aggregating across ID")
-    quantiles = aggregate_stats(stat_df = quantiles)
+    quantiles <- aggregate_stats(stat_df = quantiles)
   }
 
 
@@ -340,12 +351,14 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
   if (is.null(conds)) {
     conds <- unique(quantiles$Cond)
   }
-  conds = match.arg(arg = conds, choices = unique(quantiles$Cond),
-                           several.ok = T)
+  conds <- match.arg(
+    arg = conds, choices = unique(quantiles$Cond),
+    several.ok = T
+  )
 
-  u_name = names(attr(quantiles, "b_coding")$u_name_value)
+  u_name <- names(attr(quantiles, "b_coding")$u_name_value)
   if (is.null(dv)) {
-    dv = paste("Quant", u_name, sep = "_")
+    dv <- paste("Quant", u_name, sep = "_")
   }
 
   xlim <- set_plot_limits(
@@ -359,7 +372,7 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
   )
 
   if (is.null(legend)) {
-    legend = conds
+    legend <- conds
   }
 
 
@@ -389,13 +402,14 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
 
   # plot the legend
   if (!any(quantiles$Source == "pred")) {
-    lty = NA
+    lty <- NA
   }
   if (!any(quantiles$Source == "obs")) {
-    pch = NA
+    pch <- NA
   }
   if (length(legend) > 1) {
-    graphics::legend(x = legend_pos,
+    graphics::legend(
+      x = legend_pos,
       legend = legend,
       col = col, lty = lty, pch = pch, ...
     )
@@ -447,30 +461,28 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
                             ylab = expression(Delta), pch = 21, lty = 1,
                             type = "l", legend = NULL,
                             legend_pos = "topright") {
-
-
   delta_fun <- x
 
   # aggregate
-  if ("ID" %in% colnames(delta_fun) && length(unique(delta_fun$ID)) >  1) {
+  if ("ID" %in% colnames(delta_fun) && length(unique(delta_fun$ID)) > 1) {
     message("Aggregating across ID")
-    delta_fun = aggregate_stats(stat_df = delta_fun)
+    delta_fun <- aggregate_stats(stat_df = delta_fun)
   }
 
 
   # get the columns to plot
-  delta_columns = grep("^Delta_", colnames(delta_fun), value = T)
+  delta_columns <- grep("^Delta_", colnames(delta_fun), value = T)
   if (is.null(dv)) {
-    dv = delta_columns
+    dv <- delta_columns
   }
-  dv = match.arg(arg = dv, choices = delta_columns, several.ok = T)
+  dv <- match.arg(arg = dv, choices = delta_columns, several.ok = T)
 
   uv <- gsub(pattern = "^Delta_", replacement = "", x = dv)
   uv <- paste("Avg_", uv, sep = "")
   stopifnot(length(uv) == length(dv))
 
   # set default plot arguments
-  all_y_vals = unlist(delta_fun[dv])
+  all_y_vals <- unlist(delta_fun[dv])
   y_r <- range(all_y_vals)
   ylim <- c(y_r[1] - (y_r[2] - y_r[1]) / 2, y_r[2] + (y_r[2] - y_r[1]) / 2)
   ylim <- set_plot_limits(
@@ -478,16 +490,16 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
     default_lim = y_r
   )
 
-  all_x_vals = unlist(delta_fun[uv])
+  all_x_vals <- unlist(delta_fun[uv])
   xlim <- set_plot_limits(
     lim = xlim,
     default_lim = c(min(all_x_vals) * 0.75, max(all_x_vals) * 1.25)
   )
 
   if (length(dv) == 1) {
-    def_colors = "black"
+    def_colors <- "black"
   } else {
-    def_colors = grDevices::rainbow(n = length(dv))
+    def_colors <- grDevices::rainbow(n = length(dv))
   }
 
   col <- set_default_colors(
@@ -523,14 +535,15 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 
   # plot the legend
   if (!any(delta_fun$Source == "pred")) {
-    lty = NA
+    lty <- NA
   }
   if (!any(delta_fun$Source == "obs")) {
-    pch = NA
+    pch <- NA
   }
-  legend = gsub(pattern = "Delta_", replacement = "", x = dv)
+  legend <- gsub(pattern = "Delta_", replacement = "", x = dv)
   if (length(legend) > 1) {
-    graphics::legend(x = legend_pos,
+    graphics::legend(
+      x = legend_pos,
       legend = legend,
       col = col, lty = lty, pch = pch, ...
     )
@@ -565,8 +578,6 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 #'
 #' @export
 plot.list_stats_dm <- function(x, ..., mfrow = NULL) {
-
-
   if (!is.null(mfrow)) {
     withr::local_par(mfrow = mfrow)
   }
@@ -612,28 +623,29 @@ plot.list_stats_dm <- function(x, ..., mfrow = NULL) {
 #' @export
 hist.coefs_dm <- function(x, ..., separate_plots = T, alpha = 0.5,
                           main = NULL, colors = NULL, xlab = "values") {
-
   coefs_obj <- x
 
   # get the parameter and condition names (if existant)
   prm_names <- setdiff(colnames(coefs_obj), c("ID", "Cond"))
   conds_present <- "Cond" %in% colnames(coefs_obj)
-  conds = unique(coefs_obj$Cond)
+  conds <- unique(coefs_obj$Cond)
 
   # create colors
   if (conds_present && is.null(colors)) {
-    colors = grDevices::rainbow(n = length(conds))
+    colors <- grDevices::rainbow(n = length(conds))
   } else if (is.null(colors)) {
-    colors = "skyblue"
+    colors <- "skyblue"
   }
 
   # create mains
   if (is.null(main)) {
-    main = prm_names
+    main <- prm_names
   }
   if (length(main) != length(prm_names)) {
-    stop("the number of entries in main must match with the number of ",
-         "parameters")
+    stop(
+      "the number of entries in main must match with the number of ",
+      "parameters"
+    )
   }
 
 
@@ -646,7 +658,6 @@ hist.coefs_dm <- function(x, ..., separate_plots = T, alpha = 0.5,
 
   # iterate through all paramters
   for (prm_idx in seq_along(prm_names)) {
-
     # if no condition present, then just call hist
     if (!conds_present) {
       graphics::hist(
@@ -719,7 +730,6 @@ hist.coefs_dm <- function(x, ..., separate_plots = T, alpha = 0.5,
 #' @export
 plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
                           legend = NULL, legend_pos = "topright") {
-
   drift_dm_obj <- x
 
 
@@ -727,8 +737,10 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   if (is.null(conds)) {
     conds <- conds(drift_dm_obj)
   }
-  conds = match.arg(arg = conds, choices = conds(drift_dm_obj),
-                    several.ok = T)
+  conds <- match.arg(
+    arg = conds, choices = conds(drift_dm_obj),
+    several.ok = T
+  )
 
   # get default parameters
   col <- set_default_colors(
@@ -737,14 +749,14 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   )
 
 
-  t_max = drift_dm_obj$prms_solve[["t_max"]]
+  t_max <- drift_dm_obj$prms_solve[["t_max"]]
 
   if (is.null(xlim)) {
     xlim <- c(0, t_max / 4)
   }
 
   if (is.null(legend)) {
-    legend = conds
+    legend <- conds
   }
 
 
@@ -758,24 +770,25 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   t_vec <- seq(0, t_max, length.out = nt + 1)
 
   # get all components
-  all_vals = comp_vals(drift_dm_obj)
-  mu_vals = lapply(all_vals, \(x) x$mu_vals)
-  mu_int_vals = lapply(all_vals, \(x) x$mu_int_vals)
-  x_vals = lapply(all_vals, \(x) x$x_vals)
-  b_vals = lapply(all_vals, \(x) x$b_vals)
-  dt_b_vals = lapply(all_vals, \(x) x$dt_b_vals)
-  nt_vals = lapply(all_vals, \(x) x$nt_vals)
+  all_vals <- comp_vals(drift_dm_obj)
+  mu_vals <- lapply(all_vals, \(x) x$mu_vals)
+  mu_int_vals <- lapply(all_vals, \(x) x$mu_int_vals)
+  x_vals <- lapply(all_vals, \(x) x$x_vals)
+  b_vals <- lapply(all_vals, \(x) x$b_vals)
+  dt_b_vals <- lapply(all_vals, \(x) x$dt_b_vals)
+  nt_vals <- lapply(all_vals, \(x) x$nt_vals)
 
 
   # some temp functions for easier data handling
-  temp_is_not_null = function(x) {
+  temp_is_not_null <- function(x) {
     return(!all(sapply(x, is.null)))
   }
 
-  range_vals = function(x, reduce_t = F, select_indices_t = NULL) {
-    as_arr = sapply(x, \(y){
-      if (reduce_t)
+  range_vals <- function(x, reduce_t = F, select_indices_t = NULL) {
+    as_arr <- sapply(x, \(y){
+      if (reduce_t) {
         return(range(y[select_indices_t]))
+      }
       return(range(y))
     })
     return(c(min(as_arr), max(as_arr)))
@@ -785,7 +798,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   # plot everything
   withr::local_par(mfrow = c(3, 2))
   # get the relevant time steps (for y-axis scaling)
-  select_indices_t = which(t_vec >= xlim[1] & t_vec <= xlim[2])
+  select_indices_t <- which(t_vec >= xlim[1] & t_vec <= xlim[2])
 
 
   # plot the drift rate
@@ -799,8 +812,10 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(mu_vals[[conds[i]]] ~ t_vec, ty = "l",
-                       col = col[i])
+      graphics::points(mu_vals[[conds[i]]] ~ t_vec,
+        ty = "l",
+        col = col[i]
+      )
     }
   }
 
@@ -815,8 +830,10 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(mu_int_vals[[conds[i]]] ~ t_vec, ty = "l",
-                       col = col[i])
+      graphics::points(mu_int_vals[[conds[i]]] ~ t_vec,
+        ty = "l",
+        col = col[i]
+      )
     }
   }
 
@@ -930,4 +947,3 @@ set_default_colors <- function(colors, unique_conds, default_colors) {
 set_plot_limits <- function(lim, default_lim) {
   if (is.null(lim)) default_lim else lim
 }
-

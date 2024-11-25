@@ -13,7 +13,6 @@ test_that("print.drift_dm_fits works as expected", {
 
 
 test_that("summary.drift_dm_fits and print", {
-
   dm_fits_ids <- load_fits_ids(
     path = test_path("fixtures", "dm_fits_ids"),
     detailed_info = F,
@@ -26,8 +25,10 @@ test_that("summary.drift_dm_fits and print", {
 
   expect_identical(
     names(sum_obj),
-    c("fit_procedure_name", "time_call", "lower", "upper", "model_type", "prms",
-      "stats", "N")
+    c(
+      "fit_procedure_name", "time_call", "lower", "upper", "model_type", "prms",
+      "stats", "N"
+    )
   )
 
   expect_identical(
@@ -46,11 +47,15 @@ test_that("summary.drift_dm_fits and print", {
   expect_identical(sum_obj$N, 2L)
 
   # one stats
-  m_b = mean(sapply(dm_fits_ids$all_fits,
-                    \(x) x$flex_prms_obj$prms_matrix[1,"b"]))
+  m_b <- mean(sapply(
+    dm_fits_ids$all_fits,
+    \(x) x$flex_prms_obj$prms_matrix[1, "b"]
+  ))
 
-  err_b = sd(sapply(dm_fits_ids$all_fits,
-                      \(x) x$flex_prms_obj$prms_matrix[1,"b"])) / sqrt(2)
+  err_b <- sd(sapply(
+    dm_fits_ids$all_fits,
+    \(x) x$flex_prms_obj$prms_matrix[1, "b"]
+  )) / sqrt(2)
 
   expect_identical(sum_obj$stats$null[["b"]], c(m_b, err_b))
 

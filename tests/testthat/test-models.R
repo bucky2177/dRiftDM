@@ -1,12 +1,11 @@
 test_that("testing DMC", {
-
   # get the component values
   a_dmc_model <- dmc_dm()
-  all_comps = comp_vals(a_dmc_model)
+  all_comps <- comp_vals(a_dmc_model)
 
-  a_dmc_model_im = a_dmc_model
+  a_dmc_model_im <- a_dmc_model
   suppressWarnings(solver(a_dmc_model_im) <- "im_zero")
-  all_comps_im = comp_vals(a_dmc_model_im)
+  all_comps_im <- comp_vals(a_dmc_model_im)
 
   # check names of comp_values
   expect_identical(
@@ -22,7 +21,7 @@ test_that("testing DMC", {
   expect_identical(names(all_comps$comp), names(all_comps$incomp))
 
   # test equality of comp_values
-  temp = all_comps_im
+  temp <- all_comps_im
   temp$comp$mu_int_vals <- NULL
   temp$incomp$mu_int_vals <- NULL
   expect_identical(temp, all_comps)
@@ -45,12 +44,12 @@ test_that("testing DMC", {
   ## DMC tests for drift
   # with a != 2
   a_dmc_model <- dmc_dm(instr = "a ~ => 2.1")
-  all_comps = comp_vals(a_dmc_model)
+  all_comps <- comp_vals(a_dmc_model)
 
-  a_dmc_model_im = a_dmc_model
+  a_dmc_model_im <- a_dmc_model
   # just to ensure comp_vals evaluates the integral
   suppressWarnings(solver(a_dmc_model_im) <- "im_zero")
-  all_comps_im = comp_vals(a_dmc_model_im)
+  all_comps_im <- comp_vals(a_dmc_model_im)
 
   # drift rate
   mu_t <- all_comps$comp$mu_vals[c(0.002, 0.2) / 0.001 + 1]
@@ -88,21 +87,29 @@ test_that("testing DMC", {
   ##########
   # test with different component functions
   a_dmc_model <- dmc_dm(var_non_dec = F, var_start = F)
-  all_comps = comp_vals(a_dmc_model)
+  all_comps <- comp_vals(a_dmc_model)
 
   # test start_vals
   expect_equal(all_comps$comp$x_vals, all_comps$incomp$x_vals)
-  expect_equal(all_comps$comp$x_vals,
-               x_dirac_0(NULL, a_dmc_model$prms_solve, seq(-1, 1, 0.001),
-                         NULL, NULL))
+  expect_equal(
+    all_comps$comp$x_vals,
+    x_dirac_0(
+      NULL, a_dmc_model$prms_solve, seq(-1, 1, 0.001),
+      NULL, NULL
+    )
+  )
 
   # test non_dec
   expect_equal(all_comps$comp$nt_vals, all_comps$incomp$nt_vals)
-  expect_equal(all_comps$comp$nt_vals,
-               nt_constant(c(non_dec = 0.3),
-                           a_dmc_model$prms_solve,
-                           seq(0, 3, 0.001),
-                           NULL, NULL))
+  expect_equal(
+    all_comps$comp$nt_vals,
+    nt_constant(
+      c(non_dec = 0.3),
+      a_dmc_model$prms_solve,
+      seq(0, 3, 0.001),
+      NULL, NULL
+    )
+  )
 
 
 
@@ -204,14 +211,14 @@ test_that("ratcliff_simple works as expected", {
 
   # test the drift rate
   mu_t <- a_model$comp_funs$mu_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
   )
   expect_equal(mu_t, c(3, 3))
   mu_t <- a_model$comp_funs$mu_int_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
@@ -220,14 +227,14 @@ test_that("ratcliff_simple works as expected", {
 
   # test the boundary
   b_t <- a_model$comp_funs$b_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
   )
   expect_equal(b_t, c(0.6, 0.6))
   dt_b_t <- a_model$comp_funs$dt_b_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
@@ -237,7 +244,7 @@ test_that("ratcliff_simple works as expected", {
   # test the starting condition
   x_seq <- seq(-1, 1, length.out = a_model$prms_solve[["nx"]] + 1)
   x_x <- a_model$comp_funs$x_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     x_vec = x_seq, one_cond = "w",
     ddm_opts = NULL
@@ -248,7 +255,7 @@ test_that("ratcliff_simple works as expected", {
 
   # test the non-decision time
   pdf_nt <- a_model$comp_funs$nt_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = seq(0, 3, a_model$prms_solve[["dt"]]),
     one_cond = "w",
@@ -273,14 +280,14 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
 
   # test the drift rate
   mu_t <- a_model$comp_funs$mu_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
   )
   expect_equal(mu_t, c(3, 3))
   mu_t <- a_model$comp_funs$mu_int_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
@@ -289,14 +296,14 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
 
   # test the boundary
   b_t <- a_model$comp_funs$b_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
   )
   expect_equal(b_t, c(0.6, 0.6))
   dt_b_t <- a_model$comp_funs$dt_b_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
@@ -306,7 +313,7 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
   # test the starting condition
   x_seq <- seq(-1, 1, length.out = a_model$prms_solve[["nx"]] + 1)
   x_x <- a_model$comp_funs$x_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     x_vec = x_seq, one_cond = "w",
     ddm_opts = NULL
@@ -317,7 +324,7 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
 
   # test the non-decision time
   pdf_nt <- a_model$comp_funs$nt_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = seq(0, 3, a_model$prms_solve[["dx"]]),
     one_cond = "w",
@@ -348,14 +355,14 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
 
   # test the drift rate
   mu_t <- a_model$comp_funs$mu_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
   )
   expect_equal(mu_t, c(3, 3))
   mu_t <- a_model$comp_funs$mu_int_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
@@ -364,14 +371,14 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
 
   # test the boundary
   b_t <- a_model$comp_funs$b_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
   )
   expect_equal(b_t, c(0.6, 0.6))
   dt_b_t <- a_model$comp_funs$dt_b_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = c(0.002, 0.2), one_cond = "w",
     ddm_opts = NULL
@@ -381,7 +388,7 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
   # test the starting condition
   x_seq <- seq(-1, 1, length.out = a_model$prms_solve[["nx"]] + 1)
   x_x <- a_model$comp_funs$x_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     x_vec = x_seq, one_cond = "w",
     ddm_opts = NULL
@@ -391,12 +398,12 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
     x_seq, 0 - 0.5 / 2,
     0 + 0.5 / 2
   )
-  pdf_test = pdf_test / (sum(pdf_test) * 0.001)
+  pdf_test <- pdf_test / (sum(pdf_test) * 0.001)
   expect_identical(pdf_test, x_x)
 
   # test the non-decision time
   pdf_nt <- a_model$comp_funs$nt_fun(
-    prms_model = a_model$flex_prms_obj$prms_matrix[1,],
+    prms_model = a_model$flex_prms_obj$prms_matrix[1, ],
     prms_solve = a_model$prms_solve,
     t_vec = seq(0, 3, a_model$prms_solve[["dt"]]),
     one_cond = "w",
@@ -412,7 +419,7 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
   a_model <- ratcliff_dm(var_drift = T, dx = .005, dt = .005, t_max = 2.5)
 
   # check expected behavior
-  a_model = re_evaluate_model(a_model)
+  a_model <- re_evaluate_model(a_model)
   expect_equal(length(a_model$pdfs$null$pdf_u), 501)
   expect_equal(length(a_model$pdfs$null$pdf_l), 501)
   expect_true(
@@ -420,14 +427,13 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
     < 0.01
   )
 
-  cafs = calc_stats(a_model, type = "cafs")
+  cafs <- calc_stats(a_model, type = "cafs")
   expect_true(all(diff(cafs$P_corr) < 0))
-
 })
 
 
 test_that("SSP model provides reasonable values", {
-  a_model = ssp_dm(dt = .005, dx = .005, instr = "
+  a_model <- ssp_dm(dt = .005, dx = .005, instr = "
                    b ~ => 0.6
                    non_dec ~ => 0.3
                    sd_non_dec ~ => 0.01
@@ -435,102 +441,110 @@ test_that("SSP model provides reasonable values", {
                    sd_0 ~ => 1.2
                    r ~ => 10")
 
-  x_vec = seq(-1, 1, .005)
-  t_vec = seq(0, a_model$prms_solve[["t_max"]], .005)
+  x_vec <- seq(-1, 1, .005)
+  t_vec <- seq(0, a_model$prms_solve[["t_max"]], .005)
 
 
-  prms_model = a_model$flex_prms_obj$prms_matrix[1,]
-  conds = a_model$conds
-  prms_solve = a_model$prms_solve
+  prms_model <- a_model$flex_prms_obj$prms_matrix[1, ]
+  conds <- a_model$conds
+  prms_solve <- a_model$prms_solve
 
   # b_fun
   expect_equal(
-    a_model$comp_funs$b_fun(prms_model, prms_solve, t_vec, one_cond = NA,
-                            ddm_opts = NULL),
+    a_model$comp_funs$b_fun(prms_model, prms_solve, t_vec,
+      one_cond = NA,
+      ddm_opts = NULL
+    ),
     rep(0.6, length(t_vec))
   )
 
   expect_equal(
-    a_model$comp_funs$b_fun(prms_model, prms_solve, t_vec, one_cond = NA,
-                            ddm_opts = NULL),
+    a_model$comp_funs$b_fun(prms_model, prms_solve, t_vec,
+      one_cond = NA,
+      ddm_opts = NULL
+    ),
     rep(0.6, length(t_vec))
   )
 
   # dt_b_fun
   expect_equal(
-    a_model$comp_funs$dt_b_fun(prms_model, prms_solve, t_vec, one_cond = NA,
-                               ddm_opts = NULL),
+    a_model$comp_funs$dt_b_fun(prms_model, prms_solve, t_vec,
+      one_cond = NA,
+      ddm_opts = NULL
+    ),
     rep(0, length(t_vec))
   )
 
   expect_equal(
-    a_model$comp_funs$dt_b_fun(prms_model, prms_solve, t_vec, one_cond = NA,
-                               ddm_opts = NULL),
+    a_model$comp_funs$dt_b_fun(prms_model, prms_solve, t_vec,
+      one_cond = NA,
+      ddm_opts = NULL
+    ),
     rep(0, length(t_vec))
   )
 
   # x_fun
-  exp_x = rep(0, length(x_vec))
-  exp_x[201] = 1 / .005
+  exp_x <- rep(0, length(x_vec))
+  exp_x[201] <- 1 / .005
   expect_equal(
-    a_model$comp_funs$x_fun(prms_model, prms_solve, x_vec, one_cond = NA,
-                            ddm_opts = NULL),
+    a_model$comp_funs$x_fun(prms_model, prms_solve, x_vec,
+      one_cond = NA,
+      ddm_opts = NULL
+    ),
     exp_x
   )
 
   expect_equal(
-    a_model$comp_funs$x_fun(prms_model, prms_solve, x_vec, one_cond = NA,
-                            ddm_opts = NULL),
+    a_model$comp_funs$x_fun(prms_model, prms_solve, x_vec,
+      one_cond = NA,
+      ddm_opts = NULL
+    ),
     exp_x
   )
 
 
   # mu_fun
-  sd_t = 1.2 - 10 * t_vec
-  sd_t = pmax(sd_t, .001)
-  a_tar = pnorm(q = 0.5, mean = 0, sd = sd_t) - pnorm(q = -0.5, mean = 0, sd = sd_t)
-  a_fl = 1 - a_tar
-  prms_model = a_model$flex_prms_obj$prms_matrix[1,]
+  sd_t <- 1.2 - 10 * t_vec
+  sd_t <- pmax(sd_t, .001)
+  a_tar <- pnorm(q = 0.5, mean = 0, sd = sd_t) - pnorm(q = -0.5, mean = 0, sd = sd_t)
+  a_fl <- 1 - a_tar
+  prms_model <- a_model$flex_prms_obj$prms_matrix[1, ]
   expect_equal(
     a_model$comp_funs$mu_fun(prms_model, prms_solve, t_vec,
-                             one_cond = NA, ddm_opts = NULL),
+      one_cond = NA, ddm_opts = NULL
+    ),
     3.3 * a_tar + 3.3 * a_fl
   )
-  prms_model = a_model$flex_prms_obj$prms_matrix[2,]
+  prms_model <- a_model$flex_prms_obj$prms_matrix[2, ]
   expect_equal(
     a_model$comp_funs$mu_fun(prms_model, prms_solve, t_vec,
-                             one_cond = NA, ddm_opts = NULL),
+      one_cond = NA, ddm_opts = NULL
+    ),
     3.3 * a_tar - 3.3 * a_fl
   )
 
   # mu_int_fun
   expect_error(
     a_model$comp_funs$mu_int_fun(prms_model, prms_solve, t_vec,
-                                 one_cond = NA, ddm_opts = NULL),
+      one_cond = NA, ddm_opts = NULL
+    ),
     "this should not be called"
   )
 
   expect_error(
     a_model$comp_funs$mu_int_fun(prms_model, prms_solve, t_vec,
-                                 one_cond = NA, ddm_opts = NULL),
+      one_cond = NA, ddm_opts = NULL
+    ),
     "this should not be called"
   )
 
   # nt_fun
   exp_nt <- truncnorm::dtruncnorm(t_vec, a = 0, mean = 0.3, sd = 0.01)
   expect_equal(
-    a_model$comp_funs$nt_fun(prms_model = prms_model, prms_solve = prms_solve, t_vec = t_vec,
-                             one_cond = NA, ddm_opts = NULL),
+    a_model$comp_funs$nt_fun(
+      prms_model = prms_model, prms_solve = prms_solve, t_vec = t_vec,
+      one_cond = NA, ddm_opts = NULL
+    ),
     exp_nt
   )
 })
-
-
-
-
-
-
-
-
-
-

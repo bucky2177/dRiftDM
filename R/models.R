@@ -1,4 +1,3 @@
-
 # Standard Ratcliff Diffusion Model ---------------------------------------
 
 
@@ -366,16 +365,15 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 dmc_dm <- function(var_non_dec = TRUE, var_start = TRUE, instr = NULL,
                    obs_data = NULL, sigma = 1, t_max = 3,
                    dt = .001, dx = .001, b_coding = NULL) {
-
   # get default instructions to setup the configuration of DMC
-  default_instr = 'peak_l := (a-1) * tau
+  default_instr <- "peak_l := (a-1) * tau
                    a <!>
-                   A ~ incomp == -(A ~ comp)'
+                   A ~ incomp == -(A ~ comp)"
 
   if (is.null(instr)) {
-    instr = default_instr
+    instr <- default_instr
   } else {
-    instr = paste(default_instr, instr, sep = "\n")
+    instr <- paste(default_instr, instr, sep = "\n")
   }
 
   # get all parameters, and maybe throw away those that are not needed
@@ -403,10 +401,10 @@ dmc_dm <- function(var_non_dec = TRUE, var_start = TRUE, instr = NULL,
 
   # replace component functions, if desired
   if (!var_non_dec) {
-    comp_funs(dmc_dm)[["nt_fun"]] = nt_constant
+    comp_funs(dmc_dm)[["nt_fun"]] <- nt_constant
   }
   if (!var_start) {
-    comp_funs(dmc_dm)[["x_fun"]] = x_dirac_0
+    comp_funs(dmc_dm)[["x_fun"]] <- x_dirac_0
   }
 
   return(dmc_dm)
@@ -642,19 +640,18 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #' @export
 ssp_dm <- function(instr = NULL, obs_data = NULL, sigma = 1, t_max = 3,
                    dt = .001, dx = .001, b_coding = NULL) {
-
   # sign ~ ensures that sign is free, and thus avoids a message from
   # modify_flex_prms
-  default_instr = 'interf_t := sd_0 / r
+  default_instr <- "interf_t := sd_0 / r
                    r <!>
                    sign ~
                    sign ~ incomp => -1
-                   sign <!>'
+                   sign <!>"
 
   if (is.null(instr)) {
-    instr = default_instr
+    instr <- default_instr
   } else {
-    instr = paste(default_instr, instr, sep = "\n")
+    instr <- paste(default_instr, instr, sep = "\n")
   }
 
 
