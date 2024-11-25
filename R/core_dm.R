@@ -595,13 +595,13 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
 #' @seealso [dRiftDM::drift_dm()]
 #'
 #' @export
-re_evaluate_model <- function(drift_dm_obj, eval_model = T, only_log_like = F) {
+re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 
   if (!inherits(drift_dm_obj, "drift_dm")) {
-    stop("drift_dm_obj is not of type drift_dm") 
+    stop("drift_dm_obj is not of type drift_dm")
   }
   stopifnot(is.logical(eval_model) & !is.na(eval_model))
-  
+
   # pass back if no evaluation is requested
   if (!eval_model) {
     # set all fit indices and the pdfs to NULL
@@ -616,8 +616,8 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T, only_log_like = F) {
   t_vec <- seq(0,  prms_solve[["t_max"]], length.out = prms_solve[["nt"]] + 1)
 
   # get the PDFs
-  pdfs <- calc_pdfs(drift_dm_obj = drift_dm_obj, x_vec = x_vec, t_vec = t_vec, 
-                    prms_solve = prms_solve, solver = solver)
+  pdfs <- calc_pdfs(drift_dm_obj = drift_dm_obj, x_vec = x_vec, t_vec = t_vec,
+                    prms_solve = prms_solve)
 
   obs_data = drift_dm_obj$obs_data
 
@@ -625,9 +625,8 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T, only_log_like = F) {
   log_like_val <- calc_log_like(
     pdfs = pdfs, t_vec = t_vec,
     obs_data = obs_data,
-    conds = conds(drift_dm_obj)
+    conds = names(pdfs)
   )
-  if (only_log_like) return(log_like_val)
 
   drift_dm_obj$log_like_val = log_like_val
   drift_dm_obj$pdfs <- pdfs
@@ -1851,7 +1850,10 @@ b_coding.fits_ids_dm <- function(object, ...) {
 #' @param x_vec optional, the discretized evidence space
 #' @param t_vec optional, the discretized time space
 #' @param nx,nt,dx,dt optional, the steps and step sizes of each space
-#' @param t_max the maximum time of the time space.
+#' @param prms_solve optional, vector of solver settings
+#' @param solver optional, string controlling which component values are
+#' evaluated
+#' @param prms_matrix optional, matrix of parameters
 #'
 #' @returns
 #' If solver "kfe", a named list with entries "mu_vals", "x_vals", "b_vals",
@@ -1865,25 +1867,25 @@ b_coding.fits_ids_dm <- function(object, ...) {
 #'
 #'
 comp_vals = function(drift_dm_obj, x_vec = NULL, t_vec = NULL,
-                     nt = NULL, dt = NULL, nx = NULL, dx = NULL, 
+                     nt = NULL, dt = NULL, nx = NULL, dx = NULL,
                      prms_solve = NULL, solver = NULL, prms_matrix = NULL) {
 
   # unpack values
   if (is.null(nt)) nt <- drift_dm_obj$prms_solve[["nt"]]
   if (is.null(dt)) dt <- drift_dm_obj$prms_solve[["dt"]]
-  
+
   if (is.null(nx)) nx <- drift_dm_obj$prms_solve[["nx"]]
   if (is.null(dx)) dx <- drift_dm_obj$prms_solve[["dx"]]
 
   if (is.null(x_vec)) x_vec <- seq(-1, 1, length.out = nx + 1)
-  if (is.null(t_vec)) t_vec <- seq(0, drift_dm_obj$prms_solve[["t_max"]], 
+  if (is.null(t_vec)) t_vec <- seq(0, drift_dm_obj$prms_solve[["t_max"]],
                                    length.out = nt + 1)
 
-  
+
   if (is.null(prms_solve)){
     prms_solve = drift_dm_obj$prms_solve
   }
-  
+
   if (is.null(solver)){
     solver = drift_dm_obj$solver
   }
@@ -1891,7 +1893,7 @@ comp_vals = function(drift_dm_obj, x_vec = NULL, t_vec = NULL,
   if (is.null(prms_matrix)) {
     prms_matrix <- drift_dm_obj$flex_prms_obj$prms_matrix
   }
-  
+
   # get the functions to call
   if (solver == "kfe") {
     comp_fun_names <- c("mu_fun", "x_fun", "b_fun", "dt_b_fun", "nt_fun")
@@ -1906,7 +1908,7 @@ comp_vals = function(drift_dm_obj, x_vec = NULL, t_vec = NULL,
   conds <- rownames(prms_matrix)
   ddm_opts = drift_dm_obj$ddm_opts
   comp_funs <- drift_dm_obj$comp_funs
-  
+
 
   # iterate over conds and get all model components
   all_comp_vecs <- sapply(conds, function(one_cond) {

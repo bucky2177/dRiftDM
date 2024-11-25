@@ -26,7 +26,12 @@ comp_vals(
 
 \item{nx, nt, dx, dt}{optional, the steps and step sizes of each space}
 
-\item{t_max}{the maximum time of the time space.}
+\item{prms_solve}{optional, vector of solver settings}
+
+\item{solver}{optional, string controlling which component values are
+evaluated}
+
+\item{prms_matrix}{optional, matrix of parameters}
 }
 \value{
 If solver "kfe", a named list with entries "mu_vals", "x_vals", "b_vals",

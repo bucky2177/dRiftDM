@@ -4,7 +4,7 @@
 \alias{re_evaluate_model}
 \title{Re-evaluate the model}
 \usage{
-re_evaluate_model(drift_dm_obj, eval_model = T, only_log_like = F)
+re_evaluate_model(drift_dm_obj, eval_model = T)
 }
 \arguments{
 \item{drift_dm_obj}{an object of type \link{drift_dm}}

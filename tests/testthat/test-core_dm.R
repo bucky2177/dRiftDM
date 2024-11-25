@@ -385,7 +385,6 @@ test_that("re_evaluate_model works as expected", {
     sigma = 1, t_max = 3, dt = .01, dx = .01
   )
   expect_null(a_model$log_like_val)
-  expect_null(a_model$ic_vals)
 
   obs_data(a_model, eval_model = T) <- ratcliff_synth_data
   log_like_val <- a_model$log_like_val
@@ -885,7 +884,7 @@ test_that("simulate_traces -> works as expected", {
   mu <- coef(a_model)["muc"]
   dX <- mu * dt + 1 * sqrt(dt) * rnorm(length(t)) # see
   X <- c(0, cumsum(dX)) + samp_x
-  X <- X[1:min(which(X > standard_boundary()))]
+  X <- X[1:min(which(X > coef(a_model)["b"]))]
   expect_identical(out[!is.na(out)], X)
 
 

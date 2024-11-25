@@ -496,7 +496,7 @@ coll_dm = function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
 # create the model and show some predictions
 a_cust_model = coll_dm()
 set.seed(2)
-some_traces = simulate_traces(a_cust_model, k = 10)
+some_traces = simulate_traces(a_cust_model, k = 10, add_x = T)
 
 if (save_plots) pdf(file.path("figures", "traces_coll.pdf"), width = 3,
                               height = 3.5)

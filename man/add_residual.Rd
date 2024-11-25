@@ -9,8 +9,7 @@ add_residual(pdf_nt, pdf_u, pdf_l, dt, nt)
 \arguments{
 \item{pdf_nt}{the non-decision time density values}
 
-\item{pdf_u, pdf_l}{the first passage times as derived by \link{kfe_ale}
-or \link{im_zero}}
+\item{pdf_u, pdf_l}{the first passage times}
 
 \item{dt, nt}{step size and number of steps for the time space (for input
 checks and scaling)}

@@ -2,31 +2,49 @@
 % Please edit documentation in R/core_solve.R
 \name{calc_pdfs}
 \alias{calc_pdfs}
+\alias{calc_pdfs.ratcliff_dm}
+\alias{calc_pdfs.drift_dm}
 \title{Calculate the PDFs}
 \usage{
-calc_pdfs(drift_dm_obj, x_vec, t_vec, prms_solve, solver)
+calc_pdfs(drift_dm_obj, x_vec, t_vec, prms_solve)
+
+\method{calc_pdfs}{ratcliff_dm}(drift_dm_obj, x_vec, t_vec, prms_solve)
+
+\method{calc_pdfs}{drift_dm}(drift_dm_obj, x_vec, t_vec, prms_solve)
 }
 \arguments{
+\item{drift_dm_obj}{a model of type \link{drift_dm}}
+
 \item{x_vec}{numeric vector, the evidence space}
 
 \item{t_vec}{numeric vector, the time space}
 
 \item{prms_solve}{the discretization (see \link{prms_solve})}
-
-\item{solver}{a single character, specifying the approach to derive
-the first passage time (i.e., "kfe" or "im_zero")}
-
-\item{one_set_comp_vecs}{a list with all vectors for each model component
-(i.e., mu_vals, b_vals etc.)}
 }
 \value{
-a list of PDFs for one condition "pdf_u" and "pdf_l"
+a list of PDFs, with named entries for each condition. Each of this
+entry contains the vectors "pdf_u" and "pdf_l"
 }
 \description{
-This function takes the necessary vectors to derive the first passage
-time (for one condition; subsetted before calling this function). It only
-calls further functions, and doesn't perform any calculations
+This method takes the a model, the time and space vectors, and the
+unpacked parameters for solving the PDF to derive the first passage
+time across all conditions. It is a wrapper around the cpp implementations
+and \link{add_residual}.
+}
+\details{
+calc_pdfs is a generic method which dispaches the function call.
+
+calc_pdfs.ratcliff_dm, is a specific method that checks for the presence of
+the parameter \code{sd_muc}, and, if present, calls the calc_pdfs.drift_dm
+function multiple times with different value for \code{muc}, to approximate the
+variable drift rate.
+
+calc_pdfs.drift_dm is the function that will be called for all models.
+It evaluates the different components of a model, and subsequently calls
+the cpp implemenations for the KFE or integral method. It also calls the
+\link{add_residual} function to convolve the non-decision time to the
+first passage time.
 }
 \seealso{
-\code{\link[=kfe_ale]{kfe_ale()}}, \code{\link[=im_zero]{im_zero()}}, \link{add_residual}
+\link{add_residual}
 }

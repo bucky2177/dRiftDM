@@ -18,9 +18,10 @@ ratcliff_dm(
 )
 }
 \arguments{
-\item{var_non_dec, var_start}{logical, indicating whether the model should
-have a (uniform) variable non-decision time or starting point, respectively
-(see \code{nt_uniform} and \code{x_uniform} in \link{component_shelf})}
+\item{var_non_dec, var_start, var_drift}{logical, indicating whether the model
+should have a (uniform) variable non-decision time, starting point, or
+(normally-distributed) variable drift rate.
+(see also \code{nt_uniform} and \code{x_uniform} in \link{component_shelf})}
 
 \item{instr}{optional string with "instructions", see
 \code{\link[=modify_flex_prms]{modify_flex_prms()}}.}

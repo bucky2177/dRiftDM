@@ -7,9 +7,10 @@
 #' This function creates a [dRiftDM::drift_dm] model that corresponds to the
 #' basic Ratcliff Diffusion Model
 #'
-#' @param var_non_dec,var_start logical, indicating whether the model should
-#'   have a (uniform) variable non-decision time or starting point, respectively
-#'   (see `nt_uniform` and `x_uniform` in [dRiftDM::component_shelf])
+#' @param var_non_dec,var_start,var_drift logical, indicating whether the model
+#'   should have a (uniform) variable non-decision time, starting point, or
+#'   (normally-distributed) variable drift rate.
+#'   (see also `nt_uniform` and `x_uniform` in [dRiftDM::component_shelf])
 #' @param instr optional string with "instructions", see
 #'   [dRiftDM::modify_flex_prms()].
 #' @param obs_data data.frame, an optional data.frame with the observed data.
@@ -32,15 +33,15 @@
 #' @seealso [dRiftDM::component_shelf()], [dRiftDM::drift_dm()]
 #'
 #' @export
-ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE, 
-                        var_drift = FALSE, instr = NULL, obs_data = NULL, 
-                        sigma = 1, t_max = 3, dt = .001, dx = .001, 
+ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
+                        var_drift = FALSE, instr = NULL, obs_data = NULL,
+                        sigma = 1, t_max = 3, dt = .001, dx = .001,
                         b_coding = NULL) {
   prms_model <- c(muc = 3, b = 0.6, non_dec = 0.3)
   if (var_non_dec) prms_model <- append(prms_model, c(range_non_dec = 0.05))
-  if (var_start) prms_model <- append(prms_model, c(range_start = 0.05))
-  if (var_drift) prms_model <- append(prms_model, c(sd_muc = 0.5))
-  
+  if (var_start) prms_model <- append(prms_model, c(range_start = 0.5))
+  if (var_drift) prms_model <- append(prms_model, c(sd_muc = 1))
+
   conds <- "null"
   r_dm <- drift_dm(
     prms_model = prms_model, conds = conds, subclass = "ratcliff_dm",

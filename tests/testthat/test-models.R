@@ -388,9 +388,10 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
   )
 
   pdf_test <- dunif(
-    x_seq, 0 - 0.05 / 2,
-    0 + 0.05 / 2
+    x_seq, 0 - 0.5 / 2,
+    0 + 0.5 / 2
   )
+  pdf_test = pdf_test / (sum(pdf_test) * 0.001)
   expect_identical(pdf_test, x_x)
 
   # test the non-decision time
@@ -404,6 +405,24 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
   pdf_test <- rep(0, a_model$prms_solve[["nt"]] + 1)
   pdf_test[0.3 / a_model$prms_solve[["dt"]] + 1] <- 1 / a_model$prms_solve[["dt"]]
   expect_equal(pdf_test, pdf_nt)
+
+
+
+  # NOW THE VARIABLE DRIFT RATE
+  a_model <- ratcliff_dm(var_drift = T, dx = .005, dt = .005, t_max = 2.5)
+
+  # check expected behavior
+  a_model = re_evaluate_model(a_model)
+  expect_equal(length(a_model$pdfs$null$pdf_u), 501)
+  expect_equal(length(a_model$pdfs$null$pdf_l), 501)
+  expect_true(
+    abs(sum(a_model$pdfs$null$pdf_l) + sum(a_model$pdfs$null$pdf_u)) * 0.005 - 1
+    < 0.01
+  )
+
+  cafs = calc_stats(a_model, type = "cafs")
+  expect_true(all(diff(cafs$P_corr) < 0))
+
 })
 
 
