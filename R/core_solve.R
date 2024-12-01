@@ -138,11 +138,24 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
         dt_b_vals = dt_b_vals, x_vec = x_vec
       )
     } else if (solver == "im_zero") {
-      im_pdfs <- im_zero(t_vec, prms_solve,
-        one_set_comp_vecs = comp_vals_one_cond
-      )
-      pdf_u <- im_pdfs$pdf_u
-      pdf_l <- im_pdfs$pdf_l # TODO
+      
+      # ## CPP - Version
+      cpp_imzero(pdf_u=pdf_u, pdf_l=pdf_l,
+                 nt=nt, nx=nx, 
+                 dt=dt, dx=dx,
+                 sigma=sigma,
+                 b_vals = b_vals, 
+                 mu_vals = mu_vals,
+                 mu_int_vals = mu_int_vals, 
+                 dt_b_vals = dt_b_vals,
+                 t_vec = t_vec)
+      
+      # ## R Version
+      # im_pdfs <- im_zero(t_vec, prms_solve,
+      #   one_set_comp_vecs = comp_vals_one_cond)
+      # pdf_u <- im_pdfs$pdf_u
+      # pdf_l <- im_pdfs$pdf_l # TODO
+      
     } else {
       stop("solver '", solver, "' not implemented yet!")
     }

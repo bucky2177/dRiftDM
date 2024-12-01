@@ -35,6 +35,7 @@
 ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
                         var_drift = FALSE, instr = NULL, obs_data = NULL,
                         sigma = 1, t_max = 3, dt = .001, dx = .001,
+                        solver= 'kfe',
                         b_coding = NULL) {
   prms_model <- c(muc = 3, b = 0.6, non_dec = 0.3)
   if (var_non_dec) prms_model <- append(prms_model, c(range_non_dec = 0.05))
@@ -47,7 +48,7 @@ ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
     instr = instr, obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt,
     dx = dx, mu_fun = mu_constant, mu_int_fun = mu_int_constant,
     x_fun = x_dirac_0, b_fun = b_constant, dt_b_fun = dt_b_constant,
-    nt_fun = nt_constant, b_coding = b_coding
+    nt_fun = nt_constant, b_coding = b_coding, solver=solver
   )
 
   # set other functions if requested
