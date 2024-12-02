@@ -14,6 +14,7 @@ ratcliff_dm(
   t_max = 3,
   dt = 0.001,
   dx = 0.001,
+  solver = "kfe",
   b_coding = NULL
 )
 }
@@ -32,6 +33,8 @@ See \link{obs_data}.}
 \item{sigma, t_max, dt, dx}{numeric, providing the settings for the diffusion
 constant and discretization (see \link{drift_dm})}
 
+\item{solver}{character, specifying the \link{solver}.}
+
 \item{b_coding}{list, an optional list with the boundary encoding (see
 \link{b_coding})}
 }
@@ -40,13 +43,17 @@ This function creates a \link{drift_dm} model that corresponds to the
 basic Ratcliff Diffusion Model
 }
 \details{
-The Ratcliff Diffusion Model is a diffusion model with a constant drift rate
-\code{muc} and a constant boundary \code{b}. If \code{var_non_dec = FALSE},  a constant
-non-decision time \code{non_dec} is assumed, otherwise a uniform non-decision time
-with mean \code{non_dec} and range \code{range_non_dec}. If \code{var_start = FALSE},  a
-constant starting point centered between the boundaries is assumed (i.e.,
-a dirac delta over 0), otherwise a uniform starting point with mean 0 and
-range \code{range_start}.
+The classical Ratcliff Diffusion Model is a diffusion model with a constant
+drift rate \code{muc} and a constant boundary \code{b}. If \code{var_non_dec = FALSE},  a
+constant non-decision time \code{non_dec} is assumed, otherwise a uniform
+non-decision time with mean \code{non_dec} and range \code{range_non_dec}. If
+\code{var_start = FALSE},  a constant starting point centered between the
+boundaries is assumed (i.e., a dirac delta over 0), otherwise a uniform
+starting point with mean 0 and range \code{range_start}. If \code{var_drift = FALSE},
+a constant drift rate is assumed, otherwise a normally distributed drift rate
+with mean \code{mu_c} and standard deviation \code{sd_muc} (can be computationally
+intensive). Important: Variable drift rate is only possible with dRiftDM's
+\code{mu_constant} function. No custom drift rate is yet possible in this case.
 }
 \seealso{
 \code{\link[=component_shelf]{component_shelf()}}, \code{\link[=drift_dm]{drift_dm()}}

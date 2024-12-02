@@ -130,7 +130,7 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
     pdf_l <- numeric(nt + 1)
 
     if (solver == "kfe") {
-      # solve the pdfs
+      # solve the pdfs with kfe
       cpp_kfe(
         pdf_u = pdf_u, pdf_l = pdf_l, xx = x_vals,
         nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
@@ -138,24 +138,12 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
         dt_b_vals = dt_b_vals, x_vec = x_vec
       )
     } else if (solver == "im_zero") {
-      
-      # ## CPP - Version
-      cpp_imzero(pdf_u=pdf_u, pdf_l=pdf_l,
-                 nt=nt, nx=nx, 
-                 dt=dt, dx=dx,
-                 sigma=sigma,
-                 b_vals = b_vals, 
-                 mu_vals = mu_vals,
-                 mu_int_vals = mu_int_vals, 
-                 dt_b_vals = dt_b_vals,
+      # solve the pdfs with integral approach
+      cpp_imzero(pdf_u = pdf_u, pdf_l = pdf_l, nt = nt, nx = nx, dt = dt,
+                 dx = dx, sigma = sigma, b_vals = b_vals, mu_vals = mu_vals,
+                 mu_int_vals = mu_int_vals, dt_b_vals = dt_b_vals,
                  t_vec = t_vec)
-      
-      # ## R Version
-      # im_pdfs <- im_zero(t_vec, prms_solve,
-      #   one_set_comp_vecs = comp_vals_one_cond)
-      # pdf_u <- im_pdfs$pdf_u
-      # pdf_l <- im_pdfs$pdf_l # TODO
-      
+
     } else {
       stop("solver '", solver, "' not implemented yet!")
     }
@@ -168,8 +156,7 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
 
     #  add residual time ...
     pdfs_one_cond <- add_residual(
-      pdf_nt = nt_vals, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt,
-      nt = nt
+      pdf_nt = nt_vals, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt, nt = nt
     )
 
     return(pdfs_one_cond)
@@ -178,111 +165,6 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
 
   return(pdfs)
 }
-
-
-
-# im_zero -> integral method with no starting distribution
-#' Derive PDFs via the Integration Method
-#'
-#' Currently only a dummy function, with slow R code... Will be ported to
-#' C++ and will be more general
-#'
-#' @param t_vec the time space
-#' @param prms_solve the discretization, [dRiftDM::prms_solve]
-#' @param one_set_comp_vecs list of vectors containing the values for each
-#' model component (i.e., "mu_vals", "b_vals", etc.)
-#'
-#' @returns a list of PDFs for one condition "pdf_u" and "pdf_l"
-#'
-im_zero <- function(t_vec, prms_solve, one_set_comp_vecs) {
-  # Getting the necessary parameters
-  dt <- prms_solve[["dt"]]
-  nt <- prms_solve[["nt"]]
-  sigma <- prms_solve[["sigma"]]
-
-  # Initializing containers
-  pdf_u <- numeric(nt + 1)
-  pdf_l <- numeric(nt + 1)
-
-  # precompute and extract
-  sqrt_sigma_vals <- sqrt(2.0 * pi * sigma^2 * t_vec)
-  mu_vals <- one_set_comp_vecs$mu_vals
-  mu_int_vals <- one_set_comp_vecs$mu_int_vals
-  b_vals <- one_set_comp_vecs$b_vals
-  dt_b_vals <- one_set_comp_vecs$dt_b_vals
-
-
-  for (t_i in 2:nt) {
-    # @Thomas: Muss mu_int_vals[1] nicht immer logischerweise 0 sein?
-    pdf_u[t_i] <- -2 * psi(
-      b_vals[t_i], t_vec[t_i], dt_b_vals[t_i], mu_vals[t_i],
-      mu_int_vals[t_i], mu_int_vals[1], sqrt_sigma_vals[t_i]
-    )
-    pdf_l[t_i] <- +2 * psi(
-      -b_vals[t_i], t_vec[t_i], -dt_b_vals[t_i], mu_vals[t_i],
-      mu_int_vals[t_i], mu_int_vals[1], sqrt_sigma_vals[t_i]
-    )
-
-
-    if (t_i > 2) {
-      F11 <- ff(
-        t_vec, b_vals, b_vals, mu_int_vals, sqrt_sigma_vals,
-        2 * sigma^2, dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2)
-      )
-      F12 <- ff(
-        t_vec, b_vals, -b_vals, mu_int_vals, sqrt_sigma_vals,
-        2 * sigma^2, dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2)
-      )
-      F21 <- ff(
-        t_vec, -b_vals, b_vals, mu_int_vals, sqrt_sigma_vals,
-        2 * sigma^2, -dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2)
-      )
-      F22 <- ff(
-        t_vec, -b_vals, -b_vals, mu_int_vals, sqrt_sigma_vals,
-        2 * sigma^2, -dt_b_vals[t_i], mu_vals[t_i], t_i, 1:(t_i - 2)
-      )
-
-      pdf_u[t_i] <- pdf_u[t_i] +
-        2 * dt * (sum(pdf_u[2:(t_i - 1)] * F11) + sum(pdf_l[2:(t_i - 1)] * F12))
-      pdf_l[t_i] <- pdf_l[t_i] -
-        2 * dt * (sum(pdf_u[2:(t_i - 1)] * F21) + sum(pdf_l[2:(t_i - 1)] * F22))
-    }
-  }
-
-  return(list(pdf_u = pdf_u, pdf_l = pdf_l))
-}
-
-# psi for Z = 0 and ta = 0
-psi <- function(b_val_i, t_val_i, dt_b_val_i, mu_val_i, mu_int_val_i,
-                mu_int_val_0, sqrt_sigma_i) {
-  # f() wenn Z = 0 und ta = 0
-  num1 <- 1 / sqrt_sigma_i * exp(
-    -(b_val_i - mu_int_val_i + mu_int_val_0)^2 / (sqrt_sigma_i^2 / pi)
-  )
-
-  num2 <- (dt_b_val_i - mu_val_i -
-    (b_val_i - mu_int_val_i + mu_int_val_0) / t_val_i)
-
-  return(num1 * num2 / 2)
-}
-
-
-# ff of thomas
-ff <- function(t_vec, b_vals_1, b_vals_2, mu_int_vals, sqrt_sigma_vals,
-               sigma_sq, dt_b_val_i, mu_val_i, t_i, idxs) {
-  temp <- b_vals_1[t_i] - b_vals_2[idxs + 1] - mu_int_vals[t_i] + mu_int_vals[idxs + 1]
-
-  t_temp <- t_vec[t_i] - t_vec[idxs + 1]
-
-  multipl <- 1 / sqrt_sigma_vals[t_i - idxs]
-
-  exp_val <- exp(-temp^2 / (sigma_sq * t_temp))
-
-  denom <- (dt_b_val_i - mu_val_i - temp / t_temp)
-
-  return(multipl * exp_val / 2 * denom)
-}
-
 
 
 #' Convolute the First Passage Times with the Non-Decision Time Distribution
@@ -307,7 +189,7 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
   }
 
   if (abs(sum(pdf_nt) * dt - (sum(pdf_l) * dt + sum(pdf_u) * dt)) >
-    drift_dm_medium_approx_error()) {
+      drift_dm_medium_approx_error()) {
     warning(
       "pdf of the non-dec-time and pdf_l/pdf_u don't integrate to the",
       " same value"
@@ -325,7 +207,7 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
   stopifnot(length(pdf_u) == length(pdf_nt) & length(pdf_l) == length(pdf_nt))
 
 
-  # add robustness prm and weight
+  # add robustness prm
   pdf_u <- (pdf_u + drift_dm_robust_prm())
   pdf_l <- (pdf_l + drift_dm_robust_prm())
 

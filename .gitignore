@@ -11,5 +11,9 @@ inst/doc
 data-raw
 playground.R
 .Rprofile
-drift_dm_fits
-figures
+tutorial/drift_dm_fits
+tutorial/figures
+tutorial/figure
+tutorial/*.Rmd
+tutorial/*.md
+

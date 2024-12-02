@@ -221,21 +221,27 @@ coef.fits_ids_dm <- function(object, ...) {
 
 # HELPER FUNCTION ---------------------------------------------------------
 
-#' Attempt to Convert Values to Numeric
+#' Convert Digit to Digits Numeric
 #'
-#' This internal function tries to cast a vector to numeric. If the conversion
-#' fails (e.g., due to non-numeric values), it returns the original input
-#' unchanged.
+#' This internal function casts a character vector to numeric, if the character
+#' vector only contains digits for entries. If the input vector is not of
+#' type character or if any entry contains a non-digit, then the vector is
+#' returned unmodified.
 #'
 #' @param values a vector of values to attempt conversion to numeric.
 #' @return a numeric vector if conversion succeeds; otherwise, the original
 #' vector is returned.
 #'
 try_cast_numeric <- function(values) {
-  values <- tryCatch(
-    as.numeric(values),
-    error = function(e) values,
-    warning = function(e) values
-  )
+
+  if (!is.character(values)) return(values)
+
+  checks = !grepl("\\D", values) # check each entry if only digits exist
+
+  # if each entry only contains digits, then cast to numeric
+  if (all(checks)) {
+    values = as.numeric(values)
+  }
+
   return(values)
 }

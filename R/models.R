@@ -16,18 +16,23 @@
 #' See [dRiftDM::obs_data].
 #' @param sigma,t_max,dt,dx numeric, providing the settings for the diffusion
 #' constant and discretization (see [dRiftDM::drift_dm])
+#' @param solver character, specifying the [dRiftDM::solver].
 #' @param b_coding list, an optional list with the boundary encoding (see
 #' [dRiftDM::b_coding])
 #'
 #' @details
 #'
-#' The Ratcliff Diffusion Model is a diffusion model with a constant drift rate
-#' `muc` and a constant boundary `b`. If `var_non_dec = FALSE`,  a constant
-#' non-decision time `non_dec` is assumed, otherwise a uniform non-decision time
-#' with mean `non_dec` and range `range_non_dec`. If `var_start = FALSE`,  a
-#' constant starting point centered between the boundaries is assumed (i.e.,
-#' a dirac delta over 0), otherwise a uniform starting point with mean 0 and
-#' range `range_start`.
+#' The classical Ratcliff Diffusion Model is a diffusion model with a constant
+#' drift rate `muc` and a constant boundary `b`. If `var_non_dec = FALSE`,  a
+#' constant non-decision time `non_dec` is assumed, otherwise a uniform
+#' non-decision time with mean `non_dec` and range `range_non_dec`. If
+#' `var_start = FALSE`,  a constant starting point centered between the
+#' boundaries is assumed (i.e., a dirac delta over 0), otherwise a uniform
+#' starting point with mean 0 and range `range_start`. If `var_drift = FALSE`,
+#' a constant drift rate is assumed, otherwise a normally distributed drift rate
+#' with mean `mu_c` and standard deviation `sd_muc` (can be computationally
+#' intensive). Important: Variable drift rate is only possible with dRiftDM's
+#' `mu_constant` function. No custom drift rate is yet possible in this case.
 #'
 #' @seealso [dRiftDM::component_shelf()], [dRiftDM::drift_dm()]
 #'
@@ -35,8 +40,7 @@
 ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
                         var_drift = FALSE, instr = NULL, obs_data = NULL,
                         sigma = 1, t_max = 3, dt = .001, dx = .001,
-                        solver= 'kfe',
-                        b_coding = NULL) {
+                        solver = 'kfe', b_coding = NULL) {
   prms_model <- c(muc = 3, b = 0.6, non_dec = 0.3)
   if (var_non_dec) prms_model <- append(prms_model, c(range_non_dec = 0.05))
   if (var_start) prms_model <- append(prms_model, c(range_start = 0.5))
@@ -48,7 +52,7 @@ ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
     instr = instr, obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt,
     dx = dx, mu_fun = mu_constant, mu_int_fun = mu_int_constant,
     x_fun = x_dirac_0, b_fun = b_constant, dt_b_fun = dt_b_constant,
-    nt_fun = nt_constant, b_coding = b_coding, solver=solver
+    nt_fun = nt_constant, b_coding = b_coding, solver = solver
   )
 
   # set other functions if requested

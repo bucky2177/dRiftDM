@@ -276,8 +276,10 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   }
 
   # plot the legend
+  dots = list(...)
+  lwd = dots$lwd
   if (!any(cafs$Source == "pred")) {
-    lty <- NA
+    lwd <- -1
   }
   if (!any(cafs$Source == "obs")) {
     pch <- NA
@@ -286,7 +288,7 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     graphics::legend(
       x = legend_pos,
       legend = legend,
-      col = col, lty = lty, pch = pch, ...
+      col = col, lwd = lwd, pch = pch, ...
     )
   }
 }
@@ -401,8 +403,10 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
   }
 
   # plot the legend
+  dots = list(...)
+  lwd = dots$lwd
   if (!any(quantiles$Source == "pred")) {
-    lty <- NA
+    lwd <- -1
   }
   if (!any(quantiles$Source == "obs")) {
     pch <- NA
@@ -411,7 +415,7 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
     graphics::legend(
       x = legend_pos,
       legend = legend,
-      col = col, lty = lty, pch = pch, ...
+      col = col, lwd = lwd, pch = pch, ...
     )
   }
 }
@@ -534,8 +538,10 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 
 
   # plot the legend
+  dots = list(...)
+  lwd = dots$lwd
   if (!any(delta_fun$Source == "pred")) {
-    lty <- NA
+    lwd <- -1
   }
   if (!any(delta_fun$Source == "obs")) {
     pch <- NA
@@ -545,7 +551,7 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
     graphics::legend(
       x = legend_pos,
       legend = legend,
-      col = col, lty = lty, pch = pch, ...
+      col = col, lwd = lwd, pch = pch, ...
     )
   }
 }

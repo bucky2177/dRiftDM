@@ -42,6 +42,10 @@ Functions to get or set the "solver" of an object.
 \details{
 \code{solver()} is a generic accessor function, and \verb{solver<-()} is a
 generic replacement function. The default methods get and set the "solver".
+
+The "solver" indicates the approach with which the PDFs of a model are
+calculated. Supported options are "kfe" and "im_zero" (method based on the
+Kolmogorov-Forward-Equation or on integral equations, respectively).
 }
 \note{
 There is only a replacement function for \link{drift_dm} objects. This is

@@ -2,7 +2,7 @@
 % Please edit documentation in R/extended_s3_methods.R
 \name{try_cast_numeric}
 \alias{try_cast_numeric}
-\title{Attempt to Convert Values to Numeric}
+\title{Convert Digit to Digits Numeric}
 \usage{
 try_cast_numeric(values)
 }
@@ -14,7 +14,8 @@ a numeric vector if conversion succeeds; otherwise, the original
 vector is returned.
 }
 \description{
-This internal function tries to cast a vector to numeric. If the conversion
-fails (e.g., due to non-numeric values), it returns the original input
-unchanged.
+This internal function casts a character vector to numeric, if the character
+vector only contains digits for entries. If the input vector is not of
+type character or if any entry contains a non-digit, then the vector is
+returned unmodified.
 }

@@ -1,34 +1,36 @@
-
-# -------------------------------------------------------------------------
-# Author: Valentin Koob
-# Last Updated: 18.11.2024
-# Description: This file provides all the code that is described in the
-#              tutorial for dRiftDM
-# -------------------------------------------------------------------------
+#' ---
+#' title: "Reproducing the dRiftDM Tutorial"
+#' author: "Valentin Koob (bucky)"
+#' date: "26.11.2024"
+#' ---
+#'
+#' This document contains the output of dRiftDM's tutorial to facilitate review.
+#'
 
 rm(list = ls())
-save_plots = T # set TRUE to save the plots below as PDF files
-if (save_plots)
-  dir.create("figures")
 
-# GETTING STARTED ---------------------------------------------------------
 
-# install the package
-# install.packages("devtools")
-# devtools::install_github("bucky2177/dRiftDM")
+# -------------------------------------------------------------------------
+#' # Getting Started
+#' Install the package.
+
+#+ eval = FALSE
+install.packages("devtools") # if not already available
+devtools::install_github("bucky2177/dRiftDM")
 # optional: install.packages("cowsay")
 
-# load the package
+#' Load the package and choose a pre-built model.
+#+ get_a_ddm
 library(dRiftDM)
 a_model = ratcliff_dm() # a basic DDM (the Ratcliff DDM)
 print(a_model) # print the model to the console
-names(a_model) # names of the underlying list entries
 
-# basic accessor and replacement functions
-# Documations: ?coef.drift_dm; ?prms_solve; ?solver; ?drift_dm
+#' Demonstration of basic accessor and replacement functions. Documentation
+#' available via: `?coef.drift_dm`; `?prms_solve`; `?solver`; `?drift_dm`
+#+ modify_a_ddm
 coef(a_model) # the unique model parameters
 coef(a_model)["muc"] = 3.2 # sets the value of muc to 3.2
-coef(a_model)["b"] = 0.5   # sets the value of b to 3.2
+coef(a_model)["b"] = 0.5   # sets the value of b to 0.5
 
 prms_solve(a_model) # the "solver settings" (= scaling and discretization)
 prms_solve(a_model)[c("t_max", "dt")] = c(2, 0.005) # sets the time space
@@ -36,60 +38,59 @@ prms_solve(a_model)[c("t_max", "dt")] = c(2, 0.005) # sets the time space
 print(a_model) # see the changes
 
 
-# EXPLORE PREDICTIONS -----------------------------------------------------
 
-
-# calculate and plot traces
+# -------------------------------------------------------------------------
+#' # Exploring Model Behavior and Predictions
+#' Simulate some traces.
+#+ sim_first_traces
 set.seed(123) # for reproducible results
 some_traces = simulate_traces(a_model, k = 3) # simulates k = 3 "traces"
 print(some_traces) # show in a formatted way
 some_traces_no_noise = simulate_traces(a_model, k = 1, sigma = 0) # no noise
 
-# show the traces (for documentation, see ?plot.traces_dm_list
-# -> the if-statements are irrelevant)
-if (save_plots) pdf(file.path("figures", "ratcliff_traces.pdf"),
-                    width = 6, height = 3.5)
+#' Show the traces (see also `?plot.traces_dm_list`)
+#+ show_first_traces, fig.width = 8, fig.height = 4.5
 par(mfrow = c(1,2)) # to plot the traces with and without noise side-by-side
 plot(
   some_traces,     # the traces object
   col = "gray20",  # the desired color for each trace
   xlim = c(0, 0.4) # controls the x-axis limit
 )
-plot(some_traces_no_noise, col = "gray20", xlim = c(0, 0.4)) # similar as above
-if (save_plots) dev.off()
+plot(some_traces_no_noise, col = "gray20", xlim = c(0, 0.4))
 
 
-# get the plain values of the traces ("strips away" class information)
-plain_traces = unpack_traces(some_traces)
-str(plain_traces)
-
-
-# calculate stats -> for speed, evaluate the model before calculating the
-# statistics
+#' Calculate summary statistics. For speed, evaluate the model before
+#' calculating the statistics.
+#+ pdfs_sum_stats
 a_model = re_evaluate_model(a_model)
 head(a_model$pdfs$null$pdf_u) # access PDF directly
 
-# or calculate summary statistics (more common in my opinion)
+# or calculate summary statistics (more common in our opinion)
 some_stats = calc_stats(a_model, type = c("cafs", "quantiles"))
 print(some_stats)
 
-# plot stats (see ?plot.list_stats_dm; ?plot.cafs; ?plot.quantiles)
-if (save_plots) pdf(file.path("figures", "ratcliff_stats.pdf"),
-                    width = 6, height = 3.5)
+#' Plot the summary statistics (see also `?plot.list_stats_dm`; `?plot.cafs`;
+#' `?plot.quantiles`)
+#+ fig.width = 8, fig.height = 4.5
 plot(some_stats, mfrow = c(1, 2), col = "black")
-if (save_plots) dev.off()
 
 
 
-# CHANGE SOLVER -----------------------------------------------------------
-
+# -------------------------------------------------------------------------
+#' # Change Solver
+#' "kfe" is the default solver, but users can change this to the
+#' integral approach for models without trial-by-trial variability.
+#+ change_solver
 solver(a_model)
 solver(a_model) <- "im_zero" # use the method based on integral equations
 print(a_model)
 
 
-# SET AND FIT A SINGLE DATA SET -------------------------------------------
 
+# -------------------------------------------------------------------------
+#' # Set and fit a single data set
+#' Get a model and set some data
+#+ set_data
 # create a model
 a_model = dmc_dm() # creates the Diffusion Model for Conflict Tasks
 print(a_model)     # note the special dependencies and custom parameters
@@ -97,9 +98,11 @@ print(a_model)     # note the special dependencies and custom parameters
 # set some data
 head(dmc_synth_data) # available with dRiftDM
 obs_data(a_model) = dmc_synth_data
-
 print(a_model)
 
+#' Increase discretization for speed and then estimate the model using (bounded)
+#' Nelder-Mead
+#+ estimate_one_data_set_nmkb
 # set the discretization
 # t_max -> should be large enough to easily cover even the slowest observed RTs
 # dt, dx -> depend on the model; no recommendation yet
@@ -124,22 +127,30 @@ a_model = estimate_model(  # takes about 30 seconds
 
 round(coef(a_model), 3)
 
+#' Repeat the same, but now use Differential Evolution
+#+ estimate_one_data_set_de
+# ensures 6 cores or less (if not available)
+n_cores = pmin(parallel::detectCores()-1, 6)
+n_cores = pmax(n_cores, 1) # ensures at least one core
+
 # use DE algorithm with multiple cores
-a_model = estimate_model(
+a_model = estimate_model( # takes about 7-9 minutes with 6 cores
   drift_dm_obj = a_model,
   lower = lower_prm_bnd,
   upper = upper_prm_bnd,
   seed = 1,
-  de_control = list(trace = T),
-  de_n_cores =  # use an appropriate number (e.g., 6)
+  de_n_cores =  n_cores # use an appropriate number (e.g., 6)
 )
 
-# investigate results
+#' Investigate results
+#+ calc_stats_single_fit
 summary(a_model)
 
-# calculate fit statistics and summary statistics
-# gives log-likelihood, AIC, and BIC (see ?logLik.drift_dm, ?AIC, ?BIC)
+# extract fit statistics
+# gives log-likelihood, AIC, and BIC (see also ?logLik.drift_dm, ?AIC, ?BIC)
 calc_stats(a_model, type = "fit_stats")
+
+# calculate summary statistics
 sum_stats = calc_stats(
   a_model,                                      # model
   type = c("cafs", "quantiles", "delta_funs"),  # requested summary statistics
@@ -147,22 +158,26 @@ sum_stats = calc_stats(
   subtrahends = "comp"                          # -> incomp - comp
 )
 
-if (save_plots) pdf(file.path("figures", "dmc_fit_single.pdf"), width = 8,
-                    height = 3)
+#' Plot the summary statistics
+#+ plot_stats_single_fit, fig.width = 8, fig.height = 4
 plot(sum_stats, mfrow = c(1,3))
-if (save_plots) dev.off()
 
 
 
-# SET AND FIT MULTIPLE DATA SETS ------------------------------------------
-
+# -------------------------------------------------------------------------
+#' # Set and Fit Multiple Data Sets
+#' A data set with multiple participants
+#+
 large_dat = ulrich_flanker_data # provided by dRiftDM
 head(large_dat)
 
+#' Fit a model to each participant
+#+ fit_multiple_ids
 # fresh model without data
 a_model = dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
 
-estimate_model_ids(
+# now call the fit procedure
+estimate_model_ids(                       # takes about 10-15 minutes
   drift_dm_obj = a_model,                 # the model to fit ...
   obs_data_ids = large_dat,               # to each participant in large_dat
   lower = lower_prm_bnd,                  # lower boundary of the search space
@@ -172,17 +187,21 @@ estimate_model_ids(
   use_nmkb = T      # but use Nelder-Mead (faster; for the tutorial)
 )
 
+#' See the folder structure
+#+ folder_str
 # fit procedure structure
+list.dirs()
 list.files("./drift_dm_fits/ulrich_flanker/")
 
+#' Load all fits to investigate model fit and the parameter estimates
+#+ load_plot_multiple_ids, fig.width = 8, fig.height = 4
 # load a fit procedure
 all_fits = load_fits_ids(fit_procedure_name = "ulrich_flanker")
 print(all_fits)
 
-# access stats and parameters
+# access parameters
 all_prms = coef(all_fits) # returns data.frame of all prms across IDs
 head(all_prms, 2)
-colMeans(all_prms)[-1] # -1 to drop the (averaged) ID (which doesn't make sense)
 
 # investigate model fit (as above)
 sum_stats = calc_stats(
@@ -193,23 +212,16 @@ sum_stats = calc_stats(
 )
 
 # plot model fit
-if (save_plots) pdf(file.path("figures", "dmc_fit_flanker.pdf"), width = 8,
-                    height = 3)
-plot(sum_stats, mfrow = c(1,3))
-if (save_plots) dev.off()
-
-# plot the data of Subject 1
-sum_stats$cafs = sum_stats$cafs[sum_stats$cafs$ID == 1,]
-sum_stats$quantiles = sum_stats$quantiles[sum_stats$quantiles$ID == 1,]
-sum_stats$delta_funs = sum_stats$delta_funs[sum_stats$delta_funs$ID == 1,]
 plot(sum_stats, mfrow = c(1,3))
 
 
-# A SIMPLE PARAMETER RECOVERY STUDY ---------------------------------------
-
-# some model itself (here the Ratcliff DDM)
+#' # A Simple Parameter Recovery Study
+#' Get the Ratcliff DDM as a dummy model for demonstration purposes.
+#+
 a_model = ratcliff_dm(t_max = 2)
 
+#' Generate the original parameters and simulate synthetic data
+#+ gen_synth_data
 # define a simulation space
 lower_sim_bnd = c(muc = 2, b = 0.3, non_dec = 0.2)
 upper_sim_bnd = c(muc = 6, b = 0.8, non_dec = 0.4)
@@ -230,24 +242,31 @@ head(synth_data)
 orig_prms = data_prms$prms            # the parameter underlying the synth. data
 head(orig_prms)
 
+#' Fit the model to the synthetic data
+#+ fit_prm_recovery
 # set discretization for the recovery
 prms_solve(a_model)[c("dx", "dt")] = c(.005, .005)
 
 # fit the model to each synthetic data
+n_cores = pmin(parallel::detectCores()-1, 2) # use 2 cores (if available)
+n_cores = pmax(n_cores, 1) # ensures at least one core
+
 estimate_model_ids(                           # takes about 30 minutes
   drift_dm_obj = a_model,                     # the model to fit
   obs_data_ids = synth_data,                  # the synthetic data
   lower = lower_sim_bnd,                      # the lower search space
   upper = upper_sim_bnd,                      # the upper search space
   fit_procedure_name = "ratcliff_recovery",   # a label for the fit procedure
-  de_n_cores = 2,                             # the number of cores
+  de_n_cores = n_cores,                       # the number of cores
   seed = 2                                    # a seed for reproducible results
 )
 
-# load the model and extract parameters
+#' Load the model fits and extract parameters to calculate correlations and
+#' biases.
+#+ summarize_prm_recovery
 recov_fits = load_fits_ids(fit_procedure_name = "ratcliff_recovery")
-recov_prms = coef(recov_fits)
-stopifnot(recov_prms$ID == orig_prms$ID)
+recov_prms = coef(recov_fits) # extracts parameters
+stopifnot(recov_prms$ID == orig_prms$ID) # ensure that the order of IDs matches
 
 # correlations
 cor(recov_prms$muc, orig_prms$muc)
@@ -264,9 +283,11 @@ mean(recov_prms$non_dec - orig_prms$non_dec) /
 
 
 
-
-# USE FLEX_PRMS -----------------------------------------------------------
-# Goal in this section: Introduce a neutral condition and demonstrate flex_prms
+# -------------------------------------------------------------------------
+#' # Customize a Model: Using Flex_prms
+#' Goal in this section: Introduce a neutral condition and demonstrate flex_prms
+#' 1. Example: Restrain and free parameters across conditions
+#+ flex_prms_1
 my_dmc_model = dmc_dm()
 flex_prms(my_dmc_model)
 my_dmc_model = modify_flex_prms(
@@ -277,19 +298,22 @@ my_dmc_model = modify_flex_prms(
 print(my_dmc_model)
 
 
+#' 2. Example: Create a neutral condition. Requires to create a new flex_prms
+#' object and to swap it in.
+#+ flex_prms_2
 # create a new flex_prms object
-# requires the parameters to set
+# requires the parameters of the model and the conditions
 dmc_prms = c(muc = 4, b = 0.6, non_dec = 0.3, sd_non_dec = 0.02, tau = 0.04,
              a = 2, A = 0.1, alpha = 4)
 new_flex_prms = flex_prms(dmc_prms, conds = c("comp", "neutral", "incomp"))
 print(new_flex_prms)
 
-# now we have to modify the flex_prms object to suit our needs
+#' Modify the new flex_prms object to suit our needs.
+#+
 # 1.) fix a so that it is not estimated
 # 2.) set A = 0 for neutral condition and keep it fixed
 # 3.) set A negative for incomp condition
-# -> can be done via "instructions"
-
+# -> can be done via a set of "instructions" (see ?modify_flex_prms)
 instructions = "
 a <!>             # a is 'fixed' across all conditions
 A ~ incomp == -(A ~ comp)  # A in incomp conditions is
@@ -303,44 +327,22 @@ new_flex_prms = modify_flex_prms(object = new_flex_prms,
 
 print(new_flex_prms)
 
-# now swap in the new flex_prms object
+#' Now swap in the new flex_prms object and visualize the results
+#+ plot_neutral_dmc, fig.width = 10, fig.height = 10
 flex_prms(my_dmc_model) <- new_flex_prms
 print(my_dmc_model)
 
 # visualize the results
-if (save_plots) pdf(file.path("figures", "dmc_neutral.pdf"), width = 7,
-                    height = 7)
 plot(my_dmc_model, xlim = c(0, 0.5),
      col = c("green", "orange", "red"))
-if (save_plots) dev.off()
 
 
-
-# Addition # 1: Allow parameters to vary across conditions
-# Evans & Servant allowed the amplitude of DMC to vary for incomp and comp
-# conditions. Easy to do with the underlying flex_prms object :)
-my_dmc_model = modify_flex_prms(my_dmc_model,
-  instr = "A ~ incomp
-           A ~ incomp => -0.2"
-)
-# Note: A is now a free parameter
-# -> so take care of the sign, e.g., when specifying the search space
-
-
-# Addition # 2: the behavior of coef. coef() tries to provide the unique
-# parameter value labels per default. Because now A is not unique across
-# conditions, we get A.comp and A.incomp (but not A.neutral, because it
-# is assumed fixed)
-coef(my_dmc_model)
-
-# we can request the whole parameter matrix using the select_unique argument
-coef(my_dmc_model, select_unique = F)
-
-
-
-# BUILD A MODEL FROM SCRATCH: SPP -----------------------------------------
-# -> example using SSP
-
+# -------------------------------------------------------------------------
+#' # Build a Model from Scratch: SPP
+#' Here, we create the Shrinking Spotlight Model. To this end, we first
+#' define the custom drift rate of this model, and then write a wrapper around
+#' a function call to `drift_dm()`.
+#+ ssp_code
 # drift rate for SSP
 mu_ssp = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
@@ -363,8 +365,6 @@ mu_ssp = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   mu_t = a_tar_t * p + sign * a_fl_t * p
   return(mu_t)
 }
-
-
 
 # write a function for creating the complete SSP
 ssp_dm = function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
@@ -406,7 +406,8 @@ ssp_dm = function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
 }
 
 
-# call our function :)
+#' Call the function and explore some traces
+#+ plot_ssp, fig.width = 5, fig.height = 4
 my_ssp = ssp_dm()
 print(my_ssp)
 
@@ -415,20 +416,18 @@ set.seed(1)
 some_traces = simulate_traces(my_ssp, k = 2)
 some_traces_no_noise = simulate_traces(my_ssp, k = 1, sigma = 0)
 
-if (save_plots) pdf(file.path("figures", "ssp_traces.pdf"), width = 3.5,
-                              height = 3)
-par(mar = c(4, 4, 1, 1))
 plot(some_traces_no_noise, col = c("green", "red"))
-if (save_plots) dev.off()
 
 
 
 
-
-# BUILD A CUSTOM MODEL: COLLAPSING THRESHOLD + VARIABLE STARTING POINT -------
-
-
-# hyperbolic ratio function
+# -------------------------------------------------------------------------
+#' # Build a Custom Model 2: Collapsing Boundaries and Custom Starting Point
+#' Here, we want to implement a model with collapsing boundaries according to a
+#' hyperbolic ratio function. Furthermore, we want to have a starting point
+#' variability that matches with a centered beta distribution.
+#+ coll_b_start
+# the boundary function
 cust_b = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
   b0 = prms_model[["b0"]]
@@ -439,7 +438,7 @@ cust_b = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   return(b0 * (1 - kappa * t_vec / (t_vec + t05)))
 }
 
-# derivative of the boundary function
+# the derivative of the boundary function
 cust_dt_b = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
   b0 = prms_model[["b0"]]
@@ -449,7 +448,8 @@ cust_dt_b = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   return(-(b0 * kappa * t05) / (t_vec + t05) ^ 2)
 }
 
-# a custom beta-shaped starting point distribution
+
+# the custom beta-shaped starting point distribution
 cust_x = function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
 
   alpha = prms_model[["alpha"]]
@@ -458,8 +458,8 @@ cust_x = function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
   return(start_dist / 2) # / 2 to ensure that it integrates to 1
 }
 
-
-# write a function for creating the custom model
+#' Now write a function that assembles everything
+#+
 coll_dm = function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
                    dx = .001) {
 
@@ -493,26 +493,20 @@ coll_dm = function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
   return(coll_dm)
 }
 
-# create the model and show some predictions
+#' Create the model and show some trajectories
+#+ plot_coll_start, fig.width = 5, fig.height = 4
 a_cust_model = coll_dm()
 set.seed(2)
 some_traces = simulate_traces(a_cust_model, k = 10, add_x = T)
-
-if (save_plots) pdf(file.path("figures", "traces_coll.pdf"), width = 3,
-                              height = 3.5)
 plot(some_traces, xlim = c(0, 0.4))
-if (save_plots) dev.off()
 
 
 
-
-
-
-
-
-# Using ddm_opts ---------------------------------------------------------
-
-
+# -------------------------------------------------------------------------
+#' # Final Remark: Using ddm_opts
+#' Users can "inject" arbitrary code/objects by using the ddm_opts argument of
+#' any component function.
+#+ art_example_ddm_opts
 a_model = ratcliff_dm()
 
 cust_mu = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
@@ -524,3 +518,9 @@ cust_mu = function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 comp_funs(a_model)[["mu_fun"]] = cust_mu
 a_model$ddm_opts$my_string = "Hello World"
 a_model = re_evaluate_model(a_model)
+
+
+# -------------------------------------------------------------------------
+#' # Session Info
+#+ session_info
+sessionInfo()

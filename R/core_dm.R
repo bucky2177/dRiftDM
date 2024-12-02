@@ -1446,6 +1446,10 @@ prms_solve.fits_ids_dm <- function(object, ...) {
 #' `solver()` is a generic accessor function, and `solver<-()` is a
 #' generic replacement function. The default methods get and set the "solver".
 #'
+#' The "solver" indicates the approach with which the PDFs of a model are
+#' calculated. Supported options are "kfe" and "im_zero" (method based on the
+#' Kolmogorov-Forward-Equation or on integral equations, respectively).
+#'
 #' @returns
 #' For `solve()` the string `solver` (see [dRiftDM::drift_dm()]).
 #'
