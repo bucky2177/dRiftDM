@@ -288,7 +288,7 @@ test_that("validate_models errs as expected", {
 
   # no time object
   temp <- case_1
-  temp$drift_dm_fit_info$time_call <- "20"
+  temp$drift_dm_fit_info$time_call <- 20
   expect_error(
     validate_fits_ids(temp, progress = 0), "time_call"
   )

@@ -194,8 +194,9 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
   }
 
   # 1. dump info about call
+  time_call <- format(Sys.time(), "%Y-%B-%d_%H-%M")
   fit_info <- list(
-    time_call = Sys.time(), lower = lower,
+    time_call = time_call, lower = lower,
     upper = upper, seed = seed,
     drift_dm_obj = drift_dm_obj,
     obs_data_ids = obs_data_ids,
@@ -536,8 +537,8 @@ validate_fits_ids <- function(fits_ids, progress) {
     stop("fit_info contains not all expected info entries")
   }
 
-  if (!inherits(fit_info$time_call, "POSIXct")) {
-    stop("time_call is not of type POSIXct")
+  if (!is.character(fit_info$time_call)) {
+    stop("time_call is not of type character")
   }
 
   if (!is_numeric(fit_info$lower) & !is.list(fit_info$lower)) {
@@ -768,11 +769,7 @@ summarize_drift_dm_info <- function(full_name_to_file, detailed_info) {
   fit_info <- readRDS(file = full_name_to_file)
   string <- "\n"
   string <- paste0(string, "Fit Name: ", fit_info$fit_procedure_name, "\n")
-  string <- paste0(
-    string, "Last call: ",
-    format(fit_info$time_call, "%Y-%m-%d %H:%M:%S"),
-    "\n"
-  )
+  string <- paste0(string, "Last call: ", fit_info$time_call, "\n")
   if (detailed_info) {
     string <- paste0(
       string, "Model: ",

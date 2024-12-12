@@ -15,10 +15,7 @@ print.fits_ids_dm <- function(x, ...) {
     )
   )
   cat("\n")
-  cat(
-    "Time of (last) call:",
-    format(fits_ids$drift_dm_fit_info$time_call, "%Y-%m-%d %H:%M:%S")
-  )
+  cat("Time of (last) call:", fits_ids$drift_dm_fit_info$time_call)
   cat("\n")
   cat("N Individuals:", length(fits_ids$all_fits), "\n")
 
@@ -53,10 +50,7 @@ print.summary.fits_ids_dm <- function(x, ...,
   cat("\n-------\n")
   cat("Fitted model type:", summary_obj$model_type)
   cat("\n")
-  cat(
-    "Time of (last) call:",
-    format(summary_obj$time_call, "%Y-%m-%d %H:%M:%S")
-  )
+  cat("Time of (last) call:", summary_obj$time_call)
   cat("\n")
   invisible(x)
 }
