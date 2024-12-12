@@ -2,39 +2,59 @@
 % Please edit documentation in R/models.R
 \name{ratcliff_dm}
 \alias{ratcliff_dm}
-\title{Create a basic Diffusion Model}
+\title{Create a Basic Diffusion Model}
 \usage{
 ratcliff_dm(
   var_non_dec = FALSE,
   var_start = FALSE,
+  var_drift = FALSE,
+  instr = NULL,
   obs_data = NULL,
   sigma = 1,
   t_max = 3,
   dt = 0.001,
-  dx = 0.001
+  dx = 0.001,
+  solver = "kfe",
+  b_coding = NULL
 )
 }
 \arguments{
-\item{var_non_dec, var_start}{logical, indicating whether the model should have
-a (uniform) variable non-decision time or starting point, respectively
-(see \code{nt_uniform} and \code{x_uniform} in \link{component_shelf})}
+\item{var_non_dec, var_start, var_drift}{logical, indicating whether the model
+should have a (uniform) variable non-decision time, starting point, or
+(normally-distributed) variable drift rate.
+(see also \code{nt_uniform} and \code{x_uniform} in \link{component_shelf})}
+
+\item{instr}{optional string with "instructions", see
+\code{\link[=modify_flex_prms]{modify_flex_prms()}}.}
 
 \item{obs_data}{data.frame, an optional data.frame with the observed data.
-See \link{set_obs_data}.}
+See \link{obs_data}.}
 
 \item{sigma, t_max, dt, dx}{numeric, providing the settings for the diffusion
 constant and discretization (see \link{drift_dm})}
+
+\item{solver}{character, specifying the \link{solver}.}
+
+\item{b_coding}{list, an optional list with the boundary encoding (see
+\link{b_coding})}
 }
 \description{
-This function creates a \link{drift_dm} that corresponds to the basic
-Ratcliff diffusion model
+This function creates a \link{drift_dm} model that corresponds to the
+basic Ratcliff Diffusion Model
 }
 \details{
-The Ratcliff diffusion model is a diffusion model with  a constant drift rate
-\code{muc} and a constant boundary \code{b}. If \code{var_non_dec = FALSE},  a constant
-non-decision time \code{non_dec} is assumed, otherwise a uniform non-decision time
-with mean \code{non_dec} and range \code{range_non_dec}. If \code{var_start = FALSE},  a
-constant starting point centered between the boundaries is assumed (i.e.,
-a dirac delta over 0), otherwise a uniform starting point with mean 0 and
-range \code{range_start}.
+The classical Ratcliff Diffusion Model is a diffusion model with a constant
+drift rate \code{muc} and a constant boundary \code{b}. If \code{var_non_dec = FALSE},  a
+constant non-decision time \code{non_dec} is assumed, otherwise a uniform
+non-decision time with mean \code{non_dec} and range \code{range_non_dec}. If
+\code{var_start = FALSE},  a constant starting point centered between the
+boundaries is assumed (i.e., a dirac delta over 0), otherwise a uniform
+starting point with mean 0 and range \code{range_start}. If \code{var_drift = FALSE},
+a constant drift rate is assumed, otherwise a normally distributed drift rate
+with mean \code{mu_c} and standard deviation \code{sd_muc} (can be computationally
+intensive). Important: Variable drift rate is only possible with dRiftDM's
+\code{mu_constant} function. No custom drift rate is yet possible in this case.
+}
+\seealso{
+\code{\link[=component_shelf]{component_shelf()}}, \code{\link[=drift_dm]{drift_dm()}}
 }

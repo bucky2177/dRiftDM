@@ -8,7 +8,7 @@ simulate_values(
   lower,
   upper,
   k,
-  distr = "unif",
+  distr = NULL,
   cast_to_data_frame = T,
   add_id_column = "numeric",
   seed = NULL,
@@ -25,7 +25,7 @@ of the returned object}
 
 \item{distr}{Character, indicating which distribution to draw from. Currently
 available are: \code{"unif"} for a uniform distribution or \code{"tnorm"} for a
-truncated normal distribution}
+truncated normal distribution. \code{NUll} will lead to \code{"unif"} (default).}
 
 \item{cast_to_data_frame}{Logical, controls whether the returned object
 is of type data.frame (TRUE) or matrix (FALSE). Default is TRUE}

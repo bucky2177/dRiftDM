@@ -1,20 +1,49 @@
 
-# dRiftDM
+<!-- badges: start -->
 
-The package dRiftDM was developed to help psychology researchers apply
-time-dependent diffusion models in R. It comes with necessary tools for
-standard analyses, such as building a model, estimating parameters
-across multiple participants (separately per participant), or creating
-summary statistics. It also ships with pre-built models. Currently,
-these are:
+[![Codecov test
+coverage](https://codecov.io/gh/bucky2177/dRiftDM/graph/badge.svg)](https://app.codecov.io/gh/bucky2177/dRiftDM)
+<!-- badges: end -->
 
-- The Diffusion Model for Conflict Tasks
-- The Shrinking Spotlight Model
-- The Standard (Ratcliff) Diffusion Model
+# dRiftDM <img src="man/figures/logo.png" align="right" height="138" alt="" />
 
-With version 0.1.1 model predicitons (i.e., their first-passage time)
-are derived by numerically solving the Kolmogorov-Forward Equation based
-on code provided by Richter et al. (2023, JMP).
+The package dRiftDM was developed to assist psychological researchers in
+applying and fitting diffusion models to empirical data within the R
+environment. Its most important feature is the ability to handle
+non-stationary problems, specifically diffusion models with
+time-dependent parameters. The package includes essential tools for
+standard analyses, such as building models, estimating parameters for
+multiple participants (individually for each participant), and creating
+summary statistics. The pre-built models available in the package
+include:
+
+- The Standard (Ratcliff) Diffusion Model (Ratcliff, 1978, Psychological
+  Review)
+- The Diffusion Model for Conflict Tasks (Ulrich et al., 2015, Cognitive
+  Psychology)
+- The Shrinking Spotlight Model (White et al., 2011, Cognitive
+  Psychology)
+
+Users can flexibly create custom models and utilize the dRiftDM
+machinery for estimating them.
+
+Starting with version 0.2.0, model predictions (i.e., first-passage
+times) are derived by numerically solving the Kolmogorov-Forward
+Equation or a coupled set of integral equations, based on code provided
+by Richter et al. (2023, Journal of Mathematical Psychology).
+
+## Notes
+
+The current version is 0.2.0. Compared to the previous version (0.1.1),
+version 0.2.0 makes greater use of the S3 object system. Additionally,
+it introduces a new method for handling parameters across conditions
+using “flex_prms” objects.
+
+If you wish to install the older version (0.1.1), you can use:
+
+``` r
+devtools::install_github("bucky2177/dRiftDM", ref = "0.1.1")
+```
 
 ## Installation
 
@@ -28,50 +57,63 @@ devtools::install_github("bucky2177/dRiftDM")
 
 ## Example
 
-We are in the progress of publishing a tutorial with more detailed
-instructions. For now, here is an example on how to fit the Diffusion
-Model for Conflict Tasks to some synthetic data using bounded
-Nelder-Mead:
+We are in the process of publishing a tutorial with more detailed
+instructions (see the respective [OSF
+pre-print](https://osf.io/preprints/osf/3t2vf)). For now, here is an
+example of how to fit the Diffusion Model for Conflict Tasks to some
+synthetic data using bounded Nelder-Mead:
 
 ``` r
 library(dRiftDM)
 #> 
-#>  ----- 
-#> Welcome to dRiftDM 0.1.1 
-#> This is a first version... 
-#> Please report any bugs/unexpected  
-#> behavior to koob@uni-bremen.de 
-#>  ------ 
-#>     \   ^__^ 
-#>      \  (oo)\ ________ 
+#>  ---------------------------------------------------- 
+#> / Welcome to dRiftDM 0.2.0 Please report any bugs or \
+#> \ unexpected behavior                                /
+#>  ---------------------------------------------------- 
+#>       \
+#>        \
+#> 
+#>         ^__^ 
+#>         (oo)\ ________ 
 #>         (__)\         )\ /\ 
 #>              ||------w|
 #>              ||      ||
-dmc_model = dmc_dm(dx = .002, dt = .002, t_max = 1.2)
-dmc_model = set_obs_data(drift_dm_obj = dmc_model,
-                         obs_data = dmc_synth_data)
+dmc_model <- dmc_dm(dx = .002, dt = .002, t_max = 1.2)
+obs_data(dmc_model) <- dmc_synth_data
 print(dmc_model)
 #> Class(es): dmc_dm, drift_dm
 #> 
-#> Model Parameters:
-#>   values: muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, a=2, A=0.1, alpha=4
-#>   free: muc, b, non_dec, sd_non_dec, tau, A, alpha
+#> Current Parameter Matrix:
+#>        muc   b non_dec sd_non_dec  tau a    A alpha
+#> comp     4 0.6     0.3       0.02 0.04 2  0.1     4
+#> incomp   4 0.6     0.3       0.02 0.04 2 -0.1     4
 #> 
-#> Conditions: comp, incomp
+#> Unique Parameters:
+#>        muc b non_dec sd_non_dec tau a A alpha
+#> comp   1   2 3       4          5   0 6 7    
+#> incomp 1   2 3       4          5   0 d 7    
+#> 
+#> Special Dependencies:
+#> A ~ incomp == -(A ~ comp)
+#> 
+#> Custom Parameters:
+#>        peak_l
+#> comp     0.04
+#> incomp   0.04
 #> 
 #> Deriving PDFs:
 #>   solver: kfe
 #>   values: sigma=1, t_max=1.2, dt=0.002, dx=0.002, nt=600, nx=1000
 #> 
-#> Observed Data: 600 trials
+#> Observed Data: 300 trials comp; 300 trials incomp
 ```
 
 ``` r
-est_model = estimate_model(
-  drift_dm_obj = dmc_model,                       # a model
-  lower = c(2, 0.4, 0.2, 0.005, 0.02, 0.02, 2),   # lower boundary - search space
-  upper = c(6, 0.8, 0.5, 0.050, 0.12, 0.30, 7),   # upper boundary - search space
-  verbose = 2,                                    # print out each evaluation
+est_model <- estimate_model(
+  drift_dm_obj = dmc_model, # a model
+  lower = c(2, 0.4, 0.2, 0.005, 0.02, 0.02, 2), # lower boundary - search space
+  upper = c(6, 0.8, 0.5, 0.050, 0.12, 0.30, 7), # upper boundary - search space
+  verbose = 2, # print out each evaluation
   use_de_optim = F, use_nmkb = T # use Nelder-Mead for demonstration
 )
 ```

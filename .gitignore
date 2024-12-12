@@ -9,5 +9,12 @@ src/*.so
 src/*.dll
 inst/doc
 data-raw
-^.*\.Rprofile
 playground.R
+.Rprofile
+tutorial/drift_dm_fits
+tutorial/figures
+tutorial/figure
+tutorial/*.Rmd
+tutorial/*.md
+tutorial/*.html
+

@@ -2,7 +2,7 @@
 % Please edit documentation in R/core_estimate_wrapper.R
 \name{estimate_model_ids}
 \alias{estimate_model_ids}
-\title{Fit multiple individuals and save results}
+\title{Fit Multiple Individuals and Save Results}
 \usage{
 estimate_model_ids(
   drift_dm_obj,
@@ -23,12 +23,12 @@ estimate_model_ids(
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm} that will
 be estimated for each individual in \code{obs_data_ids}.}
 
-\item{obs_data_ids}{data.frame, must be suitable for
-\link{set_obs_data}. An additional column \code{ID} necessary, to
-identify a single individual}
+\item{obs_data_ids}{data.frame, see
+\link{obs_data}. An additional column \code{ID} necessary, to
+identify a single individual.}
 
-\item{lower, upper}{numeric vectors, providing the parameter space, see
-\link{estimate_model}.}
+\item{lower, upper}{numeric vectors or lists, providing the parameter space,
+see \link{estimate_model}.}
 
 \item{fit_procedure_name}{character, providing a name of the fitting
 procedure. This name will be stored in \code{drift_dm_fit_info.rds} to identify
@@ -50,7 +50,7 @@ via \code{base::create.dir(fit_dir, recursive = TRUE)}. Default is
 \item{force_refit}{logical, if \code{TRUE} each individual of a fitting routine will
 be fitted once more. Default is \code{FALSE} which indicates that saved files}
 
-\item{progress}{numerical, indicating if and how progress shall be depicted.
+\item{progress}{numerical, indicating if and how progress shall be displayed.
 If 0, no progress is shown. If 1, the currently fitted individual is printed
 out. If 2, a progressbar is shown. Default is 2.}
 
@@ -60,15 +60,20 @@ starting values for each individual when calling Nelder-Mead. Note that this
 will only have an effect if DEoptim is not used (i.e., when setting
 \code{use_de_optim = FALSE}; see \link{estimate_model}). The data.frame
 must provide a column \code{ID} whose entries match the \code{ID} column
-in \code{obs_data_ids}, as well as a column for each parameter of the model.}
+in \code{obs_data_ids}, as well as a column for each parameter of the model
+matching with \code{coef(drift_dm_obj, select_unique = T)}.}
 
 \item{...}{additional arguments passed down to \link{estimate_model}.}
+}
+\value{
+nothing (NULL)
 }
 \description{
 Provides a wrapper around \link{estimate_model} to fit multiple
 individuals. Each individual will be stored in a folder. This folder will
 also contain a file \code{drift_dm_fit_info.rds}, containing the main arguments
-of the function call.
+of the function call. One call to this function is considered a
+"fit procedure". Fit procedures can be loaded via \link{load_fits_ids}.
 }
 \details{
 Examples and more information can be found here
@@ -87,6 +92,10 @@ call. That is, the time when last modifying/calling a fitting routine, the
 \code{lower} and \code{upper} parameter boundaries, the \code{drift_dm_object} that was
 fitted to each individual, the original data set \code{obs_data_ids}, and
 the identifier \code{fit_procedure_name}. In the same folder each individual
-has its own \verb{<individual>.rds} file containing the modified \code{drift_dm_object}.
+has its own \verb{<individual>.rds} file containing the modified
+\code{drift_dm_object}.
 }
+}
+\seealso{
+\link{load_fits_ids}
 }

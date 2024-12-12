@@ -8,13 +8,15 @@ using namespace Rcpp;
 int cpp_kfe(NumericVector& pdf_u,
              NumericVector& pdf_l,
              NumericVector& xx,
-             const int nt, const int nx,
-             const double dt, const double dx,
-             double sigma,
-             const NumericVector b_vals,
-             const NumericVector mu_vals,
-             const NumericVector dt_b_vals,
-             const NumericVector x_vec) {
+             const int nt, 
+             const int nx,
+             const double dt, 
+             const double dx,
+             const double sigma,
+             const NumericVector& b_vals,
+             const NumericVector& mu_vals,
+             const NumericVector& dt_b_vals,
+             const NumericVector& x_vec) {
 
   if (pdf_u.size() != nt+1){
     Rcerr << "pdf-upper has wrong size!" << std::endl; return -1;
@@ -40,7 +42,7 @@ int cpp_kfe(NumericVector& pdf_u,
   if (x_vec.size() != nx+1) {
     Rcerr << "x_vec has wrong size!" << std::endl; return -1;
   }
-
+  
   NumericVector f(nx+1, 0.);  // storing the solution
   NumericVector mu_old(nx+1, 0.);
   NumericVector mu_new(nx+1, 0.);

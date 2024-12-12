@@ -1,14 +1,14 @@
-# drift_dm summary and print format
+# print.drift_dm_fits works as expected
 
     Code
       print(dm_fits_ids)
     Output
       Fit procedure name: test_case_saved
       Fitted model type: ratcliff_dm, drift_dm
-      Time of (last) call: 2024-05-22 14:25:26
+      Time of (last) call: 2024-Dezember-12_13-20
       N Individuals: 2 
 
----
+# summary.drift_dm_fits and print
 
     Code
       print(sum_obj)
@@ -16,11 +16,11 @@
       Fit procedure name: test_case_saved
       N Individuals: 2 
       
-      Parameter summary:
-              muc     b non_dec log_like      aic      bic
-      means 3.234 0.613   0.309  250.636 -495.271 -484.160
-      sds   0.151 0.042   0.015   29.964   59.927   59.927
-      errs  0.106 0.030   0.010   21.188   42.375   42.375
+      Parameter summary: null 
+                muc     b non_dec
+      mean    3.220 0.598   0.311
+      std_err 0.131 0.008   0.002
+      
       
       Parameter space:
             muc   b non_dec
@@ -29,5 +29,5 @@
       
       -------
       Fitted model type: ratcliff_dm, drift_dm
-      Time of (last) call: 2024-05-22 14:25:26
+      Time of (last) call: 2024-Dezember-12_13-20
 

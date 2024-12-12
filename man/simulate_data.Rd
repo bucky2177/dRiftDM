@@ -2,40 +2,139 @@
 % Please edit documentation in R/core_dm.R
 \name{simulate_data}
 \alias{simulate_data}
-\title{Simulate "observed" response times from a diffusion model}
+\alias{simulate_data.drift_dm}
+\title{Simulate Synthetic Responses}
 \usage{
-simulate_data(drift_dm_obj, n, df_prms = NULL, seed = NULL, verbose = 1)
+simulate_data(object, ...)
+
+\method{simulate_data}{drift_dm}(
+  object,
+  ...,
+  n,
+  k = 1,
+  lower = NULL,
+  upper = NULL,
+  df_prms = NULL,
+  seed = NULL,
+  verbose = 1
+)
 }
 \arguments{
-\item{drift_dm_obj}{an object inheriting from \link{drift_dm}.}
+\item{object}{an object inheriting from \link{drift_dm}.}
 
-\item{n}{numeric, the number of samples per condition to draw}
+\item{...}{further arguments passed on to other functions, including the
+function \link{simulate_values}. If users want to use a different
+distribution than uniform for \link{simulate_values}, they must provide
+the additional arguments (e.g., \code{means} and \code{sds}) in a format like
+\code{lower/upper}.}
 
-\item{df_prms}{data.frame, an optional data.frame providing the parameters
-that should be used for simulating the data. \code{df_prms} must provide columns
-named like the parameters in \code{drift_dm_obj$free_prms}, plus a column \code{ID}
+\item{n}{numeric, the number of trials per condition to draw. If a single
+numeric, then each condition will have \code{n} trials. Can be a (named) numeric
+vector with the same length as there are conditions to allow a different
+number of trials per condition.}
+
+\item{k}{numeric larger than 0, indicating how many data sets shall
+be simulated. If > 1, then it is only effective when specifying
+\code{lower/upper}.}
+
+\item{lower, upper}{vectors or a list, specifying the simulation space for
+each parameter of the model (see Details). Only relevant for \code{k > 1}}
+
+\item{df_prms}{an optional data.frame providing the parameters
+that should be used for simulating the data. \code{df_prms} must provide column
+names matching with (\code{coef(object, select_unique = T)}), plus a column \code{ID}
 that will identify each simulated data set.}
 
-\item{seed}{numeric, an optional seed for reproducable sampling}
+\item{seed}{a single numeric, an optional seed for reproducible sampling}
 
-\item{verbose}{integer, indicating if information about the progress
-should be displayed. 0 -> no information,
-1 -> a progress bar. Default is 1. Only effective when \code{df_prms} is provided}
+\item{verbose}{an integer, indicating if information about the progress
+should be displayed. 0 -> no information, 1 -> a progress bar.
+Default is 1. Only effective when \code{k > 1}.}
 }
 \value{
-a data.frame containing at least the columns \code{RT}, \code{Error}, and \code{Cond}. If
-\code{df_prms} is provided, then the data.frame will additionally contain the
-column \code{ID}
+The return value depends on whether a user specifies \code{lower/upper} or
+\code{df_prms}. If none of these are specified and if \code{k = 1}, then a
+\link{data.frame} containing the columns \code{RT}, \code{Error}, and \code{Cond} is returned.
+
+If \code{lower/upper} or \code{df_prms} are provided, then a list with entries
+\code{synth_data} and \code{prms} is returned. The entry \code{synth_data} contains a
+\link{data.frame}, with the columns \code{RT}, \verb{<b_column>}, \code{Cond}, and \code{ID} (the name
+of the second column, \verb{<b_column>}, depends on the \link{b_coding} of the
+model object). The entry \code{prms} contains a data.frame with an \code{ID} column and
+the parameters used for simulating each synthetic data set.
 }
 \description{
-This function simulates data based on the provided diffusion model. To this
-end, random samples from the model's predicted pdfs are drawn via approximate
-inverse cdf sampling.
+This function simulates data based on the provided model. To this end,
+random samples from the predicted PDFs are drawn via approximate inverse CDF
+sampling.
 }
 \details{
-Cdfs are derived from the model's pdfs and response times are drawn by
-mapping samples from a uniform distribution (in \eqn{[0, 1]}) to the values
-of the cdf. Note that sampled response times will correspond to the
-the values of the time space (i.e., they will correspond to
-\code{seq(0, t_max, dt)}, see \link{drift_dm}).
+\code{simulate_data} is a generic function for simulating data based on
+approximate inverse CDF sampling. CDFs are derived from the model's PDFs and
+data is drawn by mapping samples from a uniform distribution
+(in \eqn{[0, 1]}) to the values of the CDF. Note that sampled response times
+will correspond to the values of the time space (i.e., they will correspond
+to \code{seq(0, t_max, dt)}, see \link{drift_dm}).
+
+For \code{drift_dm} objects, the behavior of \code{simulate_data} depends on \code{k}. If
+\code{k = 1} and no \code{lower/upper} or \code{df_prms} arguments are supplied, then the
+parameters currently set to the model are used to generate
+the synthetic data. If \code{k > 1}, then \code{k} parameter combinations are either
+randomly drawn via \link{simulate_values} or gathered from the provided
+data.frame \code{df_prms}, and then data is simulated for each parameter
+combination.
+
+When specifying \code{lower/upper}, parameter combinations are simulated via
+\link{simulate_values}. This comes in handy for simple parameter recovery
+exercises. If \code{df_prms} is specified, then the parameter combinations from
+this \link{data.frame} is used. Note that the column names in \code{df_prms} must match
+with the (unique) parameter combinations of the model
+(see \code{print(coef(object))})
+\subsection{Details on how to specify \code{lower/upper}.}{
+
+When users want to simulate data with \code{k > 1} and \code{lower/upper}, then
+parameter values have to be drawn. One great aspect about the
+\link{flex_prms} object within each \link{drift_dm} model, is that
+users can easily allow certain parameters to vary freely across conditions.
+Consequently, the actual number of parameters varies with the settings of
+the \link{flex_prms} object. In many cases, however, the simulation space
+for a parameter is the same across conditions. For instance, in a model, the
+parameter "mu" may vary across the conditions "easy", "medium", or "hard",
+but the lower/upper limits are the same across conditions.
+To avoid that users always have to re-specify the simulation space via the
+\code{lower/upper} arguments, the \code{lower} and \code{upper} arguments refer to the
+parameter labels, and \code{dRiftDM} figures out how to map these to all
+parameters that vary across conditions.
+
+Here is an example: Assume you have the model with parameters
+"A" and "B", and the conditions "foo" and "bar". Now assume that "A" is
+allowed to vary for "foo" and "bar". Thus, there are actually three
+parameters; "A~foo", "A~bar", and "B". \code{dRiftDM}, however, can help with
+this. If we provide \code{lower = c(A = 1, B = 2)}, \code{upper = c(A = 3, B = 4)},
+\code{simulate_data} checks the model, and creates the vectors
+\code{temp_lower = c(1,1,2)} and \code{temp_upper = c(3,3,4)} as a basis to simulate
+the parameters.
+
+Users have three options to specify the simulation space:
+\itemize{
+\item Plain numeric vectors (not very much recommended). In this case,
+\code{lower/upper} must be sorted in accordance with the free parameters in the
+\code{flex_prms_obj} object (call \verb{print(<model>)} and have a look at the
+\verb{Unique Parameters} output)
+\item Named numeric vectors. In this case \code{lower/upper} have to provide labels
+in accordance with the parameters that are considered "free" at least once
+across conditions.
+\item The most flexible way is when \code{lower/upper} are lists. In this case, the
+list requires an entry called "default_values" which specifies the named or
+plain numeric vectors as above. If the list only contains this entry, then
+the behavior is as if \code{lower/upper} were already numeric vectors. However,
+the \code{lower/upper} lists can also provide entries labeled as specific
+conditions, which contain named (!) numeric vectors with parameter labels.
+This will modify the value for the upper/lower parameter space with respect
+to the specified parameters in the respective condition.
+}
+}
+}
+\note{
+A function for \code{fits_ids_dm} will be provided in the future.
 }

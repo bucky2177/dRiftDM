@@ -7,29 +7,32 @@
 re_evaluate_model(drift_dm_obj, eval_model = T)
 }
 \arguments{
-\item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
+\item{drift_dm_obj}{an object of type \link{drift_dm}}
 
 \item{eval_model}{logical, indicating if the model should be evaluated or not.
-If \code{False} pdfs, log_like_val and ic_vals are deleted from the model
-(used in the internals of dRiftDM)}
+If \code{False}, PDFs and the log-likelihood value are deleted from the model.
+Default is \code{True}.}
 }
 \value{
 Returns the passed \code{drift_dm_obj} object, after (re-)calculating
-the pdfs, log-likelihood (and aic/bic) of the model.
+the PDFs and (if observed data is set) the log-likelihood.
 \itemize{
-\item the pdfs an be addressed via \code{drift_dm_obj$pdfs}
-\item the log likelihood can be addressed via \code{drift_dm_obj$log_like_val}
-\item the aic/bic values can be addressed via \code{drift_dm_obj$ic_vals}
+\item the PDFs an be addressed via \code{drift_dm_obj$pdfs}
+\item the log-likelihood can be addressed via \code{drift_dm_obj$log_like_val}
 }
 
-Note that if re_evaluate model is called before observed data was set,
-the function silently updates the \code{pdfs}, but not \code{log_like_val} or
-\code{ic_vals}. More in-depth information about the mathematical details for
+Note that if \code{re_evaluate} model is called before observed data was set,
+the function silently updates the \code{pdfs}, but not \code{log_like_val}.
+}
+\description{
+Updates the PDFs of a model. If \link{obs_data} are set to the model, the
+log-likelihood is also updated.
+}
+\details{
+More in-depth information about the mathematical details for
 deriving the PDFs can be found in
 \insertCite{Richteretal.2023;textual}{dRiftDM}
 }
-\description{
-Updates the pdfs of a model. If data are set to the model, the log-likelihood,
-the Akaike information criterion (aic) and the
-Bayesian information criterion (bic) also updated
+\seealso{
+\code{\link[=drift_dm]{drift_dm()}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/core_estimate.R
 \name{estimate_model}
 \alias{estimate_model}
-\title{Estimate the parameters of a drift_dm model}
+\title{Estimate the Parameters of a drift_dm Model}
 \usage{
 estimate_model(
   drift_dm_obj,
@@ -20,13 +20,11 @@ estimate_model(
 \arguments{
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}}
 
-\item{lower, upper}{numeric vectors specifying the lower and upper bounds on
-each parameter to be optimized. Their length have to match the number of
-\code{free_prms} in the model. Note that the i-th \code{lower} and \code{upper} element
-refers to the i-th parameter listed in \code{free_prms} of \code{drift_dm_obj}.}
+\item{lower, upper}{numeric vectors or lists, specifying the lower and upper
+bounds on each parameter to be optimized (see Details).}
 
 \item{verbose}{numeric, indicating the amount of information displayed.
-If 0, no information is displayed. If 1 (default), basic information about
+If 0, no information is displayed (default). If 1, basic information about
 the start of Differential Evolution or Nelder-Mead and the final
 estimation result is given. If 2, each evaluation of the log-likelihood
 function is shown. Note that \code{verbose} is independent of the information
@@ -36,11 +34,7 @@ displayed by \link[DEoptim:DEoptim]{DEoptim::DEoptim}.}
 \link[DEoptim:DEoptim]{DEoptim::DEoptim} should be used. Default is \code{TRUE}}
 
 \item{use_nmkb}{logical, indicating whether Nelder-Mead via
-\link[dfoptim:nmkb]{dfoptim::nmkb} should be used. Default is \code{FALSE}. If both \code{use_de_optim}
-and \code{use_nmkb} are \code{TRUE}, then Nelder-Mead follows Differential Evolution.
-Note that Nelder-Mead requires a set of starting parameters for which either
-the parameter values of \code{drift_dm_obj} or the estimated parameter values by
-Differential Evolution are used.}
+\link[dfoptim:nmkb]{dfoptim::nmkb} should be used. Default is \code{FALSE}.}
 
 \item{seed}{a single numeric, providing a seed for the Differential Evolution
 algorithm}
@@ -51,20 +45,11 @@ machine. Note that it is generally not recommended to use all of your cores
 as this will drastically slow down your machine for any additional task.}
 
 \item{de_control, nmkb_control}{lists of additional control parameters passed
-to \link[DEoptim:DEoptim]{DEoptim::DEoptim} and \link[dfoptim:nmkb]{dfoptim::nmkb}. Default settings will lead
-\link[DEoptim:DEoptim]{DEoptim::DEoptim} to stop if the algorithm is unable to reduce the
-negative log-likelihood by a factor of \code{reltol * (abs(val) + reltol)}
-after \code{steptol = 50} steps, with \code{reltol = 1e-8} (or if the default itermax
-of 200 steps is reached).
-Similarly, \link[dfoptim:nmkb]{dfoptim::nmkb}
-will stop if the absolute difference of the log-likelihood between
-successive iterations is below \code{tol = 1e-6}.
-See \link[DEoptim:DEoptim.control]{DEoptim::DEoptim.control} and the details of \link[dfoptim:nmkb]{dfoptim::nmkb} for
-further information.}
+to \link[DEoptim:DEoptim]{DEoptim::DEoptim} and \link[dfoptim:nmkb]{dfoptim::nmkb}.}
 }
 \description{
 Find the 'best' parameter settings by fitting a \link{drift_dm} models'
-predicted probability density functions to the observed data
+predicted probability density functions (PDFs) to the observed data
 stored within the respective object. The fitting procedure is done by
 minimizing the negative log-likelihood of the model.
 
@@ -75,6 +60,50 @@ Users have three options:
 \item Use Differential Evolution followed by Nelder-Mead.
 }
 
-More detailed information on how to use this function can be found in
-\code{vignette("use_ddm_models", "dRiftDM")}
+See also \code{vignette("use_ddm_models", "dRiftDM")}
+}
+\details{
+\subsection{Specifying lower/upper}{
+
+the function \code{estimate_model} provides a flexible way of specifying the
+search space; identical to specifying the parameter simulation space in
+\link{simulate_data.drift_dm}.
+
+Users have three options to specify the simulation space:
+\itemize{
+\item Plain numeric vectors (not very much recommended). In this case,
+\code{lower/upper} must be sorted in accordance with the parameters in the
+\code{flex_prms_obj} object that vary for at least one condition
+(call \code{print(drift_dm_obj)} and have a look at the \verb{Unique Parameters}
+output)
+\item Named numeric vectors. In this case \code{lower/upper} have to provide labels
+in accordance with the parameters that are considered "free" at least once
+across conditions.
+\item The most flexible way is when \code{lower/upper} are lists. In this case, the
+list requires an entry called "default_values" which specifies the named or
+plain numeric vectors as above. If the list only contains this entry, then
+the behavior is as if \code{lower/upper} were already numeric vectors. However,
+the \code{lower/upper} lists can also provide entries labeled as specific
+conditions, which contain named (!) numeric vectors with parameter labels.
+This will modify the value for the upper/lower parameter space with respect
+to the specified parameters in the respective condition.
+}
+}
+
+\subsection{Details on Nelder-Mead and Differential Evolution}{
+
+If both \code{use_de_optim} and \code{use_nmkb} are \code{TRUE}, then Nelder-Mead follows
+Differential Evolution. Note that Nelder-Mead requires a set of starting
+parameters for which either the parameter values of \code{drift_dm_obj} or the
+estimated parameter values by Differential Evolution are used.
+
+Default settings will lead \link[DEoptim:DEoptim]{DEoptim::DEoptim} to stop if the algorithm is
+unable to reduce the negative log-likelihood by a factor of
+\code{reltol * (abs(val) + reltol)}after \code{steptol = 50} steps, with
+\code{reltol = 1e-8} (or if the default itermax of 200 steps is reached).
+Similarly, \link[dfoptim:nmkb]{dfoptim::nmkb} will stop if the absolute difference of the
+log-likelihood between successive iterations is below \code{tol = 1e-6}.See
+\link[DEoptim:DEoptim.control]{DEoptim::DEoptim.control} and the details of \link[dfoptim:nmkb]{dfoptim::nmkb} for
+further information.
+}
 }

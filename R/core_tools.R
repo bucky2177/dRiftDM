@@ -1,17 +1,43 @@
-# ==== FUNCTIONS FOR INVERSE CDF SAMPLING
+# FUNCTIONS FOR INVERSE CDF SAMPLING --------------------------------------
+
+#' Draw Samples Using Inverse Transform Sampling
+#'
+#' @description
+#' `draw_from_pdf` generates samples from a given probability density function
+#' (PDF) using inverse transform sampling. This function takes in a numeric PDF
+#' vector and a corresponding domain vector, then returns a specified number
+#' of samples.
+#'
+#' @param a_pdf a numeric vector representing the PDF values.
+#' @param x_def a numeric vector defining the domain (or x-values) corresponding
+#' to the values in `a_pdf`. The vector `x_def` must be sorted in increasing
+#' order.
+#' @param k a single integer specifying the number of samples to generate.
+#' @param seed an optional single integer value used to set the seed for random
+#' number generation, allowing for reproducibility of results.
+#'
+#' @details
+#' This function implements inverse transform sampling by first constructing a
+#' cumulative distribution function (CDF) from the given PDF. A uniform random
+#' variable is then sampled for each of the `k` samples, and the corresponding
+#' value in `x_def` is selected by locating the appropriate interval in the CDF.
+#'
+#' @returns A numeric vector of length `k` containing the sampled values from
+#' the specified PDF. If `k` is 0, an empty numeric vector is returned.
+#'
 draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
-  if (!is.numeric(a_pdf) | length(a_pdf) < 1) {
-    stop("a_pdf must be of type numeric vector of length > 0")
+  if (!is_numeric(a_pdf) | length(a_pdf) < 1) {
+    stop("a_pdf must provide a valid numeric vector of length > 0")
   }
-  if (!is.numeric(x_def) | length(x_def) < 1) {
-    stop("x_def must be of type numeric vector of length > 0")
+  if (!is_numeric(x_def) | length(x_def) < 1) {
+    stop("x_def must provide a valid numeric vector of length > 0")
   }
 
   if (length(a_pdf) != length(x_def)) {
     stop("the length of x_def and a_pdf don't match")
   }
-  if (!is.numeric(k) | length(k) != 1) {
-    stop("k must be a single numeric")
+  if (!is_numeric(k) | length(k) != 1) {
+    stop("k must be a single valid numeric")
   }
   if (k < 0) stop("k must be >= 0")
 
@@ -45,10 +71,9 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
   return(samples)
 }
 
-# =============================
-# FUNCTION FOR SIMULATING PRMS
 
 
+# FUNCTIONS FOR SIMULATING PRMS --------------------------------------------
 
 #' Simulate Values
 #'
@@ -61,7 +86,7 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
 #' of the returned object
 #' @param distr Character, indicating which distribution to draw from. Currently
 #'  available are: `"unif"` for a uniform distribution or `"tnorm"` for a
-#'  truncated normal distribution
+#'  truncated normal distribution. `NUll` will lead to `"unif"` (default).
 #' @param cast_to_data_frame Logical, controls whether the returned object
 #' is of type data.frame (TRUE) or matrix (FALSE). Default is TRUE
 #' @param add_id_column Character, controls whether an ID column should be
@@ -91,17 +116,17 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
 #'
 #'
 #' @export
-simulate_values <- function(lower, upper, k, distr = "unif",
+simulate_values <- function(lower, upper, k, distr = NULL,
                             cast_to_data_frame = T, add_id_column = "numeric",
                             seed = NULL, ...) {
   dotdot <- list(...)
 
   # input checks
-  if (!is.numeric(lower) | length(lower) <= 0) {
-    stop("lower must be numeric with length >= 1")
+  if (!is_numeric(lower) | length(lower) <= 0) {
+    stop("lower must be a valid numeric vector with length >= 1")
   }
-  if (!is.numeric(upper) | length(upper) <= 0) {
-    stop("upper must be numeric with length >= 1")
+  if (!is_numeric(upper) | length(upper) <= 0) {
+    stop("upper must be a valid numeric vector with length >= 1")
   }
   if (length(upper) != length(lower)) {
     stop("lower and upper are not of the same length")
@@ -112,17 +137,24 @@ simulate_values <- function(lower, upper, k, distr = "unif",
     stop("labels provided in upper and lower don't match!")
   }
 
+  if (any(lower >= upper)) {
+    stop("values in lower are not always smaller than the values in upper")
+  }
 
-  if (!is.numeric(k) | length(k) != 1) {
+  if (!is_numeric(k) | length(k) != 1) {
     stop("k must be a single numeric")
   }
 
+  if (is.null(distr)) {
+    distr <- "unif"
+  }
   distr <- match.arg(distr, c("unif", "tnorm"))
 
   if (!is.logical(cast_to_data_frame) | length(cast_to_data_frame) != 1) {
     stop("cast_to_data_frame must be a single logical value")
   }
 
+  if (is.logical(add_id_column) && !add_id_column) add_id_column <- "none"
   add_id_column <- match.arg(add_id_column, c("numeric", "character", "none"))
 
   if (!is.null(seed)) {
@@ -148,11 +180,19 @@ simulate_values <- function(lower, upper, k, distr = "unif",
     if (is.null(sds)) {
       stop("tnorm was requested but no sds argument provided")
     }
-    if (!is.numeric(means) | length(means) != n_prms) {
-      stop("means is not numeric with length equal to lower/upper")
+    if (!is_numeric(means) | length(means) != n_prms) {
+      stop("means is not a valid numeric vector with length equal to lower/upper")
     }
-    if (!is.numeric(sds) | length(sds) != n_prms) {
+    if (!is_numeric(sds) | length(sds) != n_prms) {
       stop("sds is not numeric with length equal to lower/upper")
+    }
+    names_means <- names(means)
+    names_sds <- names(sds)
+    if (!isTRUE(all.equal(names_means, names_sds))) {
+      stop("labels provided in means and sds don't match!")
+    }
+    if (!isTRUE(all.equal(names_means, names_upper))) {
+      stop("labels provided in means/sds don't match with upper/lower!")
     }
 
     prms <- lapply(1:n_prms, function(i) {

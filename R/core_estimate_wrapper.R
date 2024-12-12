@@ -1,21 +1,24 @@
-# ===== FUNCTION FOR FITTING MULTIPLE SUBJECTS
+# FUNCTION FOR FITTING MULTIPLE SUBJECTS ----------------------------------
 
-#' Fit multiple individuals and save results
+
+
+#' Fit Multiple Individuals and Save Results
 #'
 #' @description
 #' Provides a wrapper around [dRiftDM::estimate_model] to fit multiple
 #' individuals. Each individual will be stored in a folder. This folder will
 #' also contain a file `drift_dm_fit_info.rds`, containing the main arguments
-#' of the function call.
+#' of the function call. One call to this function is considered a
+#' "fit procedure". Fit procedures can be loaded via [dRiftDM::load_fits_ids].
 #'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm] that will
 #'  be estimated for each individual in `obs_data_ids`.
 #'
-#' @param obs_data_ids data.frame, must be suitable for
-#' [dRiftDM::set_obs_data]. An additional column `ID` necessary, to
-#' identify a single individual
-#' @param lower,upper numeric vectors, providing the parameter space, see
-#' [dRiftDM::estimate_model].
+#' @param obs_data_ids data.frame, see
+#' [dRiftDM::obs_data]. An additional column `ID` necessary, to
+#' identify a single individual.
+#' @param lower,upper numeric vectors or lists, providing the parameter space,
+#' see [dRiftDM::estimate_model].
 #' @param fit_procedure_name character, providing a name of the fitting
 #'  procedure. This name will be stored in `drift_dm_fit_info.rds` to identify
 #'  the fitting procedure, see also [dRiftDM::load_fits_ids].
@@ -31,7 +34,7 @@
 #'  `"drift_dm_fits"`.
 #' @param force_refit logical, if `TRUE` each individual of a fitting routine will
 #'  be fitted once more. Default is `FALSE` which indicates that saved files
-#' @param progress numerical, indicating if and how progress shall be depicted.
+#' @param progress numerical, indicating if and how progress shall be displayed.
 #'  If 0, no progress is shown. If 1, the currently fitted individual is printed
 #'  out. If 2, a progressbar is shown. Default is 2.
 #' @param start_vals optional data.frame, providing values to be set
@@ -40,8 +43,11 @@
 #'  will only have an effect if DEoptim is not used (i.e., when setting
 #'  `use_de_optim = FALSE`; see [dRiftDM::estimate_model]). The data.frame
 #'  must provide a column `ID` whose entries match the `ID` column
-#'  in `obs_data_ids`, as well as a column for each parameter of the model.
+#'  in `obs_data_ids`, as well as a column for each parameter of the model
+#'  matching with `coef(drift_dm_obj, select_unique = T)`.
 #' @param ... additional arguments passed down to [dRiftDM::estimate_model].
+#'
+#' @returns nothing (NULL)
 #'
 #' @details
 #' Examples and more information can be found here
@@ -59,8 +65,10 @@
 #'  `lower` and `upper` parameter boundaries, the `drift_dm_object` that was
 #'  fitted to each individual, the original data set `obs_data_ids`, and
 #'  the identifier `fit_procedure_name`. In the same folder each individual
-#'  has its own `<individual>.rds` file containing the modified `drift_dm_object`.
+#'  has its own `<individual>.rds` file containing the modified
+#'  `drift_dm_object`.
 #'
+#' @seealso [dRiftDM::load_fits_ids]
 #'
 #' @export
 estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
@@ -89,11 +97,11 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
   }
 
   # check if data makes sense
-  b_encoding <- attr(drift_dm_obj, "b_encoding")
+  b_coding <- attr(drift_dm_obj, "b_coding")
   obs_data_ids <- check_raw_data(obs_data_ids,
-    b_encoding_column = b_encoding$column,
-    u_name_value = b_encoding$u_name_value,
-    b_encoding$l_name_value
+    b_coding_column = b_coding$column,
+    u_value = b_coding$u_name_value,
+    l_value = b_coding$l_name_value
   )
   if (drift_dm_obj$prms_solve[["t_max"]] < max(obs_data_ids$RT)) {
     stop(
@@ -102,30 +110,16 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
     )
   }
 
-  # check if lower or upper are named numeric vectors and unname them
-  # (after sorting of course)
-  if (!is.null(names(lower)) | !is.null(names(upper))) {
-    if (is.null(names(lower)) & !is.null(names(upper))) {
-      stop("upper is a named numeric vector, but lower isn't")
-    }
-    if (!is.null(names(lower)) & is.null(names(upper))) {
-      stop("lower is a named numeric vector, but upper isn't")
-    }
-
-    check_if_named_numeric_vector(
-      x = lower, var_name = "lower",
-      labels = drift_dm_obj$free_prms
+  model_conds <- conds(drift_dm_obj)
+  data_cond <- conds(obs_data_ids)
+  if (!all(data_cond %in% model_conds)) {
+    warning(
+      "The Cond column in the supplied data.frame provides a condition that is",
+      " not listed in the model's conditions. This condition will be dropped."
     )
-    check_if_named_numeric_vector(
-      x = upper, var_name = "upper",
-      labels = drift_dm_obj$free_prms
-    )
-
-    lower <- lower[drift_dm_obj$free_prms]
-    lower <- unname(lower)
-    upper <- upper[drift_dm_obj$free_prms]
-    upper <- unname(upper)
+    obs_data_ids <- obs_data_ids[obs_data_ids$Cond %in% model_conds, ]
   }
+
 
 
   if (!is.null(seed)) {
@@ -155,6 +149,8 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
   if (!is.numeric(progress) | length(progress) != 1 | !(progress %in% c(0, 1, 2))) {
     stop("progress must be numeric of either 0, 1, or 2")
   }
+
+  free_prms <- names(coef(drift_dm_obj, select_unique = T))
   if (!is.null(start_vals)) {
     if (!is.data.frame(start_vals)) {
       stop("start_vals must be a data.frame")
@@ -173,18 +169,16 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
     if (length(ids_start) != nrow(start_vals)) {
       stop("individual identifiers in the column ID of start_vals not unique")
     }
-    if (!all(names(start_vals)[names(start_vals) != "ID"] %in%
-      drift_dm_obj$free_prms)) {
+    if (!all(names(start_vals)[names(start_vals) != "ID"] %in% free_prms)) {
       stop(
         "columns indicating parameters in start_vals don't match",
-        " free_prms of the model object"
+        " the unique free parameters of the model object (see ?coef)"
       )
     }
-    if (!all(drift_dm_obj$free_prms %in%
-      names(start_vals)[names(start_vals) != "ID"])) {
+    if (!all(free_prms %in% names(start_vals)[names(start_vals) != "ID"])) {
       stop(
         "columns indicating parameters in start_vals don't match",
-        " free_prms of the model object"
+        " the unique free parameters of the model object (see ?coef)"
       )
     }
   }
@@ -200,8 +194,9 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
   }
 
   # 1. dump info about call
+  time_call <- format(Sys.time(), "%Y-%B-%d_%H-%M")
   fit_info <- list(
-    time_call = Sys.time(), lower = lower,
+    time_call = time_call, lower = lower,
     upper = upper, seed = seed,
     drift_dm_obj = drift_dm_obj,
     obs_data_ids = obs_data_ids,
@@ -252,19 +247,16 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
   for (name_one_ids in names(list_obs_data)) {
     # set the data to the model
     one_obs_data <- list_obs_data[[name_one_ids]]
-    drift_dm_obj_id <- set_obs_data(
-      drift_dm_obj = drift_dm_obj,
-      obs_data = one_obs_data, eval_model = F
-    )
+    drift_dm_obj_id <- drift_dm_obj
+    obs_data(drift_dm_obj_id) <- one_obs_data
 
     # set parameter values that might be used if DE is not run
     if (!is.null(start_vals)) {
       set_vals <- start_vals[start_vals$ID == name_one_ids, ]
       set_vals <- set_vals[names(set_vals) != "ID"]
-      drift_dm_obj_id <- set_model_prms(
-        drift_dm_obj = drift_dm_obj_id,
-        new_prm_vals = unlist(set_vals)
-      )
+      set_vals <- set_vals[free_prms]
+      set_vals <- as.numeric(set_vals)
+      coef(drift_dm_obj_id) <- set_vals
     }
 
     # estimate the model
@@ -308,16 +300,22 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
       pb$tick()
     }
   }
+
+  invisible(NULL)
 }
 
 
-# ===== FUNCTION FOR LOADING MULTIPLE FITS
+
+# FUNCTIONS FOR LOADING MULTIPLE FITS --------------------------------------
 
 
-#' Load estimates of a fit procedure
+
+
+#' Load Estimates of a Fit Procedure
 #'
 #' This function loads the results of a fit procedure where a model was fitted
-#' to multiple individuals
+#' to multiple individuals (see [dRiftDM::estimate_model_ids]). It is also the
+#' function that creates an object of type `fits_ids_dm`.
 #'
 #'
 #' @param path character, a path pointing to a folder or directory
@@ -329,18 +327,21 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 #'  in case multiple fit procedures were found and the user is prompted to
 #'  explicitly choose one
 #' @param check_data logical, should the data be checked before passing them
-#'  back? This checks the observed data and the properties of the model. This
-#'  can take some time though, depending on the number of individuals and the
-#'  size of the observed data. Default is `TRUE`
+#'  back? This checks the observed data and the properties of the model. Default
+#'  is `TRUE`
 #' @param progress numerical, indicating if and how progress shall be depicted.
 #'  If 0, no progress is shown. If 1, basic infos about the checking progress
 #'  is shown. If 2, multiple progressbars are shown. Default is 2.
+#'
+#' @param x an object of type `fits_ids_dm`, created when calling
+#'  `load_fits_ids`
+#' @param ... additional arguments
 #'
 #' @details
 #' with respect to the logic outlined in the details of
 #' [dRiftDM::estimate_model_ids] on the organization of fit procedures,
 #' `path` could either point to a directory with (potentially) multiple fit
-#' routines or to a specific folder with the invidiual fits. In either case
+#' routines or to a specific folder with the individual fits. In either case
 #' the intended location is recursively searched for files named
 #' `drift_dm_fit_info.rds`.
 #'
@@ -348,7 +349,7 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 #' routine was found in the intended location or because only one
 #' `drift_dm_fit_info.rds` contains the optional identifier specified in
 #' `fit_procedure_name`, then all individual model fits including the
-#' information `fit_procedure_name` are loaded and returned
+#' information `fit_procedure_name` are loaded and returned.
 #'
 #' In case multiple fit procedures are identified, the user is
 #' prompted with a [utils::menu], listing information about the possible
@@ -356,15 +357,21 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 #' by the user. The amount of displayed information is controlled via
 #' `detailed_info`.
 #'
+#' The `print()` method for objects of type `fits_ids_dm` prints out basic
+#' information about the fit procedure name, the fitted model, time of (last)
+#' call, and the number of individual data sets.
+#'
 #' @returns
-#' An object of type `dm_fits_ids` which essentially is a list with two
+#' An object of type `fits_ids_dm` which essentially is a list with two
 #' entries:
 #' - `drift_dm_fit_info`, containing a list of the main arguments when
 #'  [dRiftDM::estimate_model_ids] was originally called, including
-#'  a time-stamp
+#'  a time-stamp.
 #' - `all_fits`, containing a list of all the modified/fitted `drift_dm`
-#'  objects. The list's entry are named according to the individuals' identifier
+#'  objects. The list's entry are named according to the individuals'
+#'  identifier (i.e., `ID`).
 #'
+#' @seealso [dRiftDM::estimate_model_ids()]
 #'
 #' @export
 load_fits_ids <- function(path = "drift_dm_fits",
@@ -471,7 +478,7 @@ load_fits_ids <- function(path = "drift_dm_fits",
     all_fits = list_of_all_fits[names(list_of_all_fits) != "drift_dm_fit_info"]
   )
 
-  class(fits_ids) <- "dm_fits_ids"
+  class(fits_ids) <- "fits_ids_dm"
   if (check_data) {
     fits_ids <- validate_fits_ids(fits_ids = fits_ids, progress = progress)
   }
@@ -482,61 +489,82 @@ load_fits_ids <- function(path = "drift_dm_fits",
 # ===== FUNCTION FOR HANDLING INFORMATION AND CHECKING FITS
 
 
-# checks if all the information are in the fits_ids
-# object and ensures that nothing obviously fishy is going on
-# in the individual model fits, by validating each model, and checking
-# if the data in info_file matches the data of each individual fit object
+
+#' Validate a an Object of Type fits_ids_dm
+#'
+#' checks if all the information are in the fits_ids_dm (see
+#' [dRiftDM::estimate_model_ids]) object and ensures that nothing obviously
+#' fishy is going on with the individual model fits.
+#'
+#' @param fits_ids an object of type fits_ids_dm
+#' @param progress numeric, 0, no progress, 1 basic output, 2 progress bars
+#'
+#' @returns the unmodified fits_ids objects
+#'
+#' @details
+#' Checks:
+#'  * if all names are in the info file
+#'  * and if the respective entries make sense
+#'  * if the flex_prms object of the all saved models and the overall
+#'    model is the same (except for the differences in the prm values).
+#'  * if the class, prms_solve and solver of the saved models and the
+#'    overall model is the same
+#'  * if the estimated parameters are in the parameter space
+#'  * for same  b_coding and same functions
+#'  * if the number of fits matches with the number of individuals
+#'    in the info file
+#'  * if the data in each fitted model matches with the observed data in
+#'    the info file
+#'
+#'
 validate_fits_ids <- function(fits_ids, progress) {
-  if (!inherits(fits_ids, "dm_fits_ids")) {
-    stop("fits_ids is not of type dm_fits_ids")
+  if (!inherits(fits_ids, "fits_ids_dm")) {
+    stop("fits_ids is not of type fits_ids_dm")
   }
 
   # ensure that everything is there in the info file
-  drift_dm_fit_info <- fits_ids$drift_dm_fit_info
+  fit_info <- fits_ids$drift_dm_fit_info
   names_to_check <- c(
     "time_call", "lower", "upper", "drift_dm_obj",
     "obs_data_ids", "fit_procedure_name"
   )
 
-  if (!all(names(drift_dm_fit_info)[!(names(drift_dm_fit_info) %in%
-    c("seed", "start_vals"))]
-  %in% names_to_check)) {
-    stop("drift_dm_fit_info contains unexpected info entries")
+  if (!all(names(fit_info)[!(names(fit_info) %in%
+    c("seed", "start_vals"))] %in% names_to_check)) {
+    stop("fit_info contains unexpected info entries")
   }
-  if (!all(names_to_check %in% names(drift_dm_fit_info))) {
-    stop("drift_dm_fit_info contains not all expected info entries")
-  }
-
-  if (!inherits(drift_dm_fit_info$time_call, "POSIXct")) {
-    stop("time_call is not of type POSIXct")
+  if (!all(names_to_check %in% names(fit_info))) {
+    stop("fit_info contains not all expected info entries")
   }
 
-  if (!is.numeric(drift_dm_fit_info$lower)) {
-    stop("lower is not of type numeric")
+  if (!is.character(fit_info$time_call)) {
+    stop("time_call is not of type character")
   }
-  if (!is.numeric(drift_dm_fit_info$upper)) {
-    stop("upper is not of type numeric")
+
+  if (!is_numeric(fit_info$lower) & !is.list(fit_info$lower)) {
+    stop("lower does not provide valid numeric values or is not a list")
   }
-  if (length(drift_dm_fit_info$lower) != length(drift_dm_fit_info$upper)) {
-    stop("length of upper and lower don't match")
+  if (!is_numeric(fit_info$upper) & !is.list(fit_info$upper)) {
+    stop("upper does not provide valid numeric values or is not a list")
   }
-  if (length(drift_dm_fit_info$drift_dm_obj$free_prms) !=
-    length(drift_dm_fit_info$upper)) {
-    stop("length of upper/lower don't match the number of free parameters")
-  }
-  seed <- drift_dm_fit_info$seed
-  if (!is.null(seed) & (!is.numeric(seed) | length(seed) != 1)) {
+  exp_l_u <- get_lower_upper_smart(
+    drift_dm_obj = fit_info$drift_dm_obj,
+    lower = fit_info$lower,
+    upper = fit_info$upper
+  )
+  seed <- fit_info$seed
+  if (!is.null(seed) & (!is_numeric(seed) | length(seed) != 1)) {
     stop("seed is not a single number or NULL")
   }
-  validate_drift_dm(drift_dm_fit_info$drift_dm_obj)
-  if (!is.data.frame(drift_dm_fit_info$obs_data_ids)) {
+  validate_drift_dm(fit_info$drift_dm_obj)
+  if (!is.data.frame(fit_info$obs_data_ids)) {
     stop("obs_data_ids is not a data.frame")
   }
-  if (!("ID" %in% names(drift_dm_fit_info$obs_data_ids))) {
+  if (!("ID" %in% names(fit_info$obs_data_ids))) {
     stop("obs_data_ids has no column ID")
   }
-  if (!is.character(drift_dm_fit_info$fit_procedure_name) |
-    length(drift_dm_fit_info$fit_procedure_name) != 1) {
+  if (!is.character(fit_info$fit_procedure_name) |
+    length(fit_info$fit_procedure_name) != 1) {
     stop("fit_procedure_name is not of type character with length 1")
   }
 
@@ -553,52 +581,91 @@ validate_fits_ids <- function(fits_ids, progress) {
   }
 
   # then check each model
-  exp_model <- fits_ids$drift_dm_fit_info$drift_dm_obj
-  exp_upper <- fits_ids$drift_dm_fit_info$upper
-  exp_lower <- fits_ids$drift_dm_fit_info$lower
+  exp_model <- fit_info$drift_dm_obj
+  exp_lower <- exp_l_u$lower - drift_dm_approx_error()
+  exp_upper <- exp_l_u$upper + drift_dm_approx_error()
+
+
+  # check the model itself (not the data; see below)
   for (one_vp in names(fits_ids$all_fits)) {
     one_fit <- fits_ids$all_fits[[one_vp]]
-    if (any(names(exp_model$prms_model) != names(one_fit$prms_model))) {
+
+    # check flex_prms
+    flatten_exp <- as.character(
+      unlist(exp_model$flex_prms_obj$linear_internal_list)
+    )
+    flatten_one_fit <- as.character(
+      unlist(one_fit$flex_prms_obj$linear_internal_list)
+    )
+    if (!isTRUE(all.equal(flatten_exp, flatten_one_fit))) {
       stop(
-        "parameters in the model of the fit procedure info don't match",
-        "the parameters of individual ", one_vp, "'s model "
+        "linear_list in the model of the fit procedure info don't match",
+        "the linear_list of individual ", one_vp, "'s model "
       )
     }
-    if (any(exp_model$conds != one_fit$conds)) {
+
+    flatten_exp <- as.character(
+      unlist(exp_model$flex_prms_obj$internal_list)
+    )
+    flatten_one_fit <- as.character(
+      unlist(one_fit$flex_prms_obj$internal_list)
+    )
+    if (!isTRUE(all.equal(flatten_exp, flatten_one_fit))) {
       stop(
-        "conditions in the model of the fit procedure info don't match",
-        "the conditions of individual ", one_vp, "'s model "
+        "internal_list in the model of the fit procedure info don't match ",
+        "the internal_list of individual ", one_vp, "'s model "
       )
     }
-    if (any(class(exp_model) != class(one_fit))) {
+
+    row_names_exp <- rownames(exp_model$flex_prms_obj$prms_matrix)
+    row_names_fit <- rownames(one_fit$flex_prms_obj$prms_matrix)
+    if (!isTRUE(all.equal(row_names_exp, row_names_fit))) {
+      stop(
+        "row_names in the model of the fit procedure info don't match ",
+        "the row_names of individual ", one_vp, "'s model "
+      )
+    }
+
+    col_names_exp <- colnames(exp_model$flex_prms_obj$prms_matrix)
+    col_names_fit <- colnames(one_fit$flex_prms_obj$prms_matrix)
+    if (!isTRUE(all.equal(col_names_exp, col_names_fit))) {
+      stop(
+        "col_names in the model of the fit procedure info don't match ",
+        "the col_names of individual ", one_vp, "'s model "
+      )
+    }
+
+    # check the class, and solver settings
+    if (!isTRUE(all.equal(class(exp_model), class(one_fit)))) {
       stop(
         "class of the model of the fit procedure info doesn't match",
         "the class of individual ", one_vp, "'s model "
       )
     }
-    if (any(exp_model$prms_solve != one_fit$prms_solve)) {
+    if (!isTRUE(all.equal(exp_model$prms_solve, one_fit$prms_solve))) {
       stop(
         "prms_solve in the model of the fit procedure info doesn't match",
         "the prms_solve of individual ", one_vp, "'s model "
       )
     }
-    if (any(exp_model$free_prms != one_fit$free_prms)) {
+    if (!isTRUE(all.equal(exp_model$solver, one_fit$solver))) {
       stop(
-        "free_prms in the model of the fit procedure info doesn't match",
-        "the free_prms of individual ", one_vp, "'s model "
+        "solver in the model of the fit procedure info doesn't match",
+        "the solver of individual ", one_vp, "'s model "
       )
     }
+
+
     # check if parameters are in the boundary range
-    fitted_model_prms <- one_fit$prms_model[names(one_fit$prms_model) %in%
-      one_fit$free_prms]
-    if (any(fitted_model_prms < exp_lower)) {
+    fitted_model_prms <- coef(one_fit, select_unique = T)
+    if (any(fitted_model_prms < exp_lower - drift_dm_approx_error())) {
       stop(
         "individual ", one_vp, " provided model parameters that are smaller ",
         "than the lower parameter boundaries found in the procedure info"
       )
     }
 
-    if (any(fitted_model_prms > exp_upper)) {
+    if (any(fitted_model_prms > exp_upper - drift_dm_approx_error())) {
       stop(
         "individual ", one_vp, " provided model parameters that are larger ",
         "than the upper parameter boundaries found in the procedure info"
@@ -613,10 +680,10 @@ validate_fits_ids <- function(fits_ids, progress) {
       )
     }
 
-    # b_encoding
-    b_encoding <- attr(one_fit, "b_encoding")
+    # b_coding
+    b_coding <- attr(one_fit, "b_coding")
 
-    if (!isTRUE(all.equal(attr(exp_model, "b_encoding"), b_encoding))) {
+    if (!isTRUE(all.equal(attr(exp_model, "b_coding"), b_coding))) {
       stop(
         "individual ", one_vp, " provided model parameters that are larger ",
         "than the upper parameter boundaries found in the procedure info"
@@ -627,7 +694,7 @@ validate_fits_ids <- function(fits_ids, progress) {
   }
 
   # the same or different number of individuals?
-  exp_obs_data <- drift_dm_fit_info$obs_data_ids
+  exp_obs_data <- fit_info$obs_data_ids
   info_ids <- as.character(unique(exp_obs_data$ID))
   n_exp <- length(info_ids)
   n_real <- length(fits_ids$all_fits)
@@ -639,15 +706,15 @@ validate_fits_ids <- function(fits_ids, progress) {
     ))
   }
 
-
-
   # from those participants that are found... Does the data match?
   conds <- unique(exp_obs_data$Cond)
   ids_fitted <- names(fits_ids$all_fits)
   ids_found <- ids_fitted[ids_fitted %in% info_ids]
   list_exp_obs_data <- split(x = exp_obs_data, f = exp_obs_data$ID)
-  b_encoding <- attr(fits_ids$drift_dm_fit_info$drift_dm_obj, "b_encoding")
-
+  b_coding <- attr(fit_info$drift_dm_obj, "b_coding")
+  b_name <- b_coding$column
+  u_val <- b_coding$u_name_value
+  l_val <- b_coding$l_name_value
 
   # progress bar
   if (progress == 1) {
@@ -665,12 +732,14 @@ validate_fits_ids <- function(fits_ids, progress) {
 
     vp_data <- list_exp_obs_data[[one_vp]]
     for (one_cond in conds) {
-      check_u <- model_data$rts_u[[one_cond]] ==
-        vp_data$RT[vp_data$Cond == one_cond & vp_data[[b_encoding$column]] == b_encoding$u_name_value]
-      check_u <- all(check_u)
-      check_l <- model_data$rts_l[[one_cond]] ==
-        vp_data$RT[vp_data$Cond == one_cond & vp_data[[b_encoding$column]] == b_encoding$l_name_value]
-      check_l <- all(check_l)
+      check_u <- isTRUE(all.equal(
+        model_data$rts_u[[one_cond]],
+        vp_data$RT[vp_data$Cond == one_cond & vp_data[[b_name]] == u_val]
+      ))
+      check_l <- isTRUE(all.equal(
+        model_data$rts_l[[one_cond]],
+        vp_data$RT[vp_data$Cond == one_cond & vp_data[[b_name]] == l_val]
+      ))
 
       if (!check_u | !check_l) {
         warning(
@@ -685,16 +754,22 @@ validate_fits_ids <- function(fits_ids, progress) {
   return(fits_ids)
 }
 
-# reads the info file and turns its main information into a string
+#' Reads Info file
+#'
+#' Requires a path to the info file of a fit procedure (see
+#' [dRiftDM::estimate_model_ids]) and turns its main information into a string
+#'
+#' @param full_name_to_file path to the info file (.RDS)
+#' @param detailed_info logical, if detailed info shall be provided or not
+#'
+#' @returns a string with infos about the fit procedure name, last call,
+#' maybe model, individuals, lower/upper and seed
+#'
 summarize_drift_dm_info <- function(full_name_to_file, detailed_info) {
   fit_info <- readRDS(file = full_name_to_file)
   string <- "\n"
   string <- paste0(string, "Fit Name: ", fit_info$fit_procedure_name, "\n")
-  string <- paste0(
-    string, "Last call: ",
-    format(fit_info$time_call, "%Y-%m-%d %H:%M:%S"),
-    "\n"
-  )
+  string <- paste0(string, "Last call: ", fit_info$time_call, "\n")
   if (detailed_info) {
     string <- paste0(
       string, "Model: ",
@@ -708,12 +783,12 @@ summarize_drift_dm_info <- function(full_name_to_file, detailed_info) {
     )
     string <- paste0(
       string, "Lower: ",
-      paste(fit_info$lower, collapse = ", "),
+      paste(unlist(fit_info$lower), collapse = ", "),
       "\n"
     )
     string <- paste0(
       string, "Upper: ",
-      paste(fit_info$upper, collapse = ", "),
+      paste(unlist(fit_info$upper), collapse = ", "),
       "\n"
     )
     string <- paste0(string, "Seed: ", fit_info$seed, "\n")

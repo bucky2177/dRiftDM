@@ -1,33 +1,8 @@
-test_that("test log_like", {
-  data <- data.frame(
-    RT = c(0.431, 0.402, 0.344, 0.3322),
-    Error = c(0, 0, 1, 0),
-    Cond = c("null", "null", "null", "foo")
-  )
+# -> log_like is tested in calc_stats
 
-  a_model <- drift_dm(c("a" = 4),
-    conds = c("null", "foo"), dx = 0.005,
-    dt = 0.005, t_max = 1
-  )
-  a_model <- set_obs_data(a_model, data, eval_model = T)
-  a_model <- re_evaluate_model(a_model)
-  pdfs_null <- a_model$pdfs$null
-  pdfs_foo <- a_model$pdfs$foo
-
-  # log_like_value calculated by hand
-  t_vec <- seq(0, 1, 0.005)
-  d_1 <- (pdfs_null$pdf_u[88] - pdfs_null$pdf_u[87]) * 0.2 + pdfs_null$pdf_u[87]
-  d_2 <- (pdfs_null$pdf_u[82] - pdfs_null$pdf_u[81]) * 0.4 + pdfs_null$pdf_u[81]
-  d_3 <- (pdfs_null$pdf_l[70] - pdfs_null$pdf_l[69]) * 0.8 + pdfs_null$pdf_l[69]
-  d_4 <- (pdfs_foo$pdf_u[68] - pdfs_foo$pdf_u[67]) * 0.44 + pdfs_foo$pdf_u[67]
-  d_1 <- d_1
-  d_2 <- d_2
-  d_3 <- d_3
-  d_4 <- d_4
-  for_test_log_like <- log(d_1) + log(d_2) + log(d_3) + log(d_4)
-  # calc_log_like
-  expect_equal(a_model$log_like, for_test_log_like)
-})
+# -> kfe was originally tested against code by Thomas, but since we now
+#  have the more stable method implemented, checks are only done against
+# DMCfun
 
 # for get_pdf -> see test_models
 test_that("add_residual works as expected", {
@@ -41,5 +16,34 @@ test_that("add_residual works as expected", {
   )[[1]]
 
   d3 <- dnorm(time, mean = 0.7, sd = sqrt(0.01^2 + 0.02^2))
-  expect_true(all(abs(d3 - d3_test) < 0.001))
+  expect_true(all(abs(d3 - d3_test) < 0.00001))
+})
+
+
+
+test_that("test im_zero", {
+
+  a_model = dmc_dm(t_max = 1, dx = .001, dt = .001, var_start = F)
+  solver(a_model) <- "im_zero"
+
+  pdf_u = numeric(1001)
+  pdf_l = numeric(1001)
+
+  t_vec = seq(0, 1, 0.001)
+
+  comp_vals = comp_vals(a_model)
+  cpp_imzero(pdf_u = pdf_u, pdf_l = pdf_l,
+             nt = 1000, dt = .001,
+             sigma = 1, b_vals = comp_vals$comp$b_vals,
+             mu_vals =  comp_vals$comp$mu_vals,
+             mu_int_vals = comp_vals$comp$mu_int_vals,
+             dt_b_vals = comp_vals$comp$dt_b_vals, t_vec = t_vec)
+
+  # load values provided by Thomas' python code
+  test_u_pdf = read.table(file = test_path("fixtures", "test_im_zero_u.txt"))[[1]]
+  test_l_pdf = read.table(file = test_path("fixtures", "test_im_zero_l.txt"))[[1]]
+
+  expect_equal(test_u_pdf, pdf_u)
+  expect_equal(test_l_pdf, pdf_l)
+
 })
