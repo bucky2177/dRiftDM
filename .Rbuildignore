@@ -9,3 +9,4 @@
 ^drift_dm_fits$
 ^figures$
 ^\.github$
+^codecov\.yml$
