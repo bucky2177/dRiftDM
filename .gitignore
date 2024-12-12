@@ -16,4 +16,5 @@ tutorial/figures
 tutorial/figure
 tutorial/*.Rmd
 tutorial/*.md
+tutorial/*.html
 

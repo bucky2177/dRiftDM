@@ -117,14 +117,14 @@ backbone of the dRiftDM package and every child of the drift_dm class must
 have the attributes of the parent class. Typically, users will not want to
 create an object of drift_dm alone, as its use is very limited. Rather, they
 will want an object of one of its child classes. See
-\code{vignette("create_ddm_models", "dRiftDM")} for more information on how
+\code{vignette("use_ddm_models", "dRiftDM")} for more information on how
 to create/use/modify child classes.
 }
 \details{
 To modify the entries of a model users can use the replacement methods and
 the \code{\link[=modify_flex_prms]{modify_flex_prms()}} method . See
 \code{vignette("use_ddm_models", "dRiftDM")} and
-\code{vignette("create_ddm_models", "dRiftDM")} for more information.
+\code{vignette("use_ddm_models", "dRiftDM")} for more information.
 }
 \seealso{
 \code{\link[=conds]{conds()}}, \code{\link[=flex_prms]{flex_prms()}}, \code{\link[=prms_solve]{prms_solve()}},

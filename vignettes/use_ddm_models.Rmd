@@ -1,5 +1,5 @@
 ---
-title: "create_ddm_models"
+title: "use_ddm_models"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{use_ddm_models}
@@ -18,4 +18,4 @@ knitr::opts_chunk$set(
 library(dRiftDM)
 ```
 
-TO BE DONE
+TO BE DONE. For the moment, the primary source of information about dRiftDM is the OSF [prepint](https://osf.io/preprints/osf/3t2vf)

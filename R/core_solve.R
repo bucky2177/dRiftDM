@@ -139,8 +139,8 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
       )
     } else if (solver == "im_zero") {
       # solve the pdfs with integral approach
-      cpp_imzero(pdf_u = pdf_u, pdf_l = pdf_l, nt = nt, nx = nx, dt = dt,
-                 dx = dx, sigma = sigma, b_vals = b_vals, mu_vals = mu_vals,
+      cpp_imzero(pdf_u = pdf_u, pdf_l = pdf_l, nt = nt, dt = dt,
+                 sigma = sigma, b_vals = b_vals, mu_vals = mu_vals,
                  mu_int_vals = mu_int_vals, dt_b_vals = dt_b_vals,
                  t_vec = t_vec)
 

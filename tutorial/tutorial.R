@@ -1,11 +1,14 @@
 #' ---
-#' title: "Reproducing the dRiftDM Tutorial"
+#' title: "Reproducing the dRiftDM Introduction"
 #' author: "Valentin Koob (bucky)"
-#' date: "26.11.2024"
+#' date: "12.12.2024"
 #' ---
 #'
-#' This document contains the output of dRiftDM's tutorial to facilitate review.
-#'
+#' This document contains the code and output of dRiftDM's tutorial to
+#' facilitate review. Note that this script sometimes provides additional R
+#' statements that were skipped in the pre-print for brevity. Yet, those are
+#' rare and primarily show a bit more of the underlying structure of
+#' objects or alternative ways to access information.
 
 rm(list = ls())
 
@@ -15,7 +18,7 @@ rm(list = ls())
 #' Install the package.
 
 #+ eval = FALSE
-install.packages("devtools") # if not already available
+# install.packages("devtools") # if not already available
 devtools::install_github("bucky2177/dRiftDM")
 # optional: install.packages("cowsay")
 
@@ -53,10 +56,10 @@ some_traces_no_noise = simulate_traces(a_model, k = 1, sigma = 0) # no noise
 par(mfrow = c(1,2)) # to plot the traces with and without noise side-by-side
 plot(
   some_traces,     # the traces object
-  col = "gray20",  # the desired color for each trace
+  col = "gray30",  # the desired color for each trace
   xlim = c(0, 0.4) # controls the x-axis limit
 )
-plot(some_traces_no_noise, col = "gray20", xlim = c(0, 0.4))
+plot(some_traces_no_noise, col = "gray30", xlim = c(0, 0.4))
 
 
 #' Calculate summary statistics. For speed, evaluate the model before
@@ -79,7 +82,8 @@ plot(some_stats, mfrow = c(1, 2), col = "black")
 # -------------------------------------------------------------------------
 #' # Change Solver
 #' "kfe" is the default solver, but users can change this to the
-#' integral approach for models without trial-by-trial variability.
+#' integral approach for models that have dirac delta on zero for the starting
+#' point
 #+ change_solver
 solver(a_model)
 solver(a_model) <- "im_zero" # use the method based on integral equations
@@ -160,7 +164,11 @@ sum_stats = calc_stats(
 
 #' Plot the summary statistics
 #+ plot_stats_single_fit, fig.width = 8, fig.height = 4
-plot(sum_stats, mfrow = c(1,3))
+# separate plot calls for more control over each panel
+plot(sum_stats$cafs, col = c("green", "red"),
+     legend = NA) # legend = NA -> no legend
+plot(sum_stats$quantiles, col = c("green", "red"))
+plot(sum_stats$delta_funs)
 
 
 
@@ -212,7 +220,9 @@ sum_stats = calc_stats(
 )
 
 # plot model fit
-plot(sum_stats, mfrow = c(1,3))
+plot(sum_stats$cafs, col = c("green", "red"), legend = NA)
+plot(sum_stats$quantiles, col = c("green", "red"))
+plot(sum_stats$delta_funs)
 
 
 #' # A Simple Parameter Recovery Study
@@ -329,7 +339,7 @@ print(new_flex_prms)
 
 #' Now swap in the new flex_prms object and visualize the results
 #+ plot_neutral_dmc, fig.width = 10, fig.height = 10
-flex_prms(my_dmc_model) <- new_flex_prms
+flex_prms(my_dmc_model) = new_flex_prms
 print(my_dmc_model)
 
 # visualize the results
@@ -413,7 +423,6 @@ print(my_ssp)
 
 # simulate expected time course
 set.seed(1)
-some_traces = simulate_traces(my_ssp, k = 2)
 some_traces_no_noise = simulate_traces(my_ssp, k = 1, sigma = 0)
 
 plot(some_traces_no_noise, col = c("green", "red"))
@@ -455,7 +464,10 @@ cust_x = function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
   alpha = prms_model[["alpha"]]
   start_dist = dbeta(x_vec/2 + 0.5, alpha, alpha)
 
-  return(start_dist / 2) # / 2 to ensure that it integrates to 1
+  # ensure that the distribution always integrates to 1
+  dx <- prms_solve[["dx"]]
+  start_dist <- start_dist / (sum(start_dist) * dx)
+  return(start_dist)
 }
 
 #' Now write a function that assembles everything
@@ -465,7 +477,7 @@ coll_dm = function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
 
 
   # define parameters and conditions
-  prms_model = c(b0 = 0.6, kappa = 0.2, t05 = 0.15, alpha = 3,
+  prms_model = c(b0 = 0.6, kappa = 0.5, t05 = 0.15, alpha = 3,
                  muc = 4, non_dec = 0.3)
   conds = c("null")
 
@@ -498,7 +510,7 @@ coll_dm = function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
 a_cust_model = coll_dm()
 set.seed(2)
 some_traces = simulate_traces(a_cust_model, k = 10, add_x = T)
-plot(some_traces, xlim = c(0, 0.4))
+plot(some_traces, xlim = c(0, 0.4), col = "gray30")
 
 
 

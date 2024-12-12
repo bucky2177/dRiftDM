@@ -33,7 +33,7 @@ test_that("test im_zero", {
 
   comp_vals = comp_vals(a_model)
   cpp_imzero(pdf_u = pdf_u, pdf_l = pdf_l,
-             nt = 1000, nx = 2000, dt = .001, dx = .001,
+             nt = 1000, dt = .001,
              sigma = 1, b_vals = comp_vals$comp$b_vals,
              mu_vals =  comp_vals$comp$mu_vals,
              mu_int_vals = comp_vals$comp$mu_int_vals,

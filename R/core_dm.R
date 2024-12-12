@@ -10,7 +10,7 @@
 #' have the attributes of the parent class. Typically, users will not want to
 #' create an object of drift_dm alone, as its use is very limited. Rather, they
 #' will want an object of one of its child classes. See
-#' \code{vignette("create_ddm_models", "dRiftDM")} for more information on how
+#' \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
 #' to create/use/modify child classes.
 #'
 #' @param prms_model a named numeric vector of the model parameters. The names
@@ -84,7 +84,7 @@
 #' To modify the entries of a model users can use the replacement methods and
 #' the [dRiftDM::modify_flex_prms()] method . See
 #' \code{vignette("use_ddm_models", "dRiftDM")} and
-#' \code{vignette("create_ddm_models", "dRiftDM")} for more information.
+#' \code{vignette("use_ddm_models", "dRiftDM")} for more information.
 #'
 #' @seealso [dRiftDM::conds()], [dRiftDM::flex_prms()], [dRiftDM::prms_solve()],
 #' [dRiftDM::solver()], [dRiftDM::obs_data()], [dRiftDM::comp_funs()],
@@ -1623,7 +1623,7 @@ obs_data.fits_ids_dm <- function(object, ...) {
 #' `comp_funs()` is a generic accessor function, and `comp_funs<-()` is a
 #' generic replacement function. The default methods get and set the "component
 #' functions". The component functions are a list of functions, with the
-#' following names (see also \code{vignette("create_ddm_models", "dRiftDM")} for
+#' following names (see also \code{vignette("use_ddm_models", "dRiftDM")} for
 #' examples):
 #'
 #' * `mu_fun` and `mu_int_fun`, provide the drift rate and its integral,

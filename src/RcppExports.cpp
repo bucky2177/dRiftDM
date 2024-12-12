@@ -11,24 +11,22 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // cpp_imzero
-int cpp_imzero(NumericVector& pdf_u, NumericVector& pdf_l, const int nt, const int nx, const double dt, const double dx, const double sigma, const NumericVector& b_vals, const NumericVector& mu_vals, const NumericVector& mu_int_vals, const NumericVector& dt_b_vals, const NumericVector& t_vec);
-RcppExport SEXP _dRiftDM_cpp_imzero(SEXP pdf_uSEXP, SEXP pdf_lSEXP, SEXP ntSEXP, SEXP nxSEXP, SEXP dtSEXP, SEXP dxSEXP, SEXP sigmaSEXP, SEXP b_valsSEXP, SEXP mu_valsSEXP, SEXP mu_int_valsSEXP, SEXP dt_b_valsSEXP, SEXP t_vecSEXP) {
+int cpp_imzero(NumericVector& pdf_u, NumericVector& pdf_l, const int nt, const double dt, const double sigma, const NumericVector& b_vals, const NumericVector& mu_vals, const NumericVector& mu_int_vals, const NumericVector& dt_b_vals, const NumericVector& t_vec);
+RcppExport SEXP _dRiftDM_cpp_imzero(SEXP pdf_uSEXP, SEXP pdf_lSEXP, SEXP ntSEXP, SEXP dtSEXP, SEXP sigmaSEXP, SEXP b_valsSEXP, SEXP mu_valsSEXP, SEXP mu_int_valsSEXP, SEXP dt_b_valsSEXP, SEXP t_vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector& >::type pdf_u(pdf_uSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type pdf_l(pdf_lSEXP);
     Rcpp::traits::input_parameter< const int >::type nt(ntSEXP);
-    Rcpp::traits::input_parameter< const int >::type nx(nxSEXP);
     Rcpp::traits::input_parameter< const double >::type dt(dtSEXP);
-    Rcpp::traits::input_parameter< const double >::type dx(dxSEXP);
     Rcpp::traits::input_parameter< const double >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< const NumericVector& >::type b_vals(b_valsSEXP);
     Rcpp::traits::input_parameter< const NumericVector& >::type mu_vals(mu_valsSEXP);
     Rcpp::traits::input_parameter< const NumericVector& >::type mu_int_vals(mu_int_valsSEXP);
     Rcpp::traits::input_parameter< const NumericVector& >::type dt_b_vals(dt_b_valsSEXP);
     Rcpp::traits::input_parameter< const NumericVector& >::type t_vec(t_vecSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_imzero(pdf_u, pdf_l, nt, nx, dt, dx, sigma, b_vals, mu_vals, mu_int_vals, dt_b_vals, t_vec));
+    rcpp_result_gen = Rcpp::wrap(cpp_imzero(pdf_u, pdf_l, nt, dt, sigma, b_vals, mu_vals, mu_int_vals, dt_b_vals, t_vec));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -54,32 +52,10 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cpp_kfe_drift
-int cpp_kfe_drift(const double E, const double V, NumericVector& pdf_u, NumericVector& pdf_l, NumericVector& xx, const int nt, const int nx, const double dt, const double dx, double sigma, const double b_val);
-RcppExport SEXP _dRiftDM_cpp_kfe_drift(SEXP ESEXP, SEXP VSEXP, SEXP pdf_uSEXP, SEXP pdf_lSEXP, SEXP xxSEXP, SEXP ntSEXP, SEXP nxSEXP, SEXP dtSEXP, SEXP dxSEXP, SEXP sigmaSEXP, SEXP b_valSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const double >::type E(ESEXP);
-    Rcpp::traits::input_parameter< const double >::type V(VSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type pdf_u(pdf_uSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type pdf_l(pdf_lSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type xx(xxSEXP);
-    Rcpp::traits::input_parameter< const int >::type nt(ntSEXP);
-    Rcpp::traits::input_parameter< const int >::type nx(nxSEXP);
-    Rcpp::traits::input_parameter< const double >::type dt(dtSEXP);
-    Rcpp::traits::input_parameter< const double >::type dx(dxSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< const double >::type b_val(b_valSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_kfe_drift(E, V, pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_val));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_dRiftDM_cpp_imzero", (DL_FUNC) &_dRiftDM_cpp_imzero, 12},
+    {"_dRiftDM_cpp_imzero", (DL_FUNC) &_dRiftDM_cpp_imzero, 10},
     {"_dRiftDM_cpp_kfe", (DL_FUNC) &_dRiftDM_cpp_kfe, 12},
-    {"_dRiftDM_cpp_kfe_drift", (DL_FUNC) &_dRiftDM_cpp_kfe_drift, 11},
     {NULL, NULL, 0}
 };
 

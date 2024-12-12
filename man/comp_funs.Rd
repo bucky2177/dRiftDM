@@ -46,7 +46,7 @@ the heart of the package and shape the model's behavior.
 \code{comp_funs()} is a generic accessor function, and \verb{comp_funs<-()} is a
 generic replacement function. The default methods get and set the "component
 functions". The component functions are a list of functions, with the
-following names (see also \code{vignette("create_ddm_models", "dRiftDM")} for
+following names (see also \code{vignette("use_ddm_models", "dRiftDM")} for
 examples):
 \itemize{
 \item \code{mu_fun} and \code{mu_int_fun}, provide the drift rate and its integral,
