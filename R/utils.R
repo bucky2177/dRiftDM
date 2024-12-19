@@ -11,10 +11,10 @@
 #' missing or infinite values, otherwise `FALSE`.
 #'
 #' @examples
-#' dRiftDM:::is_numeric(c(1, 2, 3))       # TRUE
-#' dRiftDM:::is_numeric(c(1, 2, NA))      # FALSE
-#' dRiftDM:::is_numeric(c(1, 2, Inf))     # FALSE
-#' dRiftDM:::is_numeric("not numeric")    # FALSE
+#' dRiftDM:::is_numeric(c(1, 2, 3)) # TRUE
+#' dRiftDM:::is_numeric(c(1, 2, NA)) # FALSE
+#' dRiftDM:::is_numeric(c(1, 2, Inf)) # FALSE
+#' dRiftDM:::is_numeric("not numeric") # FALSE
 #'
 #' @keywords internal
 is_numeric <- function(x) {
@@ -600,48 +600,51 @@ drift_dm_default_b_coding <- function() {
 #' ulrich_flanker_data.
 #'
 #' @examples
-#' fits = get_example_fits_ids()
-#'
+#' fits <- get_example_fits_ids()
 #'
 #' @export
 get_example_fits_ids <- function() {
-
   # get some data (the first three subjects of the flanker Ulrich data)
-  some_data = subset_ulrich_flanker # stored in sysdata.rda
+  some_data <- subset_ulrich_flanker # stored in sysdata.rda
 
   # get DMC
-  some_model = dmc_dm(t_max = 1.5, dt = .002, dx = .002)
+  some_model <- dmc_dm(t_max = 1.5, dt = .002, dx = .002)
 
   # set the data and some parameter values; I chose those based on fits done
   # in the tutorial (timestamp: 15.12.2024)
-  all_models = lapply(1:3, \(x){
-    obs_data(some_model) <- some_data[some_data$ID == x,]
+  all_models <- lapply(1:3, \(x){
+    obs_data(some_model) <- some_data[some_data$ID == x, ]
     if (x == 1) {
       coef(some_model) <- c(4.7, 0.44, 0.34, 0.03, 0.04, 0.10, 7)
     } else if (x == 2) {
-      coef(some_model) = c(5.4, 0.40, 0.30, 0.04, 0.05, 0.09, 3)
+      coef(some_model) <- c(5.4, 0.40, 0.30, 0.04, 0.05, 0.09, 3)
     } else if (x == 3) {
-      coef(some_model) = c(5.8, 0.60, 0.32, 0.01, 0.11, 0.19, 3.7)
+      coef(some_model) <- c(5.8, 0.60, 0.32, 0.01, 0.11, 0.19, 3.7)
     }
-    some_model = re_evaluate_model(some_model)
+    some_model <- re_evaluate_model(some_model)
     return(some_model)
   })
-  names(all_models) = 1:3
+  names(all_models) <- 1:3
 
   # now assemble everything
   time_call <- format(Sys.time(), "%Y-%B-%d_%H-%M")
-  drift_dm_fit_info = list(
+  drift_dm_fit_info <- list(
     time_call = time_call,
-    lower = c(muc = 1.00, b = 0.20, non_dec = 0.10, sd_non_dec = 0.005,
-              tau = 0.02, A = 0.02, alpha = 3.00),
-    upper = c(muc = 7.00, b = 1.00, non_dec = 0.60, sd_non_dec = 0.10,
-              tau = 0.30, A = 0.30, alpha = 8.00),
+    lower = c(
+      muc = 1.00, b = 0.20, non_dec = 0.10, sd_non_dec = 0.005,
+      tau = 0.02, A = 0.02, alpha = 3.00
+    ),
+    upper = c(
+      muc = 7.00, b = 1.00, non_dec = 0.60, sd_non_dec = 0.10,
+      tau = 0.30, A = 0.30, alpha = 8.00
+    ),
     seed = NULL,
     drift_dm_obj = some_model,
     obs_data_ids = some_data,
     fit_procedure_name = "aux_example",
-    start_vals = NULL)
-  all_fits = list(
+    start_vals = NULL
+  )
+  all_fits <- list(
     drift_dm_fit_info = drift_dm_fit_info,
     all_fits = all_models
   )

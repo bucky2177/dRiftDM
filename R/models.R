@@ -53,14 +53,13 @@
 #'   dt = .005
 #' )
 #'
-#'
 #' @seealso [dRiftDM::component_shelf()], [dRiftDM::drift_dm()]
 #'
 #' @export
 ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
                         var_drift = FALSE, instr = NULL, obs_data = NULL,
                         sigma = 1, t_max = 3, dt = .001, dx = .001,
-                        solver = 'kfe', b_coding = NULL) {
+                        solver = "kfe", b_coding = NULL) {
   prms_model <- c(muc = 3, b = 0.6, non_dec = 0.3)
   if (var_non_dec) prms_model <- append(prms_model, c(range_non_dec = 0.05))
   if (var_start) prms_model <- append(prms_model, c(range_start = 0.5))
@@ -409,7 +408,6 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'   dt = .0025
 #' )
 #'
-#'
 #' @references
 #' \insertRef{Ulrichetal.2015}{dRiftDM}
 #'
@@ -705,7 +703,6 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #'   dx = .0025,
 #'   dt = .0025
 #' )
-#'
 #'
 #' @references
 #' \insertRef{Whiteetal.2011}{dRiftDM}
@@ -1029,7 +1026,7 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' "name" (see the Example and Details).
 #'
 #' @examples
-#' pre_built_functions = component_shelf()
+#' pre_built_functions <- component_shelf()
 #' names(pre_built_functions)
 #'
 #' @export

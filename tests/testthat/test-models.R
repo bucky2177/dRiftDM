@@ -554,144 +554,150 @@ test_that("SSP model provides reasonable values", {
 # TEST INDIVIDUAL MODEL COMPONENTS ----------------------------------------
 
 test_that("mu_constant", {
-
-  mu_vals = mu_constant(prms_model = c("muc" = 4), prms_solve = NULL,
-                        t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL)
+  mu_vals <- mu_constant(
+    prms_model = c("muc" = 4), prms_solve = NULL,
+    t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+  )
   expect_equal(mu_vals, rep(4, 3))
 
 
-  mu_vals = mu_int_constant(prms_model = c("muc" = 4), prms_solve = NULL,
-                        t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL)
+  mu_vals <- mu_int_constant(
+    prms_model = c("muc" = 4), prms_solve = NULL,
+    t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+  )
   expect_equal(mu_vals, 4 * c(0, 0.5, 1))
-
 })
 
 
 
 test_that("x_dirac_0", {
-
-  x_vals = x_dirac_0(prms_model = NULL, prms_solve = c(dx = .01),
-                        x_vec = c(-1, -0.5, 0, 0.5, 1), one_cond = NULL,
-                      ddm_opts = NULL)
-  expect_equal(x_vals, c(0,0,1/.01,0,0))
-
+  x_vals <- x_dirac_0(
+    prms_model = NULL, prms_solve = c(dx = .01),
+    x_vec = c(-1, -0.5, 0, 0.5, 1), one_cond = NULL,
+    ddm_opts = NULL
+  )
+  expect_equal(x_vals, c(0, 0, 1 / .01, 0, 0))
 })
 
 
 
 test_that("x_uniform", {
-
-  x_vals = x_uniform(prms_model = c(range_start = 1), prms_solve = c(dx = .01),
-                     x_vec = c(-1, -0.51, -0.5, -0.25, 0, 0.25, 0.5, 0.51, 1),
-                     one_cond = NULL, ddm_opts = NULL)
-  expect_equal(x_vals, c(0,0, 20,20,20,20,20,0,0))
-
+  x_vals <- x_uniform(
+    prms_model = c(range_start = 1), prms_solve = c(dx = .01),
+    x_vec = c(-1, -0.51, -0.5, -0.25, 0, 0.25, 0.5, 0.51, 1),
+    one_cond = NULL, ddm_opts = NULL
+  )
+  expect_equal(x_vals, c(0, 0, 20, 20, 20, 20, 20, 0, 0))
 })
 
 
 test_that("b_constant", {
-
-  b_vals = b_constant(prms_model = c("b" = 4), prms_solve = NULL,
-                        t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL)
+  b_vals <- b_constant(
+    prms_model = c("b" = 4), prms_solve = NULL,
+    t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+  )
   expect_equal(b_vals, rep(4, 3))
 
 
-  b_vals = dt_b_constant(prms_model = c("b" = 4), prms_solve = NULL,
-                            t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL)
+  b_vals <- dt_b_constant(
+    prms_model = c("b" = 4), prms_solve = NULL,
+    t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+  )
   expect_equal(b_vals, rep(0, 3))
-
 })
 
 
 
 test_that("nt_constant", {
-
-  t_vec = seq(0, 1, 0.01)
-  nt_vals = nt_constant(prms_model = c("non_dec" = 0.3),
-                        prms_solve = c(t_max = 1, dt = .01),
-                        t_vec = t_vec, one_cond = NULL,
-                     ddm_opts = NULL)
-  exp_vals = numeric(length = 101)
-  exp_vals[31] = 1 / .01
+  t_vec <- seq(0, 1, 0.01)
+  nt_vals <- nt_constant(
+    prms_model = c("non_dec" = 0.3),
+    prms_solve = c(t_max = 1, dt = .01),
+    t_vec = t_vec, one_cond = NULL,
+    ddm_opts = NULL
+  )
+  exp_vals <- numeric(length = 101)
+  exp_vals[31] <- 1 / .01
   expect_equal(nt_vals, exp_vals)
-
 })
 
 
 test_that("nt_uniform", {
-
-  t_vec = seq(0, 1, 0.01)
-  nt_vals = nt_uniform(prms_model = c(non_dec = 0.3, range_non_dec = 0.1),
-                        prms_solve = c(t_max = 1, dt = .01),
-                        t_vec = t_vec, one_cond = NULL,
-                        ddm_opts = NULL)
-  exp_vals = dunif(x = t_vec, min = 0.25, max = 0.35)
+  t_vec <- seq(0, 1, 0.01)
+  nt_vals <- nt_uniform(
+    prms_model = c(non_dec = 0.3, range_non_dec = 0.1),
+    prms_solve = c(t_max = 1, dt = .01),
+    t_vec = t_vec, one_cond = NULL,
+    ddm_opts = NULL
+  )
+  exp_vals <- dunif(x = t_vec, min = 0.25, max = 0.35)
   expect_equal(nt_vals, exp_vals)
-
 })
 
 # typical DMC and SSP components are tested in the respective sections
 
 test_that("b_hyperbol", {
-
-  t_vec = seq(0, 1, 0.0001)
-  b_vals = b_hyperbol(prms_model = c(b0 = 75, kappa = 0.6, t05 = 0.15),
-                       prms_solve = c(t_max = 1, dt = .0001),
-                       t_vec = t_vec, one_cond = NULL,
-                       ddm_opts = NULL)
-  exp_vals = 75 * (1- 0.6 * (t_vec / (t_vec + 0.15)))
+  t_vec <- seq(0, 1, 0.0001)
+  b_vals <- b_hyperbol(
+    prms_model = c(b0 = 75, kappa = 0.6, t05 = 0.15),
+    prms_solve = c(t_max = 1, dt = .0001),
+    t_vec = t_vec, one_cond = NULL,
+    ddm_opts = NULL
+  )
+  exp_vals <- 75 * (1 - 0.6 * (t_vec / (t_vec + 0.15)))
   expect_equal(exp_vals, b_vals)
 
 
   # numerical differentiation to check the derivative of b_hyperbol
   numerical_derivative <- function(f, x, h) {
-    (f[x + 1] - f[x]) / h  # forward difference formula
+    (f[x + 1] - f[x]) / h # forward difference formula
   }
-  exp_vals = numerical_derivative(b_vals, 1:100, h = 0.0001)
+  exp_vals <- numerical_derivative(b_vals, 1:100, h = 0.0001)
 
 
-  t_vec = seq(.0001/2, 1, .0001)
-  dt_b_vals = dt_b_hyperbol(prms_model = c(b0 = 75, kappa = 0.6, t05 = 0.15),
-                        prms_solve = c(t_max = 1, dt = .0001),
-                        t_vec = t_vec, one_cond = NULL,
-                        ddm_opts = NULL)
-  dt_b_vals = dt_b_vals[1:100]
+  t_vec <- seq(.0001 / 2, 1, .0001)
+  dt_b_vals <- dt_b_hyperbol(
+    prms_model = c(b0 = 75, kappa = 0.6, t05 = 0.15),
+    prms_solve = c(t_max = 1, dt = .0001),
+    t_vec = t_vec, one_cond = NULL,
+    ddm_opts = NULL
+  )
+  dt_b_vals <- dt_b_vals[1:100]
 
-  expect_true(all(abs(dt_b_vals- exp_vals) < .001))
-
-
+  expect_true(all(abs(dt_b_vals - exp_vals) < .001))
 })
 
 
 test_that("b_hyperbol", {
-
-  t_vec = seq(0, 1, 0.0001)
-  b_vals = b_weibull(prms_model = c(b0 = 75, lambda = 0.5, k = 3, kappa = 1),
-                      prms_solve = c(t_max = 1, dt = .0001),
-                      t_vec = t_vec, one_cond = NULL,
-                      ddm_opts = NULL)
+  t_vec <- seq(0, 1, 0.0001)
+  b_vals <- b_weibull(
+    prms_model = c(b0 = 75, lambda = 0.5, k = 3, kappa = 1),
+    prms_solve = c(t_max = 1, dt = .0001),
+    t_vec = t_vec, one_cond = NULL,
+    ddm_opts = NULL
+  )
   # as described in Eq 1 by Hawkins
-  exp_vals = 150 - (1- exp(-(t_vec / 0.5)^3))*(150 - 75)
+  exp_vals <- 150 - (1 - exp(-(t_vec / 0.5)^3)) * (150 - 75)
   expect_equal(exp_vals - 75, b_vals)
 
 
   # numerical differentiation to check the derivative of b_hyperbol
   numerical_derivative <- function(f, x, h) {
-    (f[x + 1] - f[x]) / h  # forward difference formula
+    (f[x + 1] - f[x]) / h # forward difference formula
   }
-  exp_vals = numerical_derivative(b_vals, 1:100, h = 0.0001)
+  exp_vals <- numerical_derivative(b_vals, 1:100, h = 0.0001)
 
 
-  t_vec = seq(.0001/2, 1, .0001)
-  dt_b_vals = dt_b_weibull(prms_model = c(b0 = 75, lambda = 0.5, k = 3, kappa = 1),
-                           prms_solve = c(t_max = 1, dt = .0001),
-                           t_vec = t_vec, one_cond = NULL,
-                           ddm_opts = NULL)
-  dt_b_vals = dt_b_vals[1:100]
+  t_vec <- seq(.0001 / 2, 1, .0001)
+  dt_b_vals <- dt_b_weibull(
+    prms_model = c(b0 = 75, lambda = 0.5, k = 3, kappa = 1),
+    prms_solve = c(t_max = 1, dt = .0001),
+    t_vec = t_vec, one_cond = NULL,
+    ddm_opts = NULL
+  )
+  dt_b_vals <- dt_b_vals[1:100]
 
-  expect_true(all(abs(dt_b_vals- exp_vals) < .001))
-
-
+  expect_true(all(abs(dt_b_vals - exp_vals) < .001))
 })
 
 
@@ -699,16 +705,15 @@ test_that("b_hyperbol", {
 # ensure correct assignment of the component_shelf ------------------------
 
 test_that("component_shelf", {
-  all_comp_funs = component_shelf()
-  for(i in names(all_comp_funs)) {
+  all_comp_funs <- component_shelf()
+  for (i in names(all_comp_funs)) {
     expect_equal(all_comp_funs[[i]], get(i))
   }
 })
 
 
 test_that("test_dummy", {
-  a_model = drift_dm(c(a = 2, b = 3), "comp", subclass = "test")
-  a_model$comp_funs$mu_fun = dummy_t
+  a_model <- drift_dm(c(a = 2, b = 3), "comp", subclass = "test")
+  a_model$comp_funs$mu_fun <- dummy_t
   expect_error(comp_vals(a_model), "should not be called")
-
 })

@@ -93,7 +93,6 @@ print.drift_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
 #' a_model <- re_evaluate_model(a_model)
 #' summary(a_model)
 #'
-#'
 #' @export
 summary.drift_dm <- function(object, ...) {
   drift_dm_obj <- object

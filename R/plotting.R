@@ -103,7 +103,7 @@ plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
 #'
 #' # Plots for traces_dm objects ---------------------------------------------
 #' # we can also extract a single set of traces and plot them
-#' one_set_traces = some_traces$comp
+#' one_set_traces <- some_traces$comp
 #' plot(one_set_traces)
 #'
 #' # modifications to the plot generally work in the same way
@@ -283,7 +283,6 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 #' cafs <- calc_stats(dmc_synth_data, type = "cafs")
 #' plot(cafs)
 #'
-#'
 #' @export
 plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
                       ylim = c(0, 1), xlab = "Bins", ylab = NULL, pch = 21,
@@ -448,7 +447,6 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #' quantiles <- calc_stats(dmc_synth_data, type = "quantiles")
 #' plot(quantiles)
 #'
-#'
 #' @export
 plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
                            xlim = NULL, ylim = c(0, 1), xlab = "RT [s]",
@@ -518,7 +516,7 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
   }
 
   # plot the legend
-  dots = list(...)
+  dots <- list(...)
   if (!any(quantiles$Source == "pred")) {
     lty <- -1
   }
@@ -620,7 +618,6 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
 #' )
 #' plot(deltas)
 #'
-#'
 #' @export
 plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
                             ylim = NULL, xlab = "RT [s]",
@@ -700,8 +697,8 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 
 
   # plot the legend
-  dots = list(...)
-  lwd = dots$lwd
+  dots <- list(...)
+  lwd <- dots$lwd
   if (!any(delta_fun$Source == "pred")) {
     lty <- -1
   }
@@ -750,12 +747,11 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 #'
 #' @examples
 #' # get a list of statistics for demonstration purpose
-#' all_fits = get_example_fits_ids()
-#' stats = calc_stats(all_fits, type = c("cafs", "quantiles"))
+#' all_fits <- get_example_fits_ids()
+#' stats <- calc_stats(all_fits, type = c("cafs", "quantiles"))
 #'
 #' # then call the plot function.
-#' plot(stats, mfrow = c(1,2))
-#'
+#' plot(stats, mfrow = c(1, 2))
 #'
 #' @seealso [dRiftDM::plot.cafs()], [dRiftDM::plot.quantiles()],
 #' [dRiftDM::plot.delta_funs()], [dRiftDM::calc_stats()]
@@ -813,12 +809,11 @@ plot.list_stats_dm <- function(x, ..., mfrow = NULL) {
 #'
 #' @examples
 #' # get an auxiliary fit procedure result (see the function load_fits_ids)
-#' all_fits = get_example_fits_ids()
+#' all_fits <- get_example_fits_ids()
 #' hist(coef(all_fits)) # only three participants in this fit_ids object
 #'
 #' # allows for some customization
 #' hist(coef(all_fits), colors = "lightgreen")
-#'
 #'
 #' @export
 hist.coefs_dm <- function(x, ..., separate_plots = TRUE, alpha = 0.5,
@@ -940,8 +935,6 @@ hist.coefs_dm <- function(x, ..., separate_plots = TRUE, alpha = 0.5,
 #'
 #' # plot the component functions of the DMC model
 #' plot(dmc_dm(), col = c("green", "red"))
-#'
-#'
 #'
 #' @export
 plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
@@ -1094,8 +1087,10 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(dt_b_vals[[conds[i]]] ~ t_vec, ty = "l", col = col[i],
-                       ...)
+      graphics::points(dt_b_vals[[conds[i]]] ~ t_vec,
+        ty = "l", col = col[i],
+        ...
+      )
     }
   }
 

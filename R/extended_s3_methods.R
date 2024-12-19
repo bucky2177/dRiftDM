@@ -34,7 +34,6 @@
 #' # same number of observations as in the original data set
 #' nrow(dmc_synth_data)
 #'
-#'
 #' @export
 nobs.drift_dm <- function(object, ...) {
   return(sum(sapply(object$obs_data, lengths)))
@@ -65,7 +64,6 @@ nobs.drift_dm <- function(object, ...) {
 #'
 #' # calculate the log-likelihood
 #' logLik(a_model)
-#'
 #'
 #' @export
 logLik.drift_dm <- function(object, ...) {
@@ -145,7 +143,6 @@ logLik.drift_dm <- function(object, ...) {
 #' coef(a_model) # gives the free and unique parameters
 #' coef(a_model, select_unique = FALSE) # gives the entire parameter matrix
 #'
-#'
 #' @export
 coef.drift_dm <- function(object, ..., select_unique = TRUE) {
   # if unique, get labels for prm cond combos, extract the respective
@@ -217,7 +214,6 @@ coef.drift_dm <- function(object, ..., select_unique = TRUE) {
 #' # Or all parameters across all conditions
 #' coef(all_fits, select_unique = FALSE)
 #'
-#'
 #' @seealso [stats::AIC()], [stats::BIC()], [dRiftDM::logLik.drift_dm]
 #'
 #' @export
@@ -286,14 +282,15 @@ coef.fits_ids_dm <- function(object, ...) {
 #'
 #' @keywords internal
 try_cast_integer <- function(values) {
+  if (!is.character(values)) {
+    return(values)
+  }
 
-  if (!is.character(values)) return(values)
-
-  checks = !grepl("\\D", values) # check each entry if only digits exist
+  checks <- !grepl("\\D", values) # check each entry if only digits exist
 
   # if each entry only contains digits, then cast to digit
   if (all(checks)) {
-    values = as.integer(values)
+    values <- as.integer(values)
   }
 
   return(values)

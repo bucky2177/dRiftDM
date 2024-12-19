@@ -61,8 +61,10 @@ calc_pdfs.ratcliff_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
 
   # and check if constant drift rate was not modified
   if (!all.equal(drift_dm_obj$comp_funs$mu_fun, mu_constant)) {
-    stop("Ratcliff DDM with variable drift rate requires dRiftDM's",
-         " mu_constant function")
+    stop(
+      "Ratcliff DDM with variable drift rate requires dRiftDM's",
+      " mu_constant function"
+    )
   }
 
 
@@ -148,11 +150,12 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
       )
     } else if (solver == "im_zero") {
       # solve the pdfs with integral approach
-      cpp_imzero(pdf_u = pdf_u, pdf_l = pdf_l, nt = nt, dt = dt,
-                 sigma = sigma, b_vals = b_vals, mu_vals = mu_vals,
-                 mu_int_vals = mu_int_vals, dt_b_vals = dt_b_vals,
-                 t_vec = t_vec)
-
+      cpp_imzero(
+        pdf_u = pdf_u, pdf_l = pdf_l, nt = nt, dt = dt,
+        sigma = sigma, b_vals = b_vals, mu_vals = mu_vals,
+        mu_int_vals = mu_int_vals, dt_b_vals = dt_b_vals,
+        t_vec = t_vec
+      )
     } else {
       stop("solver '", solver, "' not implemented yet!")
     }
@@ -199,7 +202,7 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
   }
 
   if (abs(sum(pdf_nt) * dt - (sum(pdf_l) * dt + sum(pdf_u) * dt)) >
-      drift_dm_medium_approx_error()) {
+    drift_dm_medium_approx_error()) {
     warning(
       "pdf of the non-dec-time and pdf_l/pdf_u don't integrate to the",
       " same value"

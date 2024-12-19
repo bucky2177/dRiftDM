@@ -45,7 +45,6 @@
 #' # function of the flex_prms object
 #' print(flex_obj)
 #'
-#'
 #' @export
 summary.flex_prms <- function(object, ...) {
   flex_prms_obj <- object

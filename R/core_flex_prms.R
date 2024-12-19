@@ -143,8 +143,6 @@
 #' dmc_model <- dmc_dm() # another, more complex, model; comes with dRiftDM
 #' print(flex_prms(dmc_model), round_digits = 1, cust_parameters = FALSE)
 #'
-#'
-#'
 #' @export
 flex_prms <- function(object, ...) {
   UseMethod("flex_prms")
@@ -376,7 +374,7 @@ x2prms_vals <- function(x, flex_prms_obj) {
 #' @examples
 #' # Example 1: Modify a flex_prms object  directly ---------------------------
 #' # create an auxiliary flex_prms object
-#' a_flex_prms_obj = flex_prms(
+#' a_flex_prms_obj <- flex_prms(
 #'   c(muc = 3, b = 0.5, non_dec = 0.3),
 #'   conds = c("foo", "bar")
 #' )
@@ -386,8 +384,8 @@ x2prms_vals <- function(x, flex_prms_obj) {
 #' # 2.) Let muc vary independently for the conditions foo and bar
 #' # 3.) Set non_dec in condition bar to be half as large as non_dec in
 #' #     condition bar
-#' instr =
-#' "b <!>
+#' instr <-
+#'   "b <!>
 #'  muc ~
 #'  non_dec ~ bar == (non_dec ~ foo) / 2
 #' "
@@ -395,9 +393,8 @@ x2prms_vals <- function(x, flex_prms_obj) {
 #'
 #'
 #' # Example 2: Modify a flex_prms object stored inside a drift_dm object -----
-#' a_model = ratcliff_dm() # get a model for demonstration purpose
+#' a_model <- ratcliff_dm() # get a model for demonstration purpose
 #' modify_flex_prms(object = a_model, instr = "muc ~ => 4")
-#'
 #'
 #' @seealso [flex_prms()]
 #'

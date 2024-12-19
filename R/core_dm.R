@@ -98,7 +98,7 @@
 #' # then call the backbone function (note that we don't provide any component
 #' # functions, so dRiftDM uses the default functions as documented in
 #' # comp_funs())
-#' my_model = drift_dm(prms_model = prms, conds = conds, subclass = "example")
+#' my_model <- drift_dm(prms_model = prms, conds = conds, subclass = "example")
 #' print(my_model)
 #'
 #' @seealso [dRiftDM::conds()], [dRiftDM::flex_prms()], [dRiftDM::prms_solve()],
@@ -624,7 +624,6 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
 #' my_model <- re_evaluate_model(my_model)
 #' str(my_model$pdfs)
 #' print(my_model$log_like_val)
-#'
 #'
 #' @seealso [dRiftDM::drift_dm()]
 #'
@@ -1385,7 +1384,7 @@ check_b_coding <- function(b_coding) {
 #' conds(some_traces)
 #'
 #' # get an exemplary fits_ids_dm object (see estimate_model_ids)
-#' fits = get_example_fits_ids()
+#' fits <- get_example_fits_ids()
 #' conds(fits)
 #'
 #' # also works with data.frames that have a "Cond" column
@@ -1470,16 +1469,14 @@ conds.traces_dm_list <- function(object, ...) {
 #' # show the discretization and scaling of the model
 #' prms_solve(my_model)
 #' # partially modify these settings
-#' prms_solve(my_model)[c("dx", "dt")] = c(0.005)
+#' prms_solve(my_model)[c("dx", "dt")] <- c(0.005)
 #' prms_solve(my_model)
 #'
 #' # accessor method also available for fits_ids_dm objects
 #' # (see estimate_model_ids)
 #' # get an exemplary fits_ids_dm object
-#' fits = get_example_fits_ids()
+#' fits <- get_example_fits_ids()
 #' prms_solve(fits)
-#'
-#'
 #'
 #' @seealso [dRiftDM::drift_dm()]
 #'
@@ -1553,7 +1550,7 @@ prms_solve.fits_ids_dm <- function(object, ...) {
 #' # accessor method also available for fits_ids_dm objects
 #' # (see estimate_model_ids)
 #' # get an exemplary fits_ids_dm object
-#' fits = get_example_fits_ids()
+#' fits <- get_example_fits_ids()
 #' solver(fits)
 #'
 #' @seealso [dRiftDM::drift_dm()]
@@ -1652,7 +1649,7 @@ solver.fits_ids_dm <- function(object, ...) {
 #' # Important: ---------------------------------------------------------------
 #' # The returned data.frame may be sorted differently than the one initially
 #' # supplied.
-#' some_data <- some_data[sample(1:nrow(some_data)),] #' # shuffle the data set
+#' some_data <- some_data[sample(1:nrow(some_data)), ] #' # shuffle the data set
 #' obs_data(my_model) <- some_data
 #' all.equal(obs_data(my_model), some_data)
 #' # so don't do obs_data(my_model)["Cond"] <- ...
@@ -1661,7 +1658,7 @@ solver.fits_ids_dm <- function(object, ...) {
 #' # accessor method also available for fits_ids_dm objects
 #' # (see estimate_model_ids)
 #' # get an exemplary fits_ids_dm object
-#' fits = get_example_fits_ids()
+#' fits <- get_example_fits_ids()
 #' head(obs_data(fits))
 #'
 #' @seealso [dRiftDM::drift_dm()]
@@ -1873,12 +1870,12 @@ obs_data.fits_ids_dm <- function(object, ...) {
 #' prms <- c(muc = 3, b = 0.6, non_dec = 0.3, range_non_dec = 0.05)
 #' conds <- "null"
 #' new_flex_prms <- flex_prms(prms, conds = conds)
-#' flex_prms(my_model) = new_flex_prms
+#' flex_prms(my_model) <- new_flex_prms
 #'
 #' # accessor method also available for fits_ids_dm objects
 #' # (see estimate_model_ids)
 #' # get an exemplary fits_ids_dm object
-#' fits = get_example_fits_ids()
+#' fits <- get_example_fits_ids()
 #' names(comp_funs(fits))
 #'
 #' @seealso [dRiftDM::drift_dm()]
@@ -1958,17 +1955,16 @@ comp_funs.fits_ids_dm <- function(object, ...) {
 #'
 #' @examples
 #' # show the default accuracy coding of dRiftDM
-#' my_model = ratcliff_dm() # get a pre-built model
+#' my_model <- ratcliff_dm() # get a pre-built model
 #' b_coding(my_model)
 #'
 #' # can be modified/replaced
-#' b_coding(my_model)[["column"]] = "Response"
+#' b_coding(my_model)[["column"]] <- "Response"
 #'
 #' # accessor method also available for fits_ids_dm objects
 #' # get an exemplary fits_ids_dm object (see estimate_model_ids)
-#' fits = get_example_fits_ids()
+#' fits <- get_example_fits_ids()
 #' names(b_coding(fits))
-#'
 #'
 #' @seealso [dRiftDM::drift_dm()]
 #'
@@ -2547,7 +2543,7 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
 #'
 #' @examples
 #' # get a pre-built model to demonstrate the function
-#' my_model = dmc_dm()
+#' my_model <- dmc_dm()
 #' # get some traces ...
 #' some_traces <- simulate_traces(my_model, k = 2, seed = 1)
 #' # and then unpack them to get the underlying arrays
@@ -2712,37 +2708,49 @@ unpack_traces.traces_dm_list <- function(object, ..., unpack = TRUE,
 #' @examples
 #' # Example 1 ----------------------------------------------------------------
 #' # get a pre-built model for demonstration
-#' a_model = ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
+#' a_model <- ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
 #'
 #' # define a lower and upper simulation space
-#' lower = c(1, 0.4, 0.1)
-#' upper = c(6, 0.9, 0.5)
+#' lower <- c(1, 0.4, 0.1)
+#' upper <- c(6, 0.9, 0.5)
 #'
 #' # now simulate 5 data sets with each 100 trials
-#' data_prms = simulate_data(a_model, n = 100, k = 5, lower = lower,
-#'                           upper = upper, seed = 1, verbose = 0)
+#' data_prms <- simulate_data(a_model,
+#'   n = 100, k = 5, lower = lower,
+#'   upper = upper, seed = 1, verbose = 0
+#' )
 #' head(data_prms$synth_data)
 #' head(data_prms$prms)
 #'
 #' # Example 2 ----------------------------------------------------------------
 #' # more flexibility when defining lists for lower and upper
 #' # get a pre-built model, and allow muc to vary across conditions
-#' a_model = dmc_dm(t_max = 1.5, dx = .005, dt = .005, instr = "muc ~ ")
+#' a_model <- dmc_dm(t_max = 1.5, dx = .005, dt = .005, instr = "muc ~ ")
 #'
 #' # define a lower and upper simulation space
 #' # let muc vary between 2 and 6, but in incomp conditions, let it vary
 #' # between 1 and 4
-#' lower = list(default_values = c(muc = 2, b = 0.4, non_dec = 0.1,
-#'                                 sd_non_dec = 0.01, tau = 0.02, A = 0.05,
-#'                                 alpha = 3),
-#'              incomp = c(muc = 1))
-#' upper = list(default_values = c(muc = 6, b = 0.9, non_dec = 0.4,
-#'                                 sd_non_dec = 0.15, tau = 0.15, A = 0.15,
-#'                                 alpha = 7),
-#'              incomp = c(muc = 4))
+#' lower <- list(
+#'   default_values = c(
+#'     muc = 2, b = 0.4, non_dec = 0.1,
+#'     sd_non_dec = 0.01, tau = 0.02, A = 0.05,
+#'     alpha = 3
+#'   ),
+#'   incomp = c(muc = 1)
+#' )
+#' upper <- list(
+#'   default_values = c(
+#'     muc = 6, b = 0.9, non_dec = 0.4,
+#'     sd_non_dec = 0.15, tau = 0.15, A = 0.15,
+#'     alpha = 7
+#'   ),
+#'   incomp = c(muc = 4)
+#' )
 #'
-#' data_prms = simulate_data(a_model, n = 100, k = 5, lower = lower,
-#'                           upper = upper, seed = 1, verbose = 0)
+#' data_prms <- simulate_data(a_model,
+#'   n = 100, k = 5, lower = lower,
+#'   upper = upper, seed = 1, verbose = 0
+#' )
 #' range(data_prms$prms$muc.comp)
 #' range(data_prms$prms$muc.incomp)
 #'

@@ -96,8 +96,6 @@ print.summary.fits_ids_dm <- function(x, ...,
 #' sum_obj <- summary(all_fits)
 #' print(sum_obj, round_digits = 2)
 #'
-#'
-#'
 #' @export
 summary.fits_ids_dm <- function(object, ...) {
   fits_ids <- object
