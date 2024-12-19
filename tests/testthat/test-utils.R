@@ -29,6 +29,13 @@ test_that("prms_to_str works as expected", {
     ),
     "a!1;b!2;d!3"
   )
+
+  expect_identical(
+    prms_to_str(dmc_dm()),
+    "muc=>4\nb=>0.6\nnon_dec=>0.3\nsd_non_dec=>0.02\ntau=>0.04\nA=>0.1\nalpha=>4"
+  )
+
+
 })
 
 
@@ -336,3 +343,39 @@ test_that("get_lower_upper_smart input checks", {
     "not unique across conditions"
   )
 })
+
+
+test_that("get_example_fits_ids", {
+
+  # some very rough checks; as this function is an auxiliary function that is
+  # only used for package examples
+  aux_fits = get_example_fits_ids()
+
+  # how it should look like
+  real_fits = load_fits_ids(path = test_path("fixtures"),
+                fit_procedure_name = "test_case_saved")
+
+  expect_identical(names(real_fits), names(aux_fits))
+  expect_identical(names(real_fits$drift_dm_fit_info),
+                   names(aux_fits$drift_dm_fit_info))
+
+  # check the coefficients
+  coefs = coef(aux_fits)
+  expect_identical(coefs$muc, c(4.70, 5.4, 5.8))
+  expect_identical(coefs$b, c(0.44, 0.40, 0.60))
+  expect_identical(coefs$non_dec, c(0.34, 0.30, 0.32))
+  expect_identical(coefs$sd_non_dec, c(0.03, 0.04, 0.01))
+  expect_identical(coefs$tau, c(0.04, 0.05, 0.11))
+  expect_identical(coefs$A, c(0.10, 0.09, 0.19))
+  expect_identical(coefs$alpha, c(7.00, 3, 3.7))
+
+  expect_identical(aux_fits$drift_dm_fit_info$obs_data_ids,
+                   ulrich_flanker_data[ulrich_flanker_data$ID %in% 1:3,])
+
+  expect_identical(class(aux_fits$drift_dm_fit_info$drift_dm_obj),
+                   c("dmc_dm", "drift_dm"))
+
+
+})
+
+
