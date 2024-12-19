@@ -42,8 +42,8 @@ each parameter of the model (see Details). Only relevant for \code{k > 1}}
 
 \item{df_prms}{an optional data.frame providing the parameters
 that should be used for simulating the data. \code{df_prms} must provide column
-names matching with (\code{coef(object, select_unique = T)}), plus a column \code{ID}
-that will identify each simulated data set.}
+names matching with (\code{coef(object, select_unique = TRUE)}), plus a column
+\code{ID} that will identify each simulated data set.}
 
 \item{seed}{a single numeric, an optional seed for reproducible sampling}
 
@@ -137,4 +137,42 @@ to the specified parameters in the respective condition.
 }
 \note{
 A function for \code{fits_ids_dm} will be provided in the future.
+}
+\examples{
+# Example 1 ----------------------------------------------------------------
+# get a pre-built model for demonstration
+a_model = ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
+
+# define a lower and upper simulation space
+lower = c(1, 0.4, 0.1)
+upper = c(6, 0.9, 0.5)
+
+# now simulate 5 data sets with each 100 trials
+data_prms = simulate_data(a_model, n = 100, k = 5, lower = lower,
+                          upper = upper, seed = 1, verbose = 0)
+head(data_prms$synth_data)
+head(data_prms$prms)
+
+# Example 2 ----------------------------------------------------------------
+# more flexibility when defining lists for lower and upper
+# get a pre-built model, and allow muc to vary across conditions
+a_model = dmc_dm(t_max = 1.5, dx = .005, dt = .005, instr = "muc ~ ")
+
+# define a lower and upper simulation space
+# let muc vary between 2 and 6, but in incomp conditions, let it vary
+# between 1 and 4
+lower = list(default_values = c(muc = 2, b = 0.4, non_dec = 0.1,
+                                sd_non_dec = 0.01, tau = 0.02, A = 0.05,
+                                alpha = 3),
+             incomp = c(muc = 1))
+upper = list(default_values = c(muc = 6, b = 0.9, non_dec = 0.4,
+                                sd_non_dec = 0.15, tau = 0.15, A = 0.15,
+                                alpha = 7),
+             incomp = c(muc = 4))
+
+data_prms = simulate_data(a_model, n = 100, k = 5, lower = lower,
+                          upper = upper, seed = 1, verbose = 0)
+range(data_prms$prms$muc.comp)
+range(data_prms$prms$muc.incomp)
+
 }

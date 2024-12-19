@@ -21,7 +21,7 @@ plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
     one_trace <- e_samples[i, ]
     graphics::points(one_trace ~ t_vec,
       type = type, col = col,
-      lty = lty
+      lty = lty, ...
     )
   }
 
@@ -79,6 +79,40 @@ plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
 #' function automatically generates the upper and lower boundaries based on
 #' the information stored within `x`.
 #'
+#' @returns
+#' Nothing (`NULL`; invisibly)
+#'
+#'
+#' @examples
+#' # get a couple of traces for demonstration purpose
+#' a_model <- dmc_dm()
+#' some_traces <- simulate_traces(a_model, k = 3)
+#'
+#' # Plots for traces_dm_list objects ----------------------------------------
+#' # basic plot
+#' plot(some_traces)
+#'
+#' # a slightly more beautiful plot :)
+#' plot(some_traces,
+#'   col = c("green", "red"),
+#'   xlim = c(0, 0.35),
+#'   xlab = "Time [s]",
+#'   ylab = bquote(Realizations ~ of ~ X[t]),
+#'   legend_pos = "bottomright"
+#' )
+#'
+#' # Plots for traces_dm objects ---------------------------------------------
+#' # we can also extract a single set of traces and plot them
+#' one_set_traces = some_traces$comp
+#' plot(one_set_traces)
+#'
+#' # modifications to the plot generally work in the same way
+#' plot(one_set_traces,
+#'   col = "green",
+#'   xlim = c(0, 0.35),
+#'   xlab = "Time [s]",
+#'   ylab = bquote(Realizations ~ of ~ X[t])
+#' )
 #'
 #' @seealso [dRiftDM::simulate_traces]
 #'
@@ -109,18 +143,36 @@ plot.traces_dm_list <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
   }
 
   # iterate over all traces
-  plot_one_traces(x[[1]], col[1], col_b[1], xlab, ylab, xlim, ylim,
-    lty, type,
-    new_plot = T
+  plot_one_traces(
+    traces_obj = x[[1]],
+    col = col[1],
+    col_b = col_b[1],
+    xlab = xlab,
+    ylab = ylab,
+    xlim = xlim,
+    ylim = ylim,
+    lty = lty,
+    type = type,
+    new_plot = TRUE,
+    ...
   )
   n_all <- length(x)
   if (n_all == 1) {
-    return(invisible(NULL))
+    return(invisible())
   }
   for (idx in 2:n_all) {
-    plot_one_traces(x[[idx]], col[idx], col_b[idx], xlab, ylab, xlim, ylim,
-      lty, type,
-      new_plot = F
+    plot_one_traces(
+      traces_obj = x[[idx]],
+      col = col[idx],
+      col_b = col_b[idx],
+      xlab = xlab,
+      ylab = ylab,
+      xlim = xlim,
+      ylim = ylim,
+      lty = lty,
+      type = type,
+      new_plot = FALSE,
+      ...
     )
   }
 
@@ -128,6 +180,7 @@ plot.traces_dm_list <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
   graphics::legend(
     x = legend_pos, legend = legend, col = col, lty = lty, bg = "white", ...
   )
+  invisible()
 }
 
 #' @rdname plot.traces_dm_list
@@ -155,8 +208,9 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 
   # plot the trace
   plot_one_traces(x, col, col_b, xlab, ylab, xlim, ylim, lty, type,
-    new_plot = T
+    new_plot = TRUE
   )
+  invisible()
 }
 
 
@@ -171,8 +225,6 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 #' can display observed and predicted values, making it useful for assessing
 #' model fit or exploring observed data.
 #'
-#' If the data contains multiple IDs, CAFs are aggregated across IDs before
-#' plotting.
 #'
 #' @param x a [data.frame], containing CAFs, typically resulting from a call
 #'  to [dRiftDM::calc_stats].
@@ -201,13 +253,44 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 #' (observed vs. predicted). When the supplied [data.frame] includes multiple
 #' IDs, CAFs are aggregated across IDs before plotting.
 #'
+#' @returns
+#' Nothing (`NULL`; invisibly)
+#'
+#' @examples
+#' # Example 1: Only model predictions ---------------------------------------
+#' # get a cafs data.frame for demonstration purpose
+#' a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+#' cafs <- calc_stats(a_model, type = "cafs")
+#'
+#' # call the plot function with default values
+#' plot(cafs)
+#'
+#' # make the plot a little bit more pretty
+#' plot(cafs,
+#'   col = c("green", "red"),
+#'   ylim = c(0.5, 1)
+#' )
+#'
+#' # Example 2: Model predictions and observed data --------------------------
+#' obs_data(a_model) <- dmc_synth_data
+#' cafs <- calc_stats(a_model, type = "cafs")
+#' plot(cafs)
+#' # Note: The model was not fitted to the data set, thus observed data and
+#' # model predictions don't match
+#'
+#'
+#' # Example 3: Only observed data -------------------------------------------
+#' cafs <- calc_stats(dmc_synth_data, type = "cafs")
+#' plot(cafs)
+#'
+#'
 #' @export
 plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
                       ylim = c(0, 1), xlab = "Bins", ylab = NULL, pch = 21,
                       lty = 1, type = "l", legend = NULL,
                       legend_pos = "bottomright") {
   cafs <- x
-  caf_name <- grep("^P_", colnames(cafs), value = T)
+  caf_name <- grep("^P_", colnames(cafs), value = TRUE)
 
 
   if ("ID" %in% colnames(cafs) && length(unique(cafs$ID)) > 1) {
@@ -221,7 +304,7 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   }
   conds <- match.arg(
     arg = conds, choices = unique(cafs$Cond),
-    several.ok = T
+    several.ok = TRUE
   )
 
   if (is.null(ylab)) {
@@ -276,10 +359,8 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   }
 
   # plot the legend
-  dots = list(...)
-  lwd = dots$lwd
   if (!any(cafs$Source == "pred")) {
-    lwd <- -1
+    lty <- -1
   }
   if (!any(cafs$Source == "obs")) {
     pch <- NA
@@ -288,9 +369,10 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     graphics::legend(
       x = legend_pos,
       legend = legend,
-      col = col, lwd = lwd, pch = pch, ...
+      col = col, lty = lty, pch = pch, ...
     )
   }
+  invisible()
 }
 
 
@@ -334,6 +416,37 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #' sources (observed vs. predicted). When the supplied [data.frame] includes
 #' multiple IDs, quantiles are aggregated across IDs before plotting.
 #'
+#' @returns
+#' Nothing (`NULL`; invisibly)
+#'
+#' @examples
+#' # Example 1: Only model predictions ---------------------------------------
+#' # get a quantiles data.frame for demonstration purpose
+#' a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+#' quantiles <- calc_stats(a_model, type = "quantiles")
+#'
+#' # call the plot function with default values
+#' plot(quantiles)
+#'
+#' # make the plot a little bit more pretty
+#' plot(quantiles,
+#'   col = c("green", "red"),
+#'   ylim = c(0.5, 1)
+#' )
+#'
+#' # Example 2: Model predictions and observed data --------------------------
+#' obs_data(a_model) <- dmc_synth_data
+#' quantiles <- calc_stats(a_model, type = "quantiles")
+#' plot(quantiles)
+#' # Note: The model was not fitted to the data set, thus observed data and
+#' # model predictions don't match
+#'
+#'
+#' # Example 3: Only observed data -------------------------------------------
+#' quantiles <- calc_stats(dmc_synth_data, type = "quantiles")
+#' plot(quantiles)
+#'
+#'
 #' @export
 plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
                            xlim = NULL, ylim = c(0, 1), xlab = "RT [s]",
@@ -355,7 +468,7 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
   }
   conds <- match.arg(
     arg = conds, choices = unique(quantiles$Cond),
-    several.ok = T
+    several.ok = TRUE
   )
 
   u_name <- names(attr(quantiles, "b_coding")$u_name_value)
@@ -404,9 +517,8 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
 
   # plot the legend
   dots = list(...)
-  lwd = dots$lwd
   if (!any(quantiles$Source == "pred")) {
-    lwd <- -1
+    lty <- -1
   }
   if (!any(quantiles$Source == "obs")) {
     pch <- NA
@@ -415,9 +527,10 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
     graphics::legend(
       x = legend_pos,
       legend = legend,
-      col = col, lwd = lwd, pch = pch, ...
+      col = col, lty = lty, pch = pch, ...
     )
   }
+  invisible(NULL)
 }
 
 
@@ -459,6 +572,53 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
 #' By default, `ylim` is set to twice the range of the delta values to provide
 #' more context.
 #'
+#' @returns
+#' Nothing (`NULL`; invisibly)
+#'
+#' @examples
+#' # Example 1: Only model predictions ---------------------------------------
+#' # get a delta function data.frame for demonstration purpose
+#' a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+#' deltas <- calc_stats(
+#'   a_model,
+#'   type = "delta_funs",
+#'   minuends = "incomp",
+#'   subtrahends = "comp"
+#' )
+#'
+#' # call the plot function with default values
+#' plot(deltas)
+#'
+#' # modify the plot
+#' plot(deltas,
+#'   col = c("black"),
+#'   lty = 2,
+#'   xlim = c(0.2, 0.65)
+#' )
+#'
+#' # Example 2: Model predictions and observed data --------------------------
+#' obs_data(a_model) <- dmc_synth_data
+#' deltas <- calc_stats(
+#'   a_model,
+#'   type = "delta_funs",
+#'   minuends = "incomp",
+#'   subtrahends = "comp"
+#' )
+#' plot(deltas)
+#' # Note: The model was not fitted to the data set, thus observed data and
+#' # model predictions don't match
+#'
+#'
+#' # Example 3: Only observed data -------------------------------------------
+#' deltas <- calc_stats(
+#'   dmc_synth_data,
+#'   type = "delta_funs",
+#'   minuends = "incomp",
+#'   subtrahends = "comp"
+#' )
+#' plot(deltas)
+#'
+#'
 #' @export
 plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
                             ylim = NULL, xlab = "RT [s]",
@@ -475,11 +635,11 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 
 
   # get the columns to plot
-  delta_columns <- grep("^Delta_", colnames(delta_fun), value = T)
+  delta_columns <- grep("^Delta_", colnames(delta_fun), value = TRUE)
   if (is.null(dv)) {
     dv <- delta_columns
   }
-  dv <- match.arg(arg = dv, choices = delta_columns, several.ok = T)
+  dv <- match.arg(arg = dv, choices = delta_columns, several.ok = TRUE)
 
   uv <- gsub(pattern = "^Delta_", replacement = "", x = dv)
   uv <- paste("Avg_", uv, sep = "")
@@ -541,7 +701,7 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
   dots = list(...)
   lwd = dots$lwd
   if (!any(delta_fun$Source == "pred")) {
-    lwd <- -1
+    lty <- -1
   }
   if (!any(delta_fun$Source == "obs")) {
     pch <- NA
@@ -551,9 +711,10 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
     graphics::legend(
       x = legend_pos,
       legend = legend,
-      col = col, lwd = lwd, pch = pch, ...
+      col = col, lty = lty, pch = pch, ...
     )
   }
+  invisible()
 }
 
 
@@ -576,8 +737,23 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 #'  individual `stats_dm` object in `x`.
 #'
 #' @details
-#' The `plot.list_stats_dm` function is "merely" a wrapper. All plotting
-#' is done by the respective `plot` method.
+#' The `plot.list_stats_dm()` function is "merely" a wrapper. All plotting
+#' is done by the respective `plot()` methods. When users want more control
+#' over each plot, it is best to call the `plot()` function separately for
+#' each statistic in the list (e.g., `plot(x$cafs)`; `plot(x$quantiles)`)
+#'
+#'
+#' @returns
+#' Nothing (`NULL`; invisibly)
+#'
+#' @examples
+#' # get a list of statistics for demonstration purpose
+#' all_fits = get_example_fits_ids()
+#' stats = calc_stats(all_fits, type = c("cafs", "quantiles"))
+#'
+#' # then call the plot function.
+#' plot(stats, mfrow = c(1,2))
+#'
 #'
 #' @seealso [dRiftDM::plot.cafs()], [dRiftDM::plot.quantiles()],
 #' [dRiftDM::plot.delta_funs()], [dRiftDM::calc_stats()]
@@ -591,6 +767,7 @@ plot.list_stats_dm <- function(x, ..., mfrow = NULL) {
   for (one_stats_obj in x) {
     plot(one_stats_obj, ...)
   }
+  invisible()
 }
 
 
@@ -621,13 +798,28 @@ plot.list_stats_dm <- function(x, ..., mfrow = NULL) {
 #'
 #' @details
 #' The `hist.coefs_dm` function is designed for visualizing parameter
-#' distributions for a single fit procedure. If multiple conditions are present,
-#' it overlays histograms for each condition with adjustable transparency. When
-#' `separate_plots` is set to `TRUE`, histograms for each parameter are
+#' distributions for a single fit procedure.
+#'
+#' If multiple conditions are present, it overlays histograms for each condition
+#' with adjustable transparency.
+#'
+#' When `separate_plots` is set to `TRUE`, histograms for each parameter are
 #' displayed in a grid layout within a single graphics device.
 #'
+#' @returns
+#' Nothing (`NULL`; invisibly)
+#'
+#' @examples
+#' # get an auxiliary fit procedure result (see the function load_fits_ids)
+#' all_fits = get_example_fits_ids()
+#' hist(coef(all_fits)) # only three participants in this fit_ids object
+#'
+#' # allows for some customization
+#' hist(coef(all_fits), colors = "lightgreen")
+#'
+#'
 #' @export
-hist.coefs_dm <- function(x, ..., separate_plots = T, alpha = 0.5,
+hist.coefs_dm <- function(x, ..., separate_plots = TRUE, alpha = 0.5,
                           main = NULL, colors = NULL, xlab = "values") {
   coefs_obj <- x
 
@@ -690,6 +882,7 @@ hist.coefs_dm <- function(x, ..., separate_plots = T, alpha = 0.5,
       )
     }
   }
+  invisible()
 }
 
 
@@ -732,6 +925,21 @@ hist.coefs_dm <- function(x, ..., separate_plots = T, alpha = 0.5,
 #' When the evaluation of a model component fails, the respective component
 #' will not be plotted, but no warning is ushered.
 #'
+#' @returns
+#' Nothing (`NULL`; invisibly)
+#'
+#' @examples
+#' # plot the component functions of the Ratcliff DDM
+#' plot(ratcliff_dm())
+#' plot(ratcliff_dm(var_non_dec = TRUE))
+#' # Note: the variability in the drift rate for the Ratcliff DDM
+#' # is not plotted! This is because it is not actually stored as a component
+#' # function.
+#'
+#' # plot the component functions of the DMC model
+#' plot(dmc_dm(), col = c("green", "red"))
+#'
+#'
 #'
 #' @export
 plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
@@ -745,7 +953,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   }
   conds <- match.arg(
     arg = conds, choices = conds(drift_dm_obj),
-    several.ok = T
+    several.ok = TRUE
   )
 
   # get default parameters
@@ -790,7 +998,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     return(!all(sapply(x, is.null)))
   }
 
-  range_vals <- function(x, reduce_t = F, select_indices_t = NULL) {
+  range_vals <- function(x, reduce_t = FALSE, select_indices_t = NULL) {
     as_arr <- sapply(x, \(y){
       if (reduce_t) {
         return(range(y[select_indices_t]))
@@ -809,7 +1017,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 
   # plot the drift rate
   if (temp_is_not_null(mu_vals)) {
-    ylim <- range_vals(mu_vals, reduce_t = T, select_indices_t)
+    ylim <- range_vals(mu_vals, reduce_t = TRUE, select_indices_t)
 
     plot(c(1, 2) ~ c(1, 1),
       col = "white", xlim = xlim,
@@ -820,14 +1028,14 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     for (i in seq_along(conds)) {
       graphics::points(mu_vals[[conds[i]]] ~ t_vec,
         ty = "l",
-        col = col[i]
+        col = col[i], ...
       )
     }
   }
 
   # plot the integral of the drift rate
   if (temp_is_not_null(mu_int_vals)) {
-    ylim <- range_vals(mu_int_vals, reduce_t = T, select_indices_t)
+    ylim <- range_vals(mu_int_vals, reduce_t = TRUE, select_indices_t)
 
     plot(c(1, 2) ~ c(1, 1),
       col = "white", xlim = xlim,
@@ -838,7 +1046,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     for (i in seq_along(conds)) {
       graphics::points(mu_int_vals[[conds[i]]] ~ t_vec,
         ty = "l",
-        col = col[i]
+        col = col[i], ...
       )
     }
   }
@@ -854,13 +1062,13 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(x_vals[[conds[i]]] ~ x_vec, ty = "l", col = col[i])
+      graphics::points(x_vals[[conds[i]]] ~ x_vec, ty = "l", col = col[i], ...)
     }
   }
 
   # plot the boundary
   if (temp_is_not_null(b_vals)) {
-    ylim <- range_vals(b_vals, reduce_t = T, select_indices_t)
+    ylim <- range_vals(b_vals, reduce_t = TRUE, select_indices_t)
 
     plot(c(1, 2) ~ c(1, 1),
       col = "white", xlim = xlim,
@@ -869,13 +1077,13 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(b_vals[[conds[i]]] ~ t_vec, ty = "l", col = col[i])
+      graphics::points(b_vals[[conds[i]]] ~ t_vec, ty = "l", col = col[i], ...)
     }
   }
 
   # plot the derivative of the boundary
   if (temp_is_not_null(dt_b_vals)) {
-    ylim <- range_vals(dt_b_vals, reduce_t = T, select_indices_t)
+    ylim <- range_vals(dt_b_vals, reduce_t = TRUE, select_indices_t)
 
     plot(c(1, 2) ~ c(1, 1),
       col = "white", xlim = xlim,
@@ -884,14 +1092,15 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(dt_b_vals[[conds[i]]] ~ t_vec, ty = "l", col = col[i])
+      graphics::points(dt_b_vals[[conds[i]]] ~ t_vec, ty = "l", col = col[i],
+                       ...)
     }
   }
 
 
   # plot the non-decision time
   if (temp_is_not_null(nt_vals)) {
-    ylim <- range_vals(nt_vals, reduce_t = T, select_indices_t)
+    ylim <- range_vals(nt_vals, reduce_t = TRUE, select_indices_t)
 
     plot(c(1, 2) ~ c(1, 1),
       col = "white", xlim = xlim,
@@ -900,11 +1109,12 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     )
 
     for (i in seq_along(conds)) {
-      graphics::points(nt_vals[[conds[i]]] ~ t_vec, ty = "l", col = col[i])
+      graphics::points(nt_vals[[conds[i]]] ~ t_vec, ty = "l", col = col[i], ...)
     }
   }
 
-  graphics::legend(x = legend_pos, legend = legend, col = col, lty = 1)
+  graphics::legend(x = legend_pos, legend = legend, col = col, lty = 1, ...)
+  invisible()
 }
 
 
@@ -926,6 +1136,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #'
 #' @return A character vector of colors, matching the length of `unique_conds`.
 #'
+#' @keywords intern
 set_default_colors <- function(colors, unique_conds, default_colors) {
   if (is.null(colors)) {
     colors <- default_colors
@@ -950,6 +1161,7 @@ set_default_colors <- function(colors, unique_conds, default_colors) {
 #'
 #' @return A numeric vector of length 2, specifying the plot limits.
 #'
+#' @keywords internal
 set_plot_limits <- function(lim, default_lim) {
   if (is.null(lim)) default_lim else lim
 }

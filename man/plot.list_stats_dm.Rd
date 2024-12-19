@@ -18,14 +18,29 @@ rows and columns for arranging multiple panels in a single plot
 (e.g., \code{c(1, 3)}). Plots are provided sequentially if \code{NULL} (default),
 using the current graphics layout of a user.}
 }
+\value{
+Nothing (\code{NULL}; invisibly)
+}
 \description{
 This function iterates over a list of statistics data, resulting from a call
 to \code{\link[=calc_stats]{calc_stats()}}, and subsequently plots each statistic. It allows
 for flexible arrangement of multiple plots on a single graphics device.
 }
 \details{
-The \code{plot.list_stats_dm} function is "merely" a wrapper. All plotting
-is done by the respective \code{plot} method.
+The \code{plot.list_stats_dm()} function is "merely" a wrapper. All plotting
+is done by the respective \code{plot()} methods. When users want more control
+over each plot, it is best to call the \code{plot()} function separately for
+each statistic in the list (e.g., \code{plot(x$cafs)}; \code{plot(x$quantiles)})
+}
+\examples{
+# get a list of statistics for demonstration purpose
+all_fits = get_example_fits_ids()
+stats = calc_stats(all_fits, type = c("cafs", "quantiles"))
+
+# then call the plot function.
+plot(stats, mfrow = c(1,2))
+
+
 }
 \seealso{
 \code{\link[=plot.cafs]{plot.cafs()}}, \code{\link[=plot.quantiles]{plot.quantiles()}},

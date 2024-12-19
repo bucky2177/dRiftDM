@@ -10,3 +10,7 @@
 ^figures$
 ^\.github$
 ^codecov\.yml$
+^cran-comments\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

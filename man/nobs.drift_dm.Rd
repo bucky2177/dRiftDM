@@ -29,3 +29,16 @@ It was written to provide an \code{nobs} method for calculating the log-likeliho
 (\link{logLik}), AIC (\link[stats:AIC]{stats::AIC}), and BIC (\link[stats:AIC]{stats::BIC}) statistics
 for objects of type \link{drift_dm}.
 }
+\examples{
+# get a pre-built model and data set for demonstration purpose
+a_model <- dmc_dm()
+obs_data(a_model) <- dmc_synth_data
+
+# then get the number of observations by accessing the model
+nobs(a_model)
+
+# same number of observations as in the original data set
+nrow(dmc_synth_data)
+
+
+}

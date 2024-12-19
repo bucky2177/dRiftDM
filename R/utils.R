@@ -1,5 +1,22 @@
 # ETC ---------------------------------------------------------------------
 
+#' Check if an object is a valid numeric vector
+#'
+#' This function verifies whether the input is a numeric vector with no missing
+#' (`NA`, `NaN`) or infinite (`Inf` or `-Inf`) values.
+#'
+#' @param x An object to check.
+#'
+#' @return A logical value: `TRUE` if the input is a numeric vector without any
+#' missing or infinite values, otherwise `FALSE`.
+#'
+#' @examples
+#' dRiftDM:::is_numeric(c(1, 2, 3))       # TRUE
+#' dRiftDM:::is_numeric(c(1, 2, NA))      # FALSE
+#' dRiftDM:::is_numeric(c(1, 2, Inf))     # FALSE
+#' dRiftDM:::is_numeric("not numeric")    # FALSE
+#'
+#' @keywords internal
 is_numeric <- function(x) {
   is.numeric(x) & all(!is.na(x)) & all(!is.infinite(x))
 }
@@ -32,6 +49,7 @@ is_numeric <- function(x) {
 #' - Absence of `NA` of `Inf` values in `x`
 #' - Optional absence of non-word names if `allow_non_word_chars` is FALSE
 #'
+#' @keywords internal
 check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
                                           length = NULL,
                                           allow_non_word_chars = FALSE) {
@@ -74,7 +92,7 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
 
   if (!allow_non_word_chars) {
     given_names <- names(x)
-    given_names <- grepl("[\\W]", given_names, perl = T)
+    given_names <- grepl("[\\W]", given_names, perl = TRUE)
     if (any(given_names)) {
       stop(var_name, " provides illegal non-alphanumeric characters")
     }
@@ -101,10 +119,11 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
 #' @seealso [dRiftDM::coef.drift_dm()], as the numeric
 #' vector provided by this call is used when `x` is of type [dRiftDM::drift_dm]
 #'
+#' @keywords internal
 prms_to_str <- function(x, prms = NULL, round_digits = NULL,
                         sep = "=>", collapse = "\n") {
   if (inherits(x, "drift_dm")) {
-    prms <- coef(x, select_unique = T)
+    prms <- coef(x, select_unique = TRUE)
     names_prms <- names(prms)
     prms <- unname(prms)
   } else {
@@ -169,6 +188,7 @@ prms_to_str <- function(x, prms = NULL, round_digits = NULL,
 #' vary across conditions or are selectively used for one condition), then
 #' only these parameter labels are returned
 #'
+#' @keywords internal
 prm_cond_combo_2_labels <- function(prms_cond_combo, sep = ".") {
   stopifnot(is.character(prms_cond_combo))
   stopifnot(is.matrix(prms_cond_combo))
@@ -230,6 +250,8 @@ prm_cond_combo_2_labels <- function(prms_cond_combo, sep = ".") {
 #' length of the entry "default_values" if it is a list).
 #'
 #' @seealso [dRiftDM::simulate_data()], [dRiftDM::simulate_values()]
+#'
+#' @keywords internal
 create_matrix_l_u <- function(l_u, conds, prm_labels = NULL) {
   if (!is.character(conds) | length(conds) == 0) {
     stop("conds must be a character vector")
@@ -352,9 +374,10 @@ create_matrix_l_u <- function(l_u, conds, prm_labels = NULL) {
 #'
 #' @returns a list with two vectors named `lower/upper` that describe the search
 #' space. The length and names (if requested) matches with
-#' coef(model, select_unique = T).
+#' coef(model, select_unique = TRUE).
 #'
-get_lower_upper_smart <- function(drift_dm_obj, lower, upper, labels = T) {
+#' @keywords internal
+get_lower_upper_smart <- function(drift_dm_obj, lower, upper, labels = TRUE) {
   # input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -444,6 +467,7 @@ get_lower_upper_smart <- function(drift_dm_obj, lower, upper, labels = T) {
 #' value specified is unique with respect to the `linear_internal_list`.
 #' Non-unique values for a parameter-condition combination raise an error.
 #'
+#' @keywords internal
 check_unique_special_boundary <- function(drift_dm_obj, l_u) {
   lin_list <- drift_dm_obj$flex_prms_obj$linear_internal_list
 
@@ -514,6 +538,7 @@ check_unique_special_boundary <- function(drift_dm_obj, l_u) {
 #'
 #' @name defaults
 #'
+#' @keywords internal
 drift_dm_approx_error <- function() {
   return(1e-20)
 }
@@ -556,4 +581,73 @@ drift_dm_default_b_coding <- function() {
     l_name_value = c("err" = 1)
   )
   return(b_coding)
+}
+
+
+
+# FOR EXAMPLES ------------------------------------------------------------
+
+#' Auxiliary Function to create a fits_ids object
+#'
+#' This function is merely a helper function to create an object of type
+#' `fits_ids_dm.` It is used for example code.
+#'
+#' @returns An object of type `fits_ids_dm`, mimicking a result from calling
+#' [dRiftDM::load_fits_ids()].
+#'
+#' @details
+#' The returned fit object comprises DMC fitted to three subjects of the
+#' ulrich_flanker_data.
+#'
+#' @examples
+#' fits = get_example_fits_ids()
+#'
+#'
+#' @export
+get_example_fits_ids <- function() {
+
+  # get some data (the first three subjects of the flanker Ulrich data)
+  some_data = subset_ulrich_flanker # stored in sysdata.rda
+
+  # get DMC
+  some_model = dmc_dm(t_max = 1.5, dt = .002, dx = .002)
+
+  # set the data and some parameter values; I chose those based on fits done
+  # in the tutorial (timestamp: 15.12.2024)
+  all_models = lapply(1:3, \(x){
+    obs_data(some_model) <- some_data[some_data$ID == x,]
+    if (x == 1) {
+      coef(some_model) <- c(4.7, 0.44, 0.34, 0.03, 0.04, 0.10, 7)
+    } else if (x == 2) {
+      coef(some_model) = c(5.4, 0.40, 0.30, 0.04, 0.05, 0.09, 3)
+    } else if (x == 3) {
+      coef(some_model) = c(5.8, 0.60, 0.32, 0.01, 0.11, 0.19, 3.7)
+    }
+    some_model = re_evaluate_model(some_model)
+    return(some_model)
+  })
+  names(all_models) = 1:3
+
+  # now assemble everything
+  time_call <- format(Sys.time(), "%Y-%B-%d_%H-%M")
+  drift_dm_fit_info = list(
+    time_call = time_call,
+    lower = c(muc = 1.00, b = 0.20, non_dec = 0.10, sd_non_dec = 0.005,
+              tau = 0.02, A = 0.02, alpha = 3.00),
+    upper = c(muc = 7.00, b = 1.00, non_dec = 0.60, sd_non_dec = 0.10,
+              tau = 0.30, A = 0.30, alpha = 8.00),
+    seed = NULL,
+    drift_dm_obj = some_model,
+    obs_data_ids = some_data,
+    fit_procedure_name = "aux_example",
+    start_vals = NULL)
+  all_fits = list(
+    drift_dm_fit_info = drift_dm_fit_info,
+    all_fits = all_models
+  )
+
+  # did I create a valid fits_ids_object?
+  class(all_fits) <- "fits_ids_dm"
+  all_fits <- validate_fits_ids(fits_ids = all_fits, progress = 0)
+  return(all_fits)
 }

@@ -77,6 +77,12 @@
 #' can be replaced by calling the generic `flex_prms<-` replacement function. In
 #' this case, the modified [dRiftDM::drift_dm] object is returned.
 #'
+#' ## Printing an object of type `flex_prms`
+#'
+#' The `print.flex_prms()` method invisibly returns the supplied `flex_prms`
+#' object.
+#'
+#'
 #' @details
 #'
 #' Objects of type `flex_prms` can be modified using the generic
@@ -101,13 +107,43 @@
 #' [dRiftDM::summary.flex_prms()], [dRiftDM::modify_flex_prms()]
 #'
 #' @examples
-#' conds <- c("foo", "bar")
-#' prms <- c(a = 3, b = 4)
-#' one_instr <- "a ~ foo + bar"
-#' flex_prms_obj <- flex_prms(prms,
+#' # Create a flex_prms object -----------------------------------------------
+#' conds <- c("one", "two")
+#' prms <- c(muc = 3, b = 0.5)
+#' one_instr <- "muc ~ one + two"
+#' flex_prms_obj <- flex_prms(
+#'   prms,
 #'   conds = conds,
 #'   instr = one_instr
 #' )
+#' print(flex_prms_obj)
+#'
+#'
+#' # Access a flex_prms object of a model ------------------------------------
+#' my_model <- ratcliff_dm() # the Ratcliff DDM comes with dRiftDM
+#' print(flex_prms(my_model))
+#'
+#'
+#' # Replace the flex_prms object of a model ---------------------------------
+#' # create a new flex_prms object
+#' conds <- c("one", "two")
+#' prms <- c(muc = 3, b = 0.6, non_dec = 0.3)
+#' new_flex_prms_obj <- flex_prms(
+#'   prms,
+#'   conds = conds
+#' )
+#'
+#' flex_prms(my_model) <- new_flex_prms_obj
+#'
+#' # acess the new flex_prms object
+#' print(flex_prms(my_model))
+#'
+#'
+#' # Control the print method -------------------------------------------------
+#' dmc_model <- dmc_dm() # another, more complex, model; comes with dRiftDM
+#' print(flex_prms(dmc_model), round_digits = 1, cust_parameters = FALSE)
+#'
+#'
 #'
 #' @export
 flex_prms <- function(object, ...) {
@@ -130,7 +166,7 @@ flex_prms.numeric <- function(object, ..., conds, instr = NULL,
     stop("conds is not a character vector of length >= 1")
   }
 
-  if (any(grepl("\\W", conds, perl = T))) {
+  if (any(grepl("\\W", conds, perl = TRUE))) {
     stop("some condition name contain illegal non-alphanumeric characters")
   }
 
@@ -202,6 +238,7 @@ flex_prms.numeric <- function(object, ..., conds, instr = NULL,
 #' @details
 #' Does not perform input checks!
 #'
+#' @keywords internal
 x2prms_vals <- function(x, flex_prms_obj) {
   stopifnot(inherits(flex_prms_obj, "flex_prms"))
 
@@ -245,8 +282,9 @@ x2prms_vals <- function(x, flex_prms_obj) {
 #'  not when updating modifying the flex_prms object
 #'  (see [dRiftDM::re_evaluate_model]). Default is `FALSE`.
 #' @param messaging logical, indicating if messages shall be ushered or not.
-#' Can happen, for example, when setting specific parameter values in a
-#' condition for which special dependencies were defined.
+#' Can happen, for example, when setting a parameter value for a
+#' specific condition, although the parameter values are assumed to be the
+#' identical across conditions.
 #'
 #' @details
 #' `modify_flex_prms` is a generic function. The default methods pass forward
@@ -334,6 +372,33 @@ x2prms_vals <- function(x, flex_prms_obj) {
 #'
 #' For [dRiftDM::flex_prms], the updated [dRiftDM::flex_prms] object.
 #'
+#'
+#' @examples
+#' # Example 1: Modify a flex_prms object  directly ---------------------------
+#' # create an auxiliary flex_prms object
+#' a_flex_prms_obj = flex_prms(
+#'   c(muc = 3, b = 0.5, non_dec = 0.3),
+#'   conds = c("foo", "bar")
+#' )
+#'
+#' # then carry out some "instructions". Here (arbitrary operations):
+#' # 1.) Consider b as fixed
+#' # 2.) Let muc vary independently for the conditions foo and bar
+#' # 3.) Set non_dec in condition bar to be half as large as non_dec in
+#' #     condition bar
+#' instr =
+#' "b <!>
+#'  muc ~
+#'  non_dec ~ bar == (non_dec ~ foo) / 2
+#' "
+#' modify_flex_prms(object = a_flex_prms_obj, instr = instr)
+#'
+#'
+#' # Example 2: Modify a flex_prms object stored inside a drift_dm object -----
+#' a_model = ratcliff_dm() # get a model for demonstration purpose
+#' modify_flex_prms(object = a_model, instr = "muc ~ => 4")
+#'
+#'
 #' @seealso [flex_prms()]
 #'
 #' @export
@@ -344,7 +409,7 @@ modify_flex_prms <- function(object, instr, ...) {
 
 #' @rdname modify_flex_prms
 #' @export
-modify_flex_prms.drift_dm <- function(object, instr, ..., eval_model = F) {
+modify_flex_prms.drift_dm <- function(object, instr, ..., eval_model = FALSE) {
   # replace old flex_prms_object
   object$flex_prms_obj <- modify_flex_prms(
     object$flex_prms_obj,
@@ -369,14 +434,14 @@ modify_flex_prms.drift_dm <- function(object, instr, ..., eval_model = F) {
 modify_flex_prms.flex_prms <- function(object, instr, ..., messaging = NULL) {
   flex_prms_obj <- object
 
-  if (is.null(messaging)) messaging <- T
+  if (is.null(messaging)) messaging <- TRUE
 
   if (!messaging) {
     flex_prms_obj <- suppressMessages(
       modify_flex_prms(
         object = flex_prms_obj,
         instr = instr
-      ) # messaging = F would lead to inf. recusion
+      ) # messaging = FALSE would lead to inf. recusion
     )
     return(flex_prms_obj)
   }
@@ -488,6 +553,7 @@ modify_flex_prms.flex_prms <- function(object, instr, ..., messaging = NULL) {
 #'
 #' @return an updated flex_prms_obj with an updated (linear) internal list
 #'
+#' @keywords internal
 flex_vary_prms <- function(flex_prms_obj, formula_instr) {
   new_list <- flex_prms_obj$internal_list
 
@@ -532,7 +598,7 @@ flex_vary_prms <- function(flex_prms_obj, formula_instr) {
 }
 
 
-#' Set parmaeters as equal across conditions
+#' Set parameters as equal across conditions
 #'
 #' This function takes a flex_prms object and modifies the (linear) internal
 #' list so that a parameter is set as equal across multiple conditions,
@@ -541,8 +607,9 @@ flex_vary_prms <- function(flex_prms_obj, formula_instr) {
 #' @param flex_prms_obj flex_prms object
 #' @param formula_instr a string referring to "restrain"
 #'  (see [dRiftDM::modify_flex_prms])
-#' @return a modified flex_prms object
+#' @return a modified flex_prms object with an updated (linear) internal list
 #'
+#' @keywords internal
 flex_restrain_prms <- function(flex_prms_obj, formula_instr) {
   new_list <- flex_prms_obj$internal_list
   new_prms_matrix <- flex_prms_obj$prms_matrix
@@ -611,8 +678,10 @@ flex_restrain_prms <- function(flex_prms_obj, formula_instr) {
 #' @param flex_prms_obj flex_prms object
 #' @param formula_instr a string referring to "set"
 #'  (see [dRiftDM::modify_flex_prms])
-#' @returns an updated flex_prms object with a modified prms_matrix object
+#' @returns an updated flex_prms object with a modified prms_matrix object, and
+#' (if applicable) a modified cust_prms matrix
 #'
+#' @keywords internal
 flex_specific_value <- function(flex_prms_obj, formula_instr) {
   # extract the necessary information
   prms_matrix <- flex_prms_obj$prms_matrix
@@ -712,8 +781,9 @@ flex_specific_value <- function(flex_prms_obj, formula_instr) {
 #' @param formula_instr a string referring to "fix"
 #'  (see [dRiftDM::modify_flex_prms])
 #'
-#' @return a modified flex_prms_obj with respect to the linear internal list
+#' @return a modified flex_prms_obj with respect to the (linear) internal list
 #'
+#' @keywords internal
 flex_fix_prms <- function(flex_prms_obj, formula_instr) {
   new_list <- flex_prms_obj$internal_list
 
@@ -770,7 +840,9 @@ flex_fix_prms <- function(flex_prms_obj, formula_instr) {
 #'  (see [dRiftDM::modify_flex_prms])
 #'
 #' @returns a modified flex_prms_object with a modified (linear) internal list
+#' and modified parameter and custom parameter matrices
 #'
+#' @keywords internal
 flex_special_dependency <- function(flex_prms_obj, formula_instr) {
   new_list <- flex_prms_obj$internal_list
   model_conds <- rownames(flex_prms_obj$prms_matrix)
@@ -900,6 +972,7 @@ flex_special_dependency <- function(flex_prms_obj, formula_instr) {
 #'
 #' @returns a modified flex_prms object with respect to the `cust_prms` entry
 #'
+#' @keywords internal
 flex_cust_prm <- function(flex_prms_obj, formula_instr) {
   # extract the prm name on the left
   reg_ex <- "^\\s*(\\b\\w+)\\s*:=\\s*"
@@ -929,7 +1002,7 @@ flex_cust_prm <- function(flex_prms_obj, formula_instr) {
 
   # insert the prms_matrix addition
   pattern <- "\\b(?!\\d+(\\.\\d+)?\\b)(\\w+)\\b"
-  string_exp <- gsub(pattern, "prms_matrix[, '\\2']", math_exp, perl = T)
+  string_exp <- gsub(pattern, "prms_matrix[, '\\2']", math_exp, perl = TRUE)
 
   # check that the parameter names are legit
   prms_regex <- gregexpr(pattern, math_exp, perl = TRUE)
@@ -1001,7 +1074,7 @@ flex_cust_prm <- function(flex_prms_obj, formula_instr) {
 #' @seealso [dRiftDM::flex_vary_prms()], [dRiftDM::flex_restrain_prms()],
 #' [dRiftDM::flex_fix_prms()], [dRiftDM::flex_special_dependency()]
 #'
-#'
+#' @keywords internal
 linearize_internal_list <- function(internal_list) {
   # count how many free parameters are there for each parameter
   count_prms <- sapply(internal_list, count_unique_prms_one_internal_entry)
@@ -1050,8 +1123,9 @@ linearize_internal_list <- function(internal_list) {
 #'
 #' @param one_internal_entry such as `internal_list[["A"]]`
 #'
-#' @returns a number
+#' @returns an integer number
 #'
+#' @keywords internal
 count_unique_prms_one_internal_entry <- function(one_internal_entry) {
   values <- one_internal_entry[sapply(one_internal_entry, \(x) !is.expression(x))]
   if (length(values) == 0) { # happens if there are only expressions
@@ -1068,6 +1142,8 @@ count_unique_prms_one_internal_entry <- function(one_internal_entry) {
 #' @param x a single value or empty vector
 #'
 #' @return TRUE or FALSE otherwise
+#'
+#' @keywords internal
 is_empty <- function(x) {
   stopifnot(length(x) <= 1)
 
@@ -1094,6 +1170,7 @@ is_empty <- function(x) {
 #' @returns a named list prms_to_adress and conds_to_adress as character
 #' vectors.
 #'
+#' @keywords internal
 prms_conds_to_modify <- function(formula_instr, operation,
                                  all_conds, all_prms) {
   # input checks
@@ -1232,13 +1309,14 @@ prms_conds_to_modify <- function(formula_instr, operation,
 #' The entries of the internal list are either digits (0-x) or expressions.
 #'
 #' @param one_internal_entry one entry of multiple conditions
-#' @param flex_prms_obj a list stored in a flex_prms object
+#' @param flex_prms_obj a list stored as a flex_prms object
 #'
 #' @return the largest digit in the entry or of the linear_list in
 #' the supplied flex_prms_obj (0 if there are only
 #' expressions). The largest number of the linear_list corresponds to the number
 #' of model parameters.
 #'
+#' @keywords internal
 max_number_one_internal_entry <- function(one_internal_entry) {
   vals <- sapply(one_internal_entry, function(x) {
     if (is.expression(x)) {
@@ -1272,6 +1350,7 @@ get_number_prms <- function(flex_prms_obj) {
 #'
 #' @returns the newly sorted entry as a list
 #'
+#' @keywords internal
 sort_one_internal_entry <- function(one_internal_entry) {
   stopifnot(!is.null(names(one_internal_entry)))
   new_entry <- one_internal_entry
@@ -1294,12 +1373,13 @@ sort_one_internal_entry <- function(one_internal_entry) {
 #'
 #' @return a single logical
 #'
+#' @keywords internal
 check_digit_larger_0 <- function(x) {
   stopifnot(length(x) == 1)
   stopifnot(is.expression(x) || is_numeric(x))
 
   if (is.expression(x)) {
-    return(F)
+    return(FALSE)
   }
   return(x > 0)
 }
@@ -1316,6 +1396,7 @@ check_digit_larger_0 <- function(x) {
 #' @returns the modified flex_prms_obj (i.e,. with the updated prms_matrix and
 #'  the updated cust_prms$values)
 #'
+#' @keywords internal
 update_special_values <- function(flex_prms_obj) {
   prms_matrix <- flex_prms_obj$prms_matrix
 
@@ -1364,6 +1445,7 @@ update_special_values <- function(flex_prms_obj) {
 #'
 #' @returns the unmodified flex_prms_obj object; only stop/warning statements
 #'
+#' @keywords internal
 validate_flex_prms <- function(flex_prms_obj) {
   if (!inherits(flex_prms_obj, "flex_prms")) {
     stop("provided flex_prms_obj argument is not of type flex_prms")
@@ -1387,7 +1469,7 @@ validate_flex_prms <- function(flex_prms_obj) {
     stop("condition with no name found in prms_matrix of flex_prms_obj")
   }
 
-  if (any(grepl("\\W", cond_names, perl = T))) {
+  if (any(grepl("\\W", cond_names, perl = TRUE))) {
     stop("some condition name contain illegal non-alphanumeric characters")
   }
 
@@ -1399,7 +1481,7 @@ validate_flex_prms <- function(flex_prms_obj) {
     stop("parameter with no name found in prms_matrix of flex_prms_obj")
   }
 
-  if (any(grepl("\\W", prm_names, perl = T))) {
+  if (any(grepl("\\W", prm_names, perl = TRUE))) {
     stop("some parameter names contain illegal non-alphanumeric characters")
   }
 
@@ -1486,6 +1568,7 @@ validate_flex_prms <- function(flex_prms_obj) {
 #'
 #' @return the internal list for convenience
 #'
+#' @keywords internal
 check_internal_list <- function(internal_list, prm_names, cond_names) {
   # parameter names check
   if (!isTRUE(all.equal(names(internal_list), prm_names))) {
@@ -1529,7 +1612,18 @@ check_internal_list <- function(internal_list, prm_names, cond_names) {
 
 
 
-# turn an internal list to a matrix
+
+#' Turn an internal list to a matrix
+#'
+#' this function wrangles the internal list to character matrix
+#' to show how each parameter relates across conditions
+#'
+#' @param internal_list the internal list of a flex_prms object
+#'
+#' @return a character matrix with all parameter labels (columns) and conditions
+#'  (rows)
+#'
+#' @keywords internal
 internal_list_to_matrix <- function(internal_list) {
   prms <- names(internal_list)
   conds <- names(internal_list[[1]])

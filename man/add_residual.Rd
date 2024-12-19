@@ -22,3 +22,4 @@ Calls \link[stats:convolve]{stats::convolve} for the first passage times and the
 time distribution to derive the full distribution of response times. Before
 convolution, I add the robustness parameter.
 }
+\keyword{internal}

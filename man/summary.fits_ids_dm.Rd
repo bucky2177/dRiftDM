@@ -21,7 +21,11 @@ rounding in the printed summary. Default is set to 3.}
 to \link{load_fits_ids}.}
 }
 \value{
-\code{summary.fits_ids_dm} returns a list of class \code{summary.fits_ids_dm}.
+\code{summary.fits_ids_dm()} returns a list of class \code{summary.fits_ids_dm} (see
+the Details section summarizing each entry of this list).
+
+\code{print.summary.fits_ids_dm()} returns invisibly the \code{summary.fits_ids_dm}
+object.
 }
 \description{
 Methods for summarizing and printing objects of the class \code{fits_ids_dm},
@@ -30,11 +34,12 @@ which contain multiple fits across individuals.
 \details{
 The \code{summary.fits_ids_dm} function creates a summary object containing:
 \itemize{
-\item \strong{prms}: All parameter values across all conditions.
 \item \strong{fit_procedure_name}: The name of the fit procedure used.
 \item \strong{time_call}: Timestamp of the last fit procedure call.
 \item \strong{lower} and \strong{upper}: Lower and upper bounds of the search space.
 \item \strong{model_type}: Description of the model type, based on class information.
+\item \strong{prms}: All parameter values across all conditions (essentially a call
+to coef() with the argument select_unique = FALSE).
 \item \strong{stats}: A named list of matrices for each condition, including mean and
 standard error for each parameter.
 \item \strong{N}: The number of individuals.
@@ -42,4 +47,13 @@ standard error for each parameter.
 
 The \code{print.summary.fits_ids_dm} function displays the summary object in a
 formatted manner.
+}
+\examples{
+# get an auxiliary object of type fits_ids_dm for demonstration purpose
+all_fits <- get_example_fits_ids()
+sum_obj <- summary(all_fits)
+print(sum_obj, round_digits = 2)
+
+
+
 }

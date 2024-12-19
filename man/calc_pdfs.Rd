@@ -23,28 +23,37 @@ calc_pdfs(drift_dm_obj, x_vec, t_vec, prms_solve)
 }
 \value{
 a list of PDFs, with named entries for each condition. Each of this
-entry contains the vectors "pdf_u" and "pdf_l"
+entry contains a list of vectors, named "pdf_u" and "pdf_l"
 }
 \description{
 This method takes the a model, the time and space vectors, and the
 unpacked parameters for solving the PDF to derive the first passage
 time across all conditions. It is a wrapper around the cpp implementations
-and \link{add_residual}.
+and \link{add_residual}. Important: This function is used in the
+depths of the package and the generic method is not exported.
 }
 \details{
-calc_pdfs is a generic method which dispaches the function call.
+calc_pdfs is a generic method which dispatches the function call (not
+exported).
 
 calc_pdfs.ratcliff_dm, is a specific method that checks for the presence of
 the parameter \code{sd_muc}, and, if present, calls the calc_pdfs.drift_dm
-function multiple times with different value for \code{muc}, to approximate the
+function multiple times with different value for \code{muc} to approximate the
 variable drift rate.
 
 calc_pdfs.drift_dm is the function that will be called for all models.
 It evaluates the different components of a model, and subsequently calls
-the cpp implemenations for the KFE or integral method. It also calls the
-\link{add_residual} function to convolve the non-decision time to the
+the cpp implementations for the KFE or integral method. It also calls the
+\link{add_residual} function to convolute the non-decision time to the
 first passage time.
+
+The numerical methods for deriving the PDFs are based on the code provided
+by \insertCite{Richteretal.2023}{dRiftDM}.
+}
+\references{
+\insertRef{Richteretal.2023}{dRiftDM}
 }
 \seealso{
 \link{add_residual}
 }
+\keyword{internal}

@@ -202,7 +202,6 @@ test_that("behavior of DE and nmkb toggles", {
     "univariate optimization"
   )
 
-  # skip on cran: multiple cores use
   # DE TRUE nmkb FALSE
   skip_on_cran()
   a_model <- modify_flex_prms(a_model, instr = "non_dec ~!")

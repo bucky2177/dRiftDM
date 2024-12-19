@@ -55,6 +55,9 @@ the conditions in the quantiles. Defaults to the condition names.}
 \item{legend_pos}{character, specifying the position of the legend on the
 plot.}
 }
+\value{
+Nothing (\code{NULL}; invisibly)
+}
 \description{
 This function generates a plot of quantiles. It can display observed and
 predicted values, making it useful for assessing model fit or exploring
@@ -68,4 +71,33 @@ The \code{plot.quantiles} function allows for a quick investigation of quantiles
 including options for color, symbols, and line types for different data
 sources (observed vs. predicted). When the supplied \link{data.frame} includes
 multiple IDs, quantiles are aggregated across IDs before plotting.
+}
+\examples{
+# Example 1: Only model predictions ---------------------------------------
+# get a quantiles data.frame for demonstration purpose
+a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+quantiles <- calc_stats(a_model, type = "quantiles")
+
+# call the plot function with default values
+plot(quantiles)
+
+# make the plot a little bit more pretty
+plot(quantiles,
+  col = c("green", "red"),
+  ylim = c(0.5, 1)
+)
+
+# Example 2: Model predictions and observed data --------------------------
+obs_data(a_model) <- dmc_synth_data
+quantiles <- calc_stats(a_model, type = "quantiles")
+plot(quantiles)
+# Note: The model was not fitted to the data set, thus observed data and
+# model predictions don't match
+
+
+# Example 3: Only observed data -------------------------------------------
+quantiles <- calc_stats(dmc_synth_data, type = "quantiles")
+plot(quantiles)
+
+
 }

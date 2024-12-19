@@ -25,3 +25,4 @@ returns the PDF of a uniform distribution for t_vec, centered around
 \description{
 Uniform Non-Decision Time
 }
+\keyword{internal}

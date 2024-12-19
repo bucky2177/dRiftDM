@@ -38,3 +38,4 @@ Checks:
 time unused factor levels are dropped \link{drop_levels_ID_column}
 }
 }
+\keyword{internal}

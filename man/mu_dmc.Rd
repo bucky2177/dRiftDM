@@ -26,3 +26,4 @@ Provides the drift rate of the superimposed decision process. That is
 the derivative of the rescaled gamma function plus a constant drift rate for
 the controlled process.
 }
+\keyword{internal}

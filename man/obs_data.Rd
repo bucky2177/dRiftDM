@@ -10,11 +10,11 @@
 \usage{
 obs_data(object, ...) <- value
 
-\method{obs_data}{drift_dm}(object, ..., eval_model = F) <- value
+\method{obs_data}{drift_dm}(object, ..., eval_model = FALSE) <- value
 
 obs_data(object, ...)
 
-\method{obs_data}{drift_dm}(object, ..., messaging = T)
+\method{obs_data}{drift_dm}(object, ..., messaging = TRUE)
 
 \method{obs_data}{fits_ids_dm}(object, ...)
 }
@@ -77,6 +77,32 @@ that the returned \link{data.frame} may be sorted differently than expected.
 There is only a replacement function for \link{drift_dm} objects. This is
 because replacing the observed data after the model has been fitted (i.e.,
 for a \code{fits_ids_dm} object) doesn't make sense.
+}
+\examples{
+# Set some data to a model -------------------------------------------------
+my_model <- dmc_dm() # DMC is pre-built and directly available
+# synthetic data suitable for DMC; comes with dRiftDM
+some_data <- dmc_synth_data
+obs_data(my_model) <- some_data
+
+# Extract data from a model ------------------------------------------------
+head(obs_data(my_model))
+
+# Important: ---------------------------------------------------------------
+# The returned data.frame may be sorted differently than the one initially
+# supplied.
+some_data <- some_data[sample(1:nrow(some_data)),] #' # shuffle the data set
+obs_data(my_model) <- some_data
+all.equal(obs_data(my_model), some_data)
+# so don't do obs_data(my_model)["Cond"] <- ...
+
+# Addition: ----------------------------------------------------------------
+# accessor method also available for fits_ids_dm objects
+# (see estimate_model_ids)
+# get an exemplary fits_ids_dm object
+fits = get_example_fits_ids()
+head(obs_data(fits))
+
 }
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}

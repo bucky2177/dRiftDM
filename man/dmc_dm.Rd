@@ -37,6 +37,10 @@ constant and discretization (see \link{drift_dm})}
 \item{b_coding}{list, an optional list with the boundary encoding (see
 \link{b_coding})}
 }
+\value{
+An object of type \code{drift_dm} (parent class) and \code{dmc_dm} (child class),
+created by the function \code{\link[=drift_dm]{drift_dm()}}.
+}
 \description{
 This function creates a \link{drift_dm} object that corresponds to the
 Diffusion Model for Conflict Tasks by
@@ -71,6 +75,21 @@ Per default the shape parameter \code{a} is set to 2 and not allowed to
 vary. The model assumes the amplitude \code{A} to be negative for
 incompatible trials. Also, the model contains the custom parameter
 \code{peak_l}, containing the peak latency (\code{(a-2)*tau}).
+}
+\examples{
+# the model with default settings
+my_model <- dmc_dm()
+
+# the model with no variability in the starting point and with a more coarse
+# discretization
+my_model <- dmc_dm(
+  var_start = FALSE,
+  t_max = 1.5,
+  dx = .0025,
+  dt = .0025
+)
+
+
 }
 \references{
 \insertRef{Ulrichetal.2015}{dRiftDM}

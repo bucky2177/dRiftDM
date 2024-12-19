@@ -31,3 +31,4 @@ specified columns.
 \code{\link[=aggregate_stats]{aggregate_stats()}}, \code{\link[=calc_stats]{calc_stats()}},
 \code{\link[=new_stats_dm]{new_stats_dm()}}
 }
+\keyword{internal}

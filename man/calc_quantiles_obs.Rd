@@ -46,3 +46,4 @@ straightforward via \link[stats:quantile]{stats::quantile}.
 for Densities: Calculate CDF (for each pdf separately here), and then map
 the desired probability level via the CDF (y-axis) to the time space (x-axis)
 }
+\keyword{internal}

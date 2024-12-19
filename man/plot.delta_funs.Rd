@@ -51,6 +51,9 @@ the delta functions. Defaults to the way functions were derived.}
 \item{legend_pos}{character, specifying the position of the legend on the
 plot.}
 }
+\value{
+Nothing (\code{NULL}; invisibly)
+}
 \description{
 This function generates a plot of delta functions, displaying observed and
 predicted values, which can be useful for evaluating model fit or exploring
@@ -66,4 +69,49 @@ different data sources (observed vs. predicted). If multiple IDs are present
 in the data, delta functions are aggregated across IDs before plotting.
 By default, \code{ylim} is set to twice the range of the delta values to provide
 more context.
+}
+\examples{
+# Example 1: Only model predictions ---------------------------------------
+# get a delta function data.frame for demonstration purpose
+a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+deltas <- calc_stats(
+  a_model,
+  type = "delta_funs",
+  minuends = "incomp",
+  subtrahends = "comp"
+)
+
+# call the plot function with default values
+plot(deltas)
+
+# modify the plot
+plot(deltas,
+  col = c("black"),
+  lty = 2,
+  xlim = c(0.2, 0.65)
+)
+
+# Example 2: Model predictions and observed data --------------------------
+obs_data(a_model) <- dmc_synth_data
+deltas <- calc_stats(
+  a_model,
+  type = "delta_funs",
+  minuends = "incomp",
+  subtrahends = "comp"
+)
+plot(deltas)
+# Note: The model was not fitted to the data set, thus observed data and
+# model predictions don't match
+
+
+# Example 3: Only observed data -------------------------------------------
+deltas <- calc_stats(
+  dmc_synth_data,
+  type = "delta_funs",
+  minuends = "incomp",
+  subtrahends = "comp"
+)
+plot(deltas)
+
+
 }

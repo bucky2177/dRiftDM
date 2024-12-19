@@ -13,9 +13,11 @@ flex_specific_value(flex_prms_obj, formula_instr)
 (see \link{modify_flex_prms})}
 }
 \value{
-an updated flex_prms object with a modified prms_matrix object
+an updated flex_prms object with a modified prms_matrix object, and
+(if applicable) a modified cust_prms matrix
 }
 \description{
 This function takes a flex_prms_obj and sets certain values to the parameter
 matrix, based on the given instruction string (i.e., ' prm ~ conda => 0.3)
 }
+\keyword{internal}

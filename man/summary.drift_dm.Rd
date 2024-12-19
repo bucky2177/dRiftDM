@@ -20,20 +20,22 @@
 rounding in the printed summary. Default is 3.}
 }
 \value{
-\code{summary.drift_dm} returns a list of class \code{summary.drift_dm} with the above
-information.
+\code{summary.drift_dm()} returns a list of class \code{summary.drift_dm} (see the
+Details section summarizing each entry of this list).
+
+\code{print.summary.drift_dm()} returns invisibly the \code{summary.drift_dm} object.
 }
 \description{
 Summary and printing methods for objects of the class \code{drift_dm}, resulting
 from a call to \link{drift_dm}.
 }
 \details{
-The \code{summary.drift_dm} function constructs a summary list with detailed
+The \code{summary.drift_dm()} function constructs a summary list with detailed
 information about the \code{drift_dm} object, including:
 \itemize{
 \item \strong{class}: The class type of the \code{drift_dm} object.
-\item \strong{summary_flex_prms}: A summary of \link{flex_prms} object in the
-model.
+\item \strong{summary_flex_prms}: A summary of the \link{flex_prms} object in the
+model (see \link{summary.flex_prms}).
 \item \strong{prms_solve}: Parameters used for solving the model (see
 \link{prms_solve}).
 \item \strong{solver}: The solver used for model fitting.
@@ -44,6 +46,22 @@ mean, and quantiles.
 AIC, and BIC values.
 }
 
-The \code{print.summary.drift_dm} function displays this summary in a formatted
+The \code{print.summary.drift_dm()} function displays this summary in a formatted
 way.
+}
+\examples{
+# get a pre-built model for demonstration purpose
+a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+sum_obj <- summary(a_model)
+print(sum_obj, round_digits = 2)
+
+# more information is provided when we add data to the model
+obs_data(a_model) <- dmc_synth_data # (data set comes with dRiftDM)
+summary(a_model)
+
+# finally: fit indices are provided once we evaluate the model
+a_model <- re_evaluate_model(a_model)
+summary(a_model)
+
+
 }

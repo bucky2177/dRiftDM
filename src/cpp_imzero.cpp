@@ -24,8 +24,8 @@ inline double psi(const double b, const double t, const double dt_b,const  doubl
   return 0.5*n1*n2;
 }
 
-// this function is a C++ version of the kfe function provided by
-// Richter, Ulrich, Janczyk (2023) Journal of Mathematica Modeling
+// this function is a C++ version of the im_zero function provided by
+// Richter, Ulrich, Janczyk (2023) Journal of Mathematical Psychology
 // [[Rcpp::export]]
 int cpp_imzero(NumericVector& pdf_u,
                NumericVector& pdf_l,

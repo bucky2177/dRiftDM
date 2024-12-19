@@ -49,3 +49,4 @@ parameters in the respective condition.#'
 \seealso{
 \code{\link[=simulate_data]{simulate_data()}}, \code{\link[=simulate_values]{simulate_values()}}
 }
+\keyword{internal}

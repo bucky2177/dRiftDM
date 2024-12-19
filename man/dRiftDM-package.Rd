@@ -4,19 +4,31 @@
 \name{dRiftDM-package}
 \alias{dRiftDM}
 \alias{dRiftDM-package}
-\title{dRiftDM: Fitting and Exploring Drift Diffusion Models}
+\title{dRiftDM: Unlocking (Time-Dependent) Drift Diffusion Models in 'R'}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Drift Diffusion models (DDMs) are common in cognitive psychology to desribe decision processes in simple tasks. We provide a wrapper around the numerical solutions summarized by Richter et al. (2023) to easily apply DDMs via Maximum-Likelihood-Estimation.
+Fit and explore Drift Diffusion Models (DDMs), a common tool in psychology for desribing decision processes in simple tasks. It can handle both time-independent and time-dependent DDMs. You either choose pre-built models or create your own, and the package takes care of model predictions and parameter estimation. Model predictions are derived from the numerical solutions provided by Richter, Ulrich, and Janczyk (2023, \doi{10.1016/j.jmp.2023.102756}).
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/bucky2177/dRiftDM}
+  \item Report bugs at \url{https://github.com/bucky2177/dRiftDM/issues}
+}
+
 }
 \author{
-\strong{Maintainer}: Valentin Koob \email{koob@uni-bremen.de}
+\strong{Maintainer}: Valentin Koob \email{v.koob@web.de} [copyright holder]
 
 Authors:
 \itemize{
-  \item Thomas Richter
-  \item Markus Janczyk
+  \item Thomas Richter [copyright holder]
+}
+
+Other contributors:
+\itemize{
+  \item Markus Janczyk [contributor]
 }
 
 }

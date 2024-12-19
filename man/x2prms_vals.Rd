@@ -23,3 +23,4 @@ of the values for which special dependencies were set
 \details{
 Does not perform input checks!
 }
+\keyword{internal}

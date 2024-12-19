@@ -18,3 +18,4 @@ This function takes a flex_prms object and updates the prms_matrix according
 to the special instructions in \code{internal_list} and the custom parameters
 \code{cust_prms}
 }
+\keyword{internal}

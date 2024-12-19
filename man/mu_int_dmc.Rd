@@ -25,3 +25,4 @@ process for each time step in t_vec.
 Provides the integral of the drift rate of the superimposed decision process.
 This is the sum of the rescaled gamma function and the linear function.
 }
+\keyword{internal}

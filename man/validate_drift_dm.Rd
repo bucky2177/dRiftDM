@@ -35,3 +35,4 @@ function provides the expected arguments
 \item Checks the b_coding (column, u_name_value and l_name_value).
 }
 }
+\keyword{internal}

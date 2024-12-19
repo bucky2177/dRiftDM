@@ -15,3 +15,4 @@ a single logical
 \description{
 assumed that x is either a digit or an expression
 }
+\keyword{internal}

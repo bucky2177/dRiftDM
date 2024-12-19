@@ -46,3 +46,4 @@ Checks for:
 \item Optional absence of non-word names if \code{allow_non_word_chars} is FALSE
 }
 }
+\keyword{internal}

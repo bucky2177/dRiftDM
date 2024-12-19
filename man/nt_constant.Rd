@@ -24,3 +24,4 @@ element matching with "non_dec" with respect to "t_vec"
 \description{
 A dirac delta on "non_dec", to provide a constant non-decision time.
 }
+\keyword{internal}

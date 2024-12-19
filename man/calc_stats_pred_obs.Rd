@@ -48,3 +48,4 @@ calculate. Default is \code{seq(0.1, 0.9, 0.1)}
 
 This function gets called by \link{calc_stats}
 }
+\keyword{internal}

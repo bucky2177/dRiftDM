@@ -15,14 +15,14 @@ calc_stats(object, type, ...)
   ...,
   conds = NULL,
   verbose = 0,
-  average = F,
-  split_by_ID = T,
+  average = FALSE,
+  split_by_ID = TRUE,
   b_coding = NULL
 )
 
 \method{calc_stats}{drift_dm}(object, type, ..., conds = NULL)
 
-\method{calc_stats}{fits_ids_dm}(object, type, ..., verbose = 1, average = F)
+\method{calc_stats}{fits_ids_dm}(object, type, ..., verbose = 1, average = FALSE)
 }
 \arguments{
 \item{object}{an object for which statistics are calculated. This can be a
@@ -132,4 +132,38 @@ Calculates the Akaike and Bayesian Information Criteria (AIC and BIC). Users
 can provide a \code{k} argument to penalize the AIC statistic (see \link[stats:AIC]{stats::AIC}
 and \link{AIC.fits_ids_dm})
 }
+}
+\examples{
+# Example 1: Calculate CAFs and Quantiles from a model ---------------------
+# get a model for demonstration purpose
+a_model = ssp_dm(dx = .0025, dt = .0025, t_max = 2)
+# and then calculate cafs and quantiles
+some_stats = calc_stats(a_model, type = c("cafs", "quantiles"))
+head(some_stats$cafs)
+head(some_stats$quantiles)
+
+# Example 2: Calculate a Delta Function from a data.frame ------------------
+# get a data set for demonstration purpose
+some_data = ulrich_simon_data
+conds(some_data) # relevant for minuends and subtrahends
+some_stats = calc_stats(
+  a_model,
+  type = "delta_funs",
+  minuends = "incomp",
+  subtrahends = "comp"
+)
+head(some_stats)
+
+
+# Example 3: Calculate Quantiles from a fits_ids_dm object -----------------
+# get an auxiliary fits_ids_dm object
+all_fits = get_example_fits_ids()
+some_stats = calc_stats(all_fits, type = "quantiles")
+head(some_stats) # note the ID column
+
+# one can also request that the statistics are averaged across individuals
+head(
+  calc_stats(all_fits, type = "quantiles", average = TRUE)
+)
+
 }

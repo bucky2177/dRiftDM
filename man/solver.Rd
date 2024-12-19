@@ -10,7 +10,7 @@
 \usage{
 solver(object, ...) <- value
 
-\method{solver}{drift_dm}(object, ..., eval_model = F) <- value
+\method{solver}{drift_dm}(object, ..., eval_model = FALSE) <- value
 
 solver(object, ...)
 
@@ -37,7 +37,9 @@ For \code{solve()} the string \code{solver} (see \code{\link[=drift_dm]{drift_dm
 For \verb{solver<-()} the updated \link{drift_dm} object.
 }
 \description{
-Functions to get or set the "solver" of an object.
+Functions to get or set the "solver" of an object. The "solver" controls
+the method for deriving the model's first passage time (i.e., its predicted
+PDFs).
 }
 \details{
 \code{solver()} is a generic accessor function, and \verb{solver<-()} is a
@@ -45,12 +47,29 @@ generic replacement function. The default methods get and set the "solver".
 
 The "solver" indicates the approach with which the PDFs of a model are
 calculated. Supported options are "kfe" and "im_zero" (method based on the
-Kolmogorov-Forward-Equation or on integral equations, respectively).
+Kolmogorov-Forward-Equation or on integral equations, respectively). Note
+that "im_zero" is only supported for models that assume a fixed starting
+point from 0.
 }
 \note{
 There is only a replacement function for \link{drift_dm} objects. This is
 because replacing the approach for deriving PDFs after the model has been
 fitted (i.e., for a \code{fits_ids_dm} object) doesn't make sense.
+}
+\examples{
+# get some default model to demonstrate the solver() functions
+my_model <- ratcliff_dm()
+solver(my_model)
+# change to the integral approach
+solver(my_model) <- "im_zero"
+solver(my_model)
+
+# accessor method also available for fits_ids_dm objects
+# (see estimate_model_ids)
+# get an exemplary fits_ids_dm object
+fits = get_example_fits_ids()
+solver(fits)
+
 }
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}

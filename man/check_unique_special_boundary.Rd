@@ -24,3 +24,4 @@ For each condition in \code{l_u}, the function examines if the parameter
 value specified is unique with respect to the \code{linear_internal_list}.
 Non-unique values for a parameter-condition combination raise an error.
 }
+\keyword{internal}

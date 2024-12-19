@@ -10,7 +10,7 @@
 \usage{
 prms_solve(object, ...) <- value
 
-\method{prms_solve}{drift_dm}(object, ..., eval_model = F) <- value
+\method{prms_solve}{drift_dm}(object, ..., eval_model = FALSE) <- value
 
 prms_solve(object, ...)
 
@@ -54,6 +54,24 @@ allowed! Any attempts to modify the respective entries will silently fail
 There is only a replacement function for \link{drift_dm} objects. This is
 because replacing the solver settings after the model has been fitted (i.e.,
 for a \code{fits_ids_dm} object) doesn't make sense.
+}
+\examples{
+# get some default model to demonstrate the prms_solve() functions
+my_model <- ratcliff_dm()
+# show the discretization and scaling of the model
+prms_solve(my_model)
+# partially modify these settings
+prms_solve(my_model)[c("dx", "dt")] = c(0.005)
+prms_solve(my_model)
+
+# accessor method also available for fits_ids_dm objects
+# (see estimate_model_ids)
+# get an exemplary fits_ids_dm object
+fits = get_example_fits_ids()
+prms_solve(fits)
+
+
+
 }
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}

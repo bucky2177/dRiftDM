@@ -26,3 +26,4 @@ Upper truncation is max(t_vec)
 \description{
 Truncated Normally-Distributed Non-Decision Time
 }
+\keyword{internal}

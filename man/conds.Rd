@@ -47,6 +47,24 @@ new \link{flex_prms} object and subsequently set it to the model.
 This is because there is no meaningful way to know for the package how the
 model shall behave for the newly introduced condition(s).
 }
+\examples{
+# get a pre-built model to demonstrate the conds() function
+my_model <- dmc_dm()
+conds(my_model)
+
+# accessor functions also work with other object types provided by dRiftDM
+# (simulated traces; see the documentation of the respective function)
+some_traces <- simulate_traces(my_model, k = 1)
+conds(some_traces)
+
+# get an exemplary fits_ids_dm object (see estimate_model_ids)
+fits = get_example_fits_ids()
+conds(fits)
+
+# also works with data.frames that have a "Cond" column
+conds(dmc_synth_data)
+
+}
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}
 }

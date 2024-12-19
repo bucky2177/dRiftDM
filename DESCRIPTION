@@ -1,17 +1,22 @@
 Type: Package
 Package: dRiftDM
-Title: Fitting and Exploring Drift Diffusion Models
+Title: Unlocking (Time-Dependent) Drift Diffusion Models in 'R'
 Version: 0.2.0
 Authors@R: c(
-    person("Valentin", "Koob", , "koob@uni-bremen.de", role = c("cre", "aut")),
-    person("Thomas", "Richter", role = "aut"),
-    person("Markus", "Janczyk", role = "aut")
+    person("Valentin", "Koob", 
+    email = "v.koob@web.de",
+    role = c("cre", "aut", "cph")),
+    person("Thomas", "Richter", role = c("aut",  "cph")),
+    person("Markus", "Janczyk", role = "ctb")
   )
 License: MIT + file LICENSE
-Description: Drift Diffusion models (DDMs) are common in cognitive psychology to 
-  desribe decision processes in simple tasks. We provide a wrapper around 
-  the numerical solutions summarized by Richter et al. (2023) to easily apply
-  DDMs via Maximum-Likelihood-Estimation.
+Description: Fit and explore Drift Diffusion Models (DDMs), 
+    a common tool in psychology for describing decision processes in simple 
+    tasks. It can handle both time-independent and time-dependent DDMs. You 
+    either choose prebuilt models or create your own, and the package takes 
+    care of model predictions and parameter estimation. Model predictions 
+    are derived via the numerical solutions provided by Richter, Ulrich, and
+    Janczyk (2023, <doi:10.1016/j.jmp.2023.102756>).
 Suggests: 
     testthat (>= 3.0.0), cowsay, knitr, rmarkdown, DMCfun, truncnorm, vdiffr
 Config/testthat/edition: 3
@@ -26,3 +31,5 @@ Depends:
     R (>= 3.5.0)
 VignetteBuilder: knitr
 RdMacros: Rdpack
+URL: https://github.com/bucky2177/dRiftDM, https://bucky2177.github.io/dRiftDM/
+BugReports: https://github.com/bucky2177/dRiftDM/issues

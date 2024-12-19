@@ -8,9 +8,9 @@
 \usage{
 unpack_traces(object, ...)
 
-\method{unpack_traces}{traces_dm}(object, ..., unpack = T)
+\method{unpack_traces}{traces_dm}(object, ..., unpack = TRUE)
 
-\method{unpack_traces}{traces_dm_list}(object, ..., unpack = T, conds = NULL)
+\method{unpack_traces}{traces_dm_list}(object, ..., unpack = TRUE, conds = NULL)
 }
 \arguments{
 \item{object}{an object of type \link{drift_dm} or \code{fits_ids_dm} (see
@@ -56,4 +56,13 @@ For \code{traces_dm_list}, \code{unpack_traces()} returns the
 requested conditions (see the argument \code{conds}). The result contains
 objects of type \code{traces_dm} if \code{unpack = FALSE}. For \code{unpack = TRUE},
 the result contains the plain arrays with the traces.
+}
+\examples{
+# get a pre-built model to demonstrate the function
+my_model = dmc_dm()
+# get some traces ...
+some_traces <- simulate_traces(my_model, k = 2, seed = 1)
+# and then unpack them to get the underlying arrays
+str(unpack_traces(some_traces))
+
 }

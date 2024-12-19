@@ -13,7 +13,7 @@ get_number_prms(flex_prms_obj)
 \arguments{
 \item{one_internal_entry}{one entry of multiple conditions}
 
-\item{flex_prms_obj}{a list stored in a flex_prms object}
+\item{flex_prms_obj}{a list stored as a flex_prms object}
 }
 \value{
 the largest digit in the entry or of the linear_list in
@@ -24,3 +24,4 @@ of model parameters.
 \description{
 The entries of the internal list are either digits (0-x) or expressions.
 }
+\keyword{internal}

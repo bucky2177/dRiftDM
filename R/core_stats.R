@@ -24,7 +24,7 @@
 #' equally spaced quantiles. Then calculate the ratio of probability mass per
 #' bin.
 #'
-#'
+#' @keywords internal
 calc_cafs_obs <- function(rts_u, rts_l, one_cond, n_bins) {
   # cut (all) RTs into n bins
   rts <- c(rts_u, rts_l)
@@ -111,6 +111,7 @@ calc_cafs_pred <- function(pdf_u, pdf_l, one_cond, n_bins) {
 #'
 #' @seealso [dRiftDM::new_stats_dm()]
 #'
+#' @keywords internal
 calc_cafs <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL, rts_l = NULL,
                       one_cond, n_bins = NULL, b_coding) {
   # default settings and parameter extraction
@@ -207,7 +208,7 @@ calc_cafs <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL, rts_l = NULL,
 #' for Densities: Calculate CDF (for each pdf separately here), and then map
 #' the desired probability level via the CDF (y-axis) to the time space (x-axis)
 #'
-#'
+#' @keywords internal
 calc_quantiles_obs <- function(rts_u, rts_l, one_cond, probs) {
   quants_rts_u <- stats::quantile(rts_u, probs = probs)
   quants_rts_l <- stats::quantile(rts_l, probs = probs)
@@ -282,6 +283,7 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs,
 #'
 #' @seealso [dRiftDM::new_stats_dm()]
 #'
+#' @keywords internal
 calc_quantiles <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL,
                            rts_u = NULL, rts_l = NULL, one_cond,
                            probs = NULL, b_coding) {
@@ -397,6 +399,7 @@ calc_quantiles <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL,
 #'
 #' @seealso [dRiftDM::new_stats_dm()]
 #'
+#' @keywords internal
 calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
                             dvs = NULL, b_coding) {
   # input checks on data frame
@@ -550,6 +553,7 @@ calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
 #'
 #' @seealso [dRiftDM::new_stats_dm()], [dRiftDM::logLik.drift_dm]
 #'
+#' @keywords internal
 calc_ic <- function(drift_dm_obj, ...) {
   dots <- list(...)
   if (is.null(dots$k)) {
@@ -610,6 +614,7 @@ calc_ic <- function(drift_dm_obj, ...) {
 #' @return A data frame with the calculated statistic across `conds`
 #'  (ordered according to `Source`).
 #'
+#' @keywords internal
 calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
   dotdot <- list(...)
 
@@ -778,13 +783,45 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #' then that list will have the class label `list_stats_dm` (to easily create
 #' multiple panels using the respective `plot()` method).
 #'
+#' @examples
+#' # Example 1: Calculate CAFs and Quantiles from a model ---------------------
+#' # get a model for demonstration purpose
+#' a_model = ssp_dm(dx = .0025, dt = .0025, t_max = 2)
+#' # and then calculate cafs and quantiles
+#' some_stats = calc_stats(a_model, type = c("cafs", "quantiles"))
+#' head(some_stats$cafs)
+#' head(some_stats$quantiles)
+#'
+#' # Example 2: Calculate a Delta Function from a data.frame ------------------
+#' # get a data set for demonstration purpose
+#' some_data = ulrich_simon_data
+#' conds(some_data) # relevant for minuends and subtrahends
+#' some_stats = calc_stats(
+#'   a_model,
+#'   type = "delta_funs",
+#'   minuends = "incomp",
+#'   subtrahends = "comp"
+#' )
+#' head(some_stats)
+#'
+#'
+#' # Example 3: Calculate Quantiles from a fits_ids_dm object -----------------
+#' # get an auxiliary fits_ids_dm object
+#' all_fits = get_example_fits_ids()
+#' some_stats = calc_stats(all_fits, type = "quantiles")
+#' head(some_stats) # note the ID column
+#'
+#' # one can also request that the statistics are averaged across individuals
+#' head(
+#'   calc_stats(all_fits, type = "quantiles", average = TRUE)
+#' )
 #'
 #' @export
 calc_stats <- function(object, type, ...) {
   if (length(type) > 1) {
     all_stats <- sapply(type, function(one_type) {
       calc_stats(object = object, type = one_type, ...)
-    }, simplify = F, USE.NAMES = T)
+    }, simplify = FALSE, USE.NAMES = TRUE)
 
     class(all_stats) <- c("list_stats_dm", "list")
     return(all_stats)
@@ -797,7 +834,7 @@ calc_stats <- function(object, type, ...) {
 #' @rdname calc_stats
 #' @export
 calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
-                                  average = F, split_by_ID = T,
+                                  average = FALSE, split_by_ID = TRUE,
                                   b_coding = NULL) {
   obs_data <- object
 
@@ -834,10 +871,11 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
 
     all_results <- lapply(names(list_obs_data), function(id) {
       stat <- calc_stats(
-        object = list_obs_data[[id]], type = type,
-        split_by_ID = F, ...
+        object = list_obs_data[[id]], type = type, ...,
+        conds = conds, verbose = 0, average = FALSE, split_by_ID = FALSE,
+        b_coding = b_coding
       )
-      stat_id <- cbind(ID = try_cast_numeric(id), stat)
+      stat_id <- cbind(ID = try_cast_integer(id), stat)
       stat_id <- copy_class_attributes(old = stat, new = stat_id)
       if (verbose == 1) pb$tick()
       return(stat_id)
@@ -861,7 +899,7 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
     if (is.null(conds)) {
       conds <- data_conds
     } else {
-      conds <- match.arg(arg = conds, choices = data_conds, several.ok = T)
+      conds <- match.arg(arg = conds, choices = data_conds, several.ok = TRUE)
     }
 
     # call the internal calc_stats function
@@ -896,7 +934,7 @@ calc_stats.drift_dm <- function(object, type, ..., conds = NULL) {
   if (is.null(drift_dm_obj$pdfs)) {
     drift_dm_obj <- re_evaluate_model(
       drift_dm_obj = drift_dm_obj,
-      eval_model = T
+      eval_model = TRUE
     )
   }
 
@@ -914,7 +952,7 @@ calc_stats.drift_dm <- function(object, type, ..., conds = NULL) {
   check_loss <- sapply(all_pdfs, function(one_set_pdfs) {
     sum_both <- sum(one_set_pdfs$pdf_u) * dt + sum(one_set_pdfs$pdf_l) * dt
     return(sum_both < .99)
-  }, simplify = T, USE.NAMES = T)
+  }, simplify = TRUE, USE.NAMES = TRUE)
   if (any(check_loss)) {
     warning(
       "calc_stats called with missing probability mass for some ",
@@ -935,7 +973,7 @@ calc_stats.drift_dm <- function(object, type, ..., conds = NULL) {
   if (is.null(conds)) {
     conds <- model_conds
   } else {
-    conds <- match.arg(arg = conds, choices = model_conds, several.ok = T)
+    conds <- match.arg(arg = conds, choices = model_conds, several.ok = TRUE)
   }
 
   # and call the underlying internal function calc_stats_pred_obs
@@ -954,7 +992,7 @@ calc_stats.drift_dm <- function(object, type, ..., conds = NULL) {
 #' @rdname calc_stats
 #' @export
 calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
-                                   average = F) {
+                                   average = FALSE) {
   fits_ids <- object
 
   if (!(verbose %in% c(0, 1))) {
@@ -977,7 +1015,7 @@ calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
   all_results <-
     lapply(names(fits_ids$all_fits), function(id) {
       stat <- calc_stats(object = fits_ids$all_fits[[id]], type = type, ...)
-      stat_id <- cbind(ID = try_cast_numeric(id), stat)
+      stat_id <- cbind(ID = try_cast_integer(id), stat)
       stat_id <- copy_class_attributes(old = stat, new = stat_id)
       if (verbose == 1) pb$tick()
       return(stat_id)
@@ -1016,7 +1054,7 @@ calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
 #' @details
 #' `new_stats_dm` sets up the `stat_df` object by assigning it the class
 #' `stats_dm`, along with additional classes based on the specified `type`.
-#' For"cafs", "quantiles", "delta_funs", this will be c(<type>, "sum_dist",
+#' For"cafs", "quantiles", "delta_funs", this will be c(`<type>`, "sum_dist",
 #' "stats_dm", "data.frame")". For fit statistics, this will be c("fit_stats",
 #' "stats_dm", "data.frame")".
 #'
@@ -1030,6 +1068,7 @@ calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
 #' @return An object of class `stats_dm`, with additional classes and attributes
 #' depending on `type`.
 #'
+#' @keywords internal
 new_stats_dm <- function(stat_df, type, ...) {
   # input checks
   stopifnot(is.data.frame(stat_df))
@@ -1097,6 +1136,7 @@ new_stats_dm <- function(stat_df, type, ...) {
 #'
 #' @return Returns the unmodified `stat_df` for convenience.
 #'
+#' @keywords internal
 validate_stats_dm <- function(stat_df) {
   UseMethod("validate_stats_dm")
 }
@@ -1235,6 +1275,7 @@ validate_stats_dm.stats_dm <- function(stat_df) {
 #' @seealso [dRiftDM::new_stats_dm], [dRiftDM::calc_stats],
 #' [dRiftDM::internal_aggregate()]
 #'
+#' @keywords internal
 aggregate_stats <- function(stat_df) {
   if (!("ID" %in% colnames(stat_df))) {
     return(stat_df)
@@ -1303,23 +1344,24 @@ aggregate_stats.fit_stats <- function(stat_df) {
 #' @seealso [dRiftDM::aggregate_stats()], [dRiftDM::calc_stats()],
 #' [dRiftDM::new_stats_dm()]
 #'
+#' @keywords internal
 internal_aggregate <- function(data, group_cols) {
   all_cols <- colnames(data)
 
-  # Select columns that start don't start with the group_cols or ID
+  # Select columns that don't start with the group_cols or ID
   dv_cols <- all_cols[!(colnames(data) %in% c("ID", group_cols))]
 
   # Aggregate by ID for those columns
   agg_df <- stats::aggregate(data[dv_cols],
     data[rev(group_cols)],
     FUN = mean,
-    na.rm = T
+    na.rm = TRUE
   )
 
   # reorder columns to have consistency with the supplied data.frame
   agg_df <- agg_df[c(group_cols, dv_cols)]
 
-  # keep class and attriubtes and pass back
+  # keep class and attributes and pass back
   agg_df <- copy_class_attributes(old = data, new = agg_df)
 
   agg_df <- validate_stats_dm(agg_df)
@@ -1336,7 +1378,8 @@ internal_aggregate <- function(data, group_cols) {
 #' This function transfers class attributes from an `old` object to a `new`
 #' object, ensuring that `new` inherits the class structure and missing
 #' attributes of `old`. The primary purpose is to enforce class consistency and
-#' restore any lost attributes when modifying or combining objects.
+#' restore any lost attributes when modifying or combining objects. It is
+#' used in the internals of the package and it is not exported.
 #'
 #' @param old The source object from which class attributes will be copied.
 #' @param new The target object to which class attributes will be assigned.
@@ -1346,7 +1389,7 @@ internal_aggregate <- function(data, group_cols) {
 #' The function assumes that all class attributes of `new` can be found in
 #' `old`. Note also, that the order of attributes is not ensured.
 #'
-#'
+#' @keywords internal
 copy_class_attributes <- function(old, new) {
   UseMethod("copy_class_attributes")
 }

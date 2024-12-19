@@ -10,7 +10,7 @@
 \usage{
 comp_funs(object, ...) <- value
 
-\method{comp_funs}{drift_dm}(object, ..., eval_model = F) <- value
+\method{comp_funs}{drift_dm}(object, ..., eval_model = FALSE) <- value
 
 comp_funs(object, ...)
 
@@ -152,6 +152,32 @@ delta on  \eqn{t = 0.3}.
 There is only a replacement function for \link{drift_dm} objects. This is
 because replacing the component functions after the model has been fitted
 (i.e., for a \code{fits_ids_dm} object) doesn't make sense.
+}
+\examples{
+# get a pre-built model for demonstration
+my_model <- ratcliff_dm()
+names(comp_funs(my_model))
+
+# direct replacement (see the pre-print/vignette for a more information on
+# how to write custom component functions)
+# 1. Choose a uniform non-decision time from the pre-built component_shelf()
+nt_uniform <- component_shelf()$nt_uniform
+# swap it in
+comp_funs(my_model)[["nt_fun"]] <- nt_uniform
+
+# now update the flex_prms object to ensure that this model has the required
+# parameters
+prms <- c(muc = 3, b = 0.6, non_dec = 0.3, range_non_dec = 0.05)
+conds <- "null"
+new_flex_prms <- flex_prms(prms, conds = conds)
+flex_prms(my_model) = new_flex_prms
+
+# accessor method also available for fits_ids_dm objects
+# (see estimate_model_ids)
+# get an exemplary fits_ids_dm object
+fits = get_example_fits_ids()
+names(comp_funs(fits))
+
 }
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}

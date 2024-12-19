@@ -88,7 +88,7 @@ test_that("snapshot for plot.drift_dm", {
 
   plot_model1 <- function() {
     plot(a_model,
-      conds = "comp", color = "green", xlim = c(0, 0.5),
+      conds = "comp", col = "green", xlim = c(0, 0.5),
       legend = "foo", legend_pos = "bottomright"
     )
   }

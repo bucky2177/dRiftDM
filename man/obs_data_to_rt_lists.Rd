@@ -15,8 +15,10 @@ obs_data_to_rt_lists(obs_data, b_coding = NULL)
 \value{
 a list of rts with entries
 \itemize{
-\item rts_u -> containing a list with names according to the values in Cond
-\item rts_l -> containing a list with names according to the values in Cond
+\item rts_u -> containing a list of numeric vectors, with names according to the
+values in Cond
+\item rts_l -> containing a list of numeric vectors, with names according to the
+values in Cond
 }
 }
 \description{
@@ -27,3 +29,4 @@ Takes a data.frame with columns RT, Cond, and \code{column} matching with
 performs checks on \code{b_coding} (\link{check_b_coding}) and
 \code{obs_data} (\link{check_raw_data}) before disassembling the data set.
 }
+\keyword{internal}

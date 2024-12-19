@@ -9,9 +9,9 @@
 \usage{
 coef(object, ...) <- value
 
-\method{coef}{drift_dm}(object, ..., eval_model = F) <- value
+\method{coef}{drift_dm}(object, ..., eval_model = FALSE) <- value
 
-\method{coef}{drift_dm}(object, ..., select_unique = T)
+\method{coef}{drift_dm}(object, ..., select_unique = TRUE)
 
 \method{coef}{fits_ids_dm}(object, ...)
 }
@@ -36,15 +36,15 @@ estimated.}
 }
 \value{
 For objects of type \link{drift_dm}, \code{coefs()} returns either a named
-numeric vector for \code{select_unique = T}, or the \code{prms_matrix} matrix for
-\code{select_unique = F}. If custom parameters exist, they are added to the
+numeric vector for \code{select_unique = TRUE}, or the \code{prms_matrix} matrix for
+\code{select_unique = FALSE}. If custom parameters exist, they are added to the
 matrix.
 
 For objects of type \code{fits_ids_dm}, \code{coefs()} returns a \link{data.frame}. If
-\code{select_unique = T}, the columns will be the (unique) parameters, together
-with a column coding \code{IDs}. If \code{select_unique = F}, the columns will be the
-parameters as listed in the columns of \code{prms_matrix} (see
-\link{drift_dm}), together with a column coding the conditions and
+\code{select_unique = TRUE}, the columns will be the (unique, free) parameters,
+together with a column coding \code{IDs}. If \code{select_unique = FALSE}, the columns
+will be the parameters as listed in the columns of \code{prms_matrix} (see
+\link{drift_dm}), together with columns coding the conditions and
 \code{IDs}. The returned \link{data.frame} has the class label \code{coefs_dm} to easily
 plot histograms for each parameter (see \link{hist.coefs_dm}).
 }
@@ -53,7 +53,7 @@ Extract or set the coefficients/parameters of \link{drift_dm} or
 \code{fits_ids_dm} objects
 }
 \details{
-\code{coef()} are methods for the generic \code{coef} function; \verb{coefs<-()}⁠ is a
+\code{coef()} are methods for the generic \code{coef} function; \verb{coefs<-()} is a
 generic replacement function, currently supporting objects of type
 \link{drift_dm}.
 
@@ -61,8 +61,17 @@ The argument \code{value} supplied to the \verb{coefs<-()} function must match w
 the vector returned from \verb{coef(<object>)}. It is possible to
 update just part of the (unique) parameters.
 
-Whenever the argument \code{select_unique = T}, dRiftDM tries to provide unique
-parameter labels.
+Whenever the argument \code{select_unique = TRUE}, dRiftDM tries to provide
+unique parameter labels.
+}
+\examples{
+# get a pre-built model and a data set for demonstration purpose
+# (when creating the model, set the discretization to reasonable values)
+a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+coef(a_model) # gives the free and unique parameters
+coef(a_model, select_unique = FALSE) # gives the entire parameter matrix
+
+
 }
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}

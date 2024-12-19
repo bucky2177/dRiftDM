@@ -21,3 +21,4 @@ is a list. Used to ensure that parameter ordering remains logical
 \details{
 The entries of the internal list are either digits (0-x) or expressions.
 }
+\keyword{internal}

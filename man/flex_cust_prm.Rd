@@ -34,3 +34,4 @@ parameter (across all conditions). The "values" contain a named list,
 with named numeric vectors (names are conditions, values the calculated
 custom parameter values)
 }
+\keyword{internal}

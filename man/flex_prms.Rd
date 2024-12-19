@@ -13,7 +13,7 @@
 \usage{
 flex_prms(object, ...) <- value
 
-\method{flex_prms}{drift_dm}(object, ..., eval_model = F) <- value
+\method{flex_prms}{drift_dm}(object, ..., eval_model = FALSE) <- value
 
 flex_prms(object, ...)
 
@@ -27,8 +27,8 @@ flex_prms(object, ...)
   x,
   ...,
   round_digits = drift_dm_default_rounding(),
-  dependencies = T,
-  cust_parameters = T
+  dependencies = TRUE,
+  cust_parameters = TRUE
 )
 }
 \arguments{
@@ -107,6 +107,12 @@ The \code{flex_prms} object stored within an object of type \link{drift_dm}
 can be replaced by calling the generic \verb{flex_prms<-} replacement function. In
 this case, the modified \link{drift_dm} object is returned.
 }
+
+\subsection{Printing an object of type \code{flex_prms}}{
+
+The \code{print.flex_prms()} method invisibly returns the supplied \code{flex_prms}
+object.
+}
 }
 \description{
 Functions for creating, accessing replacing, or printing a \code{flex_prms} object.
@@ -133,13 +139,43 @@ because replacing the solver settings after the model has been fitted (i.e.,
 for a \code{fits_ids_dm} object) doesn't make sense.
 }
 \examples{
-conds <- c("foo", "bar")
-prms <- c(a = 3, b = 4)
-one_instr <- "a ~ foo + bar"
-flex_prms_obj <- flex_prms(prms,
+# Create a flex_prms object -----------------------------------------------
+conds <- c("one", "two")
+prms <- c(muc = 3, b = 0.5)
+one_instr <- "muc ~ one + two"
+flex_prms_obj <- flex_prms(
+  prms,
   conds = conds,
   instr = one_instr
 )
+print(flex_prms_obj)
+
+
+# Access a flex_prms object of a model ------------------------------------
+my_model <- ratcliff_dm() # the Ratcliff DDM comes with dRiftDM
+print(flex_prms(my_model))
+
+
+# Replace the flex_prms object of a model ---------------------------------
+# create a new flex_prms object
+conds <- c("one", "two")
+prms <- c(muc = 3, b = 0.6, non_dec = 0.3)
+new_flex_prms_obj <- flex_prms(
+  prms,
+  conds = conds
+)
+
+flex_prms(my_model) <- new_flex_prms_obj
+
+# acess the new flex_prms object
+print(flex_prms(my_model))
+
+
+# Control the print method -------------------------------------------------
+dmc_model <- dmc_dm() # another, more complex, model; comes with dRiftDM
+print(flex_prms(dmc_model), round_digits = 1, cust_parameters = FALSE)
+
+
 
 }
 \seealso{

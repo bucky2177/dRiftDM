@@ -24,3 +24,4 @@ each element of the vector.
 \description{
 Constant Drift Rate
 }
+\keyword{internal}

@@ -34,6 +34,9 @@ conditions.}
 \item{legend_pos}{character, specifying the position of the legend on the
 plot (e.g., \code{"topright"}).}
 }
+\value{
+Nothing (\code{NULL}; invisibly)
+}
 \description{
 This function generates plots for all components of a drift diffusion model
 (DDM), such as drift rate, boundary, and starting condition. Each component
@@ -57,4 +60,18 @@ plotted using different colors as specified in \code{color}.
 
 When the evaluation of a model component fails, the respective component
 will not be plotted, but no warning is ushered.
+}
+\examples{
+# plot the component functions of the Ratcliff DDM
+plot(ratcliff_dm())
+plot(ratcliff_dm(var_non_dec = TRUE))
+# Note: the variability in the drift rate for the Ratcliff DDM
+# is not plotted! This is because it is not actually stored as a component
+# function.
+
+# plot the component functions of the DMC model
+plot(dmc_dm(), col = c("green", "red"))
+
+
+
 }

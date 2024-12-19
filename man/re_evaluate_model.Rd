@@ -4,7 +4,7 @@
 \alias{re_evaluate_model}
 \title{Re-evaluate the model}
 \usage{
-re_evaluate_model(drift_dm_obj, eval_model = T)
+re_evaluate_model(drift_dm_obj, eval_model = TRUE)
 }
 \arguments{
 \item{drift_dm_obj}{an object of type \link{drift_dm}}
@@ -32,6 +32,24 @@ log-likelihood is also updated.
 More in-depth information about the mathematical details for
 deriving the PDFs can be found in
 \insertCite{Richteretal.2023;textual}{dRiftDM}
+}
+\examples{
+# choose a pre-built model (e.g., the Ratcliff model)
+# and set the discretization as needed
+my_model <- ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
+
+# then calculate the model's predicted PDF
+my_model <- re_evaluate_model(my_model)
+str(my_model$pdfs) # show the structure of the attached pdfs
+
+# if you want the log_likelihood, make sure some data is attached to the
+# model (see also the documentation of obs_data())
+obs_data(my_model) <- ratcliff_synth_data # this data set comes with dRiftDM
+my_model <- re_evaluate_model(my_model)
+str(my_model$pdfs)
+print(my_model$log_like_val)
+
+
 }
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}

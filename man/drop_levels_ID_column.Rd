@@ -21,3 +21,4 @@ This function takes a data frame with an ID colmumn, and drops the unused
 levels from the ID column if it is factor; in this case a warning is
 ushered
 }
+\keyword{internal}

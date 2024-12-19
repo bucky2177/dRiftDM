@@ -75,8 +75,9 @@ back to the respective default function, which are document in
 \code{\link[=print.drift_dm]{print.drift_dm()}}. Default is \code{3}.}
 }
 \value{
-A list with the parent class label \code{"drift_dm"} and the child class
-label \verb{<subclass>}. The list contains the following entries:
+For \code{drift_dm()}, a list with the parent class label \code{"drift_dm"}
+and the child class label \verb{<subclass>}. The list contains the following
+entries:
 \itemize{
 \item An instance of the class \link{flex_prms} for controlling the model
 parameters. Provides information about the number of parameters, conditions
@@ -109,6 +110,8 @@ list will additionally contain...
 
 Every model also has the attribute \link{b_coding}, which summarizes how
 the boundaries are labeled.
+
+For \code{print.drift_dm()}, the supplied \code{drift_dm} object \code{x} (invisible return).
 }
 \description{
 This function creates an object of type drift_dm, which serves as the parent
@@ -125,6 +128,19 @@ To modify the entries of a model users can use the replacement methods and
 the \code{\link[=modify_flex_prms]{modify_flex_prms()}} method . See
 \code{vignette("use_ddm_models", "dRiftDM")} and
 \code{vignette("use_ddm_models", "dRiftDM")} for more information.
+}
+\examples{
+# Plain call, with default component functions -----------------------------
+# create parameter and condition vectors
+prms <- c(muc = 4, b = 0.5)
+conds <- c("one", "two")
+
+# then call the backbone function (note that we don't provide any component
+# functions, so dRiftDM uses the default functions as documented in
+# comp_funs())
+my_model = drift_dm(prms_model = prms, conds = conds, subclass = "example")
+print(my_model)
+
 }
 \seealso{
 \code{\link[=conds]{conds()}}, \code{\link[=flex_prms]{flex_prms()}}, \code{\link[=prms_solve]{prms_solve()}},

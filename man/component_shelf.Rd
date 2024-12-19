@@ -6,9 +6,16 @@
 \usage{
 component_shelf()
 }
+\value{
+A list of the respective functions; each entry/function can be accessed by
+"name" (see the Example and Details).
+}
 \description{
 This function is meant as a convenient way to access pre-built
-model component functions. It returns a list of the following functions.
+model component functions.
+}
+\details{
+The function provides the following functions:
 \itemize{
 \item \code{mu_constant}, provides the component function for a constant
 drift rate with parameter \code{muc}.
@@ -55,8 +62,12 @@ a normally distributed non-decision time with parameters \code{non_dec},
 \code{mu_int_fun} but which throws an error. Might come in handy when a user
 doesn't require the integral of the drift rate.
 }
-}
-\details{
+
 See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
 to set/modify/customize the components of a diffusion model.
+}
+\examples{
+pre_built_functions = component_shelf()
+names(pre_built_functions)
+
 }

@@ -7,7 +7,7 @@
 \method{hist}{coefs_dm}(
   x,
   ...,
-  separate_plots = T,
+  separate_plots = TRUE,
   alpha = 0.5,
   main = NULL,
   colors = NULL,
@@ -36,14 +36,30 @@ If \code{NULL} and no conditions are present, the default color is \code{"skyblu
 
 \item{xlab}{character, specifying the label for the x-axis.}
 }
+\value{
+Nothing (\code{NULL}; invisibly)
+}
 \description{
 This function creates a histogram for each parameter in a \code{coefs_dm} object,
 resulting from a call to \link{coef.fits_ids_dm}.
 }
 \details{
 The \code{hist.coefs_dm} function is designed for visualizing parameter
-distributions for a single fit procedure. If multiple conditions are present,
-it overlays histograms for each condition with adjustable transparency. When
-\code{separate_plots} is set to \code{TRUE}, histograms for each parameter are
+distributions for a single fit procedure.
+
+If multiple conditions are present, it overlays histograms for each condition
+with adjustable transparency.
+
+When \code{separate_plots} is set to \code{TRUE}, histograms for each parameter are
 displayed in a grid layout within a single graphics device.
+}
+\examples{
+# get an auxiliary fit procedure result (see the function load_fits_ids)
+all_fits = get_example_fits_ids()
+hist(coef(all_fits)) # only three participants in this fit_ids object
+
+# allows for some customization
+hist(coef(all_fits), colors = "lightgreen")
+
+
 }

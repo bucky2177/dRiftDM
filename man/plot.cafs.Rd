@@ -51,17 +51,46 @@ the conditions in the CAFs. Defaults to the condition names.}
 \item{legend_pos}{character, specifying the position of the legend on the
 plot.}
 }
+\value{
+Nothing (\code{NULL}; invisibly)
+}
 \description{
 This function generates a plot of Conditional Accuracy Functions (CAFs). It
 can display observed and predicted values, making it useful for assessing
 model fit or exploring observed data.
-
-If the data contains multiple IDs, CAFs are aggregated across IDs before
-plotting.
 }
 \details{
 The \code{plot.cafs} function allows for a quick investigation of CAFs, including
 options for color, symbols, and line types for different data sources
 (observed vs. predicted). When the supplied \link{data.frame} includes multiple
 IDs, CAFs are aggregated across IDs before plotting.
+}
+\examples{
+# Example 1: Only model predictions ---------------------------------------
+# get a cafs data.frame for demonstration purpose
+a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+cafs <- calc_stats(a_model, type = "cafs")
+
+# call the plot function with default values
+plot(cafs)
+
+# make the plot a little bit more pretty
+plot(cafs,
+  col = c("green", "red"),
+  ylim = c(0.5, 1)
+)
+
+# Example 2: Model predictions and observed data --------------------------
+obs_data(a_model) <- dmc_synth_data
+cafs <- calc_stats(a_model, type = "cafs")
+plot(cafs)
+# Note: The model was not fitted to the data set, thus observed data and
+# model predictions don't match
+
+
+# Example 3: Only observed data -------------------------------------------
+cafs <- calc_stats(dmc_synth_data, type = "cafs")
+plot(cafs)
+
+
 }

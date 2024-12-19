@@ -21,9 +21,11 @@ The modified \code{new} object with attributes and class from \code{old}.
 This function transfers class attributes from an \code{old} object to a \code{new}
 object, ensuring that \code{new} inherits the class structure and missing
 attributes of \code{old}. The primary purpose is to enforce class consistency and
-restore any lost attributes when modifying or combining objects.
+restore any lost attributes when modifying or combining objects. It is
+used in the internals of the package and it is not exported.
 }
 \details{
 The function assumes that all class attributes of \code{new} can be found in
 \code{old}. Note also, that the order of attributes is not ensured.
 }
+\keyword{internal}

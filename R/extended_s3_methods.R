@@ -23,6 +23,18 @@
 #'
 #' @importFrom stats nobs
 #'
+#' @examples
+#' # get a pre-built model and data set for demonstration purpose
+#' a_model <- dmc_dm()
+#' obs_data(a_model) <- dmc_synth_data
+#'
+#' # then get the number of observations by accessing the model
+#' nobs(a_model)
+#'
+#' # same number of observations as in the original data set
+#' nrow(dmc_synth_data)
+#'
+#'
 #' @export
 nobs.drift_dm <- function(object, ...) {
   return(sum(sapply(object$obs_data, lengths)))
@@ -41,9 +53,19 @@ nobs.drift_dm <- function(object, ...) {
 #' [dRiftDM::drift_dm] object. This value has attributes for the number of
 #' observations (`nobs`) and the number of model parameters (`df`).
 #'
-#' Returns `NULL` if the observed data is not available.
+#' Returns `NULL` if observed data is not available.
 #'
 #' @importFrom stats logLik
+#'
+#' @examples
+#' # get a pre-built model and a data set for demonstration purpose
+#' # (when creating the model, set the discretization to reasonable values)
+#' a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+#' obs_data(a_model) <- dmc_synth_data
+#'
+#' # calculate the log-likelihood
+#' logLik(a_model)
+#'
 #'
 #' @export
 logLik.drift_dm <- function(object, ...) {
@@ -87,7 +109,7 @@ logLik.drift_dm <- function(object, ...) {
 #' parameters. Must match with the number of (unique and free) parameters.
 #'
 #' @details
-#' `coef()` are methods for the generic `coef` function; `coefs<-()`⁠ is a
+#' `coef()` are methods for the generic `coef` function; `coefs<-()` is a
 #'  generic replacement function, currently supporting objects of type
 #'  [dRiftDM::drift_dm].
 #'
@@ -95,20 +117,20 @@ logLik.drift_dm <- function(object, ...) {
 #'  the vector returned from `coef(<object>)`. It is possible to
 #'  update just part of the (unique) parameters.
 #'
-#'  Whenever the argument `select_unique = T`, dRiftDM tries to provide unique
-#'  parameter labels.
+#'  Whenever the argument `select_unique = TRUE`, dRiftDM tries to provide
+#'  unique parameter labels.
 #'
 #' @returns
 #'  For objects of type [dRiftDM::drift_dm], `coefs()` returns either a named
-#'  numeric vector for `select_unique = T`, or the `prms_matrix` matrix for
-#'  `select_unique = F`. If custom parameters exist, they are added to the
+#'  numeric vector for `select_unique = TRUE`, or the `prms_matrix` matrix for
+#'  `select_unique = FALSE`. If custom parameters exist, they are added to the
 #'  matrix.
 #'
 #'  For objects of type `fits_ids_dm`, `coefs()` returns a [data.frame]. If
-#'  `select_unique = T`, the columns will be the (unique) parameters, together
-#'  with a column coding `IDs`. If `select_unique = F`, the columns will be the
-#'  parameters as listed in the columns of `prms_matrix` (see
-#'  [dRiftDM::drift_dm]), together with a column coding the conditions and
+#'  `select_unique = TRUE`, the columns will be the (unique, free) parameters,
+#'  together with a column coding `IDs`. If `select_unique = FALSE`, the columns
+#'  will be the parameters as listed in the columns of `prms_matrix` (see
+#'  [dRiftDM::drift_dm]), together with columns coding the conditions and
 #'  `IDs`. The returned [data.frame] has the class label `coefs_dm` to easily
 #'  plot histograms for each parameter (see [dRiftDM::hist.coefs_dm]).
 #'
@@ -116,8 +138,16 @@ logLik.drift_dm <- function(object, ...) {
 #'
 #' @importFrom stats coef
 #'
+#' @examples
+#' # get a pre-built model and a data set for demonstration purpose
+#' # (when creating the model, set the discretization to reasonable values)
+#' a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+#' coef(a_model) # gives the free and unique parameters
+#' coef(a_model, select_unique = FALSE) # gives the entire parameter matrix
+#'
+#'
 #' @export
-coef.drift_dm <- function(object, ..., select_unique = T) {
+coef.drift_dm <- function(object, ..., select_unique = TRUE) {
   # if unique, get labels for prm cond combos, extract the respective
   # values from the parameter matrix, and simplify parameter.cond labels
   # if cond is the same
@@ -157,14 +187,36 @@ coef.drift_dm <- function(object, ..., select_unique = T) {
 #' Defaults to 2 (standard AIC).
 #' @param ... additional arguments
 #'
-#' @return A data frame containing the specified  statistic (`Log_Like`, `AIC`,
-#' or `BIC`) and corresponding `ID`.
+#' @return A data.frame containing the respective statistic in one column (named
+#' `Log_Like`, `AIC`, or `BIC`) and a corresponding `ID` column.
 #'
 #' @details
 #'
 #' Each function retrieves the relevant statistics by calling
 #'  [dRiftDM::calc_stats] with `type = "fit_stats"` and selects the columns
 #'  for `ID` and the required statistic.
+#'
+#'
+#' @examples
+#' # get an auxiliary fits_ids object for demonstration purpose;
+#' # such an object results from calling load_fits_ids
+#' all_fits <- get_example_fits_ids()
+#'
+#' # AICs
+#' AIC(all_fits)
+#'
+#' # BICs
+#' BIC(all_fits)
+#'
+#' # Log-Likelihoods
+#' logLik(all_fits)
+#'
+#' # All unique and free parameters
+#' coef(all_fits)
+#'
+#' # Or all parameters across all conditions
+#' coef(all_fits, select_unique = FALSE)
+#'
 #'
 #' @seealso [stats::AIC()], [stats::BIC()], [dRiftDM::logLik.drift_dm]
 #'
@@ -210,7 +262,7 @@ coef.fits_ids_dm <- function(object, ...) {
   })
   all_coefs <- do.call("rbind", all_coefs)
   rownames(all_coefs) <- NULL
-  all_coefs$ID <- try_cast_numeric(all_coefs$ID)
+  all_coefs$ID <- try_cast_integer(all_coefs$ID)
   all_coefs <- all_coefs[order(all_coefs$ID), ]
   rownames(all_coefs) <- NULL
   class(all_coefs) <- c("coefs_dm", "data.frame")
@@ -221,26 +273,27 @@ coef.fits_ids_dm <- function(object, ...) {
 
 # HELPER FUNCTION ---------------------------------------------------------
 
-#' Convert Digit to Digits Numeric
+#' Convert Character Digits to Numeric Digits
 #'
-#' This internal function casts a character vector to numeric, if the character
+#' This internal function casts a character vector to integer, if the character
 #' vector only contains digits for entries. If the input vector is not of
 #' type character or if any entry contains a non-digit, then the vector is
 #' returned unmodified.
 #'
-#' @param values a vector of values to attempt conversion to numeric.
-#' @return a numeric vector if conversion succeeds; otherwise, the original
-#' vector is returned.
+#' @param values a vector of values to attempt conversion to integer.
+#' @return an integer vector if conversion succeeds; otherwise, the original
+#' vector.
 #'
-try_cast_numeric <- function(values) {
+#' @keywords internal
+try_cast_integer <- function(values) {
 
   if (!is.character(values)) return(values)
 
   checks = !grepl("\\D", values) # check each entry if only digits exist
 
-  # if each entry only contains digits, then cast to numeric
+  # if each entry only contains digits, then cast to digit
   if (all(checks)) {
-    values = as.numeric(values)
+    values = as.integer(values)
   }
 
   return(values)

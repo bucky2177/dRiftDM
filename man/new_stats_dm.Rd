@@ -28,7 +28,7 @@ store necessary attributes for the custom methods (such as \verb{plot_*})
 \details{
 \code{new_stats_dm} sets up the \code{stat_df} object by assigning it the class
 \code{stats_dm}, along with additional classes based on the specified \code{type}.
-For"cafs", "quantiles", "delta_funs", this will be c(\if{html}{\out{<type>}}, "sum_dist",
+For"cafs", "quantiles", "delta_funs", this will be c(\verb{<type>}, "sum_dist",
 "stats_dm", "data.frame")". For fit statistics, this will be c("fit_stats",
 "stats_dm", "data.frame")".
 
@@ -39,3 +39,4 @@ details and is set as an attribute.
 The function performs validation through \link{validate_stats_dm} to
 ensure that the \code{stats_dm} object is well formatted.
 }
+\keyword{internal}

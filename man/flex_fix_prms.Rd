@@ -13,7 +13,7 @@ flex_fix_prms(flex_prms_obj, formula_instr)
 (see \link{modify_flex_prms})}
 }
 \value{
-a modified flex_prms_obj with respect to the linear internal list
+a modified flex_prms_obj with respect to the (linear) internal list
 }
 \description{
 This function modifies the (linear) internal list and sets the desired
@@ -21,3 +21,4 @@ parameters (based on the instruction string) to 0. This indicates that
 this parameter is not altered within the function x2prms_vals
 (i.e., ' prm <!> conda')
 }
+\keyword{internal}

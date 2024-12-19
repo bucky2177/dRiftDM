@@ -38,6 +38,10 @@ constant and discretization (see \link{drift_dm})}
 \item{b_coding}{list, an optional list with the boundary encoding (see
 \link{b_coding})}
 }
+\value{
+An object of type \code{drift_dm} (parent class) and \code{ratcliff_dm} (child class),
+created by the function \code{\link[=drift_dm]{drift_dm()}}.
+}
 \description{
 This function creates a \link{drift_dm} model that corresponds to the
 basic Ratcliff Diffusion Model
@@ -54,6 +58,21 @@ a constant drift rate is assumed, otherwise a normally distributed drift rate
 with mean \code{mu_c} and standard deviation \code{sd_muc} (can be computationally
 intensive). Important: Variable drift rate is only possible with dRiftDM's
 \code{mu_constant} function. No custom drift rate is yet possible in this case.
+}
+\examples{
+# the model with default settings
+my_model <- ratcliff_dm()
+
+# the model with a variable non-decision time and with a more coarse
+# discretization
+my_model <- ratcliff_dm(
+  var_non_dec = TRUE,
+  t_max = 1.5,
+  dx = .005,
+  dt = .005
+)
+
+
 }
 \seealso{
 \code{\link[=component_shelf]{component_shelf()}}, \code{\link[=drift_dm]{drift_dm()}}

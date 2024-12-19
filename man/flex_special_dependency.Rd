@@ -14,8 +14,10 @@ flex_special_dependency(flex_prms_obj, formula_instr)
 }
 \value{
 a modified flex_prms_object with a modified (linear) internal list
+and modified parameter and custom parameter matrices
 }
 \description{
 Sets special dependencies so that parameters depend on other parameters.
 (i.e., 'prmX ~ conda == -(prmY ~ condb)')
 }
+\keyword{internal}

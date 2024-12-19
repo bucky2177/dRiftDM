@@ -4,7 +4,7 @@
 \alias{get_lower_upper_smart}
 \title{Turn default/special upper and lower arguments to vectors}
 \usage{
-get_lower_upper_smart(drift_dm_obj, lower, upper, labels = T)
+get_lower_upper_smart(drift_dm_obj, lower, upper, labels = TRUE)
 }
 \arguments{
 \item{drift_dm_obj}{an object of type drift_dm}
@@ -17,7 +17,7 @@ the unique parameter labels according to \link{prm_cond_combo_2_labels}.}
 \value{
 a list with two vectors named \code{lower/upper} that describe the search
 space. The length and names (if requested) matches with
-coef(model, select_unique = T).
+coef(model, select_unique = TRUE).
 }
 \description{
 The function is used in the depths of the package to get the search space as
@@ -37,3 +37,4 @@ model and the \code{upper}/\code{lower} arguments. Subsequently, the created mat
 are wrangled into vectors in accordance with \link{prms_cond_combo}. The
 vectors are then passed back.
 }
+\keyword{internal}

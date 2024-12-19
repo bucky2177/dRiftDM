@@ -28,3 +28,4 @@ named value of type character or numeric, and that both are of the same
 type
 }
 }
+\keyword{internal}

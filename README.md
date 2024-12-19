@@ -3,6 +3,7 @@
 
 [![Codecov test
 coverage](https://codecov.io/gh/bucky2177/dRiftDM/graph/badge.svg)](https://app.codecov.io/gh/bucky2177/dRiftDM)
+[![R-CMD-check](https://github.com/bucky2177/dRiftDM/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bucky2177/dRiftDM/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 # dRiftDM <img src="man/figures/logo.png" align="right" height="138" alt="" />
@@ -30,7 +31,8 @@ machinery for estimating them.
 Starting with version 0.2.0, model predictions (i.e., first-passage
 times) are derived by numerically solving the Kolmogorov-Forward
 Equation or a coupled set of integral equations, based on code provided
-by Richter et al. (2023, Journal of Mathematical Psychology).
+by [Richter et al.](https://doi.org/10.1016/j.jmp.2023.102756) (2023,
+Journal of Mathematical Psychology).
 
 ## Notes
 
@@ -53,6 +55,12 @@ You can install the development version of dRiftDM from
 ``` r
 # install.packages("devtools")
 devtools::install_github("bucky2177/dRiftDM")
+```
+
+The [CRAN](https://cran.r-project.org/) version can be installed with:
+
+``` r
+install.packages("dRiftDM")
 ```
 
 ## Example

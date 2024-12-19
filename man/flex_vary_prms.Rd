@@ -21,3 +21,4 @@ that refers to a "vary" instruction (i.e., ab ~ cd + ds). This string
 is broken down and unique parameters are introduced for the condition x
 parameter combinations
 }
+\keyword{internal}

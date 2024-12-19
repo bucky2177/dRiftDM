@@ -62,6 +62,9 @@ the conditions in the traces. Defaults to the condition names.}
 \item{legend_pos}{character, specifying the position of the legend on the
 plot.}
 }
+\value{
+Nothing (\code{NULL}; invisibly)
+}
 \description{
 Creates a basic plot showing simulated traces (simulated evidence
 accumulation processes) from a drift diffusion model. Such plots are useful
@@ -78,6 +81,38 @@ condition)
 Boundaries and traces are color-coded according to \code{col} and \code{col_b}. The
 function automatically generates the upper and lower boundaries based on
 the information stored within \code{x}.
+}
+\examples{
+# get a couple of traces for demonstration purpose
+a_model <- dmc_dm()
+some_traces <- simulate_traces(a_model, k = 3)
+
+# Plots for traces_dm_list objects ----------------------------------------
+# basic plot
+plot(some_traces)
+
+# a slightly more beautiful plot :)
+plot(some_traces,
+  col = c("green", "red"),
+  xlim = c(0, 0.35),
+  xlab = "Time [s]",
+  ylab = bquote(Realizations ~ of ~ X[t]),
+  legend_pos = "bottomright"
+)
+
+# Plots for traces_dm objects ---------------------------------------------
+# we can also extract a single set of traces and plot them
+one_set_traces = some_traces$comp
+plot(one_set_traces)
+
+# modifications to the plot generally work in the same way
+plot(one_set_traces,
+  col = "green",
+  xlim = c(0, 0.35),
+  xlab = "Time [s]",
+  ylab = bquote(Realizations ~ of ~ X[t])
+)
+
 }
 \seealso{
 \link{simulate_traces}

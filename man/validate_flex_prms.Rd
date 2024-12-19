@@ -19,3 +19,4 @@ the unmodified flex_prms_obj object; only stop/warning statements
 \item checks the parameter matrix
 }
 }
+\keyword{internal}

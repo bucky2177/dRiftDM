@@ -26,6 +26,10 @@ b_coding(object, ...)
 
 \item{value}{a named list, specifying how boundaries are coded (see Details).}
 }
+\value{
+For \code{b_coding()} a list containing the boundary coding
+For \verb{b_coding<-()} the updated \code{drift_dm} or \code{fits_ids_dm} object
+}
 \description{
 Functions to get or set the "boundary coding" of an object.
 }
@@ -62,6 +66,21 @@ statistics (see \link{calc_stats}).
 
 When calling \verb{b_coding<-()} with \code{value = NULL}, the default "accuracy"
 coding is evoked
+}
+\examples{
+# show the default accuracy coding of dRiftDM
+my_model = ratcliff_dm() # get a pre-built model
+b_coding(my_model)
+
+# can be modified/replaced
+b_coding(my_model)[["column"]] = "Response"
+
+# accessor method also available for fits_ids_dm objects
+# get an exemplary fits_ids_dm object (see estimate_model_ids)
+fits = get_example_fits_ids()
+names(b_coding(fits))
+
+
 }
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}

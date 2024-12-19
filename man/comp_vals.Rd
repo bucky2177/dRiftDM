@@ -37,7 +37,7 @@ evaluated}
 If solver "kfe", a named list with entries "mu_vals", "x_vals", "b_vals",
 "dt_b_vals", "nt_vals".
 
-If solver "im_*", the returned list will also contain "mu_int_vals".
+If solver "im_zero", the returned list will also contain "mu_int_vals".
 }
 \description{
 Gets/calculates all values provided by the component functions of a
@@ -47,3 +47,4 @@ Gets/calculates all values provided by the component functions of a
 arguments are optional, because they can be extracted from the model.
 However, supplying these are faster than creating them.
 }
+\keyword{internal}

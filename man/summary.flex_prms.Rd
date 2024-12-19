@@ -11,8 +11,8 @@
   x,
   ...,
   round_digits = drift_dm_default_rounding(),
-  dependencies = T,
-  cust_parameters = T
+  dependencies = TRUE,
+  cust_parameters = TRUE
 )
 }
 \arguments{
@@ -35,11 +35,17 @@ instruction" in the details of \link{flex_prms})}
 parameters shall be printed (see the "additional/custom parameter
 instruction" in the details of \link{flex_prms})}
 }
+\value{
+\code{summary.flex_prms()} returns a list of class \code{summary.flex_prms} (see the
+Details section summarizing each entry of this list).
+
+\code{print.summary.flex_prms()} returns invisibly the \code{summary.flex_prms} object.
+}
 \description{
 summary method for class "flex_prms".
 }
 \details{
-The \code{summary.flex_prms} function creates a summary object containing:
+The \code{summary.flex_prms()} function creates a summary object containing:
 \itemize{
 \item \strong{prms_matrix}: All parameter values across all conditions.
 \item \strong{unique_matrix}: A character matrix, showing how parameters relate across
@@ -49,6 +55,19 @@ conditions.
 parameters.
 }
 
-The \code{print.summary.flex_prms} function displays the summary object in a
+The \code{print.summary.flex_prms()} function displays the summary object in a
 formatted manner.
+}
+\examples{
+# create a flex_prms object
+flex_obj <- flex_prms(c(a = 1, b = 2), conds = c("foo", "bar"))
+
+sum_obj <- summary(flex_obj)
+print(sum_obj)
+
+# the print function for the summary object is identical to the print
+# function of the flex_prms object
+print(flex_obj)
+
+
 }

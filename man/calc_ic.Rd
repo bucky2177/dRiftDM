@@ -33,3 +33,4 @@ The functions calls \link{logLik.drift_dm}, and subsequently
 \seealso{
 \code{\link[=new_stats_dm]{new_stats_dm()}}, \link{logLik.drift_dm}
 }
+\keyword{internal}

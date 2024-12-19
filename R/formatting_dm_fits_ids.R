@@ -70,11 +70,12 @@ print.summary.fits_ids_dm <- function(x, ...,
 #'
 #' @details
 #' The `summary.fits_ids_dm` function creates a summary object containing:
-#' - **prms**: All parameter values across all conditions.
 #' - **fit_procedure_name**: The name of the fit procedure used.
 #' - **time_call**: Timestamp of the last fit procedure call.
 #' - **lower** and **upper**: Lower and upper bounds of the search space.
 #' - **model_type**: Description of the model type, based on class information.
+#' - **prms**: All parameter values across all conditions (essentially a call
+#'   to coef() with the argument select_unique = FALSE).
 #' - **stats**: A named list of matrices for each condition, including mean and
 #'   standard error for each parameter.
 #' - **N**: The number of individuals.
@@ -83,7 +84,19 @@ print.summary.fits_ids_dm <- function(x, ...,
 #' formatted manner.
 #'
 #' @return
-#' `summary.fits_ids_dm` returns a list of class `summary.fits_ids_dm`.
+#' `summary.fits_ids_dm()` returns a list of class `summary.fits_ids_dm` (see
+#' the Details section summarizing each entry of this list).
+#'
+#' `print.summary.fits_ids_dm()` returns invisibly the `summary.fits_ids_dm`
+#'  object.
+#'
+#' @examples
+#' # get an auxiliary object of type fits_ids_dm for demonstration purpose
+#' all_fits <- get_example_fits_ids()
+#' sum_obj <- summary(all_fits)
+#' print(sum_obj, round_digits = 2)
+#'
+#'
 #'
 #' @export
 summary.fits_ids_dm <- function(object, ...) {
@@ -103,7 +116,7 @@ summary.fits_ids_dm <- function(object, ...) {
     class(fits_ids$drift_dm_fit_info$drift_dm_obj),
     collapse = ", "
   )
-  all_prms <- coef(fits_ids, select_unique = F)
+  all_prms <- coef(fits_ids, select_unique = FALSE)
   ans$prms <- all_prms
   prm_names <- colnames(all_prms)[!(colnames(all_prms) %in% c("ID", "Cond"))]
   means <- stats::aggregate(all_prms[prm_names], by = all_prms["Cond"], mean)
@@ -117,7 +130,7 @@ summary.fits_ids_dm <- function(object, ...) {
     matrix <- rbind(mean, std_err)
     rownames(matrix) <- c("mean", "std_err")
     return(matrix)
-  }, simplify = F, USE.NAMES = T)
+  }, simplify = FALSE, USE.NAMES = TRUE)
   ans$N <- length(fits_ids$all_fits)
 
   class(ans) <- "summary.fits_ids_dm"

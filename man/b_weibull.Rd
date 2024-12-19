@@ -31,3 +31,4 @@ Provides the boundary, collapsing in accordance with a Weibull function
 \code{b_weibull} and \code{dt_b_weibull} provide the plain boundary values and the
 respective derivative, respectively.
 }
+\keyword{internal}

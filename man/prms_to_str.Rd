@@ -29,3 +29,4 @@ Converts parameter values into a formatted string.
 \code{\link[=coef.drift_dm]{coef.drift_dm()}}, as the numeric
 vector provided by this call is used when \code{x} is of type \link{drift_dm}
 }
+\keyword{internal}

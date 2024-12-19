@@ -3,14 +3,14 @@
 using namespace Rcpp;
 
 // this function is a C++ version of the kfe function provided by
-// Richter, Ulrich, Janczyk (2023) Journal of Mathematica Modeling
+// Richter, Ulrich, Janczyk (2023) Journal of Mathematical Psychology
 // [[Rcpp::export]]
 int cpp_kfe(NumericVector& pdf_u,
              NumericVector& pdf_l,
              NumericVector& xx,
-             const int nt, 
+             const int nt,
              const int nx,
-             const double dt, 
+             const double dt,
              const double dx,
              const double sigma,
              const NumericVector& b_vals,
@@ -42,7 +42,7 @@ int cpp_kfe(NumericVector& pdf_u,
   if (x_vec.size() != nx+1) {
     Rcerr << "x_vec has wrong size!" << std::endl; return -1;
   }
-  
+
   NumericVector f(nx+1, 0.);  // storing the solution
   NumericVector mu_old(nx+1, 0.);
   NumericVector mu_new(nx+1, 0.);

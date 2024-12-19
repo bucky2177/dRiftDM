@@ -31,3 +31,4 @@ Provides the boundary, collapsing as a hyperbolic ratio function.
 \code{b_hyperbol} and \code{dt_b_hyperbol} provide the plain boundary values and the
 respective derivative, respectively.
 }
+\keyword{internal}

@@ -9,8 +9,8 @@
 load_fits_ids(
   path = "drift_dm_fits",
   fit_procedure_name = "",
-  detailed_info = F,
-  check_data = T,
+  detailed_info = FALSE,
+  check_data = TRUE,
   progress = 2
 )
 
@@ -41,8 +41,8 @@ is shown. If 2, multiple progressbars are shown. Default is 2.}
 \item{...}{additional arguments}
 }
 \value{
-An object of type \code{fits_ids_dm} which essentially is a list with two
-entries:
+For \code{load_fits_ids()}, an object of type \code{fits_ids_dm}, which essentially is
+a list with two entries:
 \itemize{
 \item \code{drift_dm_fit_info}, containing a list of the main arguments when
 \link{estimate_model_ids} was originally called, including
@@ -51,6 +51,9 @@ a time-stamp.
 objects. The list's entry are named according to the individuals'
 identifier (i.e., \code{ID}).
 }
+
+For \code{print.fits_ids_dm()}, the supplied \code{fit_ids_dm} object \code{x} (invisible
+return).
 }
 \description{
 This function loads the results of a fit procedure where a model was fitted
@@ -80,6 +83,21 @@ by the user. The amount of displayed information is controlled via
 The \code{print()} method for objects of type \code{fits_ids_dm} prints out basic
 information about the fit procedure name, the fitted model, time of (last)
 call, and the number of individual data sets.
+}
+\examples{
+# We don't run the example on CRAN, because this would require to first
+# run estimate_model_ids(). Yet, if users run the example code for
+# estimate_model_ids(), the following code works.
+\dontrun{
+all_fits = load_fits_ids(fit_procedure_name = "example_flanker")
+}
+
+# to get familiar with objects of type fits_ids_dm, we can also run this
+# auxiliary function
+all_fits <- get_example_fits_ids()
+print(all_fits)
+summary(all_fits)
+
 }
 \seealso{
 \code{\link[=estimate_model_ids]{estimate_model_ids()}}

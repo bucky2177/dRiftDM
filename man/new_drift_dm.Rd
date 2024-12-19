@@ -43,3 +43,4 @@ arguments. Pre-wrangling of each argument is done in \code{\link[=drift_dm]{drif
 Checks are done done with \code{\link[=validate_drift_dm]{validate_drift_dm()}}, called in
 \code{\link[=drift_dm]{drift_dm()}}.
 }
+\keyword{internal}

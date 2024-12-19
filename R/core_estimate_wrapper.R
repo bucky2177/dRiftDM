@@ -44,10 +44,10 @@
 #'  `use_de_optim = FALSE`; see [dRiftDM::estimate_model]). The data.frame
 #'  must provide a column `ID` whose entries match the `ID` column
 #'  in `obs_data_ids`, as well as a column for each parameter of the model
-#'  matching with `coef(drift_dm_obj, select_unique = T)`.
+#'  matching with `coef(drift_dm_obj, select_unique = TRUE)`.
 #' @param ... additional arguments passed down to [dRiftDM::estimate_model].
 #'
-#' @returns nothing (NULL)
+#' @returns nothing (`NULL`; invisibly)
 #'
 #' @details
 #' Examples and more information can be found here
@@ -67,6 +67,45 @@
 #'  the identifier `fit_procedure_name`. In the same folder each individual
 #'  has its own `<individual>.rds` file containing the modified
 #'  `drift_dm_object`.
+#'
+#' @examples
+#' # We don't run the example on CRAN because fitting multiple individuals
+#' # takes minutes (and probably even hours)
+#' \dontrun{
+#'
+#' # Fit DMC to data by Ulrich et al. (2015) ----------------------------------
+#' # get the model (pre-built by dRiftDM), with relatively coarse discretization
+#' # settings to "speed up" everything
+#' model <- dmc_dm(t_max = 1.5, dx = .005, dt = .005)
+#'
+#' # then load the data
+#' flanker_data <- ulrich_flanker_data # this data set comes with dRiftDM
+#'
+#' # subset to the first four individuals (we don't need to fit the entire data
+#' # set to demonstrate the function)
+#' flanker_data <- flanker_data[flanker_data$ID %in% 1:4,]
+#'
+#' # we define an upper and lower boundary for the parameter space
+#' lower <- c(muc = 1, b = 0.2, non_dec = 0.1, sd_non_dec = 0.005,
+#'            tau = 0.02, A = 0.01, alpha = 2)
+#' upper <- c(muc = 7, b = 1.0, non_dec = 0.6, sd_non_dec = 0.10,
+#'            tau = 0.30, A = 0.30, alpha = 8)
+#'
+#' # and then we call the fit procedure, which essentially is a wrapper around
+#' # estimate_model (uses multiple cores); on bucky's laptop, this runs in about
+#' # 10 minutes
+#' n_cores <- pmax(parallel::detectCores() - 2, 1)
+#' estimate_model_ids(
+#'   drift_dm_obj = model,           # which model (DMC)
+#'   obs_data_ids = flanker_data,    # which data?
+#'   lower = lower,
+#'   upper = upper,
+#'   fit_procedure_name = "example_flanker",
+#'   de_n_cores = n_cores, # use multiple cores (check your hardware)
+#' )
+#'
+#'}
+#'
 #'
 #' @seealso [dRiftDM::load_fits_ids]
 #'
@@ -150,7 +189,7 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
     stop("progress must be numeric of either 0, 1, or 2")
   }
 
-  free_prms <- names(coef(drift_dm_obj, select_unique = T))
+  free_prms <- names(coef(drift_dm_obj, select_unique = TRUE))
   if (!is.null(start_vals)) {
     if (!is.data.frame(start_vals)) {
       stop("start_vals must be a data.frame")
@@ -185,7 +224,7 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 
   # 0. Step: create directory/folder for saving the fitted objects
   if (!dir.exists(fit_dir)) {
-    dir.create(fit_dir, recursive = T)
+    dir.create(fit_dir, recursive = TRUE)
   }
 
   folder_name <- file.path(fit_dir, folder_name)
@@ -225,7 +264,7 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
         "There are already files saved in ", folder_name,
         ". Skipping individuals with a corresponding identifier...",
         "\nIf you want to re-fit all ",
-        "individuals, specify the argument force_refit = T!"
+        "individuals, specify the argument force_refit = TRUE!"
       )
     }
     list_obs_data <- list_obs_data[!files_exist]
@@ -301,7 +340,7 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
     }
   }
 
-  invisible(NULL)
+  invisible()
 }
 
 
@@ -362,8 +401,8 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 #' call, and the number of individual data sets.
 #'
 #' @returns
-#' An object of type `fits_ids_dm` which essentially is a list with two
-#' entries:
+#' For `load_fits_ids()`, an object of type `fits_ids_dm`, which essentially is
+#' a list with two entries:
 #' - `drift_dm_fit_info`, containing a list of the main arguments when
 #'  [dRiftDM::estimate_model_ids] was originally called, including
 #'  a time-stamp.
@@ -371,13 +410,30 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 #'  objects. The list's entry are named according to the individuals'
 #'  identifier (i.e., `ID`).
 #'
+#' For `print.fits_ids_dm()`, the supplied `fit_ids_dm` object `x` (invisible
+#' return).
+#'
+#' @examples
+#' # We don't run the example on CRAN, because this would require to first
+#' # run estimate_model_ids(). Yet, if users run the example code for
+#' # estimate_model_ids(), the following code works.
+#' \dontrun{
+#' all_fits = load_fits_ids(fit_procedure_name = "example_flanker")
+#' }
+#'
+#' # to get familiar with objects of type fits_ids_dm, we can also run this
+#' # auxiliary function
+#' all_fits <- get_example_fits_ids()
+#' print(all_fits)
+#' summary(all_fits)
+#'
 #' @seealso [dRiftDM::estimate_model_ids()]
 #'
 #' @export
 load_fits_ids <- function(path = "drift_dm_fits",
                           fit_procedure_name = "",
-                          detailed_info = F,
-                          check_data = T,
+                          detailed_info = FALSE,
+                          check_data = TRUE,
                           progress = 2) {
   if (!is.character(path) | length(path) != 1) {
     stop("path is not character vector of length 1")
@@ -404,7 +460,7 @@ load_fits_ids <- function(path = "drift_dm_fits",
   }
 
   # find folders with fit_info files
-  search_files <- list.files(path, full.names = T, recursive = T)
+  search_files <- list.files(path, full.names = TRUE, recursive = TRUE)
   search_files <- search_files[grepl("[/\\]drift_dm_fit_info.rds$", search_files)]
   # ensure that there are no two files in one folder
   test <- dirname(search_files)
@@ -450,7 +506,7 @@ load_fits_ids <- function(path = "drift_dm_fits",
   # take the selected file/folder or the first
   selected_file <- search_files[option]
   folder <- dirname(selected_file)
-  files <- list.files(folder, pattern = ".rds$", full.names = T)
+  files <- list.files(folder, pattern = ".rds$", full.names = TRUE)
 
 
   # progress info ...
@@ -499,7 +555,7 @@ load_fits_ids <- function(path = "drift_dm_fits",
 #' @param fits_ids an object of type fits_ids_dm
 #' @param progress numeric, 0, no progress, 1 basic output, 2 progress bars
 #'
-#' @returns the unmodified fits_ids objects
+#' @returns the unmodified fits_ids objects after passing all tests.
 #'
 #' @details
 #' Checks:
@@ -516,7 +572,7 @@ load_fits_ids <- function(path = "drift_dm_fits",
 #'  * if the data in each fitted model matches with the observed data in
 #'    the info file
 #'
-#'
+#' @keywords internal
 validate_fits_ids <- function(fits_ids, progress) {
   if (!inherits(fits_ids, "fits_ids_dm")) {
     stop("fits_ids is not of type fits_ids_dm")
@@ -657,7 +713,7 @@ validate_fits_ids <- function(fits_ids, progress) {
 
 
     # check if parameters are in the boundary range
-    fitted_model_prms <- coef(one_fit, select_unique = T)
+    fitted_model_prms <- coef(one_fit, select_unique = TRUE)
     if (any(fitted_model_prms < exp_lower - drift_dm_approx_error())) {
       stop(
         "individual ", one_vp, " provided model parameters that are smaller ",
@@ -763,8 +819,9 @@ validate_fits_ids <- function(fits_ids, progress) {
 #' @param detailed_info logical, if detailed info shall be provided or not
 #'
 #' @returns a string with infos about the fit procedure name, last call,
-#' maybe model, individuals, lower/upper and seed
+#' and, if detailed_info = TRUE, model, individuals, lower/upper, and seed.
 #'
+#' @keywords internal
 summarize_drift_dm_info <- function(full_name_to_file, detailed_info) {
   fit_info <- readRDS(file = full_name_to_file)
   string <- "\n"

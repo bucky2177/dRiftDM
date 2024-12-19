@@ -25,6 +25,7 @@
 #' @returns A numeric vector of length `k` containing the sampled values from
 #' the specified PDF. If `k` is 0, an empty numeric vector is returned.
 #'
+#' @keywords internal
 draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
   if (!is_numeric(a_pdf) | length(a_pdf) < 1) {
     stop("a_pdf must provide a valid numeric vector of length > 0")
@@ -107,17 +108,54 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
 #'
 #' @return
 #' If `cast_to_data_frame` is TRUE, a data.frame with `k` rows and at least
-#' \code{length(lower)/length(upper)} columns. Otherwise a matrix with
-#'  the same number of rows and columns. Columns are labeled either from
-#'  V1 to Vk or in case `lower` and `upper` are named numeric vectors using
-#'  the labels of both vectors.
+#' \code{length(lower);length(upper)} columns. Otherwise a matrix with
+#'  the same number of rows and columns. Columns are labeled either from V1 to
+#'  Vk or in case `lower` and `upper` are named numeric vectors using the
+#'  labels of both vectors.
 #'
-#' If `add_id_column` is not "none", an ID column is provided.
+#' If `add_id_column` is not "none", an ID column is provided of the respective
+#' data type.
+#'
+#' The data type of the parameters will be numeric, unless `add_id_column`
+#' is "character" and `cast_to_data_frame` is FALSE. In this case the returned
+#' matrix will be of type character.
+#'
+#' @examples
+#'
+#' # Example 1: Draw from uniform distributions ------------------------------
+#' lower = c(a = 1, b = 1, c = 1)
+#' upper = c(a = 3, b = 4, c = 5)
+#' values = simulate_values(
+#'   lower = lower,
+#'   upper = upper,
+#'   k = 50,
+#'   add_id_column = "none"
+#' )
+#' summary(values)
+#'
+#' # Example 2: Draw from truncated normal distributions ---------------------
+#' lower = c(a = 1, b = 1, c = 1)
+#' upper = c(a = 3, b = 4, c = 5)
+#' means = c(a = 2, b = 2.5, c = 3)
+#' sds = c(a = 0.5, b = 0.5, c = 0.5)
+#' values = simulate_values(
+#'   lower = lower,
+#'   upper = upper,
+#'   distr = "tnorm",
+#'   k = 5000,
+#'   add_id_column = "none",
+#'   means = means,
+#'   sds = sds
+#' )
+#' quantile(values$a, probs = c(0.025, 0.5, 0.975))
+#' quantile(values$b, probs = c(0.025, 0.5, 0.975))
+#' quantile(values$c, probs = c(0.025, 0.5, 0.975))
 #'
 #'
 #' @export
 simulate_values <- function(lower, upper, k, distr = NULL,
-                            cast_to_data_frame = T, add_id_column = "numeric",
+                            cast_to_data_frame = TRUE,
+                            add_id_column = "numeric",
                             seed = NULL, ...) {
   dotdot <- list(...)
 
@@ -209,6 +247,8 @@ simulate_values <- function(lower, upper, k, distr = NULL,
   if (!is.null(names_upper)) col_names <- names_upper
   colnames(prms) <- col_names
 
+  if (cast_to_data_frame) prms <- as.data.frame(prms)
+
   ids <- 1:k
   if (add_id_column == "numeric") {
     prms <- cbind(prms, ID = ids)
@@ -217,7 +257,6 @@ simulate_values <- function(lower, upper, k, distr = NULL,
   }
 
 
-  if (cast_to_data_frame) prms <- as.data.frame(prms)
 
   return(prms)
 }

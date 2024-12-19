@@ -27,6 +27,10 @@ constant and discretization (see \link{drift_dm})}
 \item{b_coding}{list, an optional list with the boundary encoding (see
 \link{b_coding})}
 }
+\value{
+An object of type \code{drift_dm} (parent class) and \code{ssp_dm} (child class),
+created by the function \code{\link[=drift_dm]{drift_dm()}}.
+}
 \description{
 This function creates a \link{drift_dm} object that corresponds to a
 simple version of the shrinking spotlight model by
@@ -60,7 +64,20 @@ a parameter and should not be estimated!
 
 Per default, the parameter \code{r} is assumed to be fixed (i.e., is not estimated
 freely). The model also contains the custom parameter \code{interf_t}, quantifying
-the interference time (\code{sd_0 / r})
+the interference time (\code{sd_0 / r}).
+}
+\examples{
+# the model with default settings
+my_model <- ssp_dm()
+
+# the model with a more coarse discretization
+my_model <- ssp_dm(
+  t_max = 1.5,
+  dx = .0025,
+  dt = .0025
+)
+
+
 }
 \references{
 \insertRef{Whiteetal.2011}{dRiftDM}

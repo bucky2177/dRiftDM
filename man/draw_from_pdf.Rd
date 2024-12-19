@@ -34,3 +34,4 @@ cumulative distribution function (CDF) from the given PDF. A uniform random
 variable is then sampled for each of the \code{k} samples, and the corresponding
 value in \code{x_def} is selected by locating the appropriate interval in the CDF.
 }
+\keyword{internal}

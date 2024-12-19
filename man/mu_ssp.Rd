@@ -25,3 +25,4 @@ Provides the drift rate for the SSP model. That is, the sum of attention
 attributed to the flankers and central target, scaled by the perceptual
 input.
 }
+\keyword{internal}

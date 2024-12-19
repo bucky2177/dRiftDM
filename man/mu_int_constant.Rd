@@ -23,3 +23,4 @@ a vector calculated as t_vec*muc
 \description{
 Integral of Constant Drift Rate
 }
+\keyword{internal}

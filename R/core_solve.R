@@ -5,7 +5,8 @@
 #' This method takes the a model, the time and space vectors, and the
 #' unpacked parameters for solving the PDF to derive the first passage
 #' time across all conditions. It is a wrapper around the cpp implementations
-#' and [dRiftDM::add_residual].
+#' and [dRiftDM::add_residual]. Important: This function is used in the
+#' depths of the package and the generic method is not exported.
 #'
 #' @param drift_dm_obj a model of type [dRiftDM::drift_dm]
 #' @param x_vec numeric vector, the evidence space
@@ -13,25 +14,33 @@
 #' @param prms_solve the discretization (see [dRiftDM::prms_solve])
 #'
 #' @returns a list of PDFs, with named entries for each condition. Each of this
-#' entry contains the vectors "pdf_u" and "pdf_l"
+#' entry contains a list of vectors, named "pdf_u" and "pdf_l"
 #'
 #' @details
-#' calc_pdfs is a generic method which dispaches the function call.
+#' calc_pdfs is a generic method which dispatches the function call (not
+#' exported).
 #'
 #' calc_pdfs.ratcliff_dm, is a specific method that checks for the presence of
 #' the parameter `sd_muc`, and, if present, calls the calc_pdfs.drift_dm
-#' function multiple times with different value for `muc`, to approximate the
+#' function multiple times with different value for `muc` to approximate the
 #' variable drift rate.
 #'
 #' calc_pdfs.drift_dm is the function that will be called for all models.
 #' It evaluates the different components of a model, and subsequently calls
-#' the cpp implemenations for the KFE or integral method. It also calls the
-#' [dRiftDM::add_residual] function to convolve the non-decision time to the
+#' the cpp implementations for the KFE or integral method. It also calls the
+#' [dRiftDM::add_residual] function to convolute the non-decision time to the
 #' first passage time.
+#'
+#' The numerical methods for deriving the PDFs are based on the code provided
+#' by \insertCite{Richteretal.2023}{dRiftDM}.
 #'
 #'
 #' @seealso [dRiftDM::add_residual]
 #'
+#' @references
+#' \insertRef{Richteretal.2023}{dRiftDM}
+#'
+#' @keywords internal
 calc_pdfs <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
   UseMethod("calc_pdfs")
 }
@@ -87,7 +96,7 @@ calc_pdfs.ratcliff_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
       all_pdfs[[idx]][[one_cond]]$pdf_l * wgts[idx]
     }))
     return(list(pdf_u = pdf_u, pdf_l = pdf_l))
-  }, simplify = F, USE.NAMES = T)
+  }, simplify = FALSE, USE.NAMES = TRUE)
 
   return(pdfs)
 }
@@ -160,7 +169,7 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
     )
 
     return(pdfs_one_cond)
-  }, simplify = F, USE.NAMES = T)
+  }, simplify = FALSE, USE.NAMES = TRUE)
 
 
   return(pdfs)
@@ -180,6 +189,7 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
 #'
 #' @returns a list of PDFs for one condition "pdf_u" and "pdf_l"
 #'
+#' @keywords internal
 add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
   if (length(pdf_nt) != length(pdf_u)) {
     stop("pdf_u and pdf_nt don't have the same dimension!")
@@ -262,6 +272,7 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
 #'
 #' @returns a single value of the log-likelihood
 #'
+#' @keywords internal
 calc_log_like <- function(pdfs, t_vec, obs_data, conds) {
   if (is.null(obs_data)) {
     return(NULL)

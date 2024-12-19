@@ -2,7 +2,7 @@
 % Please edit documentation in R/core_dm.R
 \name{get_default_functions}
 \alias{get_default_functions}
-\title{Get default/fall back component functons}
+\title{Get default/fall back component functions}
 \usage{
 get_default_functions(
   mu_fun = NULL,
@@ -27,7 +27,8 @@ get_default_functions(
 \item{nt_fun}{non-decision time function}
 }
 \value{
-a list of \code{mu_fun} to \code{n_fun} with either the supplied component functions
+a list of \code{mu_fun}, \code{mu_int_fun}, \code{x_fun}, \code{b_fun}, \code{dt_b_fun}, and
+\code{nt_fun}, with either the supplied component functions
 or the added/filled in default component functions (if an argument is NULL).
 }
 \description{
@@ -49,3 +50,4 @@ defaults...
 on 0.5).
 }
 }
+\keyword{internal}

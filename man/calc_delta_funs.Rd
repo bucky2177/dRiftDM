@@ -53,3 +53,4 @@ to calculate the delta functions.
 \seealso{
 \code{\link[=new_stats_dm]{new_stats_dm()}}
 }
+\keyword{internal}

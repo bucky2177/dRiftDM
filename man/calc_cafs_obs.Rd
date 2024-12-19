@@ -39,3 +39,4 @@ equally spaced quantiles. Then calculate the ratio of probability mass per
 bin.
 }
 }
+\keyword{internal}

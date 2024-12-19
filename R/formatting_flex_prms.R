@@ -17,7 +17,7 @@
 #' @param ... additional arguments passed forward to the respective method
 #'
 #' @details
-#' The `summary.flex_prms` function creates a summary object containing:
+#' The `summary.flex_prms()` function creates a summary object containing:
 #' - **prms_matrix**: All parameter values across all conditions.
 #' - **unique_matrix**: A character matrix, showing how parameters relate across
 #' conditions.
@@ -25,8 +25,26 @@
 #' - **cust_prms_matrix**: (if they exist), a matrix containing all custom
 #' parameters.
 #'
-#' The `print.summary.flex_prms` function displays the summary object in a
+#' The `print.summary.flex_prms()` function displays the summary object in a
 #' formatted manner.
+#'
+#' @return
+#' `summary.flex_prms()` returns a list of class `summary.flex_prms` (see the
+#'  Details section summarizing each entry of this list).
+#'
+#' `print.summary.flex_prms()` returns invisibly the `summary.flex_prms` object.
+#'
+#' @examples
+#' # create a flex_prms object
+#' flex_obj <- flex_prms(c(a = 1, b = 2), conds = c("foo", "bar"))
+#'
+#' sum_obj <- summary(flex_obj)
+#' print(sum_obj)
+#'
+#' # the print function for the summary object is identical to the print
+#' # function of the flex_prms object
+#' print(flex_obj)
+#'
 #'
 #' @export
 summary.flex_prms <- function(object, ...) {
@@ -78,7 +96,8 @@ summary.flex_prms <- function(object, ...) {
 #' @export
 print.summary.flex_prms <- function(x, ...,
                                     round_digits = drift_dm_default_rounding(),
-                                    dependencies = T, cust_parameters = T) {
+                                    dependencies = TRUE,
+                                    cust_parameters = TRUE) {
   summary_obj <- x
 
   cat("Current Parameter Matrix:\n")
@@ -114,10 +133,12 @@ print.summary.flex_prms <- function(x, ...,
 #' @rdname flex_prms
 #' @export
 print.flex_prms <- function(x, ..., round_digits = drift_dm_default_rounding(),
-                            dependencies = T, cust_parameters = T) {
+                            dependencies = TRUE, cust_parameters = TRUE) {
   flex_prms_obj <- x
   print(summary(flex_prms_obj),
     round_digits = round_digits,
-    dependencies = dependencies
+    dependencies = dependencies,
+    cust_parameters = cust_parameters
   )
+  invisible(x)
 }

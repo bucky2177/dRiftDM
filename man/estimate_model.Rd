@@ -47,6 +47,10 @@ as this will drastically slow down your machine for any additional task.}
 \item{de_control, nmkb_control}{lists of additional control parameters passed
 to \link[DEoptim:DEoptim]{DEoptim::DEoptim} and \link[dfoptim:nmkb]{dfoptim::nmkb}.}
 }
+\value{
+the updated \code{drift_dm_obj} (with the estimated parameter values,
+log-likelihood, and probability density functions of the first passage time)
+}
 \description{
 Find the 'best' parameter settings by fitting a \link{drift_dm} models'
 predicted probability density functions (PDFs) to the observed data
@@ -106,4 +110,65 @@ log-likelihood between successive iterations is below \code{tol = 1e-6}.See
 \link[DEoptim:DEoptim.control]{DEoptim::DEoptim.control} and the details of \link[dfoptim:nmkb]{dfoptim::nmkb} for
 further information.
 }
+}
+\examples{
+
+# Example 1: --------------------------------------------------------------
+# the first example uses a simple model and the Nelder-Mead minimization
+# routine to ensure that it runs in a couple of seconds
+
+# get a model and attach data to the model
+my_model <- ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
+obs_data(my_model) <- ratcliff_synth_data # this data set comes with dRiftDM
+
+
+# set the search space
+lower <- c(muc = 1, b = 0.2, non_dec = 0.1)
+upper <- c(muc = 7, b = 1.0, non_dec = 0.6)
+
+# then fit the data to the model using Nelder-Mead after setting some start
+# values
+coef(my_model) = c(muc = 2, b = 0.5, non_dec = 0.4)
+my_model <- estimate_model(
+  drift_dm_obj = my_model, # (starting values are those set to the model)
+  lower = lower,           # lower and upper parameter ranges
+  upper = upper,
+  use_de_optim = FALSE,        # don't use the default diff. evol. algorithm
+  use_nmkb = TRUE              # but Nelder-Mead
+)
+
+# show the result
+print(my_model)
+
+
+\dontrun{
+# Example 2: --------------------------------------------------------------
+# the second example uses a more complex model and the robust
+# Differential-Evolution minimization routine
+
+# get a model and attach data to it
+my_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+obs_data(my_model) = dmc_synth_data # this data set comes with dRiftDM
+
+# set the search space
+lower <- c(muc = 1, b = 0.2, non_dec = 0.1, sd_non_dec = 0.005,
+           tau = 0.02, A = 0.01, alpha = 2)
+upper <- c(muc = 7, b = 1.0, non_dec = 0.6, sd_non_dec = 0.10,
+           tau = 0.30, A = 0.30, alpha = 8)
+
+# then fit the data to the model (uses multiple cores); on bucky's laptop
+# this takes about 7 minutes
+n_cores <- pmax(parallel::detectCores() - 2, 1)
+estimate_model(
+  drift_dm_obj = my_model,
+  lower = lower,
+  upper = upper,
+  de_n_cores = n_cores, # use multiple cores (check your hardware)
+)
+
+}
+
+}
+\seealso{
+\link{estimate_model_ids}
 }

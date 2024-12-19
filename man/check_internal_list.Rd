@@ -21,3 +21,4 @@ the internal list for convenience
 \description{
 Checks also if there are entries for each parameter and condition
 }
+\keyword{internal}

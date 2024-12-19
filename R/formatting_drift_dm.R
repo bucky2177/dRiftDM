@@ -55,11 +55,11 @@ print.drift_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
 #' @param ... additional arguments passed forward to the respective method
 #'
 #' @details
-#' The `summary.drift_dm` function constructs a summary list with detailed
+#' The `summary.drift_dm()` function constructs a summary list with detailed
 #' information about the `drift_dm` object, including:
 #' - **class**: The class type of the `drift_dm` object.
-#' - **summary_flex_prms**: A summary of [dRiftDM::flex_prms] object in the
-#'   model.
+#' - **summary_flex_prms**: A summary of the [dRiftDM::flex_prms] object in the
+#'   model (see [dRiftDM::summary.flex_prms]).
 #' - **prms_solve**: Parameters used for solving the model (see
 #'    [dRiftDM::prms_solve]).
 #' - **solver**: The solver used for model fitting.
@@ -69,12 +69,30 @@ print.drift_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
 #' - **fit_stats**: Fit statistics, if available, including log-likelihood,
 #'   AIC, and BIC values.
 #'
-#' The `print.summary.drift_dm` function displays this summary in a formatted
+#' The `print.summary.drift_dm()` function displays this summary in a formatted
 #' way.
 #'
 #' @return
-#' `summary.drift_dm` returns a list of class `summary.drift_dm` with the above
-#' information.
+#' `summary.drift_dm()` returns a list of class `summary.drift_dm` (see the
+#'  Details section summarizing each entry of this list).
+#'
+#' `print.summary.drift_dm()` returns invisibly the `summary.drift_dm` object.
+#'
+#'
+#' @examples
+#' # get a pre-built model for demonstration purpose
+#' a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+#' sum_obj <- summary(a_model)
+#' print(sum_obj, round_digits = 2)
+#'
+#' # more information is provided when we add data to the model
+#' obs_data(a_model) <- dmc_synth_data # (data set comes with dRiftDM)
+#' summary(a_model)
+#'
+#' # finally: fit indices are provided once we evaluate the model
+#' a_model <- re_evaluate_model(a_model)
+#' summary(a_model)
+#'
 #'
 #' @export
 summary.drift_dm <- function(object, ...) {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/core_flex_prms.R
 \name{flex_restrain_prms}
 \alias{flex_restrain_prms}
-\title{Set parmaeters as equal across conditions}
+\title{Set parameters as equal across conditions}
 \usage{
 flex_restrain_prms(flex_prms_obj, formula_instr)
 }
@@ -13,10 +13,11 @@ flex_restrain_prms(flex_prms_obj, formula_instr)
 (see \link{modify_flex_prms})}
 }
 \value{
-a modified flex_prms object
+a modified flex_prms object with an updated (linear) internal list
 }
 \description{
 This function takes a flex_prms object and modifies the (linear) internal
 list so that a parameter is set as equal across multiple conditions,
 according to the instruction formula (i.e., ' prm ~! conda + condb)
 }
+\keyword{internal}

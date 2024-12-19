@@ -24,3 +24,4 @@ around zero and with a shape parameter "alpha".
 \description{
 Beta-Shaped Starting Point Distribution Centered Around Zero
 }
+\keyword{internal}

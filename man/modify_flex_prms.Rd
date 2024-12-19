@@ -8,7 +8,7 @@
 \usage{
 modify_flex_prms(object, instr, ...)
 
-\method{modify_flex_prms}{drift_dm}(object, instr, ..., eval_model = F)
+\method{modify_flex_prms}{drift_dm}(object, instr, ..., eval_model = FALSE)
 
 \method{modify_flex_prms}{flex_prms}(object, instr, ..., messaging = NULL)
 }
@@ -25,8 +25,9 @@ not when updating modifying the flex_prms object
 (see \link{re_evaluate_model}). Default is \code{FALSE}.}
 
 \item{messaging}{logical, indicating if messages shall be ushered or not.
-Can happen, for example, when setting specific parameter values in a
-condition for which special dependencies were defined.}
+Can happen, for example, when setting a parameter value for a
+specific condition, although the parameter values are assumed to be the
+identical across conditions.}
 }
 \value{
 For \link{drift_dm} objects, the updated \link{drift_dm} object.
@@ -122,6 +123,33 @@ parameter combinations with the ":=" operation:
 \item Expressions and values that provide calculations for those parameters are
 stored in a separate list \code{cust_prms}.
 }
+}
+\examples{
+# Example 1: Modify a flex_prms object  directly ---------------------------
+# create an auxiliary flex_prms object
+a_flex_prms_obj = flex_prms(
+  c(muc = 3, b = 0.5, non_dec = 0.3),
+  conds = c("foo", "bar")
+)
+
+# then carry out some "instructions". Here (arbitrary operations):
+# 1.) Consider b as fixed
+# 2.) Let muc vary independently for the conditions foo and bar
+# 3.) Set non_dec in condition bar to be half as large as non_dec in
+#     condition bar
+instr =
+"b <!>
+ muc ~
+ non_dec ~ bar == (non_dec ~ foo) / 2
+"
+modify_flex_prms(object = a_flex_prms_obj, instr = instr)
+
+
+# Example 2: Modify a flex_prms object stored inside a drift_dm object -----
+a_model = ratcliff_dm() # get a model for demonstration purpose
+modify_flex_prms(object = a_model, instr = "muc ~ => 4")
+
+
 }
 \seealso{
 \code{\link[=flex_prms]{flex_prms()}}

@@ -39,3 +39,4 @@ For each supported subclass, \code{aggregate_stats} calls
 \link{new_stats_dm}, \link{calc_stats},
 \code{\link[=internal_aggregate]{internal_aggregate()}}
 }
+\keyword{internal}

@@ -19,3 +19,4 @@ A numeric vector of length 2, specifying the plot limits.
 This function determines plot limits, using \code{default_lim} if \code{lim} is not
 specified.
 }
+\keyword{internal}

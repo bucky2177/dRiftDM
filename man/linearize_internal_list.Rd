@@ -24,3 +24,4 @@ optimizer provides input parameters), we have to linearize the list
 \code{\link[=flex_vary_prms]{flex_vary_prms()}}, \code{\link[=flex_restrain_prms]{flex_restrain_prms()}},
 \code{\link[=flex_fix_prms]{flex_fix_prms()}}, \code{\link[=flex_special_dependency]{flex_special_dependency()}}
 }
+\keyword{internal}

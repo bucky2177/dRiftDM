@@ -16,9 +16,20 @@ A \code{logLik} object containing the log-likelihood value for the
 \link{drift_dm} object. This value has attributes for the number of
 observations (\code{nobs}) and the number of model parameters (\code{df}).
 
-Returns \code{NULL} if the observed data is not available.
+Returns \code{NULL} if observed data is not available.
 }
 \description{
 This method extracts the log-likelihood for a \code{drift_dm} object, ensuring
 data is available and evaluating the model if necessary.
+}
+\examples{
+# get a pre-built model and a data set for demonstration purpose
+# (when creating the model, set the discretization to reasonable values)
+a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+obs_data(a_model) <- dmc_synth_data
+
+# calculate the log-likelihood
+logLik(a_model)
+
+
 }

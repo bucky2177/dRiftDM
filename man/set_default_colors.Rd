@@ -23,3 +23,4 @@ A character vector of colors, matching the length of \code{unique_conds}.
 This function assigns default colors if none are provided or adjusts the
 color vector to match the number of conditions.
 }
+\keyword{intern}

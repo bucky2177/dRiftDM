@@ -15,10 +15,10 @@ simulate_traces(object, k, ...)
   k,
   ...,
   conds = NULL,
-  add_x = F,
+  add_x = FALSE,
   sigma = NULL,
   seed = NULL,
-  unpack = F
+  unpack = FALSE
 )
 
 \method{simulate_traces}{fits_ids_dm}(object, k, ...)
@@ -72,22 +72,25 @@ printing out traces (default is 4).}
 }
 \value{
 \code{simulate_traces()} returns either a list of type \code{traces_dm_list}, or
-directly the plain traces as matrices across conditions (if \code{unpack = T}).
-If the model has only one condition (and \code{unpack = T}), then the matrix of
+directly the plain traces as matrices across conditions (if \code{unpack = TRUE}).
+If the model has only one condition (and \code{unpack = TRUE}), then the matrix of
 traces for this one condition is directly returned.
 
 The returned list has as many entries as conditions requested. For example,
 if only one condition is requested via the \code{conds} argument, then the list is
-of length 1 (if \code{unpack = F}). If \code{conds} is set to \code{NULL} (default), then
-the list will have as many entries as conditions specified in the supplied
-\code{object} (see also \link{conds}). If \code{unpack = F}, the list contains an
-additional attribute with the time space.
+of length 1 (if \code{unpack = FALSE}). If \code{conds} is set to \code{NULL} (default),
+then the list will have as many entries as conditions specified in the
+supplied \code{object} (see also \link{conds}). If \code{unpack = FALSE}, the list
+contains an additional attribute with the time space.
 
 Each matrix of traces has \code{k} rows and \code{nt + 1} columns, stored as an
 array of size (\code{k}, \code{nt + 1}). Note that \code{nt} is the number of steps in the
-discretization of time; see \link{drift_dm}. If \code{unpack = F}, the array
-is of type \code{traces_dm}. It contains some additional attributes about
+discretization of time; see \link{drift_dm}. If \code{unpack = FALSE}, the
+array is of type \code{traces_dm}. It contains some additional attributes about
 the time space, the drift rate, the boundary, and the added starting values.
+
+The print methods \code{print.traces_dm_list()} and \code{print.traces_dm()} each
+invisibly return the supplied object \code{x}.
 }
 \description{
 Simulates single trajectories/traces of a model
@@ -123,6 +126,23 @@ The reason why \code{simulate_traces} passes back an object of type
 
 Users can unpack the traces even after calling \code{simulate_traces()} using
 \code{\link[=unpack_traces]{unpack_traces()}}.
+}
+\examples{
+# get a pre-built model to demonstrate the function
+my_model <- dmc_dm()
+some_traces <- simulate_traces(my_model, k = 1, seed = 1)
+print(some_traces)
+
+# a method is also available for fits_ids_dm objects
+# (see estimate_model_ids)
+# get an exemplary fits_ids_dm object
+fits <- get_example_fits_ids()
+some_traces <- simulate_traces(fits, k = 1, seed = 1)
+print(some_traces)
+
+# we can also print only the traces of one condition
+print(some_traces$comp)
+
 }
 \seealso{
 \code{\link[=unpack_traces]{unpack_traces()}}, \code{\link[=plot.traces_dm_list]{plot.traces_dm_list()}}

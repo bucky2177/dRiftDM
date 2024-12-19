@@ -21,8 +21,8 @@
 Defaults to 2 (standard AIC).}
 }
 \value{
-A data frame containing the specified  statistic (\code{Log_Like}, \code{AIC},
-or \code{BIC}) and corresponding \code{ID}.
+A data.frame containing the respective statistic in one column (named
+\code{Log_Like}, \code{AIC}, or \code{BIC}) and a corresponding \code{ID} column.
 }
 \description{
 These methods are wrappers to extract specific model fit statistics
@@ -32,6 +32,28 @@ These methods are wrappers to extract specific model fit statistics
 Each function retrieves the relevant statistics by calling
 \link{calc_stats} with \code{type = "fit_stats"} and selects the columns
 for \code{ID} and the required statistic.
+}
+\examples{
+# get an auxiliary fits_ids object for demonstration purpose;
+# such an object results from calling load_fits_ids
+all_fits <- get_example_fits_ids()
+
+# AICs
+AIC(all_fits)
+
+# BICs
+BIC(all_fits)
+
+# Log-Likelihoods
+logLik(all_fits)
+
+# All unique and free parameters
+coef(all_fits)
+
+# Or all parameters across all conditions
+coef(all_fits, select_unique = FALSE)
+
+
 }
 \seealso{
 \code{\link[stats:AIC]{stats::AIC()}}, \code{\link[stats:AIC]{stats::BIC()}}, \link{logLik.drift_dm}

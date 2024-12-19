@@ -46,8 +46,9 @@
 #' @param x an object of type `drift_dm`
 #' @param ... additional parameters
 #'
-#' @returns A list with the parent class label `"drift_dm"` and the child class
-#' label `<subclass>`. The list contains the following entries:
+#' @returns For `drift_dm()`, a list with the parent class label `"drift_dm"`
+#' and the child class label `<subclass>`. The list contains the following
+#' entries:
 #'
 #' * An instance of the class [dRiftDM::flex_prms] for controlling the model
 #'   parameters. Provides information about the number of parameters, conditions
@@ -79,12 +80,26 @@
 #'  Every model also has the attribute [dRiftDM::b_coding], which summarizes how
 #'  the boundaries are labeled.
 #'
+#' For `print.drift_dm()`, the supplied `drift_dm` object `x` (invisible return).
+#'
 #' @details
 #'
 #' To modify the entries of a model users can use the replacement methods and
 #' the [dRiftDM::modify_flex_prms()] method . See
 #' \code{vignette("use_ddm_models", "dRiftDM")} and
 #' \code{vignette("use_ddm_models", "dRiftDM")} for more information.
+#'
+#' @examples
+#' # Plain call, with default component functions -----------------------------
+#' # create parameter and condition vectors
+#' prms <- c(muc = 4, b = 0.5)
+#' conds <- c("one", "two")
+#'
+#' # then call the backbone function (note that we don't provide any component
+#' # functions, so dRiftDM uses the default functions as documented in
+#' # comp_funs())
+#' my_model = drift_dm(prms_model = prms, conds = conds, subclass = "example")
+#' print(my_model)
 #'
 #' @seealso [dRiftDM::conds()], [dRiftDM::flex_prms()], [dRiftDM::prms_solve()],
 #' [dRiftDM::solver()], [dRiftDM::obs_data()], [dRiftDM::comp_funs()],
@@ -161,6 +176,8 @@ drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
 #' info and b_encoding info. If obs_data is not null, then list of observed rts
 #' see [dRiftDM::obs_data()].
 #'
+#' @keywords internal
+#'
 new_drift_dm <- function(flex_prms_obj, prms_solve, solver, comp_funs,
                          subclass, b_coding = NULL, obs_data = NULL) {
   # add everything
@@ -213,7 +230,7 @@ new_drift_dm <- function(flex_prms_obj, prms_solve, solver, comp_funs,
 #'
 #' the unmodified ddm object, after it passed all checks
 #'
-#'
+#' @keywords internal
 validate_drift_dm <- function(drift_dm_obj) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -303,7 +320,7 @@ validate_drift_dm <- function(drift_dm_obj) {
         one_cond = NULL, ddm_opts = NULL
       )
       return(isTRUE(all.equal(obs_x_vals, nec_x_vals)))
-    }, simplify = T, USE.NAMES = T)
+    }, simplify = TRUE, USE.NAMES = TRUE)
 
 
     if (any(!x_check)) {
@@ -457,7 +474,7 @@ standard_nt <- function() {
 }
 
 
-#' Get default/fall back component functons
+#' Get default/fall back component functions
 #'
 #' If arguments are provided that are not NULL, the respective argument is
 #' simply returned. If it is NULL, then a default/fall back component function
@@ -473,7 +490,8 @@ standard_nt <- function() {
 #'
 #' @return
 #'
-#' a list of `mu_fun` to `n_fun` with either the supplied component functions
+#' a list of `mu_fun`, `mu_int_fun`, `x_fun`, `b_fun`, `dt_b_fun`, and
+#' `nt_fun`, with either the supplied component functions
 #' or the added/filled in default component functions (if an argument is NULL).
 #'
 #' @details
@@ -489,7 +507,7 @@ standard_nt <- function() {
 #'  * nt_fun -> constant non-decision time of 0.3 (i.e., vector for dirac delta
 #'    on 0.5).
 #'
-#'
+#' @keywords internal
 get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
                                   x_fun = NULL, b_fun = NULL,
                                   dt_b_fun = NULL, nt_fun = NULL) {
@@ -591,10 +609,27 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
 #' deriving the PDFs can be found in
 #' \insertCite{Richteretal.2023;textual}{dRiftDM}
 #'
+#' @examples
+#' # choose a pre-built model (e.g., the Ratcliff model)
+#' # and set the discretization as needed
+#' my_model <- ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
+#'
+#' # then calculate the model's predicted PDF
+#' my_model <- re_evaluate_model(my_model)
+#' str(my_model$pdfs) # show the structure of the attached pdfs
+#'
+#' # if you want the log_likelihood, make sure some data is attached to the
+#' # model (see also the documentation of obs_data())
+#' obs_data(my_model) <- ratcliff_synth_data # this data set comes with dRiftDM
+#' my_model <- re_evaluate_model(my_model)
+#' str(my_model$pdfs)
+#' print(my_model$log_like_val)
+#'
+#'
 #' @seealso [dRiftDM::drift_dm()]
 #'
 #' @export
-re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
+re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -647,7 +682,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 
 #' @rdname flex_prms
 #' @export
-`flex_prms<-.drift_dm` <- function(object, ..., eval_model = F, value) {
+`flex_prms<-.drift_dm` <- function(object, ..., eval_model = FALSE, value) {
   object$flex_prms_obj <- value # object is the drift_dm object
 
   # ensure that everything is up-to-date
@@ -673,7 +708,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 
 #' @rdname prms_solve
 #' @export
-`prms_solve<-.drift_dm` <- function(object, ..., eval_model = F, value) {
+`prms_solve<-.drift_dm` <- function(object, ..., eval_model = FALSE, value) {
   # silently strip away nt and nx
   value <- value[!(names(value) %in% c("nt", "nx"))]
 
@@ -723,7 +758,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 
 #' @rdname solver
 #' @export
-`solver<-.drift_dm` <- function(object, ..., eval_model = F, value) {
+`solver<-.drift_dm` <- function(object, ..., eval_model = FALSE, value) {
   object <- set_one_solver_setting(
     drift_dm_obj = object,
     name_prm_solve = "solver",
@@ -753,7 +788,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 
 #' @rdname obs_data
 #' @export
-`obs_data<-.drift_dm` <- function(object, ..., eval_model = F, value) {
+`obs_data<-.drift_dm` <- function(object, ..., eval_model = FALSE, value) {
   stopifnot(is.data.frame(value) || is.null(value))
 
   # object is the model object, value the data.frame
@@ -776,8 +811,9 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 
     if (!all(data_conds %in% model_conds)) {
       warning(
-        "The Cond column in the supplied data.frame provides a condition that is",
-        " not listed in the model's conditions. This condition will be ignored"
+        "The Cond column in the supplied data.frame provides a condition that",
+        " is not listed in the model's conditions. This condition will be",
+        " ignored"
       )
     }
 
@@ -785,7 +821,10 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
     b_coding <- attr(object, "b_coding")
 
     # add rts to the model (select only those conditions that are in the model)
-    obs_data_rt_list <- obs_data_to_rt_lists(obs_data = value, b_coding = b_coding)
+    obs_data_rt_list <- obs_data_to_rt_lists(
+      obs_data = value,
+      b_coding = b_coding
+    )
     obs_data_rt_list <- lapply(obs_data_rt_list, function(one_rts_list) {
       return(one_rts_list[model_conds])
     })
@@ -812,7 +851,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 
 #' @rdname comp_funs
 #' @export
-`comp_funs<-.drift_dm` <- function(object, ..., eval_model = F, value) {
+`comp_funs<-.drift_dm` <- function(object, ..., eval_model = FALSE, value) {
   # user input checks object is the model, value the list of functions
   if (!is.list(value)) stop("provided input is not a list")
   if (length(value) == 0) stop("provided input is empty")
@@ -890,7 +929,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 
 #' @rdname coef.drift_dm
 #' @export
-`coef<-.drift_dm` <- function(object, ..., eval_model = F, value) {
+`coef<-.drift_dm` <- function(object, ..., eval_model = FALSE, value) {
   # some input checks
   # find the maximum number of parameters
   n_prms <- get_number_prms(object$flex_prms_obj)
@@ -947,8 +986,9 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = T) {
 #' [dRiftDM::solver<-] pass their arguments forward to this function.
 #'
 #'
-#' @returns the updated un-evauated (!) drift_dm_obj object
+#' @returns the updated un-evaluated (!) drift_dm_obj object
 #'
+#' @keywords internal
 set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
                                    value_prm_solve) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
@@ -1042,7 +1082,7 @@ set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
 #'   * When IDs are present, if each ID has values on each condition. At the same
 #'   time unused factor levels are dropped [dRiftDM::drop_levels_ID_column]
 #'
-#'
+#' @keywords internal
 check_raw_data <- function(obs_data, b_coding_column, u_value, l_value) {
   if (!is.data.frame(obs_data)) stop("obs_data argument is not a data frame")
 
@@ -1122,7 +1162,7 @@ check_raw_data <- function(obs_data, b_coding_column, u_value, l_value) {
   if ("ID" %in% colnames(obs_data)) {
     obs_data <- drop_levels_ID_column(obs_data) # drops unused factor levels
     id_cond_table <- table(obs_data$ID, obs_data$Cond)
-    idx_0 <- which(id_cond_table == 0, arr.ind = T)
+    idx_0 <- which(id_cond_table == 0, arr.ind = TRUE)
 
     if (nrow(idx_0) > 0) {
       which_ids <- paste(rownames(id_cond_table)[idx_0[, 1]], collapse = ", ")
@@ -1149,6 +1189,7 @@ check_raw_data <- function(obs_data, b_coding_column, u_value, l_value) {
 #' if the ID column is of type factor, [droplevels] is applied, and if levels
 #' were dropped, a warning is ushered
 #'
+#' @keywords internal
 drop_levels_ID_column <- function(some_data) {
   stopifnot(is.data.frame(some_data))
   stopifnot("ID" %in% colnames(some_data))
@@ -1183,10 +1224,12 @@ drop_levels_ID_column <- function(some_data) {
 #' @returns
 #' a list of rts with entries
 #'
-#'  * rts_u -> containing a list with names according to the values in Cond
-#'  * rts_l -> containing a list with names according to the values in Cond
+#'  * rts_u -> containing a list of numeric vectors, with names according to the
+#'             values in Cond
+#'  * rts_l -> containing a list of numeric vectors, with names according to the
+#'             values in Cond
 #'
-#'
+#' @keywords internal
 obs_data_to_rt_lists <- function(obs_data, b_coding = NULL) {
   # set default
   if (is.null(b_coding)) {
@@ -1242,6 +1285,7 @@ obs_data_to_rt_lists <- function(obs_data, b_coding = NULL) {
 #'
 #' @returns the unmodified list for convenience
 #'
+#' @keywords internal
 check_b_coding <- function(b_coding) {
   # check general outline of b_coding
   if (!is.list(b_coding)) {
@@ -1330,6 +1374,23 @@ check_b_coding <- function(b_coding) {
 #' This is because there is no meaningful way to know for the package how the
 #' model shall behave for the newly introduced condition(s).
 #'
+#' @examples
+#' # get a pre-built model to demonstrate the conds() function
+#' my_model <- dmc_dm()
+#' conds(my_model)
+#'
+#' # accessor functions also work with other object types provided by dRiftDM
+#' # (simulated traces; see the documentation of the respective function)
+#' some_traces <- simulate_traces(my_model, k = 1)
+#' conds(some_traces)
+#'
+#' # get an exemplary fits_ids_dm object (see estimate_model_ids)
+#' fits = get_example_fits_ids()
+#' conds(fits)
+#'
+#' # also works with data.frames that have a "Cond" column
+#' conds(dmc_synth_data)
+#'
 #' @seealso [dRiftDM::drift_dm()]
 #'
 #' @export
@@ -1403,6 +1464,23 @@ conds.traces_dm_list <- function(object, ...) {
 #' because replacing the solver settings after the model has been fitted (i.e.,
 #' for a `fits_ids_dm` object) doesn't make sense.
 #'
+#' @examples
+#' # get some default model to demonstrate the prms_solve() functions
+#' my_model <- ratcliff_dm()
+#' # show the discretization and scaling of the model
+#' prms_solve(my_model)
+#' # partially modify these settings
+#' prms_solve(my_model)[c("dx", "dt")] = c(0.005)
+#' prms_solve(my_model)
+#'
+#' # accessor method also available for fits_ids_dm objects
+#' # (see estimate_model_ids)
+#' # get an exemplary fits_ids_dm object
+#' fits = get_example_fits_ids()
+#' prms_solve(fits)
+#'
+#'
+#'
 #' @seealso [dRiftDM::drift_dm()]
 #'
 #' @export
@@ -1428,7 +1506,9 @@ prms_solve.fits_ids_dm <- function(object, ...) {
 
 #' The Solver for Deriving Model Predictions
 #'
-#' Functions to get or set the "solver" of an object.
+#' Functions to get or set the "solver" of an object. The "solver" controls
+#' the method for deriving the model's first passage time (i.e., its predicted
+#' PDFs).
 #'
 #' @param object an object of type [dRiftDM::drift_dm] or `fits_ids_dm`
 #'  (see [dRiftDM::load_fits_ids]).
@@ -1448,7 +1528,9 @@ prms_solve.fits_ids_dm <- function(object, ...) {
 #'
 #' The "solver" indicates the approach with which the PDFs of a model are
 #' calculated. Supported options are "kfe" and "im_zero" (method based on the
-#' Kolmogorov-Forward-Equation or on integral equations, respectively).
+#' Kolmogorov-Forward-Equation or on integral equations, respectively). Note
+#' that "im_zero" is only supported for models that assume a fixed starting
+#' point from 0.
 #'
 #' @returns
 #' For `solve()` the string `solver` (see [dRiftDM::drift_dm()]).
@@ -1459,6 +1541,20 @@ prms_solve.fits_ids_dm <- function(object, ...) {
 #' There is only a replacement function for [dRiftDM::drift_dm] objects. This is
 #' because replacing the approach for deriving PDFs after the model has been
 #' fitted (i.e., for a `fits_ids_dm` object) doesn't make sense.
+#'
+#' @examples
+#' # get some default model to demonstrate the solver() functions
+#' my_model <- ratcliff_dm()
+#' solver(my_model)
+#' # change to the integral approach
+#' solver(my_model) <- "im_zero"
+#' solver(my_model)
+#'
+#' # accessor method also available for fits_ids_dm objects
+#' # (see estimate_model_ids)
+#' # get an exemplary fits_ids_dm object
+#' fits = get_example_fits_ids()
+#' solver(fits)
 #'
 #' @seealso [dRiftDM::drift_dm()]
 #'
@@ -1543,6 +1639,31 @@ solver.fits_ids_dm <- function(object, ...) {
 #' because replacing the observed data after the model has been fitted (i.e.,
 #' for a `fits_ids_dm` object) doesn't make sense.
 #'
+#' @examples
+#' # Set some data to a model -------------------------------------------------
+#' my_model <- dmc_dm() # DMC is pre-built and directly available
+#' # synthetic data suitable for DMC; comes with dRiftDM
+#' some_data <- dmc_synth_data
+#' obs_data(my_model) <- some_data
+#'
+#' # Extract data from a model ------------------------------------------------
+#' head(obs_data(my_model))
+#'
+#' # Important: ---------------------------------------------------------------
+#' # The returned data.frame may be sorted differently than the one initially
+#' # supplied.
+#' some_data <- some_data[sample(1:nrow(some_data)),] #' # shuffle the data set
+#' obs_data(my_model) <- some_data
+#' all.equal(obs_data(my_model), some_data)
+#' # so don't do obs_data(my_model)["Cond"] <- ...
+#'
+#' # Addition: ----------------------------------------------------------------
+#' # accessor method also available for fits_ids_dm objects
+#' # (see estimate_model_ids)
+#' # get an exemplary fits_ids_dm object
+#' fits = get_example_fits_ids()
+#' head(obs_data(fits))
+#'
 #' @seealso [dRiftDM::drift_dm()]
 #'
 #' @export
@@ -1554,14 +1675,14 @@ obs_data <- function(object, ...) {
 # re-assembles the observed data -> changes order!
 #' @rdname obs_data
 #' @export
-obs_data.drift_dm <- function(object, ..., messaging = T) {
+obs_data.drift_dm <- function(object, ..., messaging = TRUE) {
   if (is.null(object$obs_data)) {
     return(NULL)
   }
 
   if (messaging) {
     message(
-      "Extracting observed data from the model object. Remember that the",
+      "Extracting observed data from a model object. Remember that the",
       " result may be sorted differently than expect!"
     )
   }
@@ -1735,6 +1856,31 @@ obs_data.fits_ids_dm <- function(object, ...) {
 #' because replacing the component functions after the model has been fitted
 #' (i.e., for a `fits_ids_dm` object) doesn't make sense.
 #'
+#' @examples
+#' # get a pre-built model for demonstration
+#' my_model <- ratcliff_dm()
+#' names(comp_funs(my_model))
+#'
+#' # direct replacement (see the pre-print/vignette for a more information on
+#' # how to write custom component functions)
+#' # 1. Choose a uniform non-decision time from the pre-built component_shelf()
+#' nt_uniform <- component_shelf()$nt_uniform
+#' # swap it in
+#' comp_funs(my_model)[["nt_fun"]] <- nt_uniform
+#'
+#' # now update the flex_prms object to ensure that this model has the required
+#' # parameters
+#' prms <- c(muc = 3, b = 0.6, non_dec = 0.3, range_non_dec = 0.05)
+#' conds <- "null"
+#' new_flex_prms <- flex_prms(prms, conds = conds)
+#' flex_prms(my_model) = new_flex_prms
+#'
+#' # accessor method also available for fits_ids_dm objects
+#' # (see estimate_model_ids)
+#' # get an exemplary fits_ids_dm object
+#' fits = get_example_fits_ids()
+#' names(comp_funs(fits))
+#'
 #' @seealso [dRiftDM::drift_dm()]
 #'
 #'
@@ -1806,6 +1952,24 @@ comp_funs.fits_ids_dm <- function(object, ...) {
 #'  When calling `b_coding<-()` with `value = NULL`, the default "accuracy"
 #'  coding is evoked
 #'
+#' @returns
+#' For `b_coding()` a list containing the boundary coding
+#' For `b_coding<-()` the updated `drift_dm` or `fits_ids_dm` object
+#'
+#' @examples
+#' # show the default accuracy coding of dRiftDM
+#' my_model = ratcliff_dm() # get a pre-built model
+#' b_coding(my_model)
+#'
+#' # can be modified/replaced
+#' b_coding(my_model)[["column"]] = "Response"
+#'
+#' # accessor method also available for fits_ids_dm objects
+#' # get an exemplary fits_ids_dm object (see estimate_model_ids)
+#' fits = get_example_fits_ids()
+#' names(b_coding(fits))
+#'
+#'
 #' @seealso [dRiftDM::drift_dm()]
 #'
 #'
@@ -1860,13 +2024,13 @@ b_coding.fits_ids_dm <- function(object, ...) {
 #' If solver "kfe", a named list with entries "mu_vals", "x_vals", "b_vals",
 #' "dt_b_vals", "nt_vals".
 #'
-#' If solver "im_*", the returned list will also contain "mu_int_vals".
+#' If solver "im_zero", the returned list will also contain "mu_int_vals".
 #'
 #' @details
 #' arguments are optional, because they can be extracted from the model.
 #' However, supplying these are faster than creating them.
 #'
-#'
+#' @keywords internal
 comp_vals <- function(drift_dm_obj, x_vec = NULL, t_vec = NULL,
                       nt = NULL, dt = NULL, nx = NULL, dx = NULL,
                       prms_solve = NULL, solver = NULL, prms_matrix = NULL) {
@@ -1982,13 +2146,13 @@ comp_vals <- function(drift_dm_obj, x_vec = NULL, t_vec = NULL,
         )
       }
       return(vals)
-    }, USE.NAMES = T, simplify = F)
+    }, USE.NAMES = TRUE, simplify = FALSE)
     names(one_set_comp_vecs) <- sub(
       pattern = "fun", replacement = c("vals"),
       x = names(one_set_comp_vecs)
     )
     return(one_set_comp_vecs)
-  }, USE.NAMES = T, simplify = F)
+  }, USE.NAMES = TRUE, simplify = FALSE)
 
   return(all_comp_vecs)
 }
@@ -2010,6 +2174,7 @@ comp_vals <- function(drift_dm_obj, x_vec = NULL, t_vec = NULL,
 #' parameter name and the condition that can be considered unique. Parameter
 #' names are stored in the first row, condition labels in the second.
 #'
+#' @keywords internal
 prms_cond_combo <- function(drift_dm_obj) {
   # get all prm_conds that are not 0 or an expression
   linear_list <- drift_dm_obj$flex_prms_obj$linear_internal_list
@@ -2093,23 +2258,41 @@ prms_cond_combo <- function(drift_dm_obj) {
 #'
 #' @returns
 #' `simulate_traces()` returns either a list of type `traces_dm_list`, or
-#' directly the plain traces as matrices across conditions (if `unpack = T`).
-#' If the model has only one condition (and `unpack = T`), then the matrix of
+#' directly the plain traces as matrices across conditions (if `unpack = TRUE`).
+#' If the model has only one condition (and `unpack = TRUE`), then the matrix of
 #' traces for this one condition is directly returned.
 #'
 #' The returned list has as many entries as conditions requested. For example,
 #' if only one condition is requested via the `conds` argument, then the list is
-#' of length 1 (if `unpack = F`). If `conds` is set to `NULL` (default), then
-#' the list will have as many entries as conditions specified in the supplied
-#' `object` (see also [dRiftDM::conds]). If `unpack = F`, the list contains an
-#' additional attribute with the time space.
+#' of length 1 (if `unpack = FALSE`). If `conds` is set to `NULL` (default),
+#' then the list will have as many entries as conditions specified in the
+#' supplied `object` (see also [dRiftDM::conds]). If `unpack = FALSE`, the list
+#' contains an additional attribute with the time space.
 #'
 #' Each matrix of traces has `k` rows and `nt + 1` columns, stored as an
 #' array of size (`k`, `nt + 1`). Note that `nt` is the number of steps in the
-#' discretization of time; see [dRiftDM::drift_dm]. If `unpack = F`, the array
-#' is of type `traces_dm`. It contains some additional attributes about
+#' discretization of time; see [dRiftDM::drift_dm]. If `unpack = FALSE`, the
+#' array is of type `traces_dm`. It contains some additional attributes about
 #' the time space, the drift rate, the boundary, and the added starting values.
 #'
+#' The print methods `print.traces_dm_list()` and `print.traces_dm()` each
+#' invisibly return the supplied object `x`.
+#'
+#' @examples
+#' # get a pre-built model to demonstrate the function
+#' my_model <- dmc_dm()
+#' some_traces <- simulate_traces(my_model, k = 1, seed = 1)
+#' print(some_traces)
+#'
+#' # a method is also available for fits_ids_dm objects
+#' # (see estimate_model_ids)
+#' # get an exemplary fits_ids_dm object
+#' fits <- get_example_fits_ids()
+#' some_traces <- simulate_traces(fits, k = 1, seed = 1)
+#' print(some_traces)
+#'
+#' # we can also print only the traces of one condition
+#' print(some_traces$comp)
 #'
 #' @note
 #' Evidence values with traces beyond the boundary of the model are set to NA
@@ -2132,8 +2315,8 @@ simulate_traces <- function(object, k, ...) {
 
 #' @rdname simulate_traces
 #' @export
-simulate_traces.drift_dm <- function(object, k, ..., conds = NULL, add_x = F,
-                                     sigma = NULL, seed = NULL, unpack = F) {
+simulate_traces.drift_dm <- function(object, k, ..., conds = NULL, add_x = FALSE,
+                                     sigma = NULL, seed = NULL, unpack = FALSE) {
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
@@ -2173,7 +2356,7 @@ simulate_traces.drift_dm <- function(object, k, ..., conds = NULL, add_x = F,
       drift_dm_obj = object, k = ks[one_cond],
       one_cond = one_cond, add_x = add_x, sigma = sigma
     )
-  }, USE.NAMES = T, simplify = F)
+  }, USE.NAMES = TRUE, simplify = FALSE)
 
 
   # give it a class
@@ -2196,7 +2379,7 @@ simulate_traces.drift_dm <- function(object, k, ..., conds = NULL, add_x = F,
 #' @export
 simulate_traces.fits_ids_dm <- function(object, k, ...) {
   # get mean parameter values
-  all_coefs <- coef(object, select_unique = T)
+  all_coefs <- coef(object, select_unique = TRUE)
   all_coefs <- all_coefs[, colnames(all_coefs) != "ID"]
   mean_coefs <- colMeans(all_coefs)
 
@@ -2362,6 +2545,14 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
 #' For `traces_dm`, `unpack_traces()` returns an array with the traces, if
 #' `unpack=TRUE`. If `unpack=FALSE`, the unmodified object is returned.
 #'
+#' @examples
+#' # get a pre-built model to demonstrate the function
+#' my_model = dmc_dm()
+#' # get some traces ...
+#' some_traces <- simulate_traces(my_model, k = 2, seed = 1)
+#' # and then unpack them to get the underlying arrays
+#' str(unpack_traces(some_traces))
+#'
 #' @export
 unpack_traces <- function(object, ...) {
   UseMethod("unpack_traces")
@@ -2370,7 +2561,7 @@ unpack_traces <- function(object, ...) {
 # just unpack raw traces
 #' @rdname unpack_traces
 #' @export
-unpack_traces.traces_dm <- function(object, ..., unpack = T) {
+unpack_traces.traces_dm <- function(object, ..., unpack = TRUE) {
   if (unpack) {
     all_attr <- attributes(object)
     save_dims <- all_attr$dim
@@ -2384,18 +2575,18 @@ unpack_traces.traces_dm <- function(object, ..., unpack = T) {
 # unpack
 #' @rdname unpack_traces
 #' @export
-unpack_traces.traces_dm_list <- function(object, ..., unpack = T,
+unpack_traces.traces_dm_list <- function(object, ..., unpack = TRUE,
                                          conds = NULL) {
   # default is all conds
   if (is.null(conds)) {
     conds <- names(object)
   }
-  conds <- match.arg(conds, names(object), several.ok = T)
+  conds <- match.arg(conds, names(object), several.ok = TRUE)
 
   # iterate across all
   traces <- sapply(conds, function(x) {
     unpack_traces(object[[x]], unpack = unpack)
-  }, simplify = F, USE.NAMES = T)
+  }, simplify = FALSE, USE.NAMES = TRUE)
 
   if (length(conds) == 1) {
     return(traces[[1]])
@@ -2431,8 +2622,8 @@ unpack_traces.traces_dm_list <- function(object, ..., unpack = T,
 #' each parameter of the model (see Details). Only relevant for `k > 1`
 #' @param df_prms an optional data.frame providing the parameters
 #' that should be used for simulating the data. `df_prms` must provide column
-#' names matching with (`coef(object, select_unique = T)`), plus a column `ID`
-#' that will identify each simulated data set.
+#' names matching with (`coef(object, select_unique = TRUE)`), plus a column
+#' `ID` that will identify each simulated data set.
 #' @param seed a single numeric, an optional seed for reproducible sampling
 #' @param verbose an integer, indicating if information about the progress
 #'  should be displayed. 0 -> no information, 1 -> a progress bar.
@@ -2518,7 +2709,42 @@ unpack_traces.traces_dm_list <- function(object, ..., unpack = T,
 #' This will modify the value for the upper/lower parameter space with respect
 #' to the specified parameters in the respective condition.
 #'
+#' @examples
+#' # Example 1 ----------------------------------------------------------------
+#' # get a pre-built model for demonstration
+#' a_model = ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
 #'
+#' # define a lower and upper simulation space
+#' lower = c(1, 0.4, 0.1)
+#' upper = c(6, 0.9, 0.5)
+#'
+#' # now simulate 5 data sets with each 100 trials
+#' data_prms = simulate_data(a_model, n = 100, k = 5, lower = lower,
+#'                           upper = upper, seed = 1, verbose = 0)
+#' head(data_prms$synth_data)
+#' head(data_prms$prms)
+#'
+#' # Example 2 ----------------------------------------------------------------
+#' # more flexibility when defining lists for lower and upper
+#' # get a pre-built model, and allow muc to vary across conditions
+#' a_model = dmc_dm(t_max = 1.5, dx = .005, dt = .005, instr = "muc ~ ")
+#'
+#' # define a lower and upper simulation space
+#' # let muc vary between 2 and 6, but in incomp conditions, let it vary
+#' # between 1 and 4
+#' lower = list(default_values = c(muc = 2, b = 0.4, non_dec = 0.1,
+#'                                 sd_non_dec = 0.01, tau = 0.02, A = 0.05,
+#'                                 alpha = 3),
+#'              incomp = c(muc = 1))
+#' upper = list(default_values = c(muc = 6, b = 0.9, non_dec = 0.4,
+#'                                 sd_non_dec = 0.15, tau = 0.15, A = 0.15,
+#'                                 alpha = 7),
+#'              incomp = c(muc = 4))
+#'
+#' data_prms = simulate_data(a_model, n = 100, k = 5, lower = lower,
+#'                           upper = upper, seed = 1, verbose = 0)
+#' range(data_prms$prms$muc.comp)
+#' range(data_prms$prms$muc.incomp)
 #'
 #' @note
 #' A function for `fits_ids_dm` will be provided in the future.
@@ -2570,7 +2796,7 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
   }
 
   # get free_prms (needed further below for checks and actual simulation call)
-  free_prms <- names(coef(object, select_unique = T))
+  free_prms <- names(coef(object, select_unique = TRUE))
 
 
   # input checks on df_prms (lower/upper are checked further below)
@@ -2606,7 +2832,7 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
       # exploting the function a bit :)
       m_s <- get_lower_upper_smart(
         drift_dm_obj = object, lower = means,
-        upper = sds, labels = T
+        upper = sds, labels = TRUE
       )
       means <- m_s$lower
       sds <- m_s$upper
@@ -2614,11 +2840,11 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
 
     l_u <- get_lower_upper_smart(
       drift_dm_obj = object, lower = lower,
-      upper = upper, labels = T
+      upper = upper, labels = TRUE
     )
     sim_prms <- simulate_values(
       lower = l_u$lower, upper = l_u$upper, k = k,
-      cast_to_data_frame = T,
+      cast_to_data_frame = TRUE,
       add_id_column = "numeric", distr = distr,
       means = means, sds = sds
     )
@@ -2646,7 +2872,7 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
     one_prm_set <- sim_prms[one_k, ]
     new_prm_values <- one_prm_set[names(one_prm_set) != "ID"]
     stopifnot(names(free_prms) == names(new_prm_values))
-    coef(object, eval_model = T) <- as.numeric(new_prm_values)
+    coef(object, eval_model = TRUE) <- as.numeric(new_prm_values)
 
     # then simulate
     one_sim_dat <- simulate_one_data_set(drift_dm_obj = object, n = n)
@@ -2671,8 +2897,10 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
 #' single numeric, or a (named) numeric vector with the same length as
 #' conds(drift_dm_obj)
 #'
-#' @returns A data.frame with the columns "RT", "<b_column>", and "Cond".
+#' @returns A data.frame with the columns "RT", "<b_column>", and "Cond"; and
+#' with n rows.
 #'
+#' @keywords internal
 simulate_one_data_set <- function(drift_dm_obj, n) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -2711,7 +2939,7 @@ simulate_one_data_set <- function(drift_dm_obj, n) {
   if (is.null(drift_dm_obj$pdfs)) {
     drift_dm_obj <- re_evaluate_model(
       drift_dm_obj = drift_dm_obj,
-      eval_model = T
+      eval_model = TRUE
     )
   }
 

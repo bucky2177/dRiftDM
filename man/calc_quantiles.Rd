@@ -51,3 +51,4 @@ if all are not NULL, returns both.
 \seealso{
 \code{\link[=new_stats_dm]{new_stats_dm()}}
 }
+\keyword{internal}

@@ -14,8 +14,10 @@ single numeric, or a (named) numeric vector with the same length as
 conds(drift_dm_obj)}
 }
 \value{
-A data.frame with the columns "RT", "<b_column>", and "Cond".
+A data.frame with the columns "RT", "<b_column>", and "Cond"; and
+with n rows.
 }
 \description{
 Function that simulates a single data based on a model (using the prms set
 }
+\keyword{internal}

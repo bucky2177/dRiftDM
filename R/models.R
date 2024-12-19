@@ -34,6 +34,26 @@
 #' intensive). Important: Variable drift rate is only possible with dRiftDM's
 #' `mu_constant` function. No custom drift rate is yet possible in this case.
 #'
+#' @returns
+#'
+#' An object of type `drift_dm` (parent class) and `ratcliff_dm` (child class),
+#' created by the function [dRiftDM::drift_dm()].
+#'
+#'
+#' @examples
+#' # the model with default settings
+#' my_model <- ratcliff_dm()
+#'
+#' # the model with a variable non-decision time and with a more coarse
+#' # discretization
+#' my_model <- ratcliff_dm(
+#'   var_non_dec = TRUE,
+#'   t_max = 1.5,
+#'   dx = .005,
+#'   dt = .005
+#' )
+#'
+#'
 #' @seealso [dRiftDM::component_shelf()], [dRiftDM::drift_dm()]
 #'
 #' @export
@@ -81,6 +101,7 @@ ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
 #' @returns a vector of the same length as t_vec with the drift rate for
 #' each element of the vector.
 #'
+#' @keywords internal
 mu_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   muc <- prms_model[["muc"]]
   if (!is.numeric(muc) | length(muc) != 1) {
@@ -104,6 +125,7 @@ mu_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'
 #' @returns a vector calculated as t_vec*muc
 #'
+#' @keywords internal
 mu_int_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   muc <- prms_model[["muc"]]
   if (!is.numeric(muc) | length(muc) != 1) {
@@ -129,6 +151,7 @@ mu_int_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' @returns a vector of the same length as x_vec with zeros, except for the
 #' element in the middle of the vector
 #'
+#' @keywords internal
 x_dirac_0 <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
   dx <- prms_solve[["dx"]]
   if (!is.numeric(dx) | length(dx) != 1) {
@@ -156,6 +179,7 @@ x_dirac_0 <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
 #' @returns returns the PDF of a uniform distribution for x_vec, centered around
 #' zero and with a range of "range_start".
 #'
+#' @keywords internal
 x_uniform <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
   range_start <- prms_model[["range_start"]]
   dx <- prms_solve[["dx"]]
@@ -188,6 +212,7 @@ x_uniform <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
 #' @returns a vector of the same length as t_vec with the b value for
 #' each element of the vector.
 #'
+#' @keywords internal
 b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   b <- prms_model[["b"]]
   if (!is.numeric(b) | length(b) != 1) {
@@ -211,6 +236,7 @@ b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'
 #' @returns a vector of the same length as t_vec only zeros.
 #'
+#' @keywords internal
 dt_b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   # constant boundary
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
@@ -234,6 +260,7 @@ dt_b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' @returns a vector of the same length as t_vec with zeros, except for the
 #' element matching with "non_dec" with respect to "t_vec"
 #'
+#' @keywords internal
 nt_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   non_dec <- prms_model[["non_dec"]]
   tmax <- prms_solve[["t_max"]]
@@ -277,6 +304,7 @@ nt_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' @returns returns the PDF of a uniform distribution for t_vec, centered around
 #' "non_dec" and with a range of "range_non_dec".
 #'
+#' @keywords internal
 nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   non_dec <- prms_model[["non_dec"]]
   range_non_dec <- prms_model[["range_non_dec"]]
@@ -363,6 +391,25 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' incompatible trials. Also, the model contains the custom parameter
 #' `peak_l`, containing the peak latency (`(a-2)*tau`).
 #'
+#' @returns
+#'
+#' An object of type `drift_dm` (parent class) and `dmc_dm` (child class),
+#' created by the function [dRiftDM::drift_dm()].
+#'
+#' @examples
+#' # the model with default settings
+#' my_model <- dmc_dm()
+#'
+#' # the model with no variability in the starting point and with a more coarse
+#' # discretization
+#' my_model <- dmc_dm(
+#'   var_start = FALSE,
+#'   t_max = 1.5,
+#'   dx = .0025,
+#'   dt = .0025
+#' )
+#'
+#'
 #' @references
 #' \insertRef{Ulrichetal.2015}{dRiftDM}
 #'
@@ -435,6 +482,7 @@ dmc_dm <- function(var_non_dec = TRUE, var_start = TRUE, instr = NULL,
 #' @returns provides the first derivative of the superimposed process with
 #' respect to t_vec.
 #'
+#' @keywords internal
 mu_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   # unpack values and conduct checks
   muc <- prms_model[["muc"]]
@@ -484,6 +532,7 @@ mu_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' @returns provides the scaled gamma distribution function of the superimposed
 #' process for each time step in t_vec.
 #'
+#' @keywords internal
 mu_int_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   # unpack values and conduct checks
   muc <- prms_model[["muc"]]
@@ -526,6 +575,7 @@ mu_int_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' @returns returns the PDF of a beta-shaped distribution for x_vec, centered
 #' around zero and with a shape parameter "alpha".
 #'
+#' @keywords internal
 x_beta <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
   alpha <- prms_model[["alpha"]]
   dx <- prms_solve[["dx"]]
@@ -559,6 +609,7 @@ x_beta <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
 #' mean "non_dec" and standard deviation "sd_non_dec". Lower truncation is 0.
 #' Upper truncation is max(t_vec)
 #'
+#' @keywords internal
 nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
                                 ddm_opts) {
   non_dec <- prms_model[["non_dec"]]
@@ -636,7 +687,25 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #'
 #' Per default, the parameter `r` is assumed to be fixed (i.e., is not estimated
 #' freely). The model also contains the custom parameter `interf_t`, quantifying
-#' the interference time (`sd_0 / r`)
+#' the interference time (`sd_0 / r`).
+#'
+#'
+#' @returns
+#'
+#' An object of type `drift_dm` (parent class) and `ssp_dm` (child class),
+#' created by the function [dRiftDM::drift_dm()].
+#'
+#' @examples
+#' # the model with default settings
+#' my_model <- ssp_dm()
+#'
+#' # the model with a more coarse discretization
+#' my_model <- ssp_dm(
+#'   t_max = 1.5,
+#'   dx = .0025,
+#'   dt = .0025
+#' )
+#'
 #'
 #' @references
 #' \insertRef{Whiteetal.2011}{dRiftDM}
@@ -697,6 +766,7 @@ ssp_dm <- function(instr = NULL, obs_data = NULL, sigma = 1, t_max = 3,
 #'
 #' @returns provides the drift rate for SSP with respect to t_vec
 #'
+#' @keywords internal
 mu_ssp <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   # extract all parameters
   p <- prms_model[["p"]]
@@ -756,6 +826,7 @@ mu_ssp <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' @returns a vector of the same length as t_vec with the boundary values (or
 #' the deriviative) for each element of the vector.
 #'
+#' @keywords internal
 b_hyperbol <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   b0 <- prms_model[["b0"]]
   kappa <- prms_model[["kappa"]]
@@ -818,6 +889,7 @@ dt_b_hyperbol <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' @returns a vector of the same length as t_vec with the boundary values (or
 #' the deriviative) for each element of the vector.
 #'
+#' @keywords internal
 b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   b0 <- prms_model[["b0"]]
   lambda <- prms_model[["lambda"]]
@@ -881,7 +953,12 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'
 #' @description
 #' This function is meant as a convenient way to access pre-built
-#' model component functions. It returns a list of the following functions.
+#' model component functions.
+#'
+#'
+#' @details
+#'
+#' The function provides the following functions:
 #'
 #' * `mu_constant`, provides the component function for a constant
 #' drift rate with parameter `muc`.
@@ -896,7 +973,6 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'  target), `sd_0` (initial spotlight width), `r` (shrinking rate of the
 #'  spotlight) and 'sign' (an auxiliary parameter for controlling the
 #'  contribution of the flanker stimuli). Note that no `mu_int_ssp` exists.
-#'
 #'
 #' * `mu_int_constant`, provides the complementary integral to `mu_constant`.
 #'
@@ -945,10 +1021,16 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' `mu_int_fun` but which throws an error. Might come in handy when a user
 #' doesn't require the integral of the drift rate.
 #'
-#'
-#' @details
 #' See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
 #' to set/modify/customize the components of a diffusion model.
+#'
+#' @returns
+#' A list of the respective functions; each entry/function can be accessed by
+#' "name" (see the Example and Details).
+#'
+#' @examples
+#' pre_built_functions = component_shelf()
+#' names(pre_built_functions)
 #'
 #' @export
 component_shelf <- function() {

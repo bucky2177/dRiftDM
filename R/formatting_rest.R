@@ -33,7 +33,7 @@ print.traces_dm_list <- function(x, ...,
     cat("\nCondition:", one_cond, "\n")
     one_trace_obj <- unpack_traces(
       traces_dm_list_obj,
-      unpack = F, conds = one_cond
+      unpack = FALSE, conds = one_cond
     )
     print(one_trace_obj,
       round_digits = round_digits,
@@ -53,7 +53,7 @@ print.traces_dm <- function(x, ...,
   traces_dm_obj <- x
 
   # get all traces for one cond
-  e_samples <- unpack_traces(object = traces_dm_obj, unpack = T)
+  e_samples <- unpack_traces(object = traces_dm_obj, unpack = TRUE)
 
 
   # find how many steps and rows to print

@@ -9,7 +9,7 @@ simulate_values(
   upper,
   k,
   distr = NULL,
-  cast_to_data_frame = T,
+  cast_to_data_frame = TRUE,
   add_id_column = "numeric",
   seed = NULL,
   ...
@@ -43,12 +43,17 @@ to character if the argument \code{cast_to_data_frame} is set to FALSE.}
 }
 \value{
 If \code{cast_to_data_frame} is TRUE, a data.frame with \code{k} rows and at least
-\code{length(lower)/length(upper)} columns. Otherwise a matrix with
-the same number of rows and columns. Columns are labeled either from
-V1 to Vk or in case \code{lower} and \code{upper} are named numeric vectors using
-the labels of both vectors.
+\code{length(lower);length(upper)} columns. Otherwise a matrix with
+the same number of rows and columns. Columns are labeled either from V1 to
+Vk or in case \code{lower} and \code{upper} are named numeric vectors using the
+labels of both vectors.
 
-If \code{add_id_column} is not "none", an ID column is provided.
+If \code{add_id_column} is not "none", an ID column is provided of the respective
+data type.
+
+The data type of the parameters will be numeric, unless \code{add_id_column}
+is "character" and \code{cast_to_data_frame} is FALSE. In this case the returned
+matrix will be of type character.
 }
 \description{
 Draw values, most likely model parameters.
@@ -58,4 +63,37 @@ When drawing from a truncated normal distribution, users must provide values
 for the arguments \code{means} and \code{sds}. These are numeric vectors of the same
 size as \code{lower} and \code{upper}, and indicate the mean and the standard deviation
 of the normal distributions.
+}
+\examples{
+
+# Example 1: Draw from uniform distributions ------------------------------
+lower = c(a = 1, b = 1, c = 1)
+upper = c(a = 3, b = 4, c = 5)
+values = simulate_values(
+  lower = lower,
+  upper = upper,
+  k = 50,
+  add_id_column = "none"
+)
+summary(values)
+
+# Example 2: Draw from truncated normal distributions ---------------------
+lower = c(a = 1, b = 1, c = 1)
+upper = c(a = 3, b = 4, c = 5)
+means = c(a = 2, b = 2.5, c = 3)
+sds = c(a = 0.5, b = 0.5, c = 0.5)
+values = simulate_values(
+  lower = lower,
+  upper = upper,
+  distr = "tnorm",
+  k = 5000,
+  add_id_column = "none",
+  means = means,
+  sds = sds
+)
+quantile(values$a, probs = c(0.025, 0.5, 0.975))
+quantile(values$b, probs = c(0.025, 0.5, 0.975))
+quantile(values$c, probs = c(0.025, 0.5, 0.975))
+
+
 }

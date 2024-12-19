@@ -27,3 +27,4 @@ This function takes an instruction as a string and then extracts the
 conditions and parameters, depending on what "type" of operation it is.
 The expected structure is listed in the details docu of flex_prms()
 }
+\keyword{internal}

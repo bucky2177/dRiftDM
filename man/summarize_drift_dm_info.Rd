@@ -13,9 +13,10 @@ summarize_drift_dm_info(full_name_to_file, detailed_info)
 }
 \value{
 a string with infos about the fit procedure name, last call,
-maybe model, individuals, lower/upper and seed
+and, if detailed_info = TRUE, model, individuals, lower/upper, and seed.
 }
 \description{
 Requires a path to the info file of a fit procedure (see
 \link{estimate_model_ids}) and turns its main information into a string
 }
+\keyword{internal}

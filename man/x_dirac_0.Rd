@@ -24,3 +24,4 @@ element in the middle of the vector
 \description{
 A dirac delta on zero, to provide no bias and a constant starting point
 }
+\keyword{internal}

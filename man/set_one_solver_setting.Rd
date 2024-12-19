@@ -15,7 +15,7 @@ set_one_solver_setting(drift_dm_obj, name_prm_solve, value_prm_solve)
 \item{value_prm_solve}{either a single numeric or character string}
 }
 \value{
-the updated un-evauated (!) drift_dm_obj object
+the updated un-evaluated (!) drift_dm_obj object
 }
 \description{
 Internal function to update one aspect of \code{prms_solve} or \code{solver}.
@@ -25,3 +25,4 @@ Ensures that the supplied values are reasonable and that \code{nx} and \code{nt}
 updated. The functions \link{prms_solve<-} and
 \link{solver<-} pass their arguments forward to this function.
 }
+\keyword{internal}

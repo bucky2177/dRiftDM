@@ -12,7 +12,7 @@ validate_fits_ids(fits_ids, progress)
 \item{progress}{numeric, 0, no progress, 1 basic output, 2 progress bars}
 }
 \value{
-the unmodified fits_ids objects
+the unmodified fits_ids objects after passing all tests.
 }
 \description{
 checks if all the information are in the fits_ids_dm (see
@@ -36,3 +36,4 @@ in the info file
 the info file
 }
 }
+\keyword{internal}

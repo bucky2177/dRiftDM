@@ -25,3 +25,4 @@ Creates a vector of labels from a parameter-condition combination matrix,
 resulting from a call to \link{prms_cond_combo}. Used, for instance, in
 \link{coef.drift_dm}.
 }
+\keyword{internal}

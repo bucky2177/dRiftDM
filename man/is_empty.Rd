@@ -15,3 +15,4 @@ TRUE or FALSE otherwise
 \description{
 Check if an object of length <= 1 is either empty or contains entry with ""
 }
+\keyword{internal}

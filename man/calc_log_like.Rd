@@ -49,3 +49,4 @@ Wraps up the calculation in a tryCatch statement, throwing warnings when
 log_like_values can not be calculated
 }
 }
+\keyword{internal}

@@ -21,3 +21,4 @@ of parameters. For example, when the parameter muc is equal for comp, neutral,
 and incomp, the function will provide the info "muc" and "comp", thus
 dropping incomp and neutral, where the parameter is the same.
 }
+\keyword{internal}
