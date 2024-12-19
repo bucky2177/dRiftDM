@@ -228,12 +228,12 @@ because replacing the component functions after the model has been fitted
 <span class="r-in"><span><span class="va">prms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">3</span>, b <span class="op">=</span> <span class="fl">0.6</span>, non_dec <span class="op">=</span> <span class="fl">0.3</span>, range_non_dec <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">conds</span> <span class="op">&lt;-</span> <span class="st">"null"</span></span></span>
 <span class="r-in"><span><span class="va">new_flex_prms</span> <span class="op">&lt;-</span> <span class="fu"><a href="flex_prms.html">flex_prms</a></span><span class="op">(</span><span class="va">prms</span>, conds <span class="op">=</span> <span class="va">conds</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="flex_prms.html">flex_prms</a></span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span> <span class="op">=</span> <span class="va">new_flex_prms</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="flex_prms.html">flex_prms</a></span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">new_flex_prms</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># accessor method also available for fits_ids_dm objects</span></span></span>
 <span class="r-in"><span><span class="co"># (see estimate_model_ids)</span></span></span>
 <span class="r-in"><span><span class="co"># get an exemplary fits_ids_dm object</span></span></span>
-<span class="r-in"><span><span class="va">fits</span> <span class="op">=</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">comp_funs</span><span class="op">(</span><span class="va">fits</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mu_fun"     "mu_int_fun" "x_fun"      "b_fun"      "dt_b_fun"  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [6] "nt_fun"    </span>

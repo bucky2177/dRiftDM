@@ -207,13 +207,13 @@ further information.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># then fit the data to the model using Nelder-Mead after setting some start</span></span></span>
 <span class="r-in"><span><span class="co"># values</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">2</span>, b <span class="op">=</span> <span class="fl">0.5</span>, non_dec <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">2</span>, b <span class="op">=</span> <span class="fl">0.5</span>, non_dec <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">my_model</span> <span class="op">&lt;-</span> <span class="fu">estimate_model</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  drift_dm_obj <span class="op">=</span> <span class="va">my_model</span>, <span class="co"># (starting values are those set to the model)</span></span></span>
-<span class="r-in"><span>  lower <span class="op">=</span> <span class="va">lower</span>,           <span class="co"># lower and upper parameter ranges</span></span></span>
+<span class="r-in"><span>  lower <span class="op">=</span> <span class="va">lower</span>, <span class="co"># lower and upper parameter ranges</span></span></span>
 <span class="r-in"><span>  upper <span class="op">=</span> <span class="va">upper</span>,</span></span>
-<span class="r-in"><span>  use_de_optim <span class="op">=</span> <span class="cn">FALSE</span>,        <span class="co"># don't use the default diff. evol. algorithm</span></span></span>
-<span class="r-in"><span>  use_nmkb <span class="op">=</span> <span class="cn">TRUE</span>              <span class="co"># but Nelder-Mead</span></span></span>
+<span class="r-in"><span>  use_de_optim <span class="op">=</span> <span class="cn">FALSE</span>, <span class="co"># don't use the default diff. evol. algorithm</span></span></span>
+<span class="r-in"><span>  use_nmkb <span class="op">=</span> <span class="cn">TRUE</span> <span class="co"># but Nelder-Mead</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># show the result</span></span></span>
@@ -234,7 +234,6 @@ further information.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Observed Data: 300 trials null</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># Example 2: --------------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co"># the second example uses a more complex model and the robust</span></span></span>
@@ -242,13 +241,17 @@ further information.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get a model and attach data to it</span></span></span>
 <span class="r-in"><span><span class="va">my_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span>t_max <span class="op">=</span> <span class="fl">1.5</span>, dx <span class="op">=</span> <span class="fl">.0025</span>, dt <span class="op">=</span> <span class="fl">.0025</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="obs_data.html">obs_data</a></span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span> <span class="op">=</span> <span class="va">dmc_synth_data</span> <span class="co"># this data set comes with dRiftDM</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="obs_data.html">obs_data</a></span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">dmc_synth_data</span> <span class="co"># this data set comes with dRiftDM</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># set the search space</span></span></span>
-<span class="r-in"><span><span class="va">lower</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">0.2</span>, non_dec <span class="op">=</span> <span class="fl">0.1</span>, sd_non_dec <span class="op">=</span> <span class="fl">0.005</span>,</span></span>
-<span class="r-in"><span>           tau <span class="op">=</span> <span class="fl">0.02</span>, A <span class="op">=</span> <span class="fl">0.01</span>, alpha <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">upper</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">7</span>, b <span class="op">=</span> <span class="fl">1.0</span>, non_dec <span class="op">=</span> <span class="fl">0.6</span>, sd_non_dec <span class="op">=</span> <span class="fl">0.10</span>,</span></span>
-<span class="r-in"><span>           tau <span class="op">=</span> <span class="fl">0.30</span>, A <span class="op">=</span> <span class="fl">0.30</span>, alpha <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lower</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">0.2</span>, non_dec <span class="op">=</span> <span class="fl">0.1</span>, sd_non_dec <span class="op">=</span> <span class="fl">0.005</span>,</span></span>
+<span class="r-in"><span>  tau <span class="op">=</span> <span class="fl">0.02</span>, A <span class="op">=</span> <span class="fl">0.01</span>, alpha <span class="op">=</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">upper</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  muc <span class="op">=</span> <span class="fl">7</span>, b <span class="op">=</span> <span class="fl">1.0</span>, non_dec <span class="op">=</span> <span class="fl">0.6</span>, sd_non_dec <span class="op">=</span> <span class="fl">0.10</span>,</span></span>
+<span class="r-in"><span>  tau <span class="op">=</span> <span class="fl">0.30</span>, A <span class="op">=</span> <span class="fl">0.30</span>, alpha <span class="op">=</span> <span class="fl">8</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># then fit the data to the model (uses multiple cores); on bucky's laptop</span></span></span>
 <span class="r-in"><span><span class="co"># this takes about 7 minutes</span></span></span>
@@ -259,7 +262,6 @@ further information.</p>
 <span class="r-in"><span>  upper <span class="op">=</span> <span class="va">upper</span>,</span></span>
 <span class="r-in"><span>  de_n_cores <span class="op">=</span> <span class="va">n_cores</span>, <span class="co"># use multiple cores (check your hardware)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

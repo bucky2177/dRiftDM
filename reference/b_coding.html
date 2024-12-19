@@ -111,7 +111,7 @@ coding is evoked</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># show the default accuracy coding of dRiftDM</span></span></span>
-<span class="r-in"><span><span class="va">my_model</span> <span class="op">=</span> <span class="fu"><a href="ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># get a pre-built model</span></span></span>
+<span class="r-in"><span><span class="va">my_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># get a pre-built model</span></span></span>
 <span class="r-in"><span><span class="fu">b_coding</span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $column</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Error"</span>
@@ -126,14 +126,13 @@ coding is evoked</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># can be modified/replaced</span></span></span>
-<span class="r-in"><span><span class="fu">b_coding</span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span><span class="op">[[</span><span class="st">"column"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="st">"Response"</span></span></span>
+<span class="r-in"><span><span class="fu">b_coding</span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span><span class="op">[[</span><span class="st">"column"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Response"</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># accessor method also available for fits_ids_dm objects</span></span></span>
 <span class="r-in"><span><span class="co"># get an exemplary fits_ids_dm object (see estimate_model_ids)</span></span></span>
-<span class="r-in"><span><span class="va">fits</span> <span class="op">=</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">b_coding</span><span class="op">(</span><span class="va">fits</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "column"       "u_name_value" "l_name_value"</span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
