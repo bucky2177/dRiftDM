@@ -170,12 +170,12 @@ comp_funs(my_model)[["nt_fun"]] <- nt_uniform
 prms <- c(muc = 3, b = 0.6, non_dec = 0.3, range_non_dec = 0.05)
 conds <- "null"
 new_flex_prms <- flex_prms(prms, conds = conds)
-flex_prms(my_model) = new_flex_prms
+flex_prms(my_model) <- new_flex_prms
 
 # accessor method also available for fits_ids_dm objects
 # (see estimate_model_ids)
 # get an exemplary fits_ids_dm object
-fits = get_example_fits_ids()
+fits <- get_example_fits_ids()
 names(comp_funs(fits))
 
 }

@@ -89,7 +89,6 @@ my_model <- dmc_dm(
   dt = .0025
 )
 
-
 }
 \references{
 \insertRef{Ulrichetal.2015}{dRiftDM}

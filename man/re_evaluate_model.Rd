@@ -49,7 +49,6 @@ my_model <- re_evaluate_model(my_model)
 str(my_model$pdfs)
 print(my_model$log_like_val)
 
-
 }
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}

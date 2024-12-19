@@ -89,7 +89,7 @@ call, and the number of individual data sets.
 # run estimate_model_ids(). Yet, if users run the example code for
 # estimate_model_ids(), the following code works.
 \dontrun{
-all_fits = load_fits_ids(fit_procedure_name = "example_flanker")
+all_fits <- load_fits_ids(fit_procedure_name = "example_flanker")
 }
 
 # to get familiar with objects of type fits_ids_dm, we can also run this

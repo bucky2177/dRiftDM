@@ -72,6 +72,4 @@ plot(ratcliff_dm(var_non_dec = TRUE))
 # plot the component functions of the DMC model
 plot(dmc_dm(), col = c("green", "red"))
 
-
-
 }

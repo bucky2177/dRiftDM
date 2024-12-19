@@ -8,12 +8,13 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Fit and explore Drift Diffusion Models (DDMs), a common tool in psychology for desribing decision processes in simple tasks. It can handle both time-independent and time-dependent DDMs. You either choose pre-built models or create your own, and the package takes care of model predictions and parameter estimation. Model predictions are derived from the numerical solutions provided by Richter, Ulrich, and Janczyk (2023, \doi{10.1016/j.jmp.2023.102756}).
+Fit and explore Drift Diffusion Models (DDMs), a common tool in psychology for describing decision processes in simple tasks. It can handle both time-independent and time-dependent DDMs. You either choose prebuilt models or create your own, and the package takes care of model predictions and parameter estimation. Model predictions are derived via the numerical solutions provided by Richter, Ulrich, and Janczyk (2023, \doi{10.1016/j.jmp.2023.102756}).
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://github.com/bucky2177/dRiftDM}
+  \item \url{https://bucky2177.github.io/dRiftDM/}
   \item Report bugs at \url{https://github.com/bucky2177/dRiftDM/issues}
 }
 

@@ -63,5 +63,4 @@ summary(a_model)
 a_model <- re_evaluate_model(a_model)
 summary(a_model)
 
-
 }

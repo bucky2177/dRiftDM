@@ -31,5 +31,4 @@ obs_data(a_model) <- dmc_synth_data
 # calculate the log-likelihood
 logLik(a_model)
 
-
 }

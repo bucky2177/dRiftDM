@@ -69,17 +69,16 @@ coding is evoked
 }
 \examples{
 # show the default accuracy coding of dRiftDM
-my_model = ratcliff_dm() # get a pre-built model
+my_model <- ratcliff_dm() # get a pre-built model
 b_coding(my_model)
 
 # can be modified/replaced
-b_coding(my_model)[["column"]] = "Response"
+b_coding(my_model)[["column"]] <- "Response"
 
 # accessor method also available for fits_ids_dm objects
 # get an exemplary fits_ids_dm object (see estimate_model_ids)
-fits = get_example_fits_ids()
+fits <- get_example_fits_ids()
 names(b_coding(fits))
-
 
 }
 \seealso{

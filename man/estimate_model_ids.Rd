@@ -111,29 +111,31 @@ flanker_data <- ulrich_flanker_data # this data set comes with dRiftDM
 
 # subset to the first four individuals (we don't need to fit the entire data
 # set to demonstrate the function)
-flanker_data <- flanker_data[flanker_data$ID \%in\% 1:4,]
+flanker_data <- flanker_data[flanker_data$ID \%in\% 1:4, ]
 
 # we define an upper and lower boundary for the parameter space
-lower <- c(muc = 1, b = 0.2, non_dec = 0.1, sd_non_dec = 0.005,
-           tau = 0.02, A = 0.01, alpha = 2)
-upper <- c(muc = 7, b = 1.0, non_dec = 0.6, sd_non_dec = 0.10,
-           tau = 0.30, A = 0.30, alpha = 8)
+lower <- c(
+  muc = 1, b = 0.2, non_dec = 0.1, sd_non_dec = 0.005,
+  tau = 0.02, A = 0.01, alpha = 2
+)
+upper <- c(
+  muc = 7, b = 1.0, non_dec = 0.6, sd_non_dec = 0.10,
+  tau = 0.30, A = 0.30, alpha = 8
+)
 
 # and then we call the fit procedure, which essentially is a wrapper around
 # estimate_model (uses multiple cores); on bucky's laptop, this runs in about
 # 10 minutes
 n_cores <- pmax(parallel::detectCores() - 2, 1)
 estimate_model_ids(
-  drift_dm_obj = model,           # which model (DMC)
-  obs_data_ids = flanker_data,    # which data?
+  drift_dm_obj = model, # which model (DMC)
+  obs_data_ids = flanker_data, # which data?
   lower = lower,
   upper = upper,
   fit_procedure_name = "example_flanker",
   de_n_cores = n_cores, # use multiple cores (check your hardware)
 )
-
 }
-
 
 }
 \seealso{

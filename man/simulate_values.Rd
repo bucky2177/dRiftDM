@@ -67,9 +67,9 @@ of the normal distributions.
 \examples{
 
 # Example 1: Draw from uniform distributions ------------------------------
-lower = c(a = 1, b = 1, c = 1)
-upper = c(a = 3, b = 4, c = 5)
-values = simulate_values(
+lower <- c(a = 1, b = 1, c = 1)
+upper <- c(a = 3, b = 4, c = 5)
+values <- simulate_values(
   lower = lower,
   upper = upper,
   k = 50,
@@ -78,11 +78,11 @@ values = simulate_values(
 summary(values)
 
 # Example 2: Draw from truncated normal distributions ---------------------
-lower = c(a = 1, b = 1, c = 1)
-upper = c(a = 3, b = 4, c = 5)
-means = c(a = 2, b = 2.5, c = 3)
-sds = c(a = 0.5, b = 0.5, c = 0.5)
-values = simulate_values(
+lower <- c(a = 1, b = 1, c = 1)
+upper <- c(a = 3, b = 4, c = 5)
+means <- c(a = 2, b = 2.5, c = 3)
+sds <- c(a = 0.5, b = 0.5, c = 0.5)
+values <- simulate_values(
   lower = lower,
   upper = upper,
   distr = "tnorm",
@@ -94,6 +94,5 @@ values = simulate_values(
 quantile(values$a, probs = c(0.025, 0.5, 0.975))
 quantile(values$b, probs = c(0.025, 0.5, 0.975))
 quantile(values$c, probs = c(0.025, 0.5, 0.975))
-
 
 }

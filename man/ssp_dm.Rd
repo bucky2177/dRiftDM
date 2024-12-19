@@ -77,7 +77,6 @@ my_model <- ssp_dm(
   dt = .0025
 )
 
-
 }
 \references{
 \insertRef{Whiteetal.2011}{dRiftDM}

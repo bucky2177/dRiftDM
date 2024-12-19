@@ -53,7 +53,6 @@ coef(all_fits)
 # Or all parameters across all conditions
 coef(all_fits, select_unique = FALSE)
 
-
 }
 \seealso{
 \code{\link[stats:AIC]{stats::AIC()}}, \code{\link[stats:AIC]{stats::BIC()}}, \link{logLik.drift_dm}

@@ -71,7 +71,6 @@ a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
 coef(a_model) # gives the free and unique parameters
 coef(a_model, select_unique = FALSE) # gives the entire parameter matrix
 
-
 }
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}

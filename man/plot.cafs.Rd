@@ -92,5 +92,4 @@ plot(cafs)
 cafs <- calc_stats(dmc_synth_data, type = "cafs")
 plot(cafs)
 
-
 }

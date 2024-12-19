@@ -138,7 +138,7 @@ conds <- c("one", "two")
 # then call the backbone function (note that we don't provide any component
 # functions, so dRiftDM uses the default functions as documented in
 # comp_funs())
-my_model = drift_dm(prms_model = prms, conds = conds, subclass = "example")
+my_model <- drift_dm(prms_model = prms, conds = conds, subclass = "example")
 print(my_model)
 
 }

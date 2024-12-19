@@ -72,7 +72,6 @@ my_model <- ratcliff_dm(
   dt = .005
 )
 
-
 }
 \seealso{
 \code{\link[=component_shelf]{component_shelf()}}, \code{\link[=drift_dm]{drift_dm()}}

@@ -40,5 +40,4 @@ nobs(a_model)
 # same number of observations as in the original data set
 nrow(dmc_synth_data)
 
-
 }

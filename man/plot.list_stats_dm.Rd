@@ -34,12 +34,11 @@ each statistic in the list (e.g., \code{plot(x$cafs)}; \code{plot(x$quantiles)})
 }
 \examples{
 # get a list of statistics for demonstration purpose
-all_fits = get_example_fits_ids()
-stats = calc_stats(all_fits, type = c("cafs", "quantiles"))
+all_fits <- get_example_fits_ids()
+stats <- calc_stats(all_fits, type = c("cafs", "quantiles"))
 
 # then call the plot function.
-plot(stats, mfrow = c(1,2))
-
+plot(stats, mfrow = c(1, 2))
 
 }
 \seealso{

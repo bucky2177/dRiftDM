@@ -67,7 +67,7 @@ See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
 to set/modify/customize the components of a diffusion model.
 }
 \examples{
-pre_built_functions = component_shelf()
+pre_built_functions <- component_shelf()
 names(pre_built_functions)
 
 }

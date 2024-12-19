@@ -84,7 +84,9 @@ plot(quantiles)
 # make the plot a little bit more pretty
 plot(quantiles,
   col = c("green", "red"),
-  ylim = c(0.5, 1)
+  xlim = c(0.2, 0.6),
+  ylab = "Quantile Level",
+  xlab = "Response Times [s]"
 )
 
 # Example 2: Model predictions and observed data --------------------------
@@ -98,6 +100,5 @@ plot(quantiles)
 # Example 3: Only observed data -------------------------------------------
 quantiles <- calc_stats(dmc_synth_data, type = "quantiles")
 plot(quantiles)
-
 
 }

@@ -61,16 +61,14 @@ my_model <- ratcliff_dm()
 # show the discretization and scaling of the model
 prms_solve(my_model)
 # partially modify these settings
-prms_solve(my_model)[c("dx", "dt")] = c(0.005)
+prms_solve(my_model)[c("dx", "dt")] <- c(0.005)
 prms_solve(my_model)
 
 # accessor method also available for fits_ids_dm objects
 # (see estimate_model_ids)
 # get an exemplary fits_ids_dm object
-fits = get_example_fits_ids()
+fits <- get_example_fits_ids()
 prms_solve(fits)
-
-
 
 }
 \seealso{

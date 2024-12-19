@@ -91,7 +91,7 @@ head(obs_data(my_model))
 # Important: ---------------------------------------------------------------
 # The returned data.frame may be sorted differently than the one initially
 # supplied.
-some_data <- some_data[sample(1:nrow(some_data)),] #' # shuffle the data set
+some_data <- some_data[sample(1:nrow(some_data)), ] #' # shuffle the data set
 obs_data(my_model) <- some_data
 all.equal(obs_data(my_model), some_data)
 # so don't do obs_data(my_model)["Cond"] <- ...
@@ -100,7 +100,7 @@ all.equal(obs_data(my_model), some_data)
 # accessor method also available for fits_ids_dm objects
 # (see estimate_model_ids)
 # get an exemplary fits_ids_dm object
-fits = get_example_fits_ids()
+fits <- get_example_fits_ids()
 head(obs_data(fits))
 
 }

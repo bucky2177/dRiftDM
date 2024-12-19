@@ -18,10 +18,10 @@ This function verifies whether the input is a numeric vector with no missing
 (\code{NA}, \code{NaN}) or infinite (\code{Inf} or \code{-Inf}) values.
 }
 \examples{
-dRiftDM:::is_numeric(c(1, 2, 3))       # TRUE
-dRiftDM:::is_numeric(c(1, 2, NA))      # FALSE
-dRiftDM:::is_numeric(c(1, 2, Inf))     # FALSE
-dRiftDM:::is_numeric("not numeric")    # FALSE
+dRiftDM:::is_numeric(c(1, 2, 3)) # TRUE
+dRiftDM:::is_numeric(c(1, 2, NA)) # FALSE
+dRiftDM:::is_numeric(c(1, 2, Inf)) # FALSE
+dRiftDM:::is_numeric("not numeric") # FALSE
 
 }
 \keyword{internal}

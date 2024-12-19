@@ -113,5 +113,4 @@ deltas <- calc_stats(
 )
 plot(deltas)
 
-
 }

@@ -54,6 +54,4 @@ all_fits <- get_example_fits_ids()
 sum_obj <- summary(all_fits)
 print(sum_obj, round_digits = 2)
 
-
-
 }

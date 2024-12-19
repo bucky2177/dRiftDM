@@ -58,7 +58,7 @@ some_traces <- simulate_traces(my_model, k = 1)
 conds(some_traces)
 
 # get an exemplary fits_ids_dm object (see estimate_model_ids)
-fits = get_example_fits_ids()
+fits <- get_example_fits_ids()
 conds(fits)
 
 # also works with data.frames that have a "Cond" column

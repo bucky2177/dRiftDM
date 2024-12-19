@@ -127,7 +127,7 @@ stored in a separate list \code{cust_prms}.
 \examples{
 # Example 1: Modify a flex_prms object  directly ---------------------------
 # create an auxiliary flex_prms object
-a_flex_prms_obj = flex_prms(
+a_flex_prms_obj <- flex_prms(
   c(muc = 3, b = 0.5, non_dec = 0.3),
   conds = c("foo", "bar")
 )
@@ -137,8 +137,8 @@ a_flex_prms_obj = flex_prms(
 # 2.) Let muc vary independently for the conditions foo and bar
 # 3.) Set non_dec in condition bar to be half as large as non_dec in
 #     condition bar
-instr =
-"b <!>
+instr <-
+  "b <!>
  muc ~
  non_dec ~ bar == (non_dec ~ foo) / 2
 "
@@ -146,9 +146,8 @@ modify_flex_prms(object = a_flex_prms_obj, instr = instr)
 
 
 # Example 2: Modify a flex_prms object stored inside a drift_dm object -----
-a_model = ratcliff_dm() # get a model for demonstration purpose
+a_model <- ratcliff_dm() # get a model for demonstration purpose
 modify_flex_prms(object = a_model, instr = "muc ~ => 4")
-
 
 }
 \seealso{

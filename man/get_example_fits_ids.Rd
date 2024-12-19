@@ -19,7 +19,6 @@ The returned fit object comprises DMC fitted to three subjects of the
 ulrich_flanker_data.
 }
 \examples{
-fits = get_example_fits_ids()
-
+fits <- get_example_fits_ids()
 
 }

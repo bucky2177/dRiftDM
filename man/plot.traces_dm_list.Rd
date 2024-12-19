@@ -102,7 +102,7 @@ plot(some_traces,
 
 # Plots for traces_dm objects ---------------------------------------------
 # we can also extract a single set of traces and plot them
-one_set_traces = some_traces$comp
+one_set_traces <- some_traces$comp
 plot(one_set_traces)
 
 # modifications to the plot generally work in the same way

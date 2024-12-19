@@ -59,7 +59,7 @@ the result contains the plain arrays with the traces.
 }
 \examples{
 # get a pre-built model to demonstrate the function
-my_model = dmc_dm()
+my_model <- dmc_dm()
 # get some traces ...
 some_traces <- simulate_traces(my_model, k = 2, seed = 1)
 # and then unpack them to get the underlying arrays

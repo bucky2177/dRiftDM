@@ -55,11 +55,10 @@ displayed in a grid layout within a single graphics device.
 }
 \examples{
 # get an auxiliary fit procedure result (see the function load_fits_ids)
-all_fits = get_example_fits_ids()
+all_fits <- get_example_fits_ids()
 hist(coef(all_fits)) # only three participants in this fit_ids object
 
 # allows for some customization
 hist(coef(all_fits), colors = "lightgreen")
-
 
 }
