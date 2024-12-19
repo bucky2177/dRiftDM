@@ -431,7 +431,9 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #' # make the plot a little bit more pretty
 #' plot(quantiles,
 #'   col = c("green", "red"),
-#'   ylim = c(0.5, 1)
+#'   xlim = c(0.2, 0.6),
+#'   ylab = "Quantile Level",
+#'   xlab = "Response Times [s]"
 #' )
 #'
 #' # Example 2: Model predictions and observed data --------------------------
