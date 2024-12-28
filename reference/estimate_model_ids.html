@@ -15,7 +15,7 @@ of the function call. One call to this function is considered a
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,9 +60,10 @@ of the function call. One call to this function is considered a
 <span>  <span class="va">lower</span>,</span>
 <span>  <span class="va">upper</span>,</span>
 <span>  <span class="va">fit_procedure_name</span>,</span>
+<span>  <span class="va">fit_path</span>,</span>
+<span>  fit_dir <span class="op">=</span> <span class="st">"drift_dm_fits"</span>,</span>
 <span>  folder_name <span class="op">=</span> <span class="va">fit_procedure_name</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  fit_dir <span class="op">=</span> <span class="st">"drift_dm_fits"</span>,</span>
 <span>  force_refit <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  progress <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  start_vals <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -96,6 +97,20 @@ procedure. This name will be stored in <code>drift_dm_fit_info.rds</code> to ide
 the fitting procedure, see also <a href="load_fits_ids.html">load_fits_ids</a>.</p></dd>
 
 
+<dt id="arg-fit-path">fit_path<a class="anchor" aria-label="anchor" href="#arg-fit-path"></a></dt>
+<dd><p>character, a path, pointing to the location where all fits
+shall be stored (i.e., <code>fit_dir</code> will be created in this location). From the
+user perspective, the path will likely be identical to the current working
+directory.</p></dd>
+
+
+<dt id="arg-fit-dir">fit_dir<a class="anchor" aria-label="anchor" href="#arg-fit-dir"></a></dt>
+<dd><p>character, a directory where (multiple) fitting procedures
+can be stored. If the directory does not exist yet, it will be created
+via <code>base::create.dir(fit_dir, recursive = TRUE)</code> in the location
+provided by <code>fit_path</code>. Default is <code>"drift_dm_fits"</code>.</p></dd>
+
+
 <dt id="arg-folder-name">folder_name<a class="anchor" aria-label="anchor" href="#arg-folder-name"></a></dt>
 <dd><p>character, a folder name for storing all the individual
 model fits. This variable should just state the name, and should not be
@@ -104,15 +119,8 @@ a path. Per default <code>folder_name</code> is identical to <code>fit_procedure
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>numeric, a seed to make the fitting procedure reproducable
-(only relevant for differntial evolution, see <a href="estimate_model.html">estimate_model</a>).
+(only relevant for differential evolution, see <a href="estimate_model.html">estimate_model</a>).
 Default is <code>NULL</code> which means no seed.</p></dd>
-
-
-<dt id="arg-fit-dir">fit_dir<a class="anchor" aria-label="anchor" href="#arg-fit-dir"></a></dt>
-<dd><p>character, a directory where (multiple) fitting procedures
-can be stored. If the directory does not exist yet, it will be created
-via <code>base::create.dir(fit_dir, recursive = TRUE)</code>. Default is
-<code>"drift_dm_fits"</code>.</p></dd>
 
 
 <dt id="arg-force-refit">force_refit<a class="anchor" aria-label="anchor" href="#arg-force-refit"></a></dt>
@@ -151,9 +159,9 @@ matching with <code>coef(drift_dm_obj, select_unique = TRUE)</code>.</p></dd>
 <code><a href="../articles/use_ddm_models.html">vignette("use_ddm_models", "dRiftDM")</a></code>.</p>
 <p>When developing the fitting routine we had three levels of files/folders
 in mind:</p><ul><li><p>In a directory/folder named <code>fit_dir</code> multiple fitting routines can be
-stored</p></li>
-<li><p>Each fitting routine has its own folder with name as given by
-<code>folder_name</code></p></li>
+stored (default is "drift_dm_fits")</p></li>
+<li><p>Each fitting routine has its own folder with a name as given by
+<code>folder_name</code> (e.g., "ulrich_flanker", "ulrich_simon", ...)</p></li>
 <li><p>Within each folder, a file called
 <code>drift_dm_fit_info.rds</code> contains the main information about the function
 call. That is, the time when last modifying/calling a fitting routine, the
@@ -170,45 +178,39 @@ has its own <code>&lt;individual&gt;.rds</code> file containing the modified
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># We don't run the example on CRAN because fitting multiple individuals</span></span></span>
-<span class="r-in"><span><span class="co"># takes minutes (and probably even hours)</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># We'll provide a somewhat unrealistic example, trimmed for speed.</span></span></span>
+<span class="r-in"><span><span class="co"># In practice, users likely employ more complex models and more individuals.</span></span></span>
+<span class="r-in"><span><span class="co"># However, a more realistic example would take minutes (and maybe even hours)</span></span></span>
+<span class="r-in"><span><span class="co"># and is therefore not suitable for an example.</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Fit DMC to data by Ulrich et al. (2015) ----------------------------------</span></span></span>
-<span class="r-in"><span><span class="co"># get the model (pre-built by dRiftDM), with relatively coarse discretization</span></span></span>
-<span class="r-in"><span><span class="co"># settings to "speed up" everything</span></span></span>
-<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span>t_max <span class="op">=</span> <span class="fl">1.5</span>, dx <span class="op">=</span> <span class="fl">.005</span>, dt <span class="op">=</span> <span class="fl">.005</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Fit the Ratcliff model to synthetic data --------------------------------</span></span></span>
+<span class="r-in"><span><span class="co"># get the model (pre-built by dRiftDM)</span></span></span>
+<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span>t_max <span class="op">=</span> <span class="fl">2.0</span>, dx <span class="op">=</span> <span class="fl">.005</span>, dt <span class="op">=</span> <span class="fl">.005</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># then load the data</span></span></span>
-<span class="r-in"><span><span class="va">flanker_data</span> <span class="op">&lt;-</span> <span class="va">ulrich_flanker_data</span> <span class="co"># this data set comes with dRiftDM</span></span></span>
+<span class="r-in"><span><span class="co"># define an upper and lower boundary for the parameter space</span></span></span>
+<span class="r-in"><span><span class="va">lower</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">0.2</span>, non_dec <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">upper</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">7</span>, b <span class="op">=</span> <span class="fl">1.0</span>, non_dec <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># subset to the first four individuals (we don't need to fit the entire data</span></span></span>
-<span class="r-in"><span><span class="co"># set to demonstrate the function)</span></span></span>
-<span class="r-in"><span><span class="va">flanker_data</span> <span class="op">&lt;-</span> <span class="va">flanker_data</span><span class="op">[</span><span class="va">flanker_data</span><span class="op">$</span><span class="va">ID</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, <span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># we define an upper and lower boundary for the parameter space</span></span></span>
-<span class="r-in"><span><span class="va">lower</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">0.2</span>, non_dec <span class="op">=</span> <span class="fl">0.1</span>, sd_non_dec <span class="op">=</span> <span class="fl">0.005</span>,</span></span>
-<span class="r-in"><span>  tau <span class="op">=</span> <span class="fl">0.02</span>, A <span class="op">=</span> <span class="fl">0.01</span>, alpha <span class="op">=</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="co"># simulate synthetic data for demonstration purpose</span></span></span>
+<span class="r-in"><span><span class="va">synth_data_prms</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_data.html">simulate_data</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">model</span>, n <span class="op">=</span> <span class="fl">100</span>, k <span class="op">=</span> <span class="fl">2</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>, seed <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">upper</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  muc <span class="op">=</span> <span class="fl">7</span>, b <span class="op">=</span> <span class="fl">1.0</span>, non_dec <span class="op">=</span> <span class="fl">0.6</span>, sd_non_dec <span class="op">=</span> <span class="fl">0.10</span>,</span></span>
-<span class="r-in"><span>  tau <span class="op">=</span> <span class="fl">0.30</span>, A <span class="op">=</span> <span class="fl">0.30</span>, alpha <span class="op">=</span> <span class="fl">8</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">synth_data</span> <span class="op">&lt;-</span> <span class="va">synth_data_prms</span><span class="op">$</span><span class="va">synth_data</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># and then we call the fit procedure, which essentially is a wrapper around</span></span></span>
-<span class="r-in"><span><span class="co"># estimate_model (uses multiple cores); on bucky's laptop, this runs in about</span></span></span>
-<span class="r-in"><span><span class="co"># 10 minutes</span></span></span>
-<span class="r-in"><span><span class="va">n_cores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># finally, call the fit procedure. To increase speed, we'll use the</span></span></span>
+<span class="r-in"><span><span class="co"># Nelder-Mead minimization routine. Note: We'll save the fits in tempdir()</span></span></span>
+<span class="r-in"><span><span class="co"># to avoid writing to a user's file directory without explicit permission.</span></span></span>
 <span class="r-in"><span><span class="fu">estimate_model_ids</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  drift_dm_obj <span class="op">=</span> <span class="va">model</span>, <span class="co"># which model (DMC)</span></span></span>
-<span class="r-in"><span>  obs_data_ids <span class="op">=</span> <span class="va">flanker_data</span>, <span class="co"># which data?</span></span></span>
-<span class="r-in"><span>  lower <span class="op">=</span> <span class="va">lower</span>,</span></span>
+<span class="r-in"><span>  drift_dm_obj <span class="op">=</span> <span class="va">model</span>, <span class="co"># which model (the Ratcliff model)</span></span></span>
+<span class="r-in"><span>  obs_data_ids <span class="op">=</span> <span class="va">synth_data</span>, <span class="co"># which data (the synthetic data set)</span></span></span>
+<span class="r-in"><span>  lower <span class="op">=</span> <span class="va">lower</span>,  <span class="co"># the lower and upper parameter/search space</span></span></span>
 <span class="r-in"><span>  upper <span class="op">=</span> <span class="va">upper</span>,</span></span>
-<span class="r-in"><span>  fit_procedure_name <span class="op">=</span> <span class="st">"example_flanker"</span>,</span></span>
-<span class="r-in"><span>  de_n_cores <span class="op">=</span> <span class="va">n_cores</span>, <span class="co"># use multiple cores (check your hardware)</span></span></span>
+<span class="r-in"><span>  fit_procedure_name <span class="op">=</span> <span class="st">"example"</span>, <span class="co"># a label for the fit procedure</span></span></span>
+<span class="r-in"><span>  fit_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="co"># temporary directory (replace, e.g., with getwd())</span></span></span>
+<span class="r-in"><span>  use_nmkb <span class="op">=</span> <span class="cn">TRUE</span>,       <span class="co"># use Nelder-Mead (fast, but less robust)</span></span></span>
+<span class="r-in"><span>  use_de_optim <span class="op">=</span> <span class="cn">FALSE</span>   <span class="co"># and not differential evolution</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

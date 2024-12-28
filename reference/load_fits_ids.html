@@ -11,7 +11,7 @@ function that creates an object of type fits_ids_dm."><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -142,44 +142,43 @@ call, and the number of individual data sets.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># We don't run the example on CRAN, because this would require to first</span></span></span>
-<span class="r-in"><span><span class="co"># run estimate_model_ids(). Yet, if users run the example code for</span></span></span>
-<span class="r-in"><span><span class="co"># estimate_model_ids(), the following code works.</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">all_fits</span> <span class="op">&lt;-</span> <span class="fu">load_fits_ids</span><span class="op">(</span>fit_procedure_name <span class="op">=</span> <span class="st">"example_flanker"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># -------------------------------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co"># We stored a fit procedure (matching with the example for</span></span></span>
+<span class="r-in"><span><span class="co"># estimate_model_ids()) within the package to easily access it here.</span></span></span>
+<span class="r-in"><span><span class="co"># -------------------------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># to get familiar with objects of type fits_ids_dm, we can also run this</span></span></span>
-<span class="r-in"><span><span class="co"># auxiliary function</span></span></span>
-<span class="r-in"><span><span class="va">all_fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># get the path to the fit procedures' location</span></span></span>
+<span class="r-in"><span><span class="co"># -&gt; if a user saved fit procedures in their working directory,</span></span></span>
+<span class="r-in"><span><span class="co">#    path_to would just be "drift_dm_fits" (see the default value of path)</span></span></span>
+<span class="r-in"><span><span class="va">path_to</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"dRiftDM"</span><span class="op">)</span>, <span class="st">"drift_dm_fits"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># then load all the fits of a fit procedure</span></span></span>
+<span class="r-in"><span><span class="va">all_fits</span> <span class="op">=</span> <span class="fu">load_fits_ids</span><span class="op">(</span>path <span class="op">=</span> <span class="va">path_to</span>, fit_procedure_name <span class="op">=</span> <span class="st">"example"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Fit procedure name: aux_example</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Fitted model type: dmc_dm, drift_dm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time of (last) call: 2024-December-19_14-57</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> N Individuals: 3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fit procedure name: example</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fitted model type: ratcliff_dm, drift_dm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time of (last) call: 2024-Dezember-27_16-41</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> N Individuals: 2 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Fit procedure name: aux_example</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> N Individuals: 3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fit procedure name: example</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> N Individuals: 2 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Parameter summary: comp </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           muc     b non_dec sd_non_dec   tau a     A alpha peak_l</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> mean    5.300 0.480   0.320      0.027 0.067 2 0.127 4.567  0.067</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> std_err 0.321 0.061   0.012      0.009 0.022 0 0.032 1.233  0.022</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Parameter summary: incomp </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           muc     b non_dec sd_non_dec   tau a      A alpha peak_l</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> mean    5.300 0.480   0.320      0.027 0.067 2 -0.127 4.567  0.067</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> std_err 0.321 0.061   0.012      0.009 0.022 0  0.032 1.233  0.022</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Parameter summary: null </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           muc     b non_dec</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mean    3.000 0.759   0.395</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> std_err 0.545 0.170   0.172</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter space:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       muc   b non_dec sd_non_dec  tau    A alpha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lower   1 0.2     0.1      0.005 0.02 0.02     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> upper   7 1.0     0.6      0.100 0.30 0.30     8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       muc   b non_dec</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lower   1 0.2     0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> upper   7 1.0     0.6</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Fitted model type: dmc_dm, drift_dm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time of (last) call: 2024-December-19_14-57</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fitted model type: ratcliff_dm, drift_dm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time of (last) call: 2024-Dezember-27_16-41</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
