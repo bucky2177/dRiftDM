@@ -1,7 +1,7 @@
 Type: Package
 Package: dRiftDM
-Title: Unlocking (Time-Dependent) Drift Diffusion Models in 'R'
-Version: 0.2.0
+Title: Estimating (Time-Dependent) Drift Diffusion Models
+Version: 0.2.1
 Authors@R: c(
     person("Valentin", "Koob", 
     email = "v.koob@web.de",
@@ -10,11 +10,11 @@ Authors@R: c(
     person("Markus", "Janczyk", role = "ctb")
   )
 License: MIT + file LICENSE
-Description: Fit and explore Drift Diffusion Models (DDMs), 
-    a common tool in psychology for describing decision processes in simple 
-    tasks. It can handle both time-independent and time-dependent DDMs. You 
-    either choose prebuilt models or create your own, and the package takes 
-    care of model predictions and parameter estimation. Model predictions 
+Description: Fit and explore Drift Diffusion Models (DDMs),
+    a common tool in psychology for describing decision processes in simple
+    tasks. It can handle both time-independent and time-dependent DDMs. You
+    either choose prebuilt models or create your own, and the package takes
+    care of model predictions and parameter estimation. Model predictions
     are derived via the numerical solutions provided by Richter, Ulrich, and
     Janczyk (2023, <doi:10.1016/j.jmp.2023.102756>).
 Suggests: 

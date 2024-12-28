@@ -85,16 +85,20 @@ information about the fit procedure name, the fitted model, time of (last)
 call, and the number of individual data sets.
 }
 \examples{
-# We don't run the example on CRAN, because this would require to first
-# run estimate_model_ids(). Yet, if users run the example code for
-# estimate_model_ids(), the following code works.
-\dontrun{
-all_fits <- load_fits_ids(fit_procedure_name = "example_flanker")
-}
+# -------------------------------------------------------------------------
+# We stored a fit procedure (matching with the example for
+# estimate_model_ids()) within the package to easily access it here.
+# -------------------------------------------------------------------------
 
-# to get familiar with objects of type fits_ids_dm, we can also run this
-# auxiliary function
-all_fits <- get_example_fits_ids()
+# get the path to the fit procedures' location
+# -> if a user saved fit procedures in their working directory,
+#    path_to would just be "drift_dm_fits" (see the default value of path)
+path_to = file.path(
+  system.file(package = "dRiftDM"), "drift_dm_fits"
+)
+
+# then load all the fits of a fit procedure
+all_fits = load_fits_ids(path = path_to, fit_procedure_name = "example")
 print(all_fits)
 summary(all_fits)
 

@@ -11,7 +11,7 @@ estimate_model_ids(
   lower = c(1, 0.3, 0.1), upper = c(5, 0.8, 0.5),
   fit_procedure_name = "test_case_saved",
   seed = 1,
-  fit_dir = test_path("fixtures", "dm_fits_ids"),
+  fit_path = test_path("fixtures"),
   force_refit = TRUE,
   progress = 2,
 )

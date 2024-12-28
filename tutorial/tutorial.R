@@ -1,14 +1,14 @@
 #' ---
 #' title: "Reproducing the dRiftDM Introduction"
 #' author: "Valentin Koob (bucky)"
-#' date: "12.12.2024"
+#' date: "28.12.2024"
 #' ---
 #'
-#' This document contains the code and output of dRiftDM's tutorial to
-#' facilitate review. Note that this script sometimes provides additional R
-#' statements that were skipped in the pre-print for brevity. Yet, those
-#' primarily show a bit more of the underlying structure of
-#' objects or alternative ways to access information.
+#' This document contains the code of dRiftDM's tutorial to facilitate review.
+#' Note that this script sometimes provides additional R statements that were
+#' skipped in the pre-print/manuscript for brevity. Yet, those primarily show a
+#' bit more of the underlying structure of objects or alternative ways to access
+#' information.
 
 rm(list = ls())
 
@@ -137,17 +137,17 @@ round(coef(a_model), 3)
 
 #' Repeat the same, but now use Differential Evolution
 #+ estimate_one_data_set_de
-# ensures 6 cores or less (if not available)
-n_cores <- pmin(parallel::detectCores() - 1, 6)
-n_cores <- pmax(n_cores, 1) # ensures at least one core
+# uses 2 cores or less (if not available)
+# users can increase this number (e.g., to about 6)
+n_cores <- pmin(parallel::detectCores(), 2)
 
 # use DE algorithm with multiple cores
-a_model <- estimate_model( # takes about 7-9 minutes with 6 cores
+a_model <- estimate_model( # takes about 12 minutes with 2 cores
   drift_dm_obj = a_model,
   lower = lower_prm_bnd,
   upper = upper_prm_bnd,
   seed = 1,
-  de_n_cores = n_cores # use an appropriate number (e.g., 6)
+  de_n_cores = n_cores
 )
 
 #' Investigate results
@@ -190,12 +190,15 @@ head(large_dat)
 # fresh model without data
 a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
 
-# now call the fit procedure
+# now call the fit procedure.
+# we'll write each fit into the temporary directory; use getwd() instead of
+# tempdir() to save the results in the working directory
 estimate_model_ids( # takes about 10-15 minutes
   drift_dm_obj = a_model, # the model to fit ...
   obs_data_ids = large_dat, # to each participant in large_dat
   lower = lower_prm_bnd, # lower boundary of the search space
   upper = upper_prm_bnd, # upper boundary of the search space
+  fit_path = tempdir() , # temporary directory
   fit_procedure_name = "ulrich_flanker", # a label for the fit procedure
   use_de_optim = F, # DE is default
   use_nmkb = T # but use Nelder-Mead (faster; for the tutorial)
@@ -203,14 +206,15 @@ estimate_model_ids( # takes about 10-15 minutes
 
 #' See the folder structure
 #+ folder_str
-# fit procedure structure
-list.dirs()
-list.files("./drift_dm_fits/ulrich_flanker/")
+# fit procedure structure (saved within tempdir())
+list.dirs(tempdir())
+list.files(file.path(tempdir(), "./drift_dm_fits/ulrich_flanker/"))
 
 #' Load all fits to investigate model fit and the parameter estimates
 #+ load_plot_multiple_ids, fig.width = 8, fig.height = 4
 # load a fit procedure
-all_fits <- load_fits_ids(fit_procedure_name = "ulrich_flanker")
+all_fits <- load_fits_ids(path = tempdir(),
+                          fit_procedure_name = "ulrich_flanker")
 print(all_fits)
 
 # access parameters
@@ -264,14 +268,14 @@ head(orig_prms)
 prms_solve(a_model)[c("dx", "dt")] <- c(.005, .005)
 
 # fit the model to each synthetic data
-n_cores <- pmin(parallel::detectCores() - 1, 2) # use 2 cores (if available)
-n_cores <- pmax(n_cores, 1) # ensures at least one core
+n_cores <- pmin(parallel::detectCores(), 2) # use 2 cores (if available)
 
-estimate_model_ids( # takes about 30 minutes
+estimate_model_ids( # takes about 30 minutes with 2 cores
   drift_dm_obj = a_model, # the model to fit
   obs_data_ids = synth_data, # the synthetic data
   lower = lower_sim_bnd, # the lower search space
   upper = upper_sim_bnd, # the upper search space
+  fit_path = tempdir(),  # again to temporary directory
   fit_procedure_name = "ratcliff_recovery", # a label for the fit procedure
   de_n_cores = n_cores, # the number of cores
   seed = 2 # a seed for reproducible results
@@ -280,7 +284,8 @@ estimate_model_ids( # takes about 30 minutes
 #' Load the model fits and extract parameters to calculate correlations and
 #' biases.
 #+ summarize_prm_recovery
-recov_fits <- load_fits_ids(fit_procedure_name = "ratcliff_recovery")
+recov_fits <- load_fits_ids(path = tempdir(),
+                            fit_procedure_name = "ratcliff_recovery")
 recov_prms <- coef(recov_fits) # extracts parameters
 stopifnot(recov_prms$ID == orig_prms$ID) # ensure that the order of IDs matches
 
@@ -542,3 +547,4 @@ a_model <- re_evaluate_model(a_model)
 #' # Session Info
 #+ session_info
 sessionInfo()
+

@@ -1,3 +1,3 @@
-# dRiftDM 0.2.0
+# dRiftDM 0.2.1
 
 * Initial CRAN submission.

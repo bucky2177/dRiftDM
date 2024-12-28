@@ -203,7 +203,6 @@ test_that("behavior of DE and nmkb toggles", {
   )
 
   # DE TRUE nmkb FALSE
-  skip_on_cran()
   a_model <- modify_flex_prms(a_model, instr = "non_dec ~!")
   expect_snapshot(
     estimate_model(

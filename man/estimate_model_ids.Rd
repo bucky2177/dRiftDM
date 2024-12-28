@@ -10,9 +10,10 @@ estimate_model_ids(
   lower,
   upper,
   fit_procedure_name,
+  fit_path,
+  fit_dir = "drift_dm_fits",
   folder_name = fit_procedure_name,
   seed = NULL,
-  fit_dir = "drift_dm_fits",
   force_refit = FALSE,
   progress = 2,
   start_vals = NULL,
@@ -34,18 +35,23 @@ see \link{estimate_model}.}
 procedure. This name will be stored in \code{drift_dm_fit_info.rds} to identify
 the fitting procedure, see also \link{load_fits_ids}.}
 
+\item{fit_path}{character, a path, pointing to the location where all fits
+shall be stored (i.e., \code{fit_dir} will be created in this location). From the
+user perspective, the path will likely be identical to the current working
+directory.}
+
+\item{fit_dir}{character, a directory where (multiple) fitting procedures
+can be stored. If the directory does not exist yet, it will be created
+via \code{base::create.dir(fit_dir, recursive = TRUE)} in the location
+provided by \code{fit_path}. Default is \code{"drift_dm_fits"}.}
+
 \item{folder_name}{character, a folder name for storing all the individual
 model fits. This variable should just state the name, and should not be
 a path. Per default \code{folder_name} is identical to \code{fit_procedure_name}.}
 
 \item{seed}{numeric, a seed to make the fitting procedure reproducable
-(only relevant for differntial evolution, see \link{estimate_model}).
+(only relevant for differential evolution, see \link{estimate_model}).
 Default is \code{NULL} which means no seed.}
-
-\item{fit_dir}{character, a directory where (multiple) fitting procedures
-can be stored. If the directory does not exist yet, it will be created
-via \code{base::create.dir(fit_dir, recursive = TRUE)}. Default is
-\code{"drift_dm_fits"}.}
 
 \item{force_refit}{logical, if \code{TRUE} each individual of a fitting routine will
 be fitted once more. Default is \code{FALSE} which indicates that saved files}
@@ -83,9 +89,9 @@ When developing the fitting routine we had three levels of files/folders
 in mind:
 \itemize{
 \item In a directory/folder named \code{fit_dir} multiple fitting routines can be
-stored
-\item Each fitting routine has its own folder with name as given by
-\code{folder_name}
+stored (default is "drift_dm_fits")
+\item Each fitting routine has its own folder with a name as given by
+\code{folder_name} (e.g., "ulrich_flanker", "ulrich_simon", ...)
 \item Within each folder, a file called
 \code{drift_dm_fit_info.rds} contains the main information about the function
 call. That is, the time when last modifying/calling a fitting routine, the
@@ -97,44 +103,41 @@ has its own \verb{<individual>.rds} file containing the modified
 }
 }
 \examples{
-# We don't run the example on CRAN because fitting multiple individuals
-# takes minutes (and probably even hours)
-\dontrun{
+# We'll provide a somewhat unrealistic example, trimmed for speed.
+# In practice, users likely employ more complex models and more individuals.
+# However, a more realistic example would take minutes (and maybe even hours)
+# and is therefore not suitable for an example.
 
-# Fit DMC to data by Ulrich et al. (2015) ----------------------------------
-# get the model (pre-built by dRiftDM), with relatively coarse discretization
-# settings to "speed up" everything
-model <- dmc_dm(t_max = 1.5, dx = .005, dt = .005)
+# Fit the Ratcliff model to synthetic data --------------------------------
+# get the model (pre-built by dRiftDM)
+model <- ratcliff_dm(t_max = 2.0, dx = .005, dt = .005)
 
-# then load the data
-flanker_data <- ulrich_flanker_data # this data set comes with dRiftDM
+# define an upper and lower boundary for the parameter space
+lower <- c(muc = 1, b = 0.2, non_dec = 0.1)
+upper <- c(muc = 7, b = 1.0, non_dec = 0.6)
 
-# subset to the first four individuals (we don't need to fit the entire data
-# set to demonstrate the function)
-flanker_data <- flanker_data[flanker_data$ID \%in\% 1:4, ]
-
-# we define an upper and lower boundary for the parameter space
-lower <- c(
-  muc = 1, b = 0.2, non_dec = 0.1, sd_non_dec = 0.005,
-  tau = 0.02, A = 0.01, alpha = 2
+# simulate synthetic data for demonstration purpose
+synth_data_prms <- simulate_data(
+  model, n = 100, k = 2, lower = lower, upper = upper, seed = 1
 )
-upper <- c(
-  muc = 7, b = 1.0, non_dec = 0.6, sd_non_dec = 0.10,
-  tau = 0.30, A = 0.30, alpha = 8
-)
+synth_data <- synth_data_prms$synth_data
 
-# and then we call the fit procedure, which essentially is a wrapper around
-# estimate_model (uses multiple cores); on bucky's laptop, this runs in about
-# 10 minutes
-n_cores <- pmax(parallel::detectCores() - 2, 1)
+# finally, call the fit procedure. To increase speed, we'll use the
+# Nelder-Mead minimization routine. Note: We'll save the fits in tempdir()
+# to avoid writing to a user's file directory without explicit permission.
 estimate_model_ids(
-  drift_dm_obj = model, # which model (DMC)
-  obs_data_ids = flanker_data, # which data?
-  lower = lower,
+  drift_dm_obj = model, # which model (the Ratcliff model)
+  obs_data_ids = synth_data, # which data (the synthetic data set)
+  lower = lower,  # the lower and upper parameter/search space
   upper = upper,
-  fit_procedure_name = "example_flanker",
-  de_n_cores = n_cores, # use multiple cores (check your hardware)
+  fit_procedure_name = "example", # a label for the fit procedure
+  fit_path = tempdir(), # temporary directory (replace, e.g., with getwd())
+  use_nmkb = TRUE,       # use Nelder-Mead (fast, but less robust)
+  use_de_optim = FALSE   # and not differential evolution
 )
+
+\dontshow{
+  unlink(file.path(tempdir(), "drift_dm_fits"), recursive = TRUE)
 }
 
 }

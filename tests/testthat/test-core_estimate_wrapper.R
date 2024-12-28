@@ -1,5 +1,7 @@
-test_that("estimate_model_id and load_fits_ids works as expected", {
-  unlink(test_path("temp_fits"), recursive = TRUE)
+test_that("estimate_model_ids and load_fits_ids works as expected", {
+  # remove previous folders (might be present if the tests crashed)
+  unlink(file.path(tempdir(), "temp"), recursive = T)
+  unlink(file.path(tempdir(), "temp_fits"), recursive = T)
 
   a_model <- ratcliff_dm(t_max = 1, dt = 0.01, dx = 0.1)
   id_1 <- simulate_data(a_model, n = 300, seed = 1)
@@ -15,9 +17,10 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
       drift_dm_obj = a_model,
       obs_data_ids = data_both,
       lower = c(1), upper = c(5),
+      fit_path = tempdir(),
       fit_procedure_name = "test_case_1",
       seed = 1,
-      fit_dir = test_path("temp_fits"),
+      fit_dir = "temp_fits",
       force_refit = TRUE,
       verbose = 0,
       progress = 0,
@@ -32,13 +35,14 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
     drift_dm_obj = a_model,
     obs_data_ids = data_both,
     lower = c(1), upper = c(5),
+    fit_path = tempdir(),
     fit_procedure_name = "test_case_2",
     folder_name = "test_case_no_2",
     seed = 2,
     force_refit = TRUE,
-    fit_dir = test_path("temp_fits"),
+    fit_dir = "temp_fits",
     verbose = 0,
-    progress = 0
+    progress = 1
   )
 
   # input checks
@@ -46,7 +50,8 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
     estimate_model_ids("wrong_input",
       obs_data_ids = data_both,
       lower = c(1), upper = c(5),
-      fit_dir = test_path("temp_fits"),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
       fit_procedure_name = "test"
     ),
     "drift_dm_obj is not of type drift_dm"
@@ -56,7 +61,8 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
     estimate_model_ids(a_model,
       obs_data_ids = as.matrix(data_both),
       lower = c(1), upper = c(5),
-      fit_dir = test_path("temp_fits"),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
       fit_procedure_name = "test"
     ),
     "obs_data_ids is not a data.frame"
@@ -66,18 +72,54 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
     estimate_model_ids(a_model,
       obs_data_ids = data_both[, c(1, 2, 3)],
       lower = c(1), upper = c(5),
-      fit_dir = test_path("temp_fits"),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
       fit_procedure_name = "test"
     ),
     "no ID column"
   )
+
+  temp_model <- a_model
+  prms_solve(temp_model)["t_max"] <- 0.5
+  expect_error(
+    estimate_model_ids(
+      temp_model,
+      obs_data_ids = data_both,
+      lower = c(1),
+      upper = c(5),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
+      fit_procedure_name = "test"
+    ),
+    "smaller than maximum RT"
+  )
+
+  temp_data <- data_both
+  temp_data <- rbind(temp_data,
+                     data.frame(RT = 0.5, Error = 0, Cond = "foo", ID = 2))
+  temp_data <- temp_data[temp_data$ID == 2,]
+  expect_warning(
+    estimate_model_ids(
+      a_model,
+      obs_data_ids = temp_data,
+      lower = c(1),
+      upper = c(5),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
+      fit_procedure_name = "test", progress = 0
+    ),
+    "This condition will be dropped"
+  )
+  unlink(file.path(tempdir(), "temp_fits", "test"), recursive = T)
+
 
   expect_error(
     estimate_model_ids(a_model,
       obs_data_ids = data_both,
       seed = NA,
       lower = c(1), upper = c(5),
-      fit_dir = test_path("temp_fits"),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
       fit_procedure_name = "test"
     ),
     "seed must be a single numeric"
@@ -86,7 +128,8 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
     estimate_model_ids(a_model,
       obs_data_ids = data_both,
       lower = c(1), upper = c(5),
-      fit_dir = test_path("temp_fits"),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
       fit_procedure_name = NA
     ),
     "fit_procedure_name must be a character"
@@ -96,7 +139,8 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
     estimate_model_ids(a_model,
       obs_data_ids = data_both,
       lower = c(1), upper = c(5),
-      fit_dir = test_path("temp_fits"),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
       fit_procedure_name = ""
     ),
     "empty name"
@@ -105,17 +149,33 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
     estimate_model_ids(a_model,
       obs_data_ids = data_both,
       lower = c(1), upper = c(5),
-      fit_dir = test_path("temp_fits"),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
       fit_procedure_name = "",
-      folder = NA
+      folder_name = NA
     ),
     "folder_name must be a character"
+  )
+
+  expect_error(
+    estimate_model_ids(
+      a_model,
+      obs_data_ids = data_both,
+      lower = c(1),
+      upper = c(5),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
+      fit_procedure_name = "",
+      folder_name = "foo/bar"
+    ),
+    "is a plain folder name"
   )
 
   expect_error(
     estimate_model_ids(a_model,
       obs_data_ids = data_both,
       lower = c(1), upper = c(5),
+      fit_path = tempdir(),
       fit_procedure_name = "test",
       fit_dir = NA
     ),
@@ -123,14 +183,55 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
   )
 
   expect_error(
+    estimate_model_ids(
+      a_model,
+      obs_data_ids = data_both,
+      lower = c(1),
+      upper = c(5),
+      fit_path = c(tempdir(), "foo"),
+      fit_procedure_name = "test",
+      fit_dir = "temp_fits"
+    ),
+    "fit_path must be a character vector of length 1"
+  )
+
+  expect_error(
+    estimate_model_ids(
+      a_model,
+      obs_data_ids = data_both,
+      lower = c(1),
+      upper = c(5),
+      fit_path = "foo",
+      fit_procedure_name = "test",
+      fit_dir = "temp_fits"
+    ),
+    "fit_path must provide a valid path to an existing directory"
+  )
+
+  expect_error(
     estimate_model_ids(a_model,
       obs_data_ids = data_both,
       lower = c(1), upper = c(5),
-      fit_dir = test_path("temp_fits"),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
       fit_procedure_name = "test",
       force_refit = NA
     ),
     "force_refit must be a single logical"
+  )
+
+  expect_error(
+    estimate_model_ids(
+      a_model,
+      obs_data_ids = data_both,
+      lower = c(1),
+      upper = c(5),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
+      fit_procedure_name = "test",
+      progress = NA
+    ),
+    "progress must be numeric"
   )
 
 
@@ -144,14 +245,15 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
     estimate_model_ids(a_model,
       obs_data_ids = temp_data,
       lower = c(1), upper = c(5),
-      fit_dir = test_path("temp_fits"),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
       fit_procedure_name = "id_fail",
       force_refit = FALSE,
       progress = 0
     ),
     "drift_dm_fit_info not allowed as individual number/identifier"
   )
-  unlink(test_path("temp_fits", "id_fail"), recursive = T)
+  unlink(file.path(tempdir(),"temp_fits", "id_fail"), recursive = T)
 
 
   # lower-level error by estimate_model
@@ -160,14 +262,15 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
     estimate_model_ids(a_model,
       obs_data_ids = temp_data,
       lower = c(1), upper = c(5, 2),
-      fit_dir = test_path("temp_fits"),
+      fit_path = tempdir(),
+      fit_dir = "temp_fits",
       fit_procedure_name = "lower_fail",
       force_refit = FALSE,
       progress = 0
     ),
     "Happened when fitting individual 1"
   )
-  unlink(test_path("temp_fits", "lower_fail"), recursive = T)
+  unlink(file.path(tempdir(), "temp_fits", "lower_fail"), recursive = T)
 
 
   # ensure that everything is skipped, tested below when loading data
@@ -184,11 +287,12 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
       drift_dm_obj = a_model,
       obs_data_ids = data_all,
       lower = c(1), upper = c(5),
+      fit_path = tempdir(),
       fit_procedure_name = "test_case_2",
       folder_name = "test_case_no_2",
       seed = 2,
       force_refit = FALSE,
-      fit_dir = test_path("temp_fits"),
+      fit_dir = "temp_fits",
       verbose = 0,
       progress = 0,
     ), "Skipping individuals"
@@ -201,15 +305,15 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
 
   # wrong identifier
   expect_error(
-    load_fits_ids(test_path("temp_fits"), "test_cas_e1"),
+    load_fits_ids(path = file.path(tempdir(), "temp_fits"),
+                  fit_procedure_name = "test_cas_e1"),
     "no folder with a \\(suitable\\) file drift_dm_fit_info.rds found"
   )
 
   # load one case
-
   expect_warning(
     load_fits_ids(
-      path = test_path("temp_fits"),
+      path = file.path(tempdir(), "temp_fits"),
       fit_procedure_name = "test_case_2"
     ), "data of individual 2"
   )
@@ -217,7 +321,7 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
   # load one case
   loaded_data <- suppressWarnings(
     load_fits_ids(
-      path = test_path("temp_fits"),
+      path = file.path(tempdir(), "temp_fits"),
       fit_procedure_name = "test_case_2"
     )
   )
@@ -228,10 +332,46 @@ test_that("estimate_model_id and load_fits_ids works as expected", {
   expect_equal(5, loaded_data$drift_dm_fit_info$upper)
   expect_equal(2, loaded_data$drift_dm_fit_info$seed)
   expect_equal("test_case_2", loaded_data$drift_dm_fit_info$fit_procedure_name)
+
+  ## additional input checks for load_fits_ids
+  expect_error(
+    load_fits_ids(
+      path = NA,
+      fit_procedure_name = "test_case_2"
+    ), "not a character vector"
+  )
+
+  expect_error(
+    load_fits_ids(
+      path = file.path(tempdir(), "temp_fits"),
+      fit_procedure_name = NA
+    ), "not a character vector"
+  )
+
+  expect_error(
+    load_fits_ids(
+      path = file.path(tempdir(), "temp_fits"),
+      fit_procedure_name = "test_case_1", detailed_info = "NA"
+    ), "not logical"
+  )
+
+  expect_error(
+    load_fits_ids(
+      path = file.path(tempdir(), "temp_fits"),
+      fit_procedure_name = "test_case_1", check_data = "NA"
+    ), "not logical"
+  )
+
+  expect_error(
+    load_fits_ids(
+      path = file.path(tempdir(), "temp_fits"),
+      fit_procedure_name = "test_case_1", progress = "doo"
+    ), "must be 0, 1, or 2"
+  )
 })
 
 
-test_that("load_fits_ids menu and erros work as expected", {
+test_that("load_fits_ids menu and errors work as expected", {
   local({
     # Here, we override the menu function to force expected choice
     suppressWarnings(
@@ -239,15 +379,16 @@ test_that("load_fits_ids menu and erros work as expected", {
     )
 
     case_1 <- load_fits_ids(
-      path = test_path("temp_fits"),
+      path = file.path(tempdir(), "temp_fits"),
       fit_procedure_name = "test_case_1",
       check_data = F
     )
     case_1_menu <- load_fits_ids(
-      path = test_path("temp_fits"),
+      path = file.path(tempdir(), "temp_fits"),
       fit_procedure_name = "",
       check_data = F,
-      detailed_info = T
+      detailed_info = T,
+      progress = 0
     )
 
     expect_equal(
@@ -255,15 +396,32 @@ test_that("load_fits_ids menu and erros work as expected", {
       case_1
     )
   })
+
+
+  # option 0
+  local({
+    # Here, we override the menu function to force expected choice
+    suppressWarnings(
+      local_mock(menu = function(choices, title = NULL) 0)
+    )
+
+    expect_message(expect_equal(
+      load_fits_ids(
+        path = file.path(tempdir(), "temp_fits"),
+        check_data = F, progress = 0
+      ),
+      NULL
+    ), "exiting selection")
+  })
 })
 
 
 test_that("validate_models errs as expected", {
   # requires estimate_model_id and load_fits_ids works as expected
   case_1 <- load_fits_ids(
-    path = test_path("temp_fits"),
+    path = file.path(tempdir(), "temp_fits"),
     fit_procedure_name = "test_case_1",
-    check_data = F
+    check_data = T, progress = 1
   )
 
   temp <- case_1
@@ -351,6 +509,18 @@ test_that("validate_models errs as expected", {
   )
 
   temp <- case_1
+  rownames(temp$all_fits$`1`$flex_prms_obj$prms_matrix) <- c("foo")
+  expect_error(
+    validate_fits_ids(temp, progress = 0), "row_names of individual 1"
+  )
+
+  temp <- case_1
+  colnames(temp$all_fits$`1`$flex_prms_obj$prms_matrix) <- c("muc", "b", "foo")
+  expect_error(
+    validate_fits_ids(temp, progress = 0), "col_names of individual 1"
+  )
+
+  temp <- case_1
   class(temp$all_fits$`2`) <- c("dmc_dm", "drift_dm")
   expect_error(
     validate_fits_ids(temp, progress = 0), "class of individual 2"
@@ -361,6 +531,12 @@ test_that("validate_models errs as expected", {
   prms_solve(temp$all_fits$`2`)["sigma"] <- 2
   expect_error(
     validate_fits_ids(temp, progress = 0), "prms_solve of individual 2"
+  )
+
+  temp <- case_1
+  solver(temp$all_fits$`2`) <- "im_zero"
+  expect_error(
+    validate_fits_ids(temp, progress = 0), "solver of individual 2"
   )
 
   temp <- case_1
@@ -386,6 +562,13 @@ test_that("validate_models errs as expected", {
     validate_fits_ids(temp, progress = 0), "comp_funs"
   )
 
+  temp <- case_1
+  b_coding(temp$all_fits$`1`)["column"] <- "Correct"
+  expect_error(
+    validate_fits_ids(temp, progress = 0), "individual 1 provided a b_coding"
+  )
+
+
   # modify the data
   temp <- case_1
   obs_data <- temp$drift_dm_fit_info$obs_data_ids
@@ -403,7 +586,7 @@ test_that("validate_models errs as expected", {
     "doesn't match with the expected data"
   )
 
-  unlink(test_path("temp_fits"), recursive = TRUE)
+  unlink(file.path(tempdir(), "temp_fits"), recursive = TRUE)
 })
 
 
@@ -413,7 +596,7 @@ test_that("start_vals work as expected", {
     conds = c("comp", "incomp"),
     instr = "b ~"
   )
-  id_1 <- simulate_data(a_model, n = 300, seed = 1)
+  id_1 <- simulate_data(a_model, n = 100, seed = 1)
   id_1$ID <- 1
   start_vals <- data.frame(
     ID = 1, muc = 5, b.comp = 0.4, b.incomp = 0.5,
@@ -423,14 +606,15 @@ test_that("start_vals work as expected", {
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
+      fit_path = tempdir(),
       fit_procedure_name = "foo",
-      fit_dir = test_path("temp"),
+      fit_dir = "temp",
       use_de_optim = F,
       start_vals = start_vals
     ),
     "passing back unmodified object"
   )
-  unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
+  unmodifed <- readRDS(file.path(tempdir(),"temp", "foo", "1.rds"))
   expect_true(
     all(unmodifed$flex_prms_obj$prms_matrix[1, ] ==
       start_vals[c("muc", "b.comp", "non_dec")])
@@ -439,43 +623,61 @@ test_that("start_vals work as expected", {
     all(unmodifed$flex_prms_obj$prms_matrix[2, ] ==
       start_vals[c("muc", "b.incomp", "non_dec")])
   )
-  unlink(test_path("temp"), recursive = T)
+  unlink(file.path(tempdir(),"temp"), recursive = T)
 
   # default
   expect_warning(
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
+      fit_path = tempdir(),
       fit_procedure_name = "foo",
-      fit_dir = test_path("temp"),
+      fit_dir = "temp",
       use_de_optim = F,
       start_vals = NULL
     ),
     "passing back unmodified object"
   )
-  unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
+  unmodifed <- readRDS(file.path(tempdir(), "temp", "foo", "1.rds"))
   expect_equal(a_model$flex_prms_obj, unmodifed$flex_prms_obj)
-  unlink(test_path("temp"), recursive = T)
+  unlink(file.path(tempdir(), "temp"), recursive = T)
 
   # wrong input
   expect_error(
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
+      fit_path = tempdir(),
       fit_procedure_name = "foo",
-      fit_dir = test_path("temp"),
+      fit_dir = "temp",
       use_de_optim = F,
       start_vals = as.matrix(start_vals)
     ),
     "must be a data.frame"
   )
 
+
+  temp_start = start_vals[,names(start_vals) != "ID"]
   expect_error(
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
+      fit_path = tempdir(),
       fit_procedure_name = "foo",
-      fit_dir = test_path("temp"),
+      fit_dir = "temp",
+      use_de_optim = F,
+      start_vals = temp_start,
+    ),
+    "no ID column found"
+  )
+
+  expect_error(
+    estimate_model_ids(a_model, id_1,
+      lower = c(2, 0.2, 0.1),
+      upper = c(6, 0.8, 0.4),
+      fit_path = tempdir(),
+      fit_procedure_name = "foo",
+      fit_dir = "temp",
       use_de_optim = F,
       start_vals = start_vals[c("ID", "muc")]
     ),
@@ -487,35 +689,61 @@ test_that("start_vals work as expected", {
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
+      fit_path = tempdir(),
       fit_procedure_name = "foo",
-      fit_dir = test_path("temp"),
+      fit_dir = "temp",
       use_de_optim = F,
       start_vals = test_starts
     ),
     "don't match the unique free parameters"
   )
 
-  test_starts <- rbind(test_starts, test_starts)
+  test_starts <- rbind(start_vals, start_vals)
   test_starts$ID <- c(1, 2)
   expect_error(
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
+      fit_path = tempdir(),
       fit_procedure_name = "foo",
-      fit_dir = test_path("temp"),
+      fit_dir = "temp",
       use_de_optim = F,
       start_vals = test_starts
     ),
     "individuals in start_vals that are not in obs_data_ids"
   )
 
+  temp_data <- rbind(id_1, id_1)
+  temp_data$ID[(nrow(temp_data)/2+1):nrow(temp_data)] <- 2
+  expect_error(
+    estimate_model_ids(
+      a_model,
+      temp_data,
+      lower = c(2, 0.2, 0.1),
+      upper = c(6, 0.8, 0.4),
+      fit_path = tempdir(),
+      fit_procedure_name = "foo",
+      fit_dir = "temp",
+      use_de_optim = F,
+      start_vals = start_vals
+    ),
+    "different number of individuals "
+  )
+
+
+
+
+
+
+
   test_starts$ID <- c(1, 1)
   expect_error(
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
+      fit_path = tempdir(),
       fit_procedure_name = "foo",
-      fit_dir = test_path("temp"),
+      fit_dir = "temp",
       use_de_optim = F,
       start_vals = test_starts
     ),
@@ -531,15 +759,16 @@ test_that("start_vals work as expected", {
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
+      fit_path = tempdir(),
       fit_procedure_name = "foo",
-      fit_dir = test_path("temp"),
+      fit_dir = "temp",
       use_de_optim = F,
       start_vals = start_vals
     ),
     "passing back unmodified object"
   )
-  unmodifed <- readRDS(test_path("temp", "foo", "1.rds"))
+  unmodifed <- readRDS(file.path(tempdir(), "temp", "foo", "1.rds"))
   expect_true(all(unmodifed$flex_prms_obj$prms_matrix[1, ] == c(2, 0.5, 3)))
   expect_true(all(unmodifed$flex_prms_obj$prms_matrix[2, ] == c(2, 1, 3)))
-  unlink(test_path("temp"), recursive = T)
+  unlink(file.path(tempdir(), "temp"), recursive = T)
 })

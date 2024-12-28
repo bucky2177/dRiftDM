@@ -36,10 +36,9 @@ Journal of Mathematical Psychology).
 
 ## Notes
 
-The current version is 0.2.0. Compared to the previous version (0.1.1),
-version 0.2.0 makes greater use of the S3 object system. Additionally,
-it introduces a new method for handling parameters across conditions
-using “flex_prms” objects.
+Compared to the previous version 0.1.1, versions \>0.2.0 make greater
+use of the S3 object system. Additionally, beginning with version 0.2.0,
+models use “flex_prms” objects to handle parameters across conditions.
 
 If you wish to install the older version (0.1.1), you can use:
 
@@ -75,7 +74,7 @@ synthetic data using bounded Nelder-Mead:
 library(dRiftDM)
 #> 
 #>  ---------------------------------------------------- 
-#> / Welcome to dRiftDM 0.2.0 Please report any bugs or \
+#> / Welcome to dRiftDM 0.2.1 Please report any bugs or \
 #> \ unexpected behavior                                /
 #>  ---------------------------------------------------- 
 #>       \

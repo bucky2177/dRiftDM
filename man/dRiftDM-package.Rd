@@ -4,7 +4,7 @@
 \name{dRiftDM-package}
 \alias{dRiftDM}
 \alias{dRiftDM-package}
-\title{dRiftDM: Unlocking (Time-Dependent) Drift Diffusion Models in 'R'}
+\title{dRiftDM: Estimating (Time-Dependent) Drift Diffusion Models}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
