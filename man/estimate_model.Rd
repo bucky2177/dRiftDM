@@ -139,7 +139,6 @@ my_model <- estimate_model(
 # show the result
 print(my_model)
 
-
 }
 \seealso{
 \link{estimate_model_ids}

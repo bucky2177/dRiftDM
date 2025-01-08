@@ -25,8 +25,8 @@
 a call to \link{calc_stats}.}
 
 \item{...}{additional arguments passed to the \link{plot}, \link[graphics:points]{graphics::points},
-and \link[graphics:legend]{graphics::legend} functions. Not all may work due to a clash of
-arguments.}
+and \link[graphics:legend]{graphics::legend} functions. Oftentimes, this will (unfortunately) lead
+to an error due to a clash of arguments.}
 
 \item{dv}{character vector, specifying the delta functions to plot. Defaults
 to all columns beginning with "Delta_" in \code{x}.}

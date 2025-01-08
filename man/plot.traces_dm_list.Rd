@@ -38,8 +38,8 @@
 traces to be plotted, resulting from a call to \link{simulate_traces}.}
 
 \item{...}{additional arguments passed to the \link{plot}, \link[graphics:points]{graphics::points},
-and \link[graphics:legend]{graphics::legend} functions. Not all may work due to a clash of
-of arguments.}
+and \link[graphics:legend]{graphics::legend} functions. Oftentimes, this will (unfortunately) lead
+to an error due to a clash of arguments.}
 
 \item{col}{character, vector of colors for the evidence accumulation traces,
 one per condition. Defaults to a rainbow palette if not specified.}

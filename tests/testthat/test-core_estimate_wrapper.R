@@ -95,9 +95,11 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
 
   temp_data <- data_both
-  temp_data <- rbind(temp_data,
-                     data.frame(RT = 0.5, Error = 0, Cond = "foo", ID = 2))
-  temp_data <- temp_data[temp_data$ID == 2,]
+  temp_data <- rbind(
+    temp_data,
+    data.frame(RT = 0.5, Error = 0, Cond = "foo", ID = 2)
+  )
+  temp_data <- temp_data[temp_data$ID == 2, ]
   expect_warning(
     estimate_model_ids(
       a_model,
@@ -253,7 +255,7 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
     ),
     "drift_dm_fit_info not allowed as individual number/identifier"
   )
-  unlink(file.path(tempdir(),"temp_fits", "id_fail"), recursive = T)
+  unlink(file.path(tempdir(), "temp_fits", "id_fail"), recursive = T)
 
 
   # lower-level error by estimate_model
@@ -305,8 +307,10 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
 
   # wrong identifier
   expect_error(
-    load_fits_ids(path = file.path(tempdir(), "temp_fits"),
-                  fit_procedure_name = "test_cas_e1"),
+    load_fits_ids(
+      path = file.path(tempdir(), "temp_fits"),
+      fit_procedure_name = "test_cas_e1"
+    ),
     "no folder with a \\(suitable\\) file drift_dm_fit_info.rds found"
   )
 
@@ -614,7 +618,7 @@ test_that("start_vals work as expected", {
     ),
     "passing back unmodified object"
   )
-  unmodifed <- readRDS(file.path(tempdir(),"temp", "foo", "1.rds"))
+  unmodifed <- readRDS(file.path(tempdir(), "temp", "foo", "1.rds"))
   expect_true(
     all(unmodifed$flex_prms_obj$prms_matrix[1, ] ==
       start_vals[c("muc", "b.comp", "non_dec")])
@@ -623,7 +627,7 @@ test_that("start_vals work as expected", {
     all(unmodifed$flex_prms_obj$prms_matrix[2, ] ==
       start_vals[c("muc", "b.incomp", "non_dec")])
   )
-  unlink(file.path(tempdir(),"temp"), recursive = T)
+  unlink(file.path(tempdir(), "temp"), recursive = T)
 
   # default
   expect_warning(
@@ -657,7 +661,7 @@ test_that("start_vals work as expected", {
   )
 
 
-  temp_start = start_vals[,names(start_vals) != "ID"]
+  temp_start <- start_vals[, names(start_vals) != "ID"]
   expect_error(
     estimate_model_ids(a_model, id_1,
       lower = c(2, 0.2, 0.1),
@@ -714,7 +718,7 @@ test_that("start_vals work as expected", {
   )
 
   temp_data <- rbind(id_1, id_1)
-  temp_data$ID[(nrow(temp_data)/2+1):nrow(temp_data)] <- 2
+  temp_data$ID[(nrow(temp_data) / 2 + 1):nrow(temp_data)] <- 2
   expect_error(
     estimate_model_ids(
       a_model,

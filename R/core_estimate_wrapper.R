@@ -89,7 +89,8 @@
 #'
 #' # simulate synthetic data for demonstration purpose
 #' synth_data_prms <- simulate_data(
-#'   model, n = 100, k = 2, lower = lower, upper = upper, seed = 1
+#'   model,
+#'   n = 100, k = 2, lower = lower, upper = upper, seed = 1
 #' )
 #' synth_data <- synth_data_prms$synth_data
 #'
@@ -99,16 +100,16 @@
 #' estimate_model_ids(
 #'   drift_dm_obj = model, # which model (the Ratcliff model)
 #'   obs_data_ids = synth_data, # which data (the synthetic data set)
-#'   lower = lower,  # the lower and upper parameter/search space
+#'   lower = lower, # the lower and upper parameter/search space
 #'   upper = upper,
 #'   fit_procedure_name = "example", # a label for the fit procedure
 #'   fit_path = tempdir(), # temporary directory (replace, e.g., with getwd())
-#'   use_nmkb = TRUE,       # use Nelder-Mead (fast, but less robust)
-#'   use_de_optim = FALSE   # and not differential evolution
+#'   use_nmkb = TRUE, # use Nelder-Mead (fast, but less robust)
+#'   use_de_optim = FALSE # and not differential evolution
 #' )
 #'
 #' \dontshow{
-#'   unlink(file.path(tempdir(), "drift_dm_fits"), recursive = TRUE)
+#' unlink(file.path(tempdir(), "drift_dm_fits"), recursive = TRUE)
 #' }
 #'
 #' @seealso [dRiftDM::load_fits_ids]
@@ -233,7 +234,7 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
   if (!dir.exists(fit_path)) {
     stop("fit_path must provide a valid path to an existing directory")
   }
-  fit_dir = file.path(fit_path, fit_dir)
+  fit_dir <- file.path(fit_path, fit_dir)
 
   if (!dir.exists(fit_dir)) {
     dir.create(fit_dir, recursive = TRUE)
@@ -248,8 +249,8 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
           paste0(
             "Warning occurred: %s\n-> Double-check that 'folder_name' ",
             "is a plain folder name."
-          ), conditionMessage(w))
-        )
+          ), conditionMessage(w)
+        ))
       }
     )
   }
@@ -444,12 +445,12 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 #' # get the path to the fit procedures' location
 #' # -> if a user saved fit procedures in their working directory,
 #' #    path_to would just be "drift_dm_fits" (see the default value of path)
-#' path_to = file.path(
+#' path_to <- file.path(
 #'   system.file(package = "dRiftDM"), "drift_dm_fits"
 #' )
 #'
 #' # then load all the fits of a fit procedure
-#' all_fits = load_fits_ids(path = path_to, fit_procedure_name = "example")
+#' all_fits <- load_fits_ids(path = path_to, fit_procedure_name = "example")
 #' print(all_fits)
 #' summary(all_fits)
 #'

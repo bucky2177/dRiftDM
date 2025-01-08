@@ -115,7 +115,6 @@
 #' # show the result
 #' print(my_model)
 #'
-#'
 #' @seealso [dRiftDM::estimate_model_ids]
 #'
 #'

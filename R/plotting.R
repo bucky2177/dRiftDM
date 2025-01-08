@@ -63,8 +63,8 @@ plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
 #' @param legend_pos character, specifying the position of the legend on the
 #' plot.
 #' @param ... additional arguments passed to the [plot], [graphics::points],
-#'  and [graphics::legend] functions. Not all may work due to a clash of
-#'  of arguments.
+#'  and [graphics::legend] functions. Oftentimes, this will (unfortunately) lead
+#'  to an error due to a clash of arguments.
 #'
 #'
 #' @details
@@ -243,8 +243,8 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 #' @param legend_pos character, specifying the position of the legend on the
 #' plot.
 #' @param ... additional arguments passed to the [plot], [graphics::points],
-#'  and [graphics::legend] functions. Not all may work due to a clash of
-#'  of arguments.
+#'  and [graphics::legend] functions. Oftentimes, this will (unfortunately) lead
+#'  to an error due to a clash of arguments.
 #'
 #'
 #' @details
@@ -406,8 +406,8 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #' @param legend_pos character, specifying the position of the legend on the
 #'  plot.
 #' @param ... additional arguments passed to the [plot], [graphics::points],
-#'  and [graphics::legend] functions. Not all may work due to a clash of
-#'  arguments.
+#'  and [graphics::legend] functions. Oftentimes, this will (unfortunately) lead
+#'  to an error due to a clash of arguments.
 #'
 #' @details
 #' The `plot.quantiles` function allows for a quick investigation of quantiles,
@@ -561,8 +561,8 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
 #' @param legend_pos character, specifying the position of the legend on the
 #'  plot.
 #' @param ... additional arguments passed to the [plot], [graphics::points],
-#'  and [graphics::legend] functions. Not all may work due to a clash of
-#'  arguments.
+#'  and [graphics::legend] functions. Oftentimes, this will (unfortunately) lead
+#'  to an error due to a clash of arguments.
 #'
 #' @details
 #' The `plot.delta_funs` function provides an easy way to investigate delta
@@ -571,6 +571,7 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
 #' in the data, delta functions are aggregated across IDs before plotting.
 #' By default, `ylim` is set to twice the range of the delta values to provide
 #' more context.
+#'
 #'
 #' @returns
 #' Nothing (`NULL`; invisibly)
@@ -647,7 +648,7 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
   # set default plot arguments
   all_y_vals <- unlist(delta_fun[dv])
   y_r <- range(all_y_vals)
-  ylim <- c(y_r[1] - (y_r[2] - y_r[1]) / 2, y_r[2] + (y_r[2] - y_r[1]) / 2)
+  y_r <- c(y_r[1] - (y_r[2] - y_r[1]) / 2, y_r[2] + (y_r[2] - y_r[1]) / 2)
   ylim <- set_plot_limits(
     lim = ylim,
     default_lim = y_r

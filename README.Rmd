@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 # dRiftDM <img src="man/figures/logo.png" align="right" height="138" alt="" />
 
 
-The package dRiftDM was developed to assist psychological researchers in applying and fitting diffusion models to empirical data within the R environment. Its most important feature is the ability to handle non-stationary problems, specifically diffusion models with time-dependent parameters. The package includes essential tools for standard analyses, such as building models, estimating parameters for multiple participants (individually for each participant), and creating summary statistics. The pre-built models available in the package include:
+The package dRiftDM was developed to assist psychology researchers in applying and fitting diffusion models to empirical data within the R environment. Its most important feature is the ability to handle non-stationary problems, specifically diffusion models with time-dependent parameters. The package includes essential tools for standard analyses, such as building models, estimating parameters for multiple participants (individually for each participant), and creating summary statistics. The pre-built models available in the package are:
 
 - The Standard (Ratcliff) Diffusion Model (Ratcliff, 1978, Psychological Review)
 - The Diffusion Model for Conflict Tasks (Ulrich et al., 2015, Cognitive Psychology)
@@ -58,7 +58,7 @@ install.packages("dRiftDM")
 
 ## Example
 
-We are in the process of publishing a tutorial with more detailed instructions (see the respective [OSF pre-print](https://osf.io/preprints/osf/3t2vf)). For now, here is an example of how to fit the Diffusion Model for Conflict Tasks to some synthetic data using bounded Nelder-Mead:
+We are in the process of publishing a tutorial with more detailed instructions (see the respective [OSF pre-print](https://osf.io/preprints/osf/3t2vf)). For now, here is an example of how to fit the Diffusion Model for Conflict Tasks to synthetic data using bounded Nelder-Mead:
 
 ```{r example}
 library(dRiftDM)

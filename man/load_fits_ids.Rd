@@ -93,12 +93,12 @@ call, and the number of individual data sets.
 # get the path to the fit procedures' location
 # -> if a user saved fit procedures in their working directory,
 #    path_to would just be "drift_dm_fits" (see the default value of path)
-path_to = file.path(
+path_to <- file.path(
   system.file(package = "dRiftDM"), "drift_dm_fits"
 )
 
 # then load all the fits of a fit procedure
-all_fits = load_fits_ids(path = path_to, fit_procedure_name = "example")
+all_fits <- load_fits_ids(path = path_to, fit_procedure_name = "example")
 print(all_fits)
 summary(all_fits)
 

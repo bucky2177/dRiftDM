@@ -118,7 +118,8 @@ upper <- c(muc = 7, b = 1.0, non_dec = 0.6)
 
 # simulate synthetic data for demonstration purpose
 synth_data_prms <- simulate_data(
-  model, n = 100, k = 2, lower = lower, upper = upper, seed = 1
+  model,
+  n = 100, k = 2, lower = lower, upper = upper, seed = 1
 )
 synth_data <- synth_data_prms$synth_data
 
@@ -128,16 +129,16 @@ synth_data <- synth_data_prms$synth_data
 estimate_model_ids(
   drift_dm_obj = model, # which model (the Ratcliff model)
   obs_data_ids = synth_data, # which data (the synthetic data set)
-  lower = lower,  # the lower and upper parameter/search space
+  lower = lower, # the lower and upper parameter/search space
   upper = upper,
   fit_procedure_name = "example", # a label for the fit procedure
   fit_path = tempdir(), # temporary directory (replace, e.g., with getwd())
-  use_nmkb = TRUE,       # use Nelder-Mead (fast, but less robust)
-  use_de_optim = FALSE   # and not differential evolution
+  use_nmkb = TRUE, # use Nelder-Mead (fast, but less robust)
+  use_de_optim = FALSE # and not differential evolution
 )
 
 \dontshow{
-  unlink(file.path(tempdir(), "drift_dm_fits"), recursive = TRUE)
+unlink(file.path(tempdir(), "drift_dm_fits"), recursive = TRUE)
 }
 
 }

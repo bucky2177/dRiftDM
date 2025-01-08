@@ -48,12 +48,13 @@ test_that("test im_zero", {
   expect_equal(test_l_pdf, pdf_l)
 
   # do the same but with re_evaluate_model
-  a_model <- dmc_dm(t_max = 1, dx = .001, dt = .001, var_start = F,
-                    var_non_dec = F)
+  a_model <- dmc_dm(
+    t_max = 1, dx = .001, dt = .001, var_start = F,
+    var_non_dec = F
+  )
   solver(a_model) <- "im_zero"
-  coef(a_model)["non_dec"] = 0
+  coef(a_model)["non_dec"] <- 0
   a_model <- re_evaluate_model(a_model)
-  expect_equal(test_u_pdf, a_model$pdfs$comp$pdf_u, tolerance  = .0001)
-  expect_equal(test_l_pdf, a_model$pdfs$comp$pdf_l, tolerance  = .0001)
-
+  expect_equal(test_u_pdf, a_model$pdfs$comp$pdf_u, tolerance = .0001)
+  expect_equal(test_l_pdf, a_model$pdfs$comp$pdf_l, tolerance = .0001)
 })

@@ -17,5 +17,5 @@ tutorial/figure
 tutorial/*.Rmd
 tutorial/*.md
 tutorial/*.html
-
+cran-comments.md
 docs
