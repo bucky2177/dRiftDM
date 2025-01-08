@@ -15,7 +15,7 @@ of the function call. One call to this function is considered a
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,7 @@ of the function call. One call to this function is considered a
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Fit Multiple Individuals and Save Results</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/v0.2.1/R/core_estimate_wrapper.R" class="external-link"><code>R/core_estimate_wrapper.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/main/R/core_estimate_wrapper.R" class="external-link"><code>R/core_estimate_wrapper.R</code></a></small>
       <div class="d-none name"><code>estimate_model_ids.Rd</code></div>
     </div>
 
@@ -193,7 +193,8 @@ has its own <code>&lt;individual&gt;.rds</code> file containing the modified
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># simulate synthetic data for demonstration purpose</span></span></span>
 <span class="r-in"><span><span class="va">synth_data_prms</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_data.html">simulate_data</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">model</span>, n <span class="op">=</span> <span class="fl">100</span>, k <span class="op">=</span> <span class="fl">2</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>, seed <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span>  <span class="va">model</span>,</span></span>
+<span class="r-in"><span>  n <span class="op">=</span> <span class="fl">100</span>, k <span class="op">=</span> <span class="fl">2</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>, seed <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">synth_data</span> <span class="op">&lt;-</span> <span class="va">synth_data_prms</span><span class="op">$</span><span class="va">synth_data</span></span></span>
 <span class="r-in"><span></span></span>
@@ -203,12 +204,12 @@ has its own <code>&lt;individual&gt;.rds</code> file containing the modified
 <span class="r-in"><span><span class="fu">estimate_model_ids</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  drift_dm_obj <span class="op">=</span> <span class="va">model</span>, <span class="co"># which model (the Ratcliff model)</span></span></span>
 <span class="r-in"><span>  obs_data_ids <span class="op">=</span> <span class="va">synth_data</span>, <span class="co"># which data (the synthetic data set)</span></span></span>
-<span class="r-in"><span>  lower <span class="op">=</span> <span class="va">lower</span>,  <span class="co"># the lower and upper parameter/search space</span></span></span>
+<span class="r-in"><span>  lower <span class="op">=</span> <span class="va">lower</span>, <span class="co"># the lower and upper parameter/search space</span></span></span>
 <span class="r-in"><span>  upper <span class="op">=</span> <span class="va">upper</span>,</span></span>
 <span class="r-in"><span>  fit_procedure_name <span class="op">=</span> <span class="st">"example"</span>, <span class="co"># a label for the fit procedure</span></span></span>
 <span class="r-in"><span>  fit_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="co"># temporary directory (replace, e.g., with getwd())</span></span></span>
-<span class="r-in"><span>  use_nmkb <span class="op">=</span> <span class="cn">TRUE</span>,       <span class="co"># use Nelder-Mead (fast, but less robust)</span></span></span>
-<span class="r-in"><span>  use_de_optim <span class="op">=</span> <span class="cn">FALSE</span>   <span class="co"># and not differential evolution</span></span></span>
+<span class="r-in"><span>  use_nmkb <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># use Nelder-Mead (fast, but less robust)</span></span></span>
+<span class="r-in"><span>  use_de_optim <span class="op">=</span> <span class="cn">FALSE</span> <span class="co"># and not differential evolution</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
