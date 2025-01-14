@@ -5,9 +5,9 @@
 #' ---
 #'
 #' This document contains the code of dRiftDM's tutorial to facilitate review.
-#' Note that this script sometimes provides additional R statements that were
-#' skipped in the pre-print/manuscript for brevity. Yet, those primarily show a
-#' bit more of the underlying structure of objects or alternative ways to access
+#' Note that it sometimes provides additional R statements that were skipped
+#' in the pre-print/manuscript for brevity. Yet, those primarily show a bit
+#' more of the underlying structure of objects or alternative ways to access
 #' information.
 
 rm(list = ls())
@@ -19,8 +19,10 @@ rm(list = ls())
 
 #+ eval = FALSE
 # install.packages("devtools") # if not already available
-devtools::install_github("bucky2177/dRiftDM")
+devtools::install_github("bucky2177/dRiftDM") # development version
+# or from CRAN: install.packages("dRiftDM")
 # optional: install.packages("cowsay")
+
 
 #' Load the package and choose a pre-built model.
 #+ get_a_ddm
@@ -213,8 +215,10 @@ list.files(file.path(tempdir(), "./drift_dm_fits/ulrich_flanker/"))
 #' Load all fits to investigate model fit and the parameter estimates
 #+ load_plot_multiple_ids, fig.width = 8, fig.height = 4
 # load a fit procedure
-all_fits <- load_fits_ids(path = tempdir(),
-                          fit_procedure_name = "ulrich_flanker")
+all_fits <- load_fits_ids(
+  path = tempdir(), # can be dropped when fits were stored in the working dir.
+  fit_procedure_name = "ulrich_flanker",
+)
 print(all_fits)
 
 # access parameters

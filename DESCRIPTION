@@ -28,7 +28,7 @@ Imports:
   withr, parallel, DEoptim, dfoptim, Rcpp, Rdpack, progress, stats
 LinkingTo: Rcpp
 Depends: 
-    R (>= 3.5.0)
+    R (>= 4.1.0)
 VignetteBuilder: knitr
 RdMacros: Rdpack
 URL: https://github.com/bucky2177/dRiftDM, https://bucky2177.github.io/dRiftDM/
