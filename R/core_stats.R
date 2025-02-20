@@ -689,8 +689,8 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #'
 #' `calc_stats` provides an interface for calculating statistics/metrics on
 #' model predictions and/or observed data. Supported statistics include
-#' Conditional Accuracy Functions (CAFs), Quantiles, Delta Functions, and Fit
-#' Statistics. Results can be aggregated across individuals.
+#' Conditional Accuracy Functions (CAFs), Quantiles, Delta Functions, and fit
+#' statistics. Results can be aggregated across individuals.
 #'
 #' @param object an object for which statistics are calculated. This can be a
 #' [data.frame] of observed data, a [dRiftDM::drift_dm] object, or a
@@ -712,6 +712,16 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #' where applicable. Default is `FALSE`.
 #' @param verbose integer, indicating if information about the progress
 #'  should be displayed. 0 -> no information, 1 -> a progress bar. Default is 0.
+#' @param round_digits integer, controls the number of digits shown for
+#'  `print.stats_dm()`. Default is 3.
+#' @param print_rows integer, controls the number of rows shown when calling
+#'  `print.stats_dm()`.
+#' @param some logical. If `TRUE`, a subset of randomly sampled rows is shown by
+#'  `print.stats_dm()`.
+#' @param show_header logical. If `TRUE`, a header specifying the type of
+#'  statistic will be displayed by `print.stats_dm()`.
+#' @param show_note logical. If `TRUE`, a footnote  is displayed indicating
+#' that the underlying [data.frame] can be accessed as usual.
 #'
 #' @details
 #' `calc_stats` is a generic function to handle the calculation of different
@@ -773,15 +783,22 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #' and [dRiftDM::AIC.fits_ids_dm])
 #'
 #' @returns
-#' If `type` is a single character string, then a [data.frame] is returned.
-#' If `type` contains multiple character strings (i.e., is a character vector)
-#' a list with the calculated statistics (with entries being [data.frame]s) is
-#' returned.
+#' If `type` is a single character string, then a subclass of [data.frame] is
+#' returned, containing the respective statistic. Objects of type `sum_dist`
+#' will have an additional attribute storing the boundary encoding (see also
+#' [dRiftDM::b_coding]). The reason for returning subclasses of [data.frame] is
+#' to provide custom `plot()` methods (e.g., [dRiftDM::plot.cafs]). To get rid
+#' of the subclass label (i.e., to get just the plain [data.frame], users coerce
+#' the object with [as.data.frame()]).
 #'
-#' Each returned [data.frame] has a certain class label and may store additional
-#' attributes required for the custom `plot()` functions. If a list is returned,
-#' then that list will have the class label `list_stats_dm` (to easily create
-#' multiple panels using the respective `plot()` method).
+#' If `type` contains multiple character strings (i.e., is a character vector) a
+#' subclass of [list] with the calculated statistics is returned. The list will
+#' be of type `stats_dm_list` (to easily create multiple panels using the
+#' respective [dRiftDM::plot.stats_dm_list()] method).
+#'
+#' The print methods `print.stats_dm()` and `print.stats_dm_list()` each
+#' invisibly return the supplied object `x`.
+#'
 #'
 #' @examples
 #' # Example 1: Calculate CAFs and Quantiles from a model ---------------------
@@ -789,8 +806,7 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #' a_model <- ssp_dm(dx = .0025, dt = .0025, t_max = 2)
 #' # and then calculate cafs and quantiles
 #' some_stats <- calc_stats(a_model, type = c("cafs", "quantiles"))
-#' head(some_stats$cafs)
-#' head(some_stats$quantiles)
+#' print(some_stats)
 #'
 #' # Example 2: Calculate a Delta Function from a data.frame ------------------
 #' # get a data set for demonstration purpose
@@ -802,17 +818,17 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #'   minuends = "incomp",
 #'   subtrahends = "comp"
 #' )
-#' head(some_stats)
+#' print(some_stats, print_rows = 5)
 #'
 #'
 #' # Example 3: Calculate Quantiles from a fits_ids_dm object -----------------
 #' # get an auxiliary fits_ids_dm object
 #' all_fits <- get_example_fits_ids()
 #' some_stats <- calc_stats(all_fits, type = "quantiles")
-#' head(some_stats) # note the ID column
+#' print(some_stats, print_rows = 5) # note the ID column
 #'
 #' # one can also request that the statistics are averaged across individuals
-#' head(
+#' print(
 #'   calc_stats(all_fits, type = "quantiles", average = TRUE)
 #' )
 #'
@@ -823,7 +839,7 @@ calc_stats <- function(object, type, ...) {
       calc_stats(object = object, type = one_type, ...)
     }, simplify = FALSE, USE.NAMES = TRUE)
 
-    class(all_stats) <- c("list_stats_dm", "list")
+    class(all_stats) <- c("stats_dm_list", "list")
     return(all_stats)
   }
 
@@ -1008,7 +1024,7 @@ calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
     )
     pb$tick(0)
   }
-
+#
 
 
   # call statistic across individuals
@@ -1407,4 +1423,44 @@ copy_class_attributes.stats_dm <- function(old, new) {
   }
 
   return(new)
+}
+
+
+
+
+# UNPACK METHODS ----------------------------------------------------------
+
+#' @rdname unpack_obj
+#' @export
+unpack_obj.stats_dm <- function(object, ..., unpack_elements = TRUE) {
+
+  if (unpack_elements) {
+    object <- as.data.frame(object)
+    attr(object, "b_coding") <- NULL
+  }
+
+  return(object)
+}
+
+
+#' @rdname unpack_obj
+#' @export
+unpack_obj.stats_dm_list <- function(object, ..., unpack_elements = TRUE,
+                                 type = NULL) {
+  # default is all stored stat types
+  if (is.null(type)) {
+    type <- names(object)
+  }
+  type <- match.arg(type, names(object), several.ok = TRUE)
+
+  # iterate across all
+  stats <- sapply(type, function(x) {
+    unpack_obj(object[[x]], unpack_elements = unpack_elements)
+  }, simplify = FALSE, USE.NAMES = TRUE)
+
+  if (length(type) == 1) {
+    return(stats[[1]])
+  } else {
+    return(stats)
+  }
 }

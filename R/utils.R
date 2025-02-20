@@ -592,7 +592,7 @@ drift_dm_default_b_coding <- function() {
 #'
 #' @details
 #' The returned fit object comprises DMC (see [dRiftDM::dmc_dm()]) fitted to
-#' three subjects of the ulrich_flanker_data.
+#' three participants of the ulrich_flanker_data.
 #'
 #' @examples
 #' fits <- get_example_fits_ids()

@@ -25,7 +25,15 @@ LazyData: true
 RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 Imports: 
-  withr, parallel, DEoptim, dfoptim, Rcpp, Rdpack, progress, stats
+    withr,
+    parallel,
+    DEoptim,
+    dfoptim,
+    Rcpp,
+    Rdpack,
+    progress,
+    stats,
+    lifecycle
 LinkingTo: Rcpp
 Depends: 
     R (>= 4.1.0)

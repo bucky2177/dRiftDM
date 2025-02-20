@@ -386,7 +386,15 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'
 #'
 #' Per default the shape parameter `a` is set to 2 and not allowed to
-#' vary. The model assumes the amplitude `A` to be negative for
+#' vary. This is because the derivative of the scaled gamma-distribution
+#' function does not exist at `t = 0` for `a < 2`. We generally recommend keeping
+#' `a` fixed to 2 for several reasons. If users decide to set `a != 2`, then a
+#' small value of `0.0005` is added to the time vector `t_vec` before calculating
+#' the derivative of the scaled gamma-distribution as originally introduced by
+#' \insertCite{Ulrichetal.2015;textual}{dRiftDM}. This can lead to large
+#' numerical inaccuracies if `tau` is small and/or `dt` is large.
+#'
+#' The model assumes the amplitude `A` to be negative for
 #' incompatible trials. Also, the model contains the custom parameter
 #' `peak_l`, containing the peak latency (`(a-2)*tau`).
 #'

@@ -28,29 +28,29 @@ print.fits_ids_dm <- function(x, ...) {
 print.summary.fits_ids_dm <- function(x, ...,
                                       round_digits = drift_dm_default_rounding()) {
   summary_obj <- x
-  cat("Fit procedure name:", summary_obj$fit_procedure_name)
+  cat("Fit Procedure Name:", summary_obj$fit_procedure_name)
   cat("\n")
   cat("N Individuals:", summary_obj$N, "\n\n")
 
 
   for (one_cond in names(summary_obj$stats)) {
-    cat("Parameter summary:", one_cond, "\n")
+    cat("Parameter Summary:", one_cond, "\n")
     temp <- round(summary_obj$stats[[one_cond]], round_digits)
     print(temp)
     cat("\n")
   }
   cat("\n")
 
-  cat("Parameter space:\n")
+  cat("Parameter Space:\n")
   temp <- rbind(summary_obj$lower, summary_obj$upper)
   rownames(temp) <- c("lower", "upper")
   colnames(temp) <- names(summary_obj$upper)
   print(temp)
 
   cat("\n-------\n")
-  cat("Fitted model type:", summary_obj$model_type)
+  cat("Fitted Model Type:", summary_obj$model_type)
   cat("\n")
-  cat("Time of (last) call:", summary_obj$time_call)
+  cat("Time of (Last) Call:", summary_obj$time_call)
   cat("\n")
   invisible(x)
 }

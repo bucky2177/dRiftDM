@@ -16,7 +16,7 @@ This function is merely a helper function to create an object of type
 }
 \details{
 The returned fit object comprises DMC (see \code{\link[=dmc_dm]{dmc_dm()}}) fitted to
-three subjects of the ulrich_flanker_data.
+three participants of the ulrich_flanker_data.
 }
 \examples{
 fits <- get_example_fits_ids()

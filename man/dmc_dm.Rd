@@ -72,7 +72,15 @@ If \code{var_non_dec = TRUE}, a constant non-decision time at \code{non_dec} is 
 assumed (i.e., a dirac delta over 0).
 
 Per default the shape parameter \code{a} is set to 2 and not allowed to
-vary. The model assumes the amplitude \code{A} to be negative for
+vary. This is because the derivative of the scaled gamma-distribution
+function does not exist at \code{t = 0} for \code{a < 2}. We generally recommend keeping
+\code{a} fixed to 2 for several reasons. If users decide to set \code{a != 2}, then a
+small value of \code{0.0005} is added to the time vector \code{t_vec} before calculating
+the derivative of the scaled gamma-distribution as originally introduced by
+\insertCite{Ulrichetal.2015;textual}{dRiftDM}. This can lead to large
+numerical inaccuracies if \code{tau} is small and/or \code{dt} is large.
+
+The model assumes the amplitude \code{A} to be negative for
 incompatible trials. Also, the model contains the custom parameter
 \code{peak_l}, containing the peak latency (\code{(a-2)*tau}).
 }

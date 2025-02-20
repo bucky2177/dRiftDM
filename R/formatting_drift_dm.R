@@ -45,14 +45,14 @@ print.drift_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
 
 #' Summary for `drift_dm` Objects
 #'
-#' Summary and printing methods for objects of the class `drift_dm`, resulting
-#' from a call to [dRiftDM::drift_dm].
+#' Summary and corresponding printing methods for objects of the class
+#' `drift_dm`, resulting from a call to [dRiftDM::drift_dm()].
 #'
-#' @param object An object of class `drift_dm`
+#' @param object an object of class `drift_dm`
 #' @param x an object of type `summary.drift_dm`
-#' @param round_digits Integer specifying the number of decimal places for
+#' @param round_digits integer, specifying the number of decimal places for
 #'   rounding in the printed summary. Default is 3.
-#' @param ... additional arguments passed forward to the respective method
+#' @param ... additional arguments passed forward.
 #'
 #' @details
 #' The `summary.drift_dm()` function constructs a summary list with detailed
@@ -169,13 +169,13 @@ print.summary.drift_dm <- function(x, ...,
     fit_stats_print <- round(fit_stats_print, round_digits)
   }
   print(fit_stats_print)
-  cat("-------")
+  cat("\n-------")
 
 
   cat("\nSolver:", summary_obj$solver)
   to_str <- prms_to_str(
     x = names(summary_obj$prms_solve),
-    prms = summary_obj$prms_solve,
+    prms = round(summary_obj$prms_solve, round_digits),
     sep = "=", collapse = ", "
   )
   cat("\nSettings:", to_str)

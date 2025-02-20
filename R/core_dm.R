@@ -1991,8 +1991,6 @@ b_coding.fits_ids_dm <- function(object, ...) {
 }
 
 
-
-
 ## coef, AIC, BIC, logLik #####
 # see extended_s3_methods
 
@@ -2223,7 +2221,7 @@ prms_cond_combo <- function(drift_dm_obj) {
 #'  exploring the model without noise.
 #' @param seed optional numerical, a seed for reproducible sampling
 #' @param unpack logical, indicating if the traces shall be "unpacked" (see
-#'  also [dRiftDM::unpack_traces] and the return value below).
+#'  also [dRiftDM::unpack_obj] and the return value below).
 #'
 #' @param x an object of type `traces_dm_list` or `traces_dm`, resulting from a
 #' call to `simulate_traces`.
@@ -2269,7 +2267,9 @@ prms_cond_combo <- function(drift_dm_obj) {
 #' array of size (`k`, `nt + 1`). Note that `nt` is the number of steps in the
 #' discretization of time; see [dRiftDM::drift_dm]. If `unpack = FALSE`, the
 #' array is of type `traces_dm`. It contains some additional attributes about
-#' the time space, the drift rate, the boundary, and the added starting values.
+#' the time space, the drift rate, the boundary, the added starting values,
+#' if starting values were added, the original model class and parameters, the
+#' boundary coding, and the solver settings.
 #'
 #' The print methods `print.traces_dm_list()` and `print.traces_dm()` each
 #' invisibly return the supplied object `x`.
@@ -2299,9 +2299,9 @@ prms_cond_combo <- function(drift_dm_obj) {
 #' [dRiftDM::plot.traces_dm_list] and [dRiftDM::print.traces_dm_list] function.
 #'
 #' Users can unpack the traces even after calling `simulate_traces()` using
-#' [dRiftDM::unpack_traces()].
+#' [dRiftDM::unpack_obj()].
 #'
-#' @seealso [dRiftDM::unpack_traces()], [dRiftDM::plot.traces_dm_list()]
+#' @seealso [dRiftDM::unpack_obj()], [dRiftDM::plot.traces_dm_list()]
 #'
 #'
 #' @export
@@ -2343,14 +2343,55 @@ simulate_traces.drift_dm <- function(object, k, ..., conds = NULL, add_x = FALSE
     stop("names in k don't match with the names for each condition")
   }
 
+  # get and check the add_x (logical check done in simulate_one_traces)
+  add_xs <- add_x
+  if (length(add_xs) == 1) {
+    add_xs <- rep(add_xs, length(conds))
+  }
+
+  if (length(add_xs) != length(conds)) {
+    stop("number of values in add_x must match with the number of conditions")
+  }
+
+  if (is.null(names(add_xs))) {
+    names(add_xs) <- conds
+  }
+
+  if (!all(conds %in% names(add_xs))) {
+    stop("names in add_x don't match with the names for each condition")
+  }
+
+  # get and check the sigma (numeric check done in simulate_one_traces)
+  if (is.null(sigma)) {
+    sigma = object$prms_solve[["sigma"]]
+  }
+
+  sigmas <- sigma
+  if (length(sigmas) == 1) {
+    sigmas <- rep(sigmas, length(conds))
+  }
+
+  if (length(sigmas) != length(conds)) {
+    stop("number of values in sigma must match with the number of conditions")
+  }
+
+  if (is.null(names(sigmas))) {
+    names(sigmas) <- conds
+  }
+
+  if (!all(conds %in% names(sigmas))) {
+    stop("names in sigma don't match with the names for each condition")
+  }
+
 
 
 
   # call internal function per conditions and pass back
   all_samples <- sapply(conds, function(one_cond) {
     simulate_traces_one_cond(
-      drift_dm_obj = object, k = ks[one_cond],
-      one_cond = one_cond, add_x = add_x, sigma = sigma
+      drift_dm_obj = object, k = unname(ks[one_cond]),
+      one_cond = one_cond, add_x = unname(add_xs[one_cond]),
+      sigma = unname(sigmas[one_cond])
     )
   }, USE.NAMES = TRUE, simplify = FALSE)
 
@@ -2364,7 +2405,7 @@ simulate_traces.drift_dm <- function(object, k, ..., conds = NULL, add_x = FALSE
 
   # unpack if desired
   if (unpack) {
-    all_samples <- unpack_traces(all_samples, unpack = unpack)
+    all_samples <- unpack_obj(all_samples, unpack_elements = unpack)
   }
 
   # and pass back
@@ -2414,7 +2455,13 @@ simulate_traces.fits_ids_dm <- function(object, k, ...) {
 #'   * "mu_vals" -> the drift rate values by mu_fun
 #'   * "b_vals" -> the boundary values by b_fun
 #'   * "samp_x" -> the values of the starting points (which are always added to
-#'   the traces in the array).
+#'   the traces in the array.
+#'   * "add_x" -> boolean, indicating if the starting values were added or not
+#'   * "orig_model_class" -> the class label of the original model
+#'   * "orig_prms" -> the parameters with which the traces were simulated (for
+#'      the respective condition)
+#'   * "b_coding" -> the boundary coding
+#'   * "prms_solve" -> the solver settings with which the traces were simulated
 #'
 simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
@@ -2422,7 +2469,7 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
   }
 
   if (!is.logical(add_x) | length(add_x) != 1) {
-    stop("add_x must be of type logical")
+    stop("add_x must be logical of length 1")
   }
 
   if (!is.character(one_cond) | length(one_cond) != 1) {
@@ -2481,33 +2528,168 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
     })
 
 
-  # make it a class and pass back
+  # make it a class and pass back (with several infos)
   e_samples <- t(e_samples)
   class(e_samples) <- "traces_dm"
   attr(e_samples, "t_vec") <- seq(0, t_max, length.out = nt + 1)
   attr(e_samples, "mu_vals") <- mu_vals
   attr(e_samples, "b_vals") <- b_vals
   attr(e_samples, "samp_x") <- samp_x
+  attr(e_samples, "add_x") <- add_x
+  attr(e_samples, "orig_model_class") <- class(drift_dm_obj)
+
+  orig_prms = flex_prms(drift_dm_obj)$prms_matrix[one_cond,]
+  attr(e_samples, "orig_prms") <- orig_prms
+  attr(e_samples, "b_coding") <- b_coding(drift_dm_obj)
+  temp_prms_solve <- drift_dm_obj$prms_solve
+  temp_prms_solve["sigma"] <- sigma
+  attr(e_samples, "prms_solve") <- temp_prms_solve
+
 
   return(e_samples)
 }
+
+
+#' Unpack/Destroy dRiftDM Objects
+#'
+#' @description
+#'
+#' When calling [dRiftDM::simulate_traces()] or [dRiftDM::calc_stats], the
+#' returned objects will be custom objects (e.g., subclasses of [list] or
+#' [data.frame]). The respective subclasses were created to provide convenient
+#' plotting and printing, but they don't really provide any additional
+#' functionality.
+#'
+#' The goal of `unpack_obj()` is to provide a convenient way to strip away
+#' the attributes of the respective objects (revealing them as standard
+#' [array]s, [data.frame]s, or [list]s).
+#'
+#' @param object an object of type `stats_dm`, `stats_dm_list`, `traces_dm`,
+#'  or `traces_dm_list`.
+#'
+#' @param ... further arguments passed on to the respective method.
+#'
+#' @param unpack_elements logical, indicating if the `traces_dm` or
+#'  `stats_dm` objects shall be unpacked. Default is `TRUE`.
+#'
+#' @param conds optional character vector, indicating specific condition(s). The
+#' default `NULL` will lead to `conds = conds(object)`. Thus, per default all
+#' conditions are addressed
+#'
+#' @param type optional character vector, indicating specific type(s) of
+#' statistics. The default `NULL` will access all types of statics.
+#'
+#' @details
+#' `unpack_obj()` is a generic function to strip away the custom information
+#' and class labels of `stats_dm`, `stats_dm_list`, `traces_dm`, and
+#' `traces_dm_list` objects. These objects are created when calling
+#' [dRiftDM::simulate_traces()] or [dRiftDM::calc_stats].
+#'
+#' For `traces_dm_list`, `unpack_obj()` returns the
+#' requested conditions (see the argument `conds`). The result contains
+#' objects of type `traces_dm` if `unpack_elements = FALSE`. For
+#' `unpack_elements = TRUE`, the result contains the plain [array]s with the
+#' traces.
+#'
+#' For `stats_dm_list`, `unpack_obj()` returns the
+#' requested statistics (see the argument `type`). The result contains
+#' objects of type `stats_dm` if `unpack_elements = FALSE`. For
+#' `unpack_elements = TRUE`, the result contains the plain [data.frame]s with
+#' the statistics.
+#'
+#' @returns
+#'
+#' For `traces_dm_list`, the returned value is a list, if `conds` specifies more
+#' than one condition. For example, if `conds = c("foo", "bar")`, then the
+#' returned value is a list with the two (named) entries "foo" and "bar". If
+#' the returned list would only have one entry (either because the
+#' `traces_dm_list` has only one condition, see [dRiftDM::conds], or because a
+#' user explicitly requested only one condition), then the underlying
+#' [array] or `traces_dm` object is returned directly.
+#'
+#' For `stats_dm_list`, the returned value is a list, if `type` specifies more
+#' than one condition. If the returned list would only have one entry, then
+#' the underlying [data.frame] or `stats_dm` object is returned directly.
+#'
+#' For `traces_dm`, `unpack_obj()` returns an [array] with the traces, if
+#' `unpack=TRUE`. If `unpack=FALSE`, the unmodified object is returned.
+#'
+#' For `stats_dm`, `unpack_obj()` returns a [data.frame] with the respective
+#' statistic, if `unpack=TRUE`. If `unpack=FALSE`, the unmodified object is
+#' returned.
+#'
+#' @examples
+#' # get a pre-built model to demonstrate the function
+#' my_model <- dmc_dm()
+#'
+#' # get some traces ...
+#' some_traces <- simulate_traces(my_model, k = 2, seed = 1)
+#' some_traces <- some_traces$comp
+#' class(some_traces)
+#' # ... unpack them to get the underlying arrays
+#' class(unpack_obj(some_traces))
+#'
+#' # get some statistics ...
+#' some_stats <- calc_stats(my_model, type = "cafs")
+#' class(some_stats)
+#' class(unpack_obj(some_stats))
+#'
+#' @export
+unpack_obj <- function(object, ...) {
+  UseMethod("unpack_obj")
+}
+
+
+#' @rdname unpack_obj
+#' @export
+unpack_obj.traces_dm <- function(object, ..., unpack_elements = TRUE) {
+  if (unpack_elements) {
+    all_attr <- attributes(object)
+    save_dims <- all_attr$dim
+    attributes(object) <- NULL
+    attr(object, "dim") <- save_dims
+  }
+
+  return(object)
+}
+
+#' @rdname unpack_obj
+#' @export
+unpack_obj.traces_dm_list <- function(object, ..., unpack_elements = TRUE,
+                                  conds = NULL) {
+  # default is all conds
+  if (is.null(conds)) {
+    conds <- names(object)
+  }
+  conds <- match.arg(conds, names(object), several.ok = TRUE)
+
+  # iterate across all
+  traces <- sapply(conds, function(x) {
+    unpack_obj(object[[x]], unpack_elements = unpack_elements)
+  }, simplify = FALSE, USE.NAMES = TRUE)
+
+  if (length(conds) == 1) {
+    return(traces[[1]])
+  } else {
+    return(traces)
+  }
+}
+
 
 
 #' Unpack/Destroy Traces Objects
 #'
 #' @description
 #'
-#' [dRiftDM::simulate_traces()] provides a list of type `traces_dm_list`,
-#' containing arrays of type `traces_dm`. The respective classes were created
-#' to ensure convenient plotting and printing, but they are not really
-#' necessary. If users want to create their own figures or access the values of
-#' the simulated traces, the data types can even mask the underlying properties.
+#' `r lifecycle::badge("deprecated")`
 #'
-#' The goal of `unpack_traces()` is to provide a convenient way to strip away
-#' the attributes of `traces_dm_list` and `traces_dm` objects.
 #'
-#' @param object an object of type [dRiftDM::drift_dm] or `fits_ids_dm` (see
-#'  [dRiftDM::load_fits_ids])
+#' `unpack_traces()` is deprecated. Please use the more general
+#' [dRiftDM::unpack_obj()] function.
+#'
+#'
+#' @param object an object of type `traces_dm` or `traces_dm_list` (see
+#'  [dRiftDM::simulate_traces()])
 #'
 #' @param ... further arguments passed on to the respective method.
 #'
@@ -2519,7 +2701,7 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
 #' conditions are accessed.
 #'
 #' @details
-#' `unpack_traces()` is a generic function to strip away the "unnecessary"
+#' `unpack_traces()` was a generic function to strip away the "unnecessary"
 #' information of `traces_dm_list` and `traces_dm` objects. These objects are
 #' created when calling [dRiftDM::simulate_traces()].
 #'
@@ -2541,54 +2723,26 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
 #' For `traces_dm`, `unpack_traces()` returns an array with the traces, if
 #' `unpack=TRUE`. If `unpack=FALSE`, the unmodified object is returned.
 #'
-#' @examples
-#' # get a pre-built model to demonstrate the function
-#' my_model <- dmc_dm()
-#' # get some traces ...
-#' some_traces <- simulate_traces(my_model, k = 2, seed = 1)
-#' # and then unpack them to get the underlying arrays
-#' str(unpack_traces(some_traces))
-#'
 #' @export
 unpack_traces <- function(object, ...) {
   UseMethod("unpack_traces")
 }
 
-# just unpack raw traces
+
 #' @rdname unpack_traces
 #' @export
 unpack_traces.traces_dm <- function(object, ..., unpack = TRUE) {
-  if (unpack) {
-    all_attr <- attributes(object)
-    save_dims <- all_attr$dim
-    attributes(object) <- NULL
-    attr(object, "dim") <- save_dims
-  }
-
-  return(object)
+  lifecycle::deprecate_warn("0.2.2", "unpack_traces()", "unpack_obj()")
+  unpack_obj(object, unpack_elements = unpack, ...)
 }
 
-# unpack
+
 #' @rdname unpack_traces
 #' @export
 unpack_traces.traces_dm_list <- function(object, ..., unpack = TRUE,
                                          conds = NULL) {
-  # default is all conds
-  if (is.null(conds)) {
-    conds <- names(object)
-  }
-  conds <- match.arg(conds, names(object), several.ok = TRUE)
-
-  # iterate across all
-  traces <- sapply(conds, function(x) {
-    unpack_traces(object[[x]], unpack = unpack)
-  }, simplify = FALSE, USE.NAMES = TRUE)
-
-  if (length(conds) == 1) {
-    return(traces[[1]])
-  } else {
-    return(traces)
-  }
+  lifecycle::deprecate_warn("0.2.2", "unpack_traces()", "unpack_obj()")
+  unpack_obj(object, unpack_elements = unpack, conds = conds, ...)
 }
 
 

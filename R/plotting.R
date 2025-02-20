@@ -14,7 +14,7 @@ plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
   }
 
   # Plot each condition's traces
-  e_samples <- unpack_traces(traces_obj)
+  e_samples <- unpack_obj(traces_obj)
   t_vec <- attr(traces_obj, "t_vec")
 
   for (i in 1:nrow(e_samples)) {
@@ -727,7 +727,7 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 #' for flexible arrangement of multiple plots on a single graphics device.
 #'
 #'
-#' @param x an object of type `list_stats_dm`, which is essentially a list
+#' @param x an object of type `stats_dm_list`, which is essentially a list
 #'  multiple statistics, resulting from a call to [dRiftDM::calc_stats()].
 #' @param mfrow an optional numeric vector of length 2, specifying the number of
 #'  rows and columns for arranging multiple panels in a single plot
@@ -737,7 +737,7 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 #'  individual `stats_dm` object in `x`.
 #'
 #' @details
-#' The `plot.list_stats_dm()` function is "merely" a wrapper. All plotting
+#' The `plot.stats_dm_list()` function is "merely" a wrapper. All plotting
 #' is done by the respective `plot()` methods. When users want more control
 #' over each plot, it is best to call the `plot()` function separately for
 #' each statistic in the list (e.g., `plot(x$cafs)`; `plot(x$quantiles)`)
@@ -758,7 +758,7 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 #' [dRiftDM::plot.delta_funs()], [dRiftDM::calc_stats()]
 #'
 #' @export
-plot.list_stats_dm <- function(x, ..., mfrow = NULL) {
+plot.stats_dm_list <- function(x, ..., mfrow = NULL) {
   if (!is.null(mfrow)) {
     withr::local_par(mfrow = mfrow)
   }

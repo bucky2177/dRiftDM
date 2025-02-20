@@ -861,7 +861,10 @@ test_that("simulate_traces -> works as expected", {
   a_model <- ratcliff_dm(var_start = T, t_max = t_max, dt = dt)
 
   out <- simulate_traces(a_model, k = 2, conds = "null", sigma = 0)
-  out <- unpack_traces(out)
+  test <- suppressWarnings(unpack_traces(out))
+  out <- unpack_obj(out)
+  expect_identical(test, out)
+
   expect_identical(out[1, ], out[2, ])
   expect_equal(dim(out), c(2, 1 / .01 + 1))
 
@@ -898,7 +901,8 @@ test_that("simulate_traces -> works as expected", {
   # call with multiple conditions and with multiple ks
   # here test also for the presence of the attributes
   a_model <- dmc_dm(t_max = 1, dt = .005, dx = .005)
-  out <- simulate_traces(a_model, k = c(comp = 2, incomp = 3), add_x = T)
+  out <- simulate_traces(a_model, k = c(comp = 2, incomp = 3), add_x = c(T, F),
+                         sigma = c(0,1))
 
   expect_equal(class(out), "traces_dm_list")
   expect_equal(names(out), c("comp", "incomp"))
@@ -906,12 +910,22 @@ test_that("simulate_traces -> works as expected", {
   expect_equal(class(out$comp), "traces_dm")
   expect_equal(names(attributes(out)), c("names", "class", "t_vec"))
   expect_equal(attributes(out)$t_vec, seq(0, 1, 0.005))
+
+  # traces_dm specific
   expect_equal(
     names(attributes(out$comp)),
-    c("dim", "class", "t_vec", "mu_vals", "b_vals", "samp_x")
+    c("dim", "class", "t_vec", "mu_vals", "b_vals", "samp_x", "add_x",
+      "orig_model_class", "orig_prms", "b_coding", "prms_solve")
   )
   expect_equal(dim(out$comp), c(2, 201))
+  expect_equal(attr(out$comp, "add_x"), T)
+  expect_equal(attr(out$comp, "prms_solve")["sigma"], c(sigma = 0))
+
   expect_equal(dim(out$incomp), c(3, 201))
+  expect_equal(attr(out$incomp, "add_x"), F)
+  expect_equal(attr(out$incomp, "prms_solve")["sigma"], c(sigma = 1))
+
+
 
 
   ## test the fits_ids_dm method
@@ -946,7 +960,7 @@ test_that("simulate_traces -> input checks", {
   expect_error(simulate_traces(
     a_model,
     k = 1, conds = "null",
-    add_x = NULL
+    add_x = 1
   ), "logical")
 
   expect_error(

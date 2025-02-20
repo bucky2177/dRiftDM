@@ -10,13 +10,13 @@
 \method{print}{summary.drift_dm}(x, ..., round_digits = drift_dm_default_rounding())
 }
 \arguments{
-\item{object}{An object of class \code{drift_dm}}
+\item{object}{an object of class \code{drift_dm}}
 
-\item{...}{additional arguments passed forward to the respective method}
+\item{...}{additional arguments passed forward.}
 
 \item{x}{an object of type \code{summary.drift_dm}}
 
-\item{round_digits}{Integer specifying the number of decimal places for
+\item{round_digits}{integer, specifying the number of decimal places for
 rounding in the printed summary. Default is 3.}
 }
 \value{
@@ -26,8 +26,8 @@ Details section summarizing each entry of this list).
 \code{print.summary.drift_dm()} returns invisibly the \code{summary.drift_dm} object.
 }
 \description{
-Summary and printing methods for objects of the class \code{drift_dm}, resulting
-from a call to \link{drift_dm}.
+Summary and corresponding printing methods for objects of the class
+\code{drift_dm}, resulting from a call to \code{\link[=drift_dm]{drift_dm()}}.
 }
 \details{
 The \code{summary.drift_dm()} function constructs a summary list with detailed

@@ -13,8 +13,8 @@ unpack_traces(object, ...)
 \method{unpack_traces}{traces_dm_list}(object, ..., unpack = TRUE, conds = NULL)
 }
 \arguments{
-\item{object}{an object of type \link{drift_dm} or \code{fits_ids_dm} (see
-\link{load_fits_ids})}
+\item{object}{an object of type \code{traces_dm} or \code{traces_dm_list} (see
+\code{\link[=simulate_traces]{simulate_traces()}})}
 
 \item{...}{further arguments passed on to the respective method.}
 
@@ -38,17 +38,13 @@ For \code{traces_dm}, \code{unpack_traces()} returns an array with the traces, i
 \code{unpack=TRUE}. If \code{unpack=FALSE}, the unmodified object is returned.
 }
 \description{
-\code{\link[=simulate_traces]{simulate_traces()}} provides a list of type \code{traces_dm_list},
-containing arrays of type \code{traces_dm}. The respective classes were created
-to ensure convenient plotting and printing, but they are not really
-necessary. If users want to create their own figures or access the values of
-the simulated traces, the data types can even mask the underlying properties.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
-The goal of \code{unpack_traces()} is to provide a convenient way to strip away
-the attributes of \code{traces_dm_list} and \code{traces_dm} objects.
+\code{unpack_traces()} is deprecated. Please use the more general
+\code{\link[=unpack_obj]{unpack_obj()}} function.
 }
 \details{
-\code{unpack_traces()} is a generic function to strip away the "unnecessary"
+\code{unpack_traces()} was a generic function to strip away the "unnecessary"
 information of \code{traces_dm_list} and \code{traces_dm} objects. These objects are
 created when calling \code{\link[=simulate_traces]{simulate_traces()}}.
 
@@ -56,13 +52,4 @@ For \code{traces_dm_list}, \code{unpack_traces()} returns the
 requested conditions (see the argument \code{conds}). The result contains
 objects of type \code{traces_dm} if \code{unpack = FALSE}. For \code{unpack = TRUE},
 the result contains the plain arrays with the traces.
-}
-\examples{
-# get a pre-built model to demonstrate the function
-my_model <- dmc_dm()
-# get some traces ...
-some_traces <- simulate_traces(my_model, k = 2, seed = 1)
-# and then unpack them to get the underlying arrays
-str(unpack_traces(some_traces))
-
 }

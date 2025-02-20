@@ -30,7 +30,13 @@ Furthermore, each object has the additional attributes:
 \item "mu_vals" -> the drift rate values by mu_fun
 \item "b_vals" -> the boundary values by b_fun
 \item "samp_x" -> the values of the starting points (which are always added to
-the traces in the array).
+the traces in the array.
+\item "add_x" -> boolean, indicating if the starting values were added or not
+\item "orig_model_class" -> the class label of the original model
+\item "orig_prms" -> the parameters with which the traces were simulated (for
+the respective condition)
+\item "b_coding" -> the boundary coding
+\item "prms_solve" -> the solver settings with which the traces were simulated
 }
 }
 \description{

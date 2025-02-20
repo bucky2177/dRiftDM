@@ -6,23 +6,14 @@
 #'
 #' This document contains the code of dRiftDM's tutorial to facilitate review.
 #' Note that it sometimes provides additional R statements that were skipped
-#' in the pre-print/manuscript for brevity. Yet, those primarily show a bit
-#' more of the underlying structure of objects or alternative ways to access
-#' information.
+#' in the pre-print/manuscript for brevity. Yet, those primarily show
+#' alternative ways to access information or simple plots.
 
 rm(list = ls())
 
 
 # -------------------------------------------------------------------------
 #' # Getting Started
-#' Install the package.
-
-#+ eval = FALSE
-# install.packages("devtools") # if not already available
-devtools::install_github("bucky2177/dRiftDM") # development version
-# or from CRAN: install.packages("dRiftDM")
-# optional: install.packages("cowsay")
-
 
 #' Load the package and choose a pre-built model.
 #+ get_a_ddm
@@ -68,13 +59,12 @@ plot(some_traces_no_noise, col = "gray30", xlim = c(0, 0.4))
 #' calculating the statistics.
 #+ pdfs_sum_stats
 a_model <- re_evaluate_model(a_model)
-head(a_model$pdfs$null$pdf_u) # access PDF directly
 
-# or calculate summary statistics (more common in our opinion)
+# then calculate summary statistics
 some_stats <- calc_stats(a_model, type = c("cafs", "quantiles"))
 print(some_stats)
 
-#' Plot the summary statistics (see also `?plot.list_stats_dm`; `?plot.cafs`;
+#' Plot the summary statistics (see also `?plot.stats_dm_list`; `?plot.cafs`;
 #' `?plot.quantiles`)
 #+ fig.width = 8, fig.height = 4.5
 plot(some_stats, mfrow = c(1, 2), col = "black")
@@ -193,14 +183,13 @@ head(large_dat)
 a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
 
 # now call the fit procedure.
-# we'll write each fit into the temporary directory; use getwd() instead of
-# tempdir() to save the results in the working directory
+# we'll write each fit into the working directory
 estimate_model_ids( # takes about 10-15 minutes
   drift_dm_obj = a_model, # the model to fit ...
   obs_data_ids = large_dat, # to each participant in large_dat
   lower = lower_prm_bnd, # lower boundary of the search space
   upper = upper_prm_bnd, # upper boundary of the search space
-  fit_path = tempdir() , # temporary directory
+  fit_path = getwd() ,   # write in the working directory
   fit_procedure_name = "ulrich_flanker", # a label for the fit procedure
   use_de_optim = F, # DE is default
   use_nmkb = T # but use Nelder-Mead (faster; for the tutorial)
@@ -208,15 +197,14 @@ estimate_model_ids( # takes about 10-15 minutes
 
 #' See the folder structure
 #+ folder_str
-# fit procedure structure (saved within tempdir())
-list.dirs(tempdir())
-list.files(file.path(tempdir(), "./drift_dm_fits/ulrich_flanker/"))
+# fit procedure structure (saved within working directory; getwd())
+list.dirs()
+list.files(file.path(getwd(), "./drift_dm_fits/ulrich_flanker/"))
 
 #' Load all fits to investigate model fit and the parameter estimates
 #+ load_plot_multiple_ids, fig.width = 8, fig.height = 4
 # load a fit procedure
 all_fits <- load_fits_ids(
-  path = tempdir(), # can be dropped when fits were stored in the working dir.
   fit_procedure_name = "ulrich_flanker",
 )
 print(all_fits)
@@ -279,7 +267,7 @@ estimate_model_ids( # takes about 30 minutes with 2 cores
   obs_data_ids = synth_data, # the synthetic data
   lower = lower_sim_bnd, # the lower search space
   upper = upper_sim_bnd, # the upper search space
-  fit_path = tempdir(),  # again to temporary directory
+  fit_path = getwd(),    # save to working directory
   fit_procedure_name = "ratcliff_recovery", # a label for the fit procedure
   de_n_cores = n_cores, # the number of cores
   seed = 2 # a seed for reproducible results
@@ -288,8 +276,7 @@ estimate_model_ids( # takes about 30 minutes with 2 cores
 #' Load the model fits and extract parameters to calculate correlations and
 #' biases.
 #+ summarize_prm_recovery
-recov_fits <- load_fits_ids(path = tempdir(),
-                            fit_procedure_name = "ratcliff_recovery")
+recov_fits <- load_fits_ids(fit_procedure_name = "ratcliff_recovery")
 recov_prms <- coef(recov_fits) # extracts parameters
 stopifnot(recov_prms$ID == orig_prms$ID) # ensure that the order of IDs matches
 

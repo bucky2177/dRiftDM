@@ -64,6 +64,7 @@
       Fit Indices:
       Log_Like      AIC      BIC 
        137.067 -260.133 -229.355 
+      
       -------
       Solver: kfe
       Settings: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000
