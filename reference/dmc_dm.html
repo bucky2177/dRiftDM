@@ -118,7 +118,14 @@ with shape and scale parameter <code>alpha</code>.</p>
 <code>var_start = FALSE</code>, a starting point centered between the boundaries is
 assumed (i.e., a dirac delta over 0).</p>
 <p>Per default the shape parameter <code>a</code> is set to 2 and not allowed to
-vary. The model assumes the amplitude <code>A</code> to be negative for
+vary. This is because the derivative of the scaled gamma-distribution
+function does not exist at <code>t = 0</code> for <code>a &lt; 2</code>. We generally recommend keeping
+<code>a</code> fixed to 2 for several reasons. If users decide to set <code>a != 2</code>, then a
+small value of <code>0.0005</code> is added to the time vector <code>t_vec</code> before calculating
+the derivative of the scaled gamma-distribution as originally introduced by
+Ulrichetal.2015;textualdRiftDM. This can lead to large
+numerical inaccuracies if <code>tau</code> is small and/or <code>dt</code> is large.</p>
+<p>The model assumes the amplitude <code>A</code> to be negative for
 incompatible trials. Also, the model contains the custom parameter
 <code>peak_l</code>, containing the peak latency (<code>(a-2)*tau</code>).</p>
     </div>

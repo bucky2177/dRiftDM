@@ -84,7 +84,13 @@ Furthermore, each object has the additional attributes:</p><ul><li><p>"t_vec" -&
 <li><p>"mu_vals" -&gt; the drift rate values by mu_fun</p></li>
 <li><p>"b_vals" -&gt; the boundary values by b_fun</p></li>
 <li><p>"samp_x" -&gt; the values of the starting points (which are always added to
-the traces in the array).</p></li>
+the traces in the array.</p></li>
+<li><p>"add_x" -&gt; boolean, indicating if the starting values were added or not</p></li>
+<li><p>"orig_model_class" -&gt; the class label of the original model</p></li>
+<li><p>"orig_prms" -&gt; the parameters with which the traces were simulated (for
+the respective condition)</p></li>
+<li><p>"b_coding" -&gt; the boundary coding</p></li>
+<li><p>"prms_solve" -&gt; the solver settings with which the traces were simulated</p></li>
 </ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

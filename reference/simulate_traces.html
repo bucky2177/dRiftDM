@@ -38,7 +38,7 @@ creating figures (see also plot.traces_dm_list)"><meta property="og:image" conte
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Simulate Trajectories/Traces of a Model</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/main/R/core_dm.R" class="external-link"><code>R/core_dm.R</code></a>, <a href="https://github.com/bucky2177/dRiftDM/blob/main/R/formatting_rest.R" class="external-link"><code>R/formatting_rest.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/main/R/core_dm.R" class="external-link"><code>R/core_dm.R</code></a>, <a href="https://github.com/bucky2177/dRiftDM/blob/main/R/formatting_traces_dm.R" class="external-link"><code>R/formatting_traces_dm.R</code></a></small>
       <div class="d-none name"><code>simulate_traces.Rd</code></div>
     </div>
 
@@ -122,7 +122,7 @@ exploring the model without noise.</p></dd>
 
 <dt id="arg-unpack">unpack<a class="anchor" aria-label="anchor" href="#arg-unpack"></a></dt>
 <dd><p>logical, indicating if the traces shall be "unpacked" (see
-also <a href="unpack_traces.html">unpack_traces</a> and the return value below).</p></dd>
+also <a href="unpack_obj.html">unpack_obj</a> and the return value below).</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
@@ -161,7 +161,9 @@ contains an additional attribute with the time space.</p>
 array of size (<code>k</code>, <code>nt + 1</code>). Note that <code>nt</code> is the number of steps in the
 discretization of time; see <a href="drift_dm.html">drift_dm</a>. If <code>unpack = FALSE</code>, the
 array is of type <code>traces_dm</code>. It contains some additional attributes about
-the time space, the drift rate, the boundary, and the added starting values.</p>
+the time space, the drift rate, the boundary, the added starting values,
+if starting values were added, the original model class and parameters, the
+boundary coding, and the solver settings.</p>
 <p>The print methods <code>print.traces_dm_list()</code> and <code>print.traces_dm()</code> each
 invisibly return the supplied object <code>x</code>.</p>
     </div>
@@ -188,11 +190,11 @@ before passing them back.</p>
 <code>traces_dm_list</code> (instead of simply a list of arrays) is to provide a
 <a href="plot.traces_dm_list.html">plot.traces_dm_list</a> and print.traces_dm_list function.</p>
 <p>Users can unpack the traces even after calling <code>simulate_traces()</code> using
-<code><a href="unpack_traces.html">unpack_traces()</a></code>.</p>
+<code><a href="unpack_obj.html">unpack_obj()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="unpack_traces.html">unpack_traces()</a></code>, <code><a href="plot.traces_dm_list.html">plot.traces_dm_list()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="unpack_obj.html">unpack_obj()</a></code>, <code><a href="plot.traces_dm_list.html">plot.traces_dm_list()</a></code></p></div>
     </div>
 
     <div class="section level2">

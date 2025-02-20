@@ -85,9 +85,10 @@
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/plot.cafs.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/plot.delta_funs.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/plot.drift_dm.html</loc></url>
-<url><loc>https://bucky2177.github.io/dRiftDM/reference/plot.list_stats_dm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/plot.quantiles.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/reference/plot.stats_dm_list.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/plot.traces_dm_list.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/reference/print.cafs.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/prm_cond_combo_2_labels.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/prms_cond_combo.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/prms_conds_to_modify.html</loc></url>
@@ -111,9 +112,12 @@
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/summary.drift_dm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/summary.fits_ids_dm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/summary.flex_prms.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/reference/summary.stats_dm.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/reference/summary.traces_dm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/try_cast_integer.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/ulrich_flanker_data.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/ulrich_simon_data.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/reference/unpack_obj.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/unpack_traces.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/update_special_values.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/validate_drift_dm.html</loc></url>
