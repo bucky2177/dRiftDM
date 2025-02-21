@@ -46,25 +46,27 @@
 \method{print}{summary.stats_dm_list}(x, ...)
 }
 \arguments{
-\item{object}{An object of class \code{stats_dm}, \code{cafs}, \code{quantiles},
+\item{object}{an object of class \code{stats_dm}, \code{cafs}, \code{quantiles},
 \code{delta_funs}, \code{fit_stats}, \code{sum_dist}, or \code{stats_dm_list}.}
 
-\item{...}{Additional arguments passed forward.}
+\item{...}{additional arguments passed forward.}
 
 \item{round_digits}{integer, specifying the number of decimal places for
-rounding in the summary of the underlying \link{data.frame}. Default is 3.}
+rounding the summary of the underlying \link{data.frame}. Default is 3.}
+
+\item{x}{an object of class \code{stats_dm}, \code{cafs}, \code{quantiles},
+\code{delta_funs}, \code{fit_stats}, \code{sum_dist}, or \code{stats_dm_list}.}
 
 \item{show_header}{logical. If \code{TRUE}, a header specifying the type of
 statistic will be displayed by \code{print.summary.stats_dm()}.}
 
 \item{drop_cols}{character vector, specifying which columns
 of the table summarizing the underlying \link{data.frame} should not be
-displayed.}
+displayed by \code{print.summary.stats_dm()}.}
 }
 \value{
 For \verb{summary.*} methods, a summary object of class corresponding to the
-input class (except for \code{fit_stats}, where the returned type matches with
-\code{stats_dm} objects).
+input class.
 
 For \verb{print.*} methods, the respective object is returned invisibly
 }
@@ -94,7 +96,7 @@ the list and returns a list of the respective summary objects.
 
 Note the following class relationships and properties:
 \itemize{
-\item \code{cafs}, \code{quantiles}, and \code{delta_funs}, are all inheriting from \code{sum_dist}.
+\item \code{cafs}, \code{quantiles}, and \code{delta_funs} are all inheriting from \code{sum_dist}.
 \item All \code{sum_dist} and \code{fit_stats} objects are inheriting from \code{stats_dm}.
 \item Each \code{stats_dm_list} object is just a list containing instances of
 \code{stats_dm}.

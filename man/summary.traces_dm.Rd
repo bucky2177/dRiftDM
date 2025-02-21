@@ -50,7 +50,7 @@ information about the \code{traces_dm} object, including:
 \item \strong{k}: The number of traces in the object.
 \item \strong{add_x}: A logical, indicating whether starting values were added.
 \item \strong{orig_model_class}: The class label of the original model.
-\item \strong{orig_prms} -> the parameters with which the traces were simulated (for
+\item \strong{orig_prms}: The parameters with which the traces were simulated (for
 the respective condition)
 \item \strong{prms_solve}: The solver settings with which the traces were simulated.
 \item \strong{fpt_desc}: A summary of the first passage times, including mean,
@@ -79,12 +79,10 @@ functions display the summary in a formatted way.
 \examples{
 # get a couple of traces a cross conditions
 traces <- simulate_traces(dmc_dm(), k = c(5, 10))
-sum_obj <- summary(traces)
-print(sum_obj)
+summary(traces)
 
 # get a single traces object
 one_traces_obj <- traces[[1]]
-sum_obj <- summary(one_traces_obj)
-print(sum_obj)
+summary(one_traces_obj)
 
 }

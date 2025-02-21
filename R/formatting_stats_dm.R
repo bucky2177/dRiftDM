@@ -31,7 +31,7 @@ print.stats_dm <- function(x, ...,
 
 
   # print the result
-  print.data.frame(head(stats_dm_obj, n = print_rows))
+  print.data.frame(utils::head(stats_dm_obj, n = print_rows))
   if (n_row > print_rows) {
     cat("...\n")
   }
@@ -124,7 +124,7 @@ print.stats_dm_list <- function(x, ...) {
 #' `stats_dm_list`. These object types result from a call to
 #' [dRiftDM::calc_stats()].
 #'
-#' @param object An object of class `stats_dm`, `cafs`, `quantiles`,
+#' @param object an object of class `stats_dm`, `cafs`, `quantiles`,
 #'  `delta_funs`, `fit_stats`, `sum_dist`, or `stats_dm_list`.
 #' @param round_digits integer, specifying the number of decimal places for
 #' rounding the summary of the underlying [data.frame]. Default is 3.
@@ -133,7 +133,9 @@ print.stats_dm_list <- function(x, ...) {
 #' @param drop_cols character vector, specifying which columns
 #'  of the table summarizing the underlying [data.frame] should not be
 #'  displayed by `print.summary.stats_dm()`.
-#' @param ... Additional arguments passed forward.
+#' @param ... additional arguments passed forward.
+#' @param x an object of class `stats_dm`, `cafs`, `quantiles`,
+#'  `delta_funs`, `fit_stats`, `sum_dist`, or `stats_dm_list`.
 #'
 #' @return
 #'  For `summary.*` methods, a summary object of class corresponding to the

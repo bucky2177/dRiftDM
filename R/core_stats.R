@@ -722,6 +722,8 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #'  statistic will be displayed by `print.stats_dm()`.
 #' @param show_note logical. If `TRUE`, a footnote  is displayed indicating
 #' that the underlying [data.frame] can be accessed as usual.
+#' @param x an object of type `stats_dm` or `stats_dm_list`, as returned by
+#' the function `calc_stats()`.
 #'
 #' @details
 #' `calc_stats` is a generic function to handle the calculation of different
@@ -788,8 +790,8 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #' will have an additional attribute storing the boundary encoding (see also
 #' [dRiftDM::b_coding]). The reason for returning subclasses of [data.frame] is
 #' to provide custom `plot()` methods (e.g., [dRiftDM::plot.cafs]). To get rid
-#' of the subclass label (i.e., to get just the plain [data.frame], users coerce
-#' the object with [as.data.frame()]).
+#' of the subclass label and additional attributes (i.e., to get just the plain
+#' underlying [data.frame], users can use [dRiftDM::unpack_obj()]).
 #'
 #' If `type` contains multiple character strings (i.e., is a character vector) a
 #' subclass of [list] with the calculated statistics is returned. The list will

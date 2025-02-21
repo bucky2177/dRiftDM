@@ -185,7 +185,7 @@ summary.traces_dm <- function(object, ...) {
   # responsees
   b_coding = attrbs$b_coding
   p_u = mean(resp == 1)
-  fpt_desc = c(mean(ts_fpt), sd(ts_fpt), p_u, 1 - p_u)
+  fpt_desc = c(mean(ts_fpt), stats::sd(ts_fpt), p_u, 1 - p_u)
   names(fpt_desc) = c("mean", "sd",
                       paste0("p_", names(b_coding$u_name_value)),
                       paste0("p_", names(b_coding$l_name_value)))

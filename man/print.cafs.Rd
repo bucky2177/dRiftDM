@@ -29,8 +29,7 @@
 }
 \description{
 when calling \code{\link[=calc_stats]{calc_stats()}}, each returned statistic will be a
-subclass of \link{data.frame}. The following print() methods will finally call the
-more generic \code{\link[=print.stats_dm]{print.stats_dm()}} function. Note that all returned
-statistics will have the class label \code{stats_dm}.
+subclass of \code{stats_dm} and \link{data.frame}. The following \code{print() }methods will
+call the more generic \code{\link[=print.stats_dm]{print.stats_dm()}} function.
 }
 \keyword{internal}

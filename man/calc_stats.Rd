@@ -67,6 +67,9 @@ is \code{TRUE}.}
 relevant when \code{object} is a \link{data.frame}. For other \code{object} types, the
 \code{b_coding} of the \code{Object} is used.}
 
+\item{x}{an object of type \code{stats_dm} or \code{stats_dm_list}, as returned by
+the function \code{calc_stats()}.}
+
 \item{round_digits}{integer, controls the number of digits shown for
 \code{print.stats_dm()}. Default is 3.}
 
@@ -88,8 +91,8 @@ returned, containing the respective statistic. Objects of type \code{sum_dist}
 will have an additional attribute storing the boundary encoding (see also
 \link{b_coding}). The reason for returning subclasses of \link{data.frame} is
 to provide custom \code{plot()} methods (e.g., \link{plot.cafs}). To get rid
-of the subclass label (i.e., to get just the plain \link{data.frame}, users coerce
-the object with \code{\link[=as.data.frame]{as.data.frame()}}).
+of the subclass label and additional attributes (i.e., to get just the plain
+underlying \link{data.frame}, users can use \code{\link[=unpack_obj]{unpack_obj()}}).
 
 If \code{type} contains multiple character strings (i.e., is a character vector) a
 subclass of \link{list} with the calculated statistics is returned. The list will
