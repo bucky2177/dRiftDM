@@ -99,17 +99,22 @@ calc_stats()."><meta property="og:image" content="https://bucky2177.github.io/dR
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>An object of class <code>stats_dm</code>, <code>cafs</code>, <code>quantiles</code>,
+<dd><p>an object of class <code>stats_dm</code>, <code>cafs</code>, <code>quantiles</code>,
 <code>delta_funs</code>, <code>fit_stats</code>, <code>sum_dist</code>, or <code>stats_dm_list</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed forward.</p></dd>
+<dd><p>additional arguments passed forward.</p></dd>
 
 
 <dt id="arg-round-digits">round_digits<a class="anchor" aria-label="anchor" href="#arg-round-digits"></a></dt>
 <dd><p>integer, specifying the number of decimal places for
-rounding in the summary of the underlying <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>. Default is 3.</p></dd>
+rounding the summary of the underlying <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>. Default is 3.</p></dd>
+
+
+<dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>an object of class <code>stats_dm</code>, <code>cafs</code>, <code>quantiles</code>,
+<code>delta_funs</code>, <code>fit_stats</code>, <code>sum_dist</code>, or <code>stats_dm_list</code>.</p></dd>
 
 
 <dt id="arg-show-header">show_header<a class="anchor" aria-label="anchor" href="#arg-show-header"></a></dt>
@@ -120,14 +125,13 @@ statistic will be displayed by <code>print.summary.stats_dm()</code>.</p></dd>
 <dt id="arg-drop-cols">drop_cols<a class="anchor" aria-label="anchor" href="#arg-drop-cols"></a></dt>
 <dd><p>character vector, specifying which columns
 of the table summarizing the underlying <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> should not be
-displayed.</p></dd>
+displayed by <code>print.summary.stats_dm()</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>For <code>summary.*</code> methods, a summary object of class corresponding to the
-input class (except for <code>fit_stats</code>, where the returned type matches with
-<code>stats_dm</code> objects).</p>
+input class.</p>
 <p>For <code>print.*</code> methods, the respective object is returned invisibly</p>
     </div>
     <div class="section level2">
@@ -147,7 +151,7 @@ information about the quantile levels (<code>probs</code>).</p></li>
 <li><p><code>summary.fit_stats()</code>: Identical to <code>summary.stats_dm</code>.</p></li>
 <li><p><code>summary.stats_dm_list()</code>: Applies the summary function to each element of
 the list and returns a list of the respective summary objects.</p></li>
-</ul><p>Note the following class relationships and properties:</p><ul><li><p><code>cafs</code>, <code>quantiles</code>, and <code>delta_funs</code>, are all inheriting from <code>sum_dist</code>.</p></li>
+</ul><p>Note the following class relationships and properties:</p><ul><li><p><code>cafs</code>, <code>quantiles</code>, and <code>delta_funs</code> are all inheriting from <code>sum_dist</code>.</p></li>
 <li><p>All <code>sum_dist</code> and <code>fit_stats</code> objects are inheriting from <code>stats_dm</code>.</p></li>
 <li><p>Each <code>stats_dm_list</code> object is just a list containing instances of
 <code>stats_dm</code>.</p></li>

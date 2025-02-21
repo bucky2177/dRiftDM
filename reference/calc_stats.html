@@ -134,6 +134,11 @@ relevant when <code>object</code> is a <a href="https://rdrr.io/r/base/data.fram
 <code>b_coding</code> of the <code>Object</code> is used.</p></dd>
 
 
+<dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>an object of type <code>stats_dm</code> or <code>stats_dm_list</code>, as returned by
+the function <code>calc_stats()</code>.</p></dd>
+
+
 <dt id="arg-round-digits">round_digits<a class="anchor" aria-label="anchor" href="#arg-round-digits"></a></dt>
 <dd><p>integer, controls the number of digits shown for
 <code>print.stats_dm()</code>. Default is 3.</p></dd>
@@ -166,8 +171,8 @@ returned, containing the respective statistic. Objects of type <code>sum_dist</c
 will have an additional attribute storing the boundary encoding (see also
 <a href="b_coding.html">b_coding</a>). The reason for returning subclasses of <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> is
 to provide custom <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> methods (e.g., <a href="plot.cafs.html">plot.cafs</a>). To get rid
-of the subclass label (i.e., to get just the plain <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>, users coerce
-the object with <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code>).</p>
+of the subclass label and additional attributes (i.e., to get just the plain
+underlying <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>, users can use <code><a href="unpack_obj.html">unpack_obj()</a></code>).</p>
 <p>If <code>type</code> contains multiple character strings (i.e., is a character vector) a
 subclass of <a href="https://rdrr.io/r/base/list.html" class="external-link">list</a> with the calculated statistics is returned. The list will
 be of type <code>stats_dm_list</code> (to easily create multiple panels using the

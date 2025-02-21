@@ -101,7 +101,7 @@ invisibly.</p>
 information about the <code>traces_dm</code> object, including:</p><ul><li><p><strong>k</strong>: The number of traces in the object.</p></li>
 <li><p><strong>add_x</strong>: A logical, indicating whether starting values were added.</p></li>
 <li><p><strong>orig_model_class</strong>: The class label of the original model.</p></li>
-<li><p><strong>orig_prms</strong> -&gt; the parameters with which the traces were simulated (for
+<li><p><strong>orig_prms</strong>: The parameters with which the traces were simulated (for
 the respective condition)</p></li>
 <li><p><strong>prms_solve</strong>: The solver settings with which the traces were simulated.</p></li>
 <li><p><strong>fpt_desc</strong>: A summary of the first passage times, including mean,
@@ -126,8 +126,7 @@ functions display the summary in a formatted way.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># get a couple of traces a cross conditions</span></span></span>
 <span class="r-in"><span><span class="va">traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span>, k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">sum_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">traces</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sum_obj</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">traces</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Starting Points Added:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   comp incomp </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     no     no </span>
@@ -160,8 +159,7 @@ functions display the summary in a formatted way.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get a single traces object</span></span></span>
 <span class="r-in"><span><span class="va">one_traces_obj</span> <span class="op">&lt;-</span> <span class="va">traces</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">sum_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">one_traces_obj</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sum_obj</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">one_traces_obj</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Starting Points Added: no</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of Traces: 5</span>
