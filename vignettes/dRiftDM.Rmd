@@ -338,7 +338,7 @@ To simulate data based on a model, we can use the `simulate_data()` function. Th
 ```{r}
 ddm = ratcliff_dm() # a model for demonstration purpose
 sim_1 = simulate_data(object = ddm, n = 200)
-sim_1
+head(sim_1)
 ```
 
 This returns a single synthetic data set for a "participant". Note that the simulated RTs depend on the time discretization. For example, if the time discretization is `dt` = .005, then the RTs can only differ in steps of .005. 
