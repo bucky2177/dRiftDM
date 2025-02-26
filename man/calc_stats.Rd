@@ -70,17 +70,15 @@ relevant when \code{object} is a \link{data.frame}. For other \code{object} type
 \item{x}{an object of type \code{stats_dm} or \code{stats_dm_list}, as returned by
 the function \code{calc_stats()}.}
 
-\item{round_digits}{integer, controls the number of digits shown for
-\code{print.stats_dm()}. Default is 3.}
+\item{round_digits}{integer, controls the number of digits shown.
+Default is 3.}
 
-\item{print_rows}{integer, controls the number of rows shown when calling
-\code{print.stats_dm()}.}
+\item{print_rows}{integer, controls the number of rows shown.}
 
-\item{some}{logical. If \code{TRUE}, a subset of randomly sampled rows is shown by
-\code{print.stats_dm()}.}
+\item{some}{logical. If \code{TRUE}, a subset of randomly sampled rows is shown.}
 
 \item{show_header}{logical. If \code{TRUE}, a header specifying the type of
-statistic will be displayed by \code{print.stats_dm()}.}
+statistic will be displayed.}
 
 \item{show_note}{logical. If \code{TRUE}, a footnote  is displayed indicating
 that the underlying \link{data.frame} can be accessed as usual.}

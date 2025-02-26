@@ -55,6 +55,8 @@
 #'
 #' @seealso [dRiftDM::component_shelf()], [dRiftDM::drift_dm()]
 #'
+#' @references
+#' \insertRef{Ratcliff1978}{dRiftDM}
 #' @export
 ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
                         var_drift = FALSE, instr = NULL, obs_data = NULL,
@@ -635,7 +637,7 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
     stop("t_vec is not a vector")
   }
-  if (sd_non_dec <= dt) {
+  if (sd_non_dec < dt) {
     stop("sd_non_dec should not be smaller than dt!")
   }
 
@@ -1026,7 +1028,7 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' `mu_int_fun` but which throws an error. Might come in handy when a user
 #' doesn't require the integral of the drift rate.
 #'
-#' See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
+#' See \code{vignette("customize_ddms", "dRiftDM")} for more information on how
 #' to set/modify/customize the components of a diffusion model.
 #'
 #' @returns

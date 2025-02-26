@@ -129,19 +129,20 @@ print.stats_dm_list <- function(x, ...) {
 #' @param round_digits integer, specifying the number of decimal places for
 #' rounding the summary of the underlying [data.frame]. Default is 3.
 #' @param show_header logical. If `TRUE`, a header specifying the type of
-#'  statistic will be displayed by `print.summary.stats_dm()`.
+#'  statistic will be displayed.
 #' @param drop_cols character vector, specifying which columns
 #'  of the table summarizing the underlying [data.frame] should not be
-#'  displayed by `print.summary.stats_dm()`.
+#'  displayed.
 #' @param ... additional arguments passed forward.
-#' @param x an object of class `stats_dm`, `cafs`, `quantiles`,
-#'  `delta_funs`, `fit_stats`, `sum_dist`, or `stats_dm_list`.
+#' @param x an object of class `summary.stats_dm`, `summary.cafs`,
+#' `summary.quantiles`, `summary.delta_funs`, `summary.fit_stats`,
+#' `summary.sum_dist`, or `summary.stats_dm_list`.
 #'
 #' @return
-#'  For `summary.*` methods, a summary object of class corresponding to the
+#'  For `summary.*()` methods, a summary object of class corresponding to the
 #'  input class.
 #'
-#'  For `print.*` methods, the respective object is returned invisibly
+#'  For `print.*()` methods, the respective object is returned invisibly
 #'
 #' @details
 #'

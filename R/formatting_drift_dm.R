@@ -63,6 +63,7 @@ print.drift_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
 #' - **prms_solve**: Parameters used for solving the model (see
 #'    [dRiftDM::prms_solve]).
 #' - **solver**: The solver used for model fitting.
+#' - **b_coding**: The boundary coding for the model (see [dRiftDM::b_coding]).
 #' - **obs_data**: A summary table of observed response time data, if available,
 #'   by response type (upper/lower boundary responses). Includes sample size,
 #'   mean, and quantiles.
@@ -102,8 +103,10 @@ summary.drift_dm <- function(object, ...) {
   ans$prms_solve <- drift_dm_obj$prms_solve
   ans$solver <- drift_dm_obj$solver
 
-  ans$obs_data <- NULL
   b_coding <- attr(drift_dm_obj, "b_coding")
+  ans$b_coding <- b_coding
+
+
   if (!is.null(drift_dm_obj$obs_data)) {
     temp_summary <- function(x) {
       temp <- unclass(summary(x))
@@ -121,7 +124,6 @@ summary.drift_dm <- function(object, ...) {
     ans$obs_data <- rbind(sum_u, sum_l)
   }
 
-  ans$fit_stats <- NULL
   if (!is.null(drift_dm_obj$log_like_val)) {
     fit_stats <- calc_stats(drift_dm_obj, type = "fit_stats")
     ans$fit_stats <- c(
@@ -169,17 +171,28 @@ print.summary.drift_dm <- function(x, ...,
     fit_stats_print <- round(fit_stats_print, round_digits)
   }
   print(fit_stats_print)
-  cat("\n-------")
+  cat("\n-------\n")
 
 
-  cat("\nSolver:", summary_obj$solver)
+  cat("Deriving PDFs:")
+  cat("\n  solver:", summary_obj$solver)
   to_str <- prms_to_str(
     x = names(summary_obj$prms_solve),
     prms = round(summary_obj$prms_solve, round_digits),
     sep = "=", collapse = ", "
   )
-  cat("\nSettings:", to_str)
-  cat("\n")
+  cat("\n  values:", to_str, "\n")
 
+  cat("\nBoundary Coding:\n")
+  u_name_value = summary_obj$b_coding$u_name_value
+  l_name_value = summary_obj$b_coding$l_name_value
+  upper_str <- paste("  upper:", names(u_name_value))
+  lower_str <- paste("  lower:", names(l_name_value))
+  in_data_str <- paste0("  expected data column: ", summary_obj$b_coding$column,
+                       " (", names(u_name_value), " = ",  u_name_value,
+                       "; ", names(l_name_value), " = ",  l_name_value, ")")
+  cat(upper_str, "\n")
+  cat(lower_str, "\n")
+  cat(in_data_str, "\n")
   invisible(x)
 }

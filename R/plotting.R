@@ -905,6 +905,9 @@ hist.coefs_dm <- function(x, ..., separate_plots = TRUE, alpha = 0.5,
 #' conditions.
 #' @param legend_pos character, specifying the position of the legend on the
 #' plot (e.g., `"topright"`).
+#' @param mfrow an optional numeric vector of length 2, specifying the number of
+#'  rows and columns for arranging multiple panels in a single plot. If `NULL`
+#'  (default), `mfrow` will be `c(3,2)`.
 #' @param ... additional arguments passed forward.
 #'
 #' @details
@@ -921,7 +924,7 @@ hist.coefs_dm <- function(x, ..., separate_plots = TRUE, alpha = 0.5,
 #' plotted using different colors as specified in `color`.
 #'
 #' When the evaluation of a model component fails, the respective component
-#' will not be plotted, but no warning is ushered.
+#' will not be plotted, but no warning is thrown.
 #'
 #' @returns
 #' Nothing (`NULL`; invisibly)
@@ -939,7 +942,8 @@ hist.coefs_dm <- function(x, ..., separate_plots = TRUE, alpha = 0.5,
 #'
 #' @export
 plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
-                          legend = NULL, legend_pos = "topright") {
+                          legend = NULL, legend_pos = "topright",
+                          mfrow = NULL) {
   drift_dm_obj <- x
 
 
@@ -1006,7 +1010,10 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 
 
   # plot everything
-  withr::local_par(mfrow = c(3, 2))
+  if (is.null(mfrow)) {
+    mfrow = c(3, 2)
+  }
+  withr::local_par(mfrow = mfrow)
   # get the relevant time steps (for y-axis scaling)
   select_indices_t <- which(t_vec >= xlim[1] & t_vec <= xlim[2])
 

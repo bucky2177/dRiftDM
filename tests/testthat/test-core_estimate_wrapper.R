@@ -42,7 +42,7 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
     force_refit = TRUE,
     fit_dir = "temp_fits",
     verbose = 0,
-    progress = 1
+    progress = 0
   )
 
   # input checks
@@ -385,8 +385,7 @@ test_that("load_fits_ids menu and errors work as expected", {
 
     case_1 <- load_fits_ids(
       path = file.path(tempdir(), "temp_fits"),
-      fit_procedure_name = "test_case_1",
-      check_data = F
+      fit_procedure_name = "test_case_1"
     )
     case_1_menu <- load_fits_ids(
       path = file.path(tempdir(), "temp_fits"),
@@ -427,7 +426,7 @@ test_that("validate_models errs as expected", {
   case_1 <- load_fits_ids(
     path = file.path(tempdir(), "temp_fits"),
     fit_procedure_name = "test_case_1",
-    check_data = T, progress = 1
+    check_data = F, progress = 1
   )
 
   temp <- case_1
@@ -590,6 +589,15 @@ test_that("validate_models errs as expected", {
   expect_warning(
     validate_fits_ids(temp, progress = 0),
     "doesn't match with the expected data"
+  )
+
+
+  # modify the ddm_opts
+  temp <- case_1
+  ddm_opts(temp$drift_dm_fit_info$drift_dm_obj) =  "foo"
+  expect_error(
+    validate_fits_ids(temp, progress = 0),
+    "doesn't match the ddm_opts"
   )
 
   unlink(file.path(tempdir(), "temp_fits"), recursive = TRUE)

@@ -84,7 +84,7 @@ logLik.drift_dm <- function(object, ...) {
 }
 
 
-#' Convenient Coefficients Access
+#' Access Coefficients of a Model
 #'
 #' Extract or set the coefficients/parameters of [dRiftDM::drift_dm] or
 #' `fits_ids_dm` objects
@@ -92,7 +92,7 @@ logLik.drift_dm <- function(object, ...) {
 #' @param object an object of type [dRiftDM::drift_dm] or `fits_ids_dm`
 #'  (see [dRiftDM::load_fits_ids]).
 #'
-#' @param ... additional arguments passed to the respective method
+#' @param ... additional arguments passed to the respective method.
 #'
 #' @param eval_model logical, indicating if the model should be re-evaluated or
 #'  not when updating the parameters (see [dRiftDM::re_evaluate_model]).
@@ -103,8 +103,13 @@ logLik.drift_dm <- function(object, ...) {
 #'  identical across three conditions, then the parameter is only returned once).
 #'  Default is `TRUE`. This will also return only those parameters that are
 #'  estimated.
+#' @param select_custom_prms logical, indicating if custom parameters shall be
+#'  returned as well. Only has an effect if `select_unique = FALSE`.
 #' @param value numerical, a vector with valid values to update the model's
 #' parameters. Must match with the number of (unique and free) parameters.
+#' @inheritParams print.stats_dm
+#' @param x an object of type `coefs_dm`, as returned by the function
+#' `coef()` when supplied with a `fits_ids_dm` object.
 #'
 #' @details
 #' `coef()` are methods for the generic `coef` function; `coefs<-()` is a
@@ -120,17 +125,19 @@ logLik.drift_dm <- function(object, ...) {
 #'
 #' @returns
 #'  For objects of type [dRiftDM::drift_dm], `coefs()` returns either a named
-#'  numeric vector for `select_unique = TRUE`, or the `prms_matrix` matrix for
-#'  `select_unique = FALSE`. If custom parameters exist, they are added to the
-#'  matrix.
+#'  numeric vector if `select_unique = TRUE`, or a matrix if
+#'  `select_unique = FALSE`. If `select_custom_prms = TRUE`, custom parameters
+#'  are added to the matrix.
 #'
 #'  For objects of type `fits_ids_dm`, `coefs()` returns a [data.frame]. If
 #'  `select_unique = TRUE`, the columns will be the (unique, free) parameters,
 #'  together with a column coding `IDs`. If `select_unique = FALSE`, the columns
 #'  will be the parameters as listed in the columns of `prms_matrix` (see
 #'  [dRiftDM::drift_dm]), together with columns coding the conditions and
-#'  `IDs`. The returned [data.frame] has the class label `coefs_dm` to easily
-#'  plot histograms for each parameter (see [dRiftDM::hist.coefs_dm]).
+#'  `IDs`. If `select_custom_prms = TRUE`, the [data.frame] will also contain
+#'  columns for the custom parameters. The returned [data.frame] has the class
+#'  label `coefs_dm` to easily plot histograms for each parameter
+#'  (see [dRiftDM::hist.coefs_dm]).
 #'
 #' @seealso [dRiftDM::drift_dm()]
 #'
@@ -144,7 +151,8 @@ logLik.drift_dm <- function(object, ...) {
 #' coef(a_model, select_unique = FALSE) # gives the entire parameter matrix
 #'
 #' @export
-coef.drift_dm <- function(object, ..., select_unique = TRUE) {
+coef.drift_dm <- function(object, ..., select_unique = TRUE,
+                          select_custom_prms = TRUE) {
   # if unique, get labels for prm cond combos, extract the respective
   # values from the parameter matrix, and simplify parameter.cond labels
   # if cond is the same
@@ -159,13 +167,15 @@ coef.drift_dm <- function(object, ..., select_unique = TRUE) {
     names(prms) <- prm_cond_combo_2_labels(prms_cond_combo)
     return(prms)
   } else {
-    prms_matrix <- object$flex_prms_obj$prms_matrix
+    all_prms <- object$flex_prms_obj$prms_matrix
     cust_prms_matrix <- lapply(
       object$flex_prms_obj$cust_prms$values,
       \(x) return(x)
     )
     cust_prms_matrix <- do.call(cbind, cust_prms_matrix)
-    all_prms <- cbind(prms_matrix, cust_prms_matrix)
+    if (select_custom_prms) {
+      all_prms <- cbind(all_prms, cust_prms_matrix)
+    }
     return(all_prms)
   }
 }
@@ -245,7 +255,7 @@ coef.fits_ids_dm <- function(object, ...) {
   # special treatment of the ID, because coef might return a matrix or vector
   all_coefs <- lapply(names(all_coefs), function(x) {
     one_coef <- all_coefs[[x]]
-    if (is.vector(one_coef)) {
+    if (!is.matrix(one_coef)) {
       one_coef <- t(as.matrix(one_coef))
       return_val <- data.frame(ID = x, one_coef)
     } else {

@@ -10,7 +10,7 @@ re_evaluate_model(drift_dm_obj, eval_model = TRUE)
 \item{drift_dm_obj}{an object of type \link{drift_dm}}
 
 \item{eval_model}{logical, indicating if the model should be evaluated or not.
-If \code{False}, PDFs and the log-likelihood value are deleted from the model.
+If \code{FALSE}, PDFs and the log-likelihood value are deleted from the model.
 Default is \code{True}.}
 }
 \value{

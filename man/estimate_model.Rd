@@ -64,7 +64,7 @@ Users have three options:
 \item Use Differential Evolution followed by Nelder-Mead.
 }
 
-See also \code{vignette("use_ddm_models", "dRiftDM")}
+See also \code{vignette("dRiftDM", "dRiftDM")}
 }
 \details{
 \subsection{Specifying lower/upper}{

@@ -51,7 +51,15 @@ test_that("input checks dm_drift", {
   expect_error(drift_dm(my_prms, conds, "test", solver = "foo"), regexp = "solver")
 })
 
-test_that("validate_model fails as expected", {
+
+test_that("validate_drift_dm keeps the model unchanged", {
+  a_model <- ratcliff_dm(obs_data = ratcliff_synth_data)
+  a_model <- re_evaluate_model(a_model)
+  after <- validate_drift_dm(a_model)
+  expect_identical(after, a_model)
+})
+
+test_that("validate_drift_dm fails as expected", {
   my_prms <- c("a" = 2, "b" = 3, "c" = 4)
   conds <- c("null")
   a_model <- drift_dm(prms_model = my_prms, conds = conds, "test")
@@ -247,10 +255,30 @@ test_that("validate_model fails as expected", {
     validate_drift_dm(temp),
     "not a single numeric"
   )
-  a_model$log_like_val <- c(1, 2)
+  temp$log_like_val <- c(1, 2)
   expect_error(
     validate_drift_dm(temp),
     "not a single numeric"
+  )
+
+
+  # check entries
+  temp <- a_model
+  temp$foo = "bar"
+  expect_error(
+    validate_drift_dm(temp),
+    "unexpected entries"
+  )
+
+
+  # check attributes
+  temp <- a_model
+  attr(temp, "foo") = "bar"
+  expect_warning(
+    expect_error(
+      validate_drift_dm(temp),
+      "unexpected attributes"
+    )
   )
 })
 
@@ -404,13 +432,13 @@ test_that("flex_prms -> extractor and replacement works as expected", {
   )
 
   exp_flex_prms <- flex_prms(my_prms, conds = conds)
-  expect_equal(flex_prms(a_model), exp_flex_prms)
-  expect_equal(flex_prms(a_model$flex_prms_obj), exp_flex_prms)
+  expect_identical(flex_prms(a_model), exp_flex_prms)
+  expect_identical(flex_prms(a_model$flex_prms_obj), exp_flex_prms)
 
   # replace old one
   new_flex_prms_obj <- flex_prms(c(a = 2, d = 4), conds = c("incomp", "comp"))
   flex_prms(a_model) <- new_flex_prms_obj
-  expect_equal(new_flex_prms_obj, a_model$flex_prms_obj)
+  expect_identical(new_flex_prms_obj, a_model$flex_prms_obj)
 })
 
 test_that("prms_solve -> extractor and replacement works as expected", {
@@ -453,7 +481,7 @@ test_that("prms_solve -> extractor and replacement works as expected", {
     path = test_path("fixtures"),
     fit_procedure_name = "test_case_saved"
   )
-  expect_equal(
+  expect_identical(
     prms_solve(all_fits),
     all_fits$drift_dm_fit_info$drift_dm_obj$prms_solve
   )
@@ -462,7 +490,7 @@ test_that("prms_solve -> extractor and replacement works as expected", {
 test_that("solver -> extractor and replacement works as expected", {
   a_model <- readRDS(test_path("fixtures", "ratcliff.rds"))
 
-  expect_equal(solver(a_model), "kfe")
+  expect_identical(solver(a_model), "kfe")
   expect_identical(
     solver(a_model) <- "im_zero",
     "im_zero"
@@ -488,7 +516,7 @@ test_that("solver -> extractor and replacement works as expected", {
     path = test_path("fixtures"),
     fit_procedure_name = "test_case_saved"
   )
-  expect_equal(
+  expect_identical(
     solver(all_fits),
     all_fits$drift_dm_fit_info$drift_dm_obj$solver
   )
@@ -510,6 +538,7 @@ test_that("obs_data -> extractor and replacement works as expected", {
   )
 
   # test with simulated data
+  prms_solve(a_model)[c("dx", "dt")] = c(0.005, 0.0025)
   synth_data <- simulate_data(a_model, n = c(50, 100))
   obs_data(a_model) <- synth_data[sample(1:nrow(synth_data)), ]
   extr_data <- obs_data(a_model, messaging = F)
@@ -520,7 +549,7 @@ test_that("obs_data -> extractor and replacement works as expected", {
     path = test_path("fixtures"),
     fit_procedure_name = "test_case_saved"
   )
-  expect_equal(
+  expect_identical(
     obs_data(all_fits),
     all_fits$drift_dm_fit_info$obs_data_ids
   )
@@ -652,7 +681,7 @@ test_that("b_coding -> extractor and replacement functions work as expected", {
   # check default b_coding and replacement drift_dm
   a_model <- readRDS(test_path("fixtures", "dmc.rds"))
   prms_solve(a_model)[c("dt", "dx")] <- c(.005, .005)
-  expect_equal(b_coding(a_model), drift_dm_default_b_coding())
+  expect_identical(b_coding(a_model), drift_dm_default_b_coding())
 
   new_coding <- list(
     column = "Test",
@@ -660,7 +689,7 @@ test_that("b_coding -> extractor and replacement functions work as expected", {
     l_name_value = c(bar = "c")
   )
   b_coding(a_model) <- new_coding
-  expect_equal(b_coding(a_model), new_coding)
+  expect_identical(b_coding(a_model), new_coding)
 
 
   # check for fits_ids_dm
@@ -668,7 +697,7 @@ test_that("b_coding -> extractor and replacement functions work as expected", {
     fit_procedure_name = "test_case_saved"
   )
 
-  expect_equal(b_coding(all_fits), drift_dm_default_b_coding())
+  expect_identical(b_coding(all_fits), drift_dm_default_b_coding())
 })
 
 test_that("coef<- works as expected", {
@@ -676,6 +705,7 @@ test_that("coef<- works as expected", {
 
   coef(a_model) <- c(b = 1, muc = 5, non_dec = 0.4)
   expect_identical(coef(a_model), c(muc = 5, b = 1, non_dec = 0.4))
+
 
   # errors
   expect_error(
@@ -706,22 +736,35 @@ test_that("coef<- works as expected", {
 
 test_that("conds -> extractor works as expected", {
   a_model <- readRDS(file = test_path("fixtures", "dmc.rds"))
-  expect_equal(conds(a_model), c("comp", "incomp"))
+  expect_identical(conds(a_model), c("comp", "incomp"))
 
   all_fits <- load_fits_ids(test_path("fixtures"),
     fit_procedure_name = "test_case_saved"
   )
-  expect_equal(conds(all_fits), c("null"))
+  expect_identical(conds(all_fits), c("null"))
 
   some_stats <- calc_stats(all_fits, type = "cafs")
-  expect_equal(conds(some_stats), c("null"))
+  expect_identical(conds(some_stats), c("null"))
 
   temp_data <- data.frame(RT = 1, Error = 0, Cond = c("null", "foo", "bar"))
-  expect_equal(conds(temp_data), c("null", "foo", "bar"))
+  expect_identical(conds(temp_data), c("null", "foo", "bar"))
 
   some_traces <- simulate_traces(a_model, k = 1)
-  expect_equal(conds(some_traces), c("comp", "incomp"))
+  expect_identical(conds(some_traces), c("comp", "incomp"))
 })
+
+
+test_that("conds <- works as expected", {
+  a_model <- readRDS(file = test_path("fixtures", "dmc.rds"))
+  expect_message(conds(a_model) <- c("foo", "bar"))
+
+  expect_identical(conds(a_model), c("foo", "bar"))
+  expect_identical(a_model$obs_data, NULL)
+  expect_identical(a_model$flex_prms_obj$prms_matrix[1,],
+                   a_model$flex_prms_obj$prms_matrix[2,])
+
+})
+
 
 
 # HELPER FUNCTIONS --------------------------------------------------------
@@ -866,12 +909,12 @@ test_that("simulate_traces -> works as expected", {
   expect_identical(test, out)
 
   expect_identical(out[1, ], out[2, ])
-  expect_equal(dim(out), c(2, 1 / .01 + 1))
+  expect_identical(dim(out), as.integer(c(2, 1 / .01 + 1)))
 
   one_trace <- na.omit(out[1, ])
-  expect_equal(
+  expect_identical(
     length(one_trace),
-    unname(ceiling(coef(a_model)["b"] / coef(a_model)["muc"] / .01) + 1)
+    as.integer(ceiling(coef(a_model)["b"] / coef(a_model)["muc"] / .01) + 1)
   )
 
   # with noise and seed
@@ -904,26 +947,26 @@ test_that("simulate_traces -> works as expected", {
   out <- simulate_traces(a_model, k = c(comp = 2, incomp = 3), add_x = c(T, F),
                          sigma = c(0,1))
 
-  expect_equal(class(out), "traces_dm_list")
-  expect_equal(names(out), c("comp", "incomp"))
-  expect_equal(class(out$comp), class(out$incomp))
-  expect_equal(class(out$comp), "traces_dm")
-  expect_equal(names(attributes(out)), c("names", "class", "t_vec"))
-  expect_equal(attributes(out)$t_vec, seq(0, 1, 0.005))
+  expect_s3_class(out, "traces_dm_list")
+  expect_identical(names(out), c("comp", "incomp"))
+  expect_identical(class(out$comp), class(out$incomp))
+  expect_s3_class(out$comp, "traces_dm")
+  expect_identical(names(attributes(out)), c("names", "class", "t_vec"))
+  expect_identical(attributes(out)$t_vec, seq(0, 1, 0.005))
 
   # traces_dm specific
-  expect_equal(
+  expect_identical(
     names(attributes(out$comp)),
     c("dim", "class", "t_vec", "mu_vals", "b_vals", "samp_x", "add_x",
       "orig_model_class", "orig_prms", "b_coding", "prms_solve")
   )
-  expect_equal(dim(out$comp), c(2, 201))
-  expect_equal(attr(out$comp, "add_x"), T)
-  expect_equal(attr(out$comp, "prms_solve")["sigma"], c(sigma = 0))
+  expect_identical(dim(out$comp), c(2L, 201L))
+  expect_identical(attr(out$comp, "add_x"), T)
+  expect_identical(attr(out$comp, "prms_solve")["sigma"], c(sigma = 0))
 
-  expect_equal(dim(out$incomp), c(3, 201))
-  expect_equal(attr(out$incomp, "add_x"), F)
-  expect_equal(attr(out$incomp, "prms_solve")["sigma"], c(sigma = 1))
+  expect_identical(dim(out$incomp), c(3L, 201L))
+  expect_identical(attr(out$incomp, "add_x"), F)
+  expect_identical(attr(out$incomp, "prms_solve")["sigma"], c(sigma = 1))
 
 
 
@@ -1042,7 +1085,7 @@ test_that("simulate_data.drift_dm -> multiple data sets works as expected", {
     n = 1000, df_prms = df_prms,
     seed = 1
   )
-  expect_equal(sim_data$prms, df_prms[c("ID", names(coef(a_model)))])
+  expect_identical(sim_data$prms, df_prms[c("ID", names(coef(a_model)))])
   sim_data <- sim_data$synth_data
 
   # check validity of results
@@ -1053,7 +1096,7 @@ test_that("simulate_data.drift_dm -> multiple data sets works as expected", {
   coef(a_model) <- c(muc = 4, b = 0.6, non_dec = 0.4)
   exp_data_2 <- simulate_data(a_model, n = 1000)
 
-  expect_equal(unique(sim_data$ID), c("foo", "2"))
+  expect_identical(unique(sim_data$ID), c("foo", "2"))
   sim_data_1 <- sim_data[sim_data$ID == "foo", ][c("RT", "Error", "Cond")]
   expect_equal(sim_data_1, exp_data_1)
   sim_data_2 <- sim_data[sim_data$ID == "2", ][c("RT", "Error", "Cond")]
@@ -1081,7 +1124,7 @@ test_that("simulate_data.drift_dm -> multiple data sets works as expected", {
 
 
 
-  expect_equal(unique(sim_data$ID), c(1, 2))
+  expect_identical(unique(sim_data$ID), c(1L, 2L))
   sim_data_1 <- sim_data[sim_data$ID == 1, ][c("RT", "Error", "Cond")]
   expect_equal(sim_data_1, exp_data_1)
   sim_data_2 <- sim_data[sim_data$ID == 2, ][c("RT", "Error", "Cond")]

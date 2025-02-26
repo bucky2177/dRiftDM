@@ -16,13 +16,13 @@
 )
 }
 \arguments{
-\item{object}{an object of class "flex_prms", resulting from a call to
+\item{object}{an object of class \code{flex_prms}, resulting from a call to
 \link{flex_prms}.}
 
 \item{...}{additional arguments passed forward to the respective method}
 
-\item{x}{an object of class "summary.flex_prms"; a result of a call to
-summary.flex_prms.}
+\item{x}{an object of class \code{summary.flex_prms}; a result of a call to
+\code{summary.flex_prms()}.}
 
 \item{round_digits}{integer, indicating the number of decimal places (round)
 to be used (default is 3).}

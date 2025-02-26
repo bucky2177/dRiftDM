@@ -189,7 +189,7 @@ estimate_model_ids( # takes about 10-15 minutes
   obs_data_ids = large_dat, # to each participant in large_dat
   lower = lower_prm_bnd, # lower boundary of the search space
   upper = upper_prm_bnd, # upper boundary of the search space
-  fit_path = getwd() ,   # write in the working directory
+  fit_path = getwd(), # write in the working directory
   fit_procedure_name = "ulrich_flanker", # a label for the fit procedure
   use_de_optim = F, # DE is default
   use_nmkb = T # but use Nelder-Mead (faster; for the tutorial)
@@ -267,7 +267,7 @@ estimate_model_ids( # takes about 30 minutes with 2 cores
   obs_data_ids = synth_data, # the synthetic data
   lower = lower_sim_bnd, # the lower search space
   upper = upper_sim_bnd, # the upper search space
-  fit_path = getwd(),    # save to working directory
+  fit_path = getwd(), # save to working directory
   fit_procedure_name = "ratcliff_recovery", # a label for the fit procedure
   de_n_cores = n_cores, # the number of cores
   seed = 2 # a seed for reproducible results
@@ -310,23 +310,18 @@ my_dmc_model <- modify_flex_prms(
 print(my_dmc_model)
 
 
-#' 2. Example: Create a neutral condition. Requires to create a new flex_prms
-#' object and to swap it in.
+#' 2. Example: Create a neutral condition.
 #+ flex_prms_2
-# create a new flex_prms object
-# requires the parameters of the model and the conditions
-dmc_prms <- c(
-  muc = 4, b = 0.6, non_dec = 0.3, sd_non_dec = 0.02, tau = 0.04,
-  a = 2, A = 0.1, alpha = 4
-)
-new_flex_prms <- flex_prms(dmc_prms, conds = c("comp", "neutral", "incomp"))
-print(new_flex_prms)
+# set new conditions to the model (this will reset parameter specifications)
+my_dmc_model <- dmc_dm()
+conds(my_dmc_model) <- c("comp", "neutral", "incomp")
+flex_prms(my_dmc_model) # here we see the reset
 
-#' Modify the new flex_prms object to suit our needs.
+#' Now modify the new model to suit our needs.
 #+
 # 1.) fix a so that it is not estimated
-# 2.) set A = 0 for neutral condition and keep it fixed
-# 3.) set A negative for incomp condition
+# 2.) set A negative for incomp condition
+# 3.) set A = 0 for neutral condition and keep it fixed
 # -> can be done via a set of "instructions" (see ?modify_flex_prms)
 instructions <- "
 a <!>             # a is 'fixed' across all conditions
@@ -336,17 +331,14 @@ A <!> neutral     # A is 'fixed' for neutral
 A ~ neutral => 0  # sets A to zero for neutral
 "
 
-new_flex_prms <- modify_flex_prms(
-  object = new_flex_prms,
+my_dmc_model <- modify_flex_prms(
+  object = my_dmc_model,
   instr = instructions
 )
-
-print(new_flex_prms)
+print(my_dmc_model)
 
 #' Now swap in the new flex_prms object and visualize the results
 #+ plot_neutral_dmc, fig.width = 10, fig.height = 10
-flex_prms(my_dmc_model) <- new_flex_prms
-print(my_dmc_model)
 
 # visualize the results
 plot(my_dmc_model,
@@ -538,4 +530,3 @@ a_model <- re_evaluate_model(a_model)
 #' # Session Info
 #+ session_info
 sessionInfo()
-

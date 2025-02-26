@@ -82,8 +82,8 @@ of the function call. One call to this function is considered a
 "fit procedure". Fit procedures can be loaded via \link{load_fits_ids}.
 }
 \details{
-Examples and more information can be found here
-\code{vignette("use_ddm_models", "dRiftDM")}.
+Examples and more information can also be found in
+\code{vignette("dRiftDM", "dRiftDM")}.
 
 When developing the fitting routine we had three levels of files/folders
 in mind:

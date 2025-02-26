@@ -54,21 +54,22 @@
 \item{round_digits}{integer, specifying the number of decimal places for
 rounding the summary of the underlying \link{data.frame}. Default is 3.}
 
-\item{x}{an object of class \code{stats_dm}, \code{cafs}, \code{quantiles},
-\code{delta_funs}, \code{fit_stats}, \code{sum_dist}, or \code{stats_dm_list}.}
+\item{x}{an object of class \code{summary.stats_dm}, \code{summary.cafs},
+\code{summary.quantiles}, \code{summary.delta_funs}, \code{summary.fit_stats},
+\code{summary.sum_dist}, or \code{summary.stats_dm_list}.}
 
 \item{show_header}{logical. If \code{TRUE}, a header specifying the type of
-statistic will be displayed by \code{print.summary.stats_dm()}.}
+statistic will be displayed.}
 
 \item{drop_cols}{character vector, specifying which columns
 of the table summarizing the underlying \link{data.frame} should not be
-displayed by \code{print.summary.stats_dm()}.}
+displayed.}
 }
 \value{
-For \verb{summary.*} methods, a summary object of class corresponding to the
+For \verb{summary.*()} methods, a summary object of class corresponding to the
 input class.
 
-For \verb{print.*} methods, the respective object is returned invisibly
+For \verb{print.*()} methods, the respective object is returned invisibly
 }
 \description{
 Summary and corresponding printing methods for objects of the classes

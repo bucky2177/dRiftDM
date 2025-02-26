@@ -16,6 +16,8 @@ test_that("summary.drift_dm works as expected", {
   )
   expect_identical(summary_model$prms_solve, a_dmc_model$prms_solve)
   expect_identical(summary_model$solver, a_dmc_model$solver)
+  expect_identical(summary_model$b_coding, attr(a_dmc_model, "b_coding"))
+
   expect_identical(
     summary_model$fit_stats,
     c(
@@ -55,8 +57,8 @@ test_that("summary.drift_dm works as expected", {
   expect_identical(
     names(summary_model),
     c(
-      "class", "summary_flex_prms", "prms_solve", "solver", "obs_data",
-      "fit_stats"
+      "class", "summary_flex_prms", "prms_solve", "solver", "b_coding",
+      "obs_data", "fit_stats"
     )
   )
 })

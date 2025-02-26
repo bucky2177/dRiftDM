@@ -1,11 +1,11 @@
 # print.drift_dm_fits works as expected
 
     Code
-      print(dm_fits_ids)
+      print(drift_dm_fits)
     Output
       Fit procedure name: test_case_saved
       Fitted model type: ratcliff_dm, drift_dm
-      Time of (last) call: 2024-Dezember-12_13-20
+      Time of (last) call: 2025-Februar-24_09-47
       N Individuals: 2 
 
 # summary.drift_dm_fits and print
@@ -29,5 +29,5 @@
       
       -------
       Fitted Model Type: ratcliff_dm, drift_dm
-      Time of (Last) Call: 2024-Dezember-12_13-20
+      Time of (Last) Call: 2025-Februar-24_09-47
 

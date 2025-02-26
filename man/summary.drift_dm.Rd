@@ -39,6 +39,7 @@ model (see \link{summary.flex_prms}).
 \item \strong{prms_solve}: Parameters used for solving the model (see
 \link{prms_solve}).
 \item \strong{solver}: The solver used for model fitting.
+\item \strong{b_coding}: The boundary coding for the model (see \link{b_coding}).
 \item \strong{obs_data}: A summary table of observed response time data, if available,
 by response type (upper/lower boundary responses). Includes sample size,
 mean, and quantiles.

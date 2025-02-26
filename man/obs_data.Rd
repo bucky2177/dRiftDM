@@ -30,13 +30,13 @@ model's \code{\link[=b_coding]{b_coding()}}, (3) \code{Cond} for specifying the 
 
 \item{eval_model}{logical, indicating if the model should be re-evaluated or
 not when updating the solver settings (see \link{re_evaluate_model}).
-Default is \code{False}.}
+Default is \code{FALSE}.}
 
-\item{messaging}{logical, indicating if messages shall be ushered or not.}
+\item{messaging}{logical, indicating if messages shall be displayed or not.}
 }
 \value{
 For \code{obs_data()} a (re-assembled) \link{data.frame} of the observed data. A
-message is ushered to remind the user that the returned \link{data.frame} may
+message is displayed to remind the user that the returned \link{data.frame} may
 be sorted differently than expected.
 
 For \verb{obs_data<-()} the updated \link{drift_dm} object.
@@ -70,7 +70,7 @@ will match with the \link{data.frame} that was initially supplied to
 In theory, it is possible to update parts of the "observed data". However,
 because \code{obs_data()} returns a re-assembled \link{data.frame} for
 \link{drift_dm} objects, great care has to be taken with respect to the
-ordering of the argument \code{value}. A message is ushered to remind the user
+ordering of the argument \code{value}. A message is displayed to remind the user
 that the returned \link{data.frame} may be sorted differently than expected.
 }
 \note{

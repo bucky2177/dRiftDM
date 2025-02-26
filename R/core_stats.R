@@ -712,14 +712,12 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #' where applicable. Default is `FALSE`.
 #' @param verbose integer, indicating if information about the progress
 #'  should be displayed. 0 -> no information, 1 -> a progress bar. Default is 0.
-#' @param round_digits integer, controls the number of digits shown for
-#'  `print.stats_dm()`. Default is 3.
-#' @param print_rows integer, controls the number of rows shown when calling
-#'  `print.stats_dm()`.
-#' @param some logical. If `TRUE`, a subset of randomly sampled rows is shown by
-#'  `print.stats_dm()`.
+#' @param round_digits integer, controls the number of digits shown.
+#'  Default is 3.
+#' @param print_rows integer, controls the number of rows shown.
+#' @param some logical. If `TRUE`, a subset of randomly sampled rows is shown.
 #' @param show_header logical. If `TRUE`, a header specifying the type of
-#'  statistic will be displayed by `print.stats_dm()`.
+#'  statistic will be displayed.
 #' @param show_note logical. If `TRUE`, a footnote  is displayed indicating
 #' that the underlying [data.frame] can be accessed as usual.
 #' @param x an object of type `stats_dm` or `stats_dm_list`, as returned by

@@ -11,7 +11,8 @@
   col = NULL,
   xlim = NULL,
   legend = NULL,
-  legend_pos = "topright"
+  legend_pos = "topright",
+  mfrow = NULL
 )
 }
 \arguments{
@@ -33,6 +34,10 @@ conditions.}
 
 \item{legend_pos}{character, specifying the position of the legend on the
 plot (e.g., \code{"topright"}).}
+
+\item{mfrow}{an optional numeric vector of length 2, specifying the number of
+rows and columns for arranging multiple panels in a single plot. If \code{NULL}
+(default), \code{mfrow} will be \code{c(3,2)}.}
 }
 \value{
 Nothing (\code{NULL}; invisibly)
@@ -59,7 +64,7 @@ For each component, if multiple conditions are specified, they will be
 plotted using different colors as specified in \code{color}.
 
 When the evaluation of a model component fails, the respective component
-will not be plotted, but no warning is ushered.
+will not be plotted, but no warning is thrown.
 }
 \examples{
 # plot the component functions of the Ratcliff DDM

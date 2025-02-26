@@ -29,7 +29,7 @@ approach to derive the first passage time; see \code{\link[=drift_dm]{drift_dm()
 
 \item{eval_model}{logical, indicating if the model should be re-evaluated or
 not when updating the solver (see \link{re_evaluate_model}). Default is
-\code{False}.}
+\code{FALSE}.}
 }
 \value{
 For \code{solve()} the string \code{solver} (see \code{\link[=drift_dm]{drift_dm()}}).

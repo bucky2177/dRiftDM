@@ -48,7 +48,7 @@ settings".
 It is possible to update parts of the "solver setttings" (i.e., parts of the
 underlying \code{prms_solve} vector). However, modifying \code{"nx"} or \code{"nt"} is not
 allowed! Any attempts to modify the respective entries will silently fail
-(no explicit error/warning etc. is ushered).
+(no explicit error/warning etc. is thrown).
 }
 \note{
 There is only a replacement function for \link{drift_dm} objects. This is

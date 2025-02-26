@@ -24,7 +24,7 @@ Details).}
 not when updating modifying the flex_prms object
 (see \link{re_evaluate_model}). Default is \code{FALSE}.}
 
-\item{messaging}{logical, indicating if messages shall be ushered or not.
+\item{messaging}{logical, indicating if messages shall be displayed or not.
 Can happen, for example, when setting a parameter value for a
 specific condition, although the parameter values are assumed to be the
 identical across conditions.}
@@ -89,7 +89,7 @@ instruction, to set the corresponding parameter to a certain value.
 
 The \strong{"special dependency"} instruction:
 \itemize{
-\item Sometimes, users wish to allow one parameter to depend on another. For
+\item Sometimes, users want to allow one parameter to depend on another. For
 instance, in DMC (see \link{dmc_dm}), the parameter A is positive in
 the congruent condition, but negative in the incongruent condition. Thus,
 parameters may have a 'special depencency' which can be expressed as an
@@ -104,8 +104,8 @@ right-hand side.
 has the value 5, then a in condition foo will be -5.
 \item The expression on the right-side can refer to any arbitrary
 mathematical relation.
-\item Important: Make sure that each 'parameter ~ condition' combination are set
-in brackets.
+\item Important: Make sure that each 'parameter ~ condition' combination on the
+right-hand side of the equation are set in brackets.
 \item Another example: Parameter a in condition foo should be the mean of the
 parameter b in conditions bar and baz; this would be the instruction
 "a ~ foo == 0.5*(b ~ bar) + 0.5*(b ~ baz)"
@@ -113,13 +113,13 @@ parameter b in conditions bar and baz; this would be the instruction
 
 The \strong{"additional/custom parameter combination"} instruction:
 \itemize{
-\item Sometimes, users may wish to combine multiple parameters to summarize
+\item Sometimes, users may want to combine multiple parameters to summarize
 a certain property of the model. For example, in DMC (see \link{dmc_dm}),
 the shape and rate parameter jointly determine the peak latency.
-\item To avoid to manually calculate this, users can define "custom"
-parameter combinations with the ":=" operation:
-\item An examplary instruction might look like this:
-"peak_l := (a - 2) * tau"
+\item To avoid having to calculate this manually, users can define "custom"
+parameter combinations using the ":=" operation:
+\item An exemplary instruction might look like this:
+"peak_l := (a - 1) * tau"
 \item Expressions and values that provide calculations for those parameters are
 stored in a separate list \code{cust_prms}.
 }

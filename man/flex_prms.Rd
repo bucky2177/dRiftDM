@@ -48,7 +48,7 @@ deriving the model's predictions.}
 \item{instr}{optional string with "instructions", see
 \code{\link[=modify_flex_prms]{modify_flex_prms()}}.}
 
-\item{messaging}{optional logical, indicates if messages shall be ushered
+\item{messaging}{optional logical, indicates if messages shall be displayed
 when processing \code{instr}.}
 
 \item{x}{an object of type \code{flex_prms}}

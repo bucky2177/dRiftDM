@@ -13,7 +13,7 @@
 #' * Estimate the parameters via (bounded) Nelder-Mead
 #' * Use Differential Evolution followed by Nelder-Mead.
 #'
-#' See also \code{vignette("use_ddm_models", "dRiftDM")}
+#' See also \code{vignette("dRiftDM", "dRiftDM")}
 #'
 #'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]

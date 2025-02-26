@@ -50,6 +50,11 @@ test_that("flex_prms -> input checks", {
   )
 
   expect_error(
+    flex_prms(c(aoe = 3), conds = c("comp", "comp")),
+    "must be unique"
+  )
+
+  expect_error(
     flex_prms(c(aoe = 3), conds = c("cond!!")),
     "illegal non-alphanumeric characters"
   )

@@ -66,6 +66,12 @@
        137.067 -260.133 -229.355 
       
       -------
-      Solver: kfe
-      Settings: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000
+      Deriving PDFs:
+        solver: kfe
+        values: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000 
+      
+      Boundary Coding:
+        upper: corr 
+        lower: err 
+        expected data column: Error (corr = 0; err = 1) 
 

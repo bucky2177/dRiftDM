@@ -29,7 +29,7 @@ comp_funs(object, ...)
 
 \item{eval_model}{logical, indicating if the model should be re-evaluated or
 not when updating the component funtions (see \link{re_evaluate_model}).
-Default is \code{False}.}
+Default is \code{FALSE}.}
 }
 \value{
 For \code{comp_funs()} the list of component functions.
@@ -46,7 +46,7 @@ the heart of the package and shape the model's behavior.
 \code{comp_funs()} is a generic accessor function, and \verb{comp_funs<-()} is a
 generic replacement function. The default methods get and set the "component
 functions". The component functions are a list of functions, with the
-following names (see also \code{vignette("use_ddm_models", "dRiftDM")} for
+following names (see also \code{vignette("customize_ddms", "dRiftDM")} for
 examples):
 \itemize{
 \item \code{mu_fun} and \code{mu_int_fun}, provide the drift rate and its integral,
@@ -158,7 +158,7 @@ because replacing the component functions after the model has been fitted
 my_model <- ratcliff_dm()
 names(comp_funs(my_model))
 
-# direct replacement (see the pre-print/vignette for a more information on
+# direct replacement (see customize_ddms for a more information on
 # how to write custom component functions)
 # 1. Choose a uniform non-decision time from the pre-built component_shelf()
 nt_uniform <- component_shelf()$nt_uniform

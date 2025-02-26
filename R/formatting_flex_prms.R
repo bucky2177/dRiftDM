@@ -2,10 +2,10 @@
 #'
 #' summary method for class "flex_prms".
 #'
-#' @param object an object of class "flex_prms", resulting from a call to
+#' @param object an object of class `flex_prms`, resulting from a call to
 #' [dRiftDM::flex_prms].
-#' @param x an object of class "summary.flex_prms"; a result of a call to
-#' summary.flex_prms.
+#' @param x an object of class `summary.flex_prms`; a result of a call to
+#' `summary.flex_prms()`.
 #' @param round_digits integer, indicating the number of decimal places (round)
 #'  to be used (default is 3).
 #' @param dependencies  logical, controlling if a summary of the special

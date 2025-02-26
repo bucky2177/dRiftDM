@@ -63,7 +63,7 @@ a normally distributed non-decision time with parameters \code{non_dec},
 doesn't require the integral of the drift rate.
 }
 
-See \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
+See \code{vignette("customize_ddms", "dRiftDM")} for more information on how
 to set/modify/customize the components of a diffusion model.
 }
 \examples{

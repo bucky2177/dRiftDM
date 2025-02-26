@@ -36,14 +36,17 @@ test_that("coef.drift_dm returns values as expected", {
   )
 
 
-  coefs_all <- coef(a_model, select_unique = F)
-  exp_vals <- a_model$flex_prms_obj$prms_matrix
-  exp_vals <- cbind(a_model$flex_prms_obj$prms_matrix,
-    peak_l = (a_model$flex_prms_obj$prms_matrix[, "a"] - 1) *
-      a_model$flex_prms_obj$prms_matrix[, "tau"]
+  prms_matrix <- a_model$flex_prms_obj$prms_matrix
+  expect_identical(
+    coef(a_model, select_unique = FALSE, select_custom_prms = FALSE),
+    prms_matrix
   )
-
-  expect_equal(exp_vals, coefs_all)
+  prms_matrix <- a_model$flex_prms_obj$prms_matrix
+  prms_matrix <- cbind(prms_matrix, peak_l = prms_matrix[,"tau"])
+  expect_identical(
+    coef(a_model, select_unique = FALSE, select_custom_prms = TRUE),
+    prms_matrix
+  )
 })
 
 

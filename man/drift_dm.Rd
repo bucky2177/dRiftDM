@@ -61,7 +61,7 @@ the numerical discretization of the Kolmogorov Forward Equation.}
 \item{mu_fun, mu_int_fun, x_fun, b_fun, dt_b_fun, nt_fun}{Optional custom
 functions defining the components of a diffusion model. See
 \code{\link[=comp_funs]{comp_funs()}}. If an argument is \code{NULL}, dRiftDM falls
-back to the respective default function, which are document in
+back to the respective default functions, which are documented in
 \code{\link[=comp_funs]{comp_funs()}}.}
 
 \item{b_coding}{an optional list, specifying how boundaries are coded. See
@@ -101,12 +101,16 @@ stored response times for the upper and lower boundary and with respect to
 each condition.
 
 If the model has been evaluated (see \code{\link[=re_evaluate_model]{re_evaluate_model()}}), the
-list will additionally contain...
+list will contain...
 \itemize{
 \item ... the log likelihood; can be addressed via \code{\link[=logLik.drift_dm]{logLik.drift_dm()}}.
 \item ... the PDFs of the first passage time; can be addressed via
-\code{drift_dm_obj$pdfs}.
+\code{\link[=pdfs]{pdfs()}}.
 }
+
+Finally, if arbitrary R objects were passed via \code{\link[=ddm_opts]{ddm_opts()}}, to
+access these objects when evaluating the component functions, the list will
+contain an entry \code{ddm_opts}.
 
 Every model also has the attribute \link{b_coding}, which summarizes how
 the boundaries are labeled.
@@ -115,19 +119,16 @@ For \code{print.drift_dm()}, the supplied \code{drift_dm} object \code{x} (invis
 }
 \description{
 This function creates an object of type drift_dm, which serves as the parent
-class for all further created drift diffusion models. Its structure is the
-backbone of the dRiftDM package and every child of the drift_dm class must
-have the attributes of the parent class. Typically, users will not want to
-create an object of drift_dm alone, as its use is very limited. Rather, they
-will want an object of one of its child classes. See
-\code{vignette("use_ddm_models", "dRiftDM")} for more information on how
-to create/use/modify child classes.
+class for all further created drift diffusion models (all of which have
+a child class label, e.g., \code{dmc_dm}). The objects created by \code{drift_dm()} are
+the backbone of the dRiftDM package. For a list of all pre-built models, see
+\code{vignette("dRiftDM", "dRiftDM")}.
 }
 \details{
 To modify the entries of a model users can use the replacement methods and
-the \code{\link[=modify_flex_prms]{modify_flex_prms()}} method . See
-\code{vignette("use_ddm_models", "dRiftDM")} and
-\code{vignette("use_ddm_models", "dRiftDM")} for more information.
+the \code{\link[=modify_flex_prms]{modify_flex_prms()}} method (see also
+\code{vignette("dRiftDM", "dRiftDM")} and
+\code{vignette("customize_ddms", "dRiftDM")}).
 }
 \examples{
 # Plain call, with default component functions -----------------------------

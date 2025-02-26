@@ -5,13 +5,11 @@
 #'
 #' @description
 #' This function creates an object of type drift_dm, which serves as the parent
-#' class for all further created drift diffusion models. Its structure is the
-#' backbone of the dRiftDM package and every child of the drift_dm class must
-#' have the attributes of the parent class. Typically, users will not want to
-#' create an object of drift_dm alone, as its use is very limited. Rather, they
-#' will want an object of one of its child classes. See
-#' \code{vignette("use_ddm_models", "dRiftDM")} for more information on how
-#' to create/use/modify child classes.
+#' class for all further created drift diffusion models (all of which have
+#' a child class label, e.g., `dmc_dm`). The objects created by `drift_dm()` are
+#' the backbone of the dRiftDM package. For a list of all pre-built models, see
+#' \code{vignette("dRiftDM", "dRiftDM")}.
+#'
 #'
 #' @param prms_model a named numeric vector of the model parameters. The names
 #'  indicate the model's parameters, and the numeric entries provide the current
@@ -37,7 +35,7 @@
 #' @param mu_fun,mu_int_fun,x_fun,b_fun,dt_b_fun,nt_fun Optional custom
 #'  functions defining the components of a diffusion model. See
 #'  [dRiftDM::comp_funs()]. If an argument is `NULL`, dRiftDM falls
-#'  back to the respective default function, which are document in
+#'  back to the respective default functions, which are documented in
 #'  [dRiftDM::comp_funs()].
 #' @param b_coding an optional list, specifying how boundaries are coded. See
 #'  [dRiftDM::b_coding()]. Default refers to accuracy coding.
@@ -71,11 +69,15 @@
 #'  each condition.
 #'
 #'  If the model has been evaluated (see [dRiftDM::re_evaluate_model()]), the
-#'  list will additionally contain...
+#'  list will contain...
 #'
 #'  * ... the log likelihood; can be addressed via [dRiftDM::logLik.drift_dm()].
 #'  * ... the PDFs of the first passage time; can be addressed via
-#'  `drift_dm_obj$pdfs`.
+#'  [dRiftDM::pdfs()].
+#'
+#'  Finally, if arbitrary R objects were passed via [dRiftDM::ddm_opts()], to
+#'  access these objects when evaluating the component functions, the list will
+#'  contain an entry `ddm_opts`.
 #'
 #'  Every model also has the attribute [dRiftDM::b_coding], which summarizes how
 #'  the boundaries are labeled.
@@ -85,9 +87,9 @@
 #' @details
 #'
 #' To modify the entries of a model users can use the replacement methods and
-#' the [dRiftDM::modify_flex_prms()] method . See
-#' \code{vignette("use_ddm_models", "dRiftDM")} and
-#' \code{vignette("use_ddm_models", "dRiftDM")} for more information.
+#' the [dRiftDM::modify_flex_prms()] method (see also
+#' \code{vignette("dRiftDM", "dRiftDM")} and
+#' \code{vignette("customize_ddms", "dRiftDM")}).
 #'
 #' @examples
 #' # Plain call, with default component functions -----------------------------
@@ -454,6 +456,18 @@ validate_drift_dm <- function(drift_dm_obj) {
   }
 
 
+  # check that there aren't any unexpected entries or attributes
+  expected_names = c("flex_prms_obj", "prms_solve", "solver", "comp_funs",
+                     "pdfs", "log_like_val", "obs_data", "ddm_opts")
+  if (!all(names(drift_dm_obj) %in% expected_names)) {
+    stop("the model contains unexpected entries")
+  }
+
+  if (!all(names(attributes(drift_dm_obj)) == c("names", "class", "b_coding"))) {
+    stop("the model contains unexpected attributes")
+  }
+
+
   return(drift_dm_obj)
 }
 
@@ -592,7 +606,7 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
 #'
 #' @param drift_dm_obj an object of type [dRiftDM::drift_dm]
 #' @param eval_model logical, indicating if the model should be evaluated or not.
-#'  If `False`, PDFs and the log-likelihood value are deleted from the model.
+#'  If `FALSE`, PDFs and the log-likelihood value are deleted from the model.
 #'  Default is `True`.
 #'
 #' @returns Returns the passed `drift_dm_obj` object, after (re-)calculating
@@ -653,12 +667,10 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
     prms_solve = prms_solve
   )
 
-  obs_data <- drift_dm_obj$obs_data
-
   # update log_like_val and pass back
   log_like_val <- calc_log_like(
     pdfs = pdfs, t_vec = t_vec,
-    obs_data = obs_data,
+    obs_data = drift_dm_obj$obs_data,
     conds = names(pdfs)
   )
 
@@ -685,6 +697,49 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   object$flex_prms_obj <- value # object is the drift_dm object
 
   # ensure that everything is up-to-date
+  object <- re_evaluate_model(
+    drift_dm_obj = object,
+    eval_model = eval_model
+  )
+
+  # ensure that nothing went wrong
+  object <- validate_drift_dm(object)
+
+  return(object)
+}
+
+
+
+### replace conds ####
+
+#' @rdname conds
+#' @export
+`conds<-` <- function(object, ..., value) {
+  UseMethod("conds<-")
+}
+
+#' @rdname conds
+#' @export
+`conds<-.drift_dm` <- function(object, ..., eval_model = FALSE, messaging = TRUE,
+                               value) {
+
+  # detach data (if present)
+  msg_string = "resetting parameter specifications"
+  if (!is.null(object$obs_data)) {
+    msg_string <- paste(msg_string, "and removing attached data from the model")
+    object$obs_data <- NULL
+  }
+
+  if (messaging) {
+    message(msg_string)
+  }
+
+  # create new flex_prms object
+  first_row_vals <- object$flex_prms_obj$prms_matrix[1, ]
+  new_flex_prms <- flex_prms(object = first_row_vals, conds = value, ...)
+  flex_prms(object) <- new_flex_prms
+
+  # ensure that everything is up-to-date with respect to the PDFs/log_likelihood
   object <- re_evaluate_model(
     drift_dm_obj = object,
     eval_model = eval_model
@@ -967,6 +1022,31 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
 
 
 
+## replace ddm_opts ####
+
+#' @rdname ddm_opts
+#' @export
+`ddm_opts<-` <- function(object, ..., value) {
+  UseMethod("ddm_opts<-")
+}
+
+#' @rdname ddm_opts
+#' @export
+`ddm_opts<-.drift_dm` <- function(object, ..., eval_model = FALSE, value) {
+
+  # attach it to the model
+  object$ddm_opts <- value
+
+  # ensure that everything is up-to-date
+  object <- re_evaluate_model(drift_dm_obj = object, eval_model = eval_model)
+
+  # ensure that nothing went wrong
+  object <- validate_drift_dm(object)
+
+  return(object)
+}
+
+
 # INTERNAL SETTER FUNCTIONS -----------------------------------------------
 
 
@@ -1176,7 +1256,7 @@ check_raw_data <- function(obs_data, b_coding_column, u_value, l_value) {
 #'
 #' This function takes a data frame with an ID colmumn, and drops the unused
 #' levels from the ID column if it is factor; in this case a warning is
-#' ushered
+#' thrown
 #'
 #' @param some_data a data.frame with an ID column
 #'
@@ -1186,7 +1266,7 @@ check_raw_data <- function(obs_data, b_coding_column, u_value, l_value) {
 #' returned.
 #'
 #' if the ID column is of type factor, [droplevels] is applied, and if levels
-#' were dropped, a warning is ushered
+#' were dropped, a warning is thrown
 #'
 #' @keywords internal
 drop_levels_ID_column <- function(some_data) {
@@ -1351,27 +1431,37 @@ check_b_coding <- function(b_coding) {
 #' Extract the conditions from a (supported) object.
 #'
 #' @param object an `R` object, see details
-#' @param ... additional arguments.
+#' @param ... additional arguments passed forward.
+#' @param eval_model logical, indicating if the model should be re-evaluated or
+#'  not when updating the conditions (see [dRiftDM::re_evaluate_model]).
+#'  Default is `FALSE`.
+#' @param messaging logical, indicating if messages shall be displayed or not.
+#' @param value a character vector, providing labels for the model's new
+#'  conditions.
 #'
 #' @details
-#' `conds()` is a generic accessor function. The default methods get the
-#' "conditions" that are present in an object. Currently supported objects:
+#' `conds()` is a generic accessor function and `conds<-()` is a
+#' generic replacement function. The replacement method currently only supports
+#' [dRiftDM::drift_dm] objects. The default methods get and set the conditions of an
+#' object.
 #'
-#'  * [dRiftDM::drift_dm]
-#'  * `fits_ids_dm` (see [dRiftDM::load_fits_ids])
-#'  * [data.frame]
-#'  * `traces_dm_list` (see [dRiftDM::simulate_traces])
+#' When replacing the conditions of a [dRiftDM::drift_dm] object, a
+#' new [dRiftDM::flex_prms] object is created and then set to the model,
+#' resetting all parameter specifications and setting all parameter
+#' values to those of the previously first condition.
+#' In addition, if data was attached to the model, the data is removed.
+#' This is because there is no meaningful way for dRiftDM to know how the model
+#' should behave for the newly introduced condition(s), and how these new
+#' conditions relate to the old ones. Messages reminding the user of this
+#' behavior are displayed per default.
 #'
 #' @returns
-#' `NULL` or a character vector with the conditions. `NULL` is given if the
-#' object has no conditions (e.g., when a data.frame has no `Cond` column).
+#' For `conds()` `NULL` or a character vector with the conditions. `NULL` is
+#' given if the object has no conditions (e.g., when a data.frame has no `Cond`
+#' column).
 #'
-#' @note
-#' There is no respective replacement function for `conds()`. If users want to
-#' modify the conditions of a [dRiftDM::drift_dm] model, they should create a
-#' new [dRiftDM::flex_prms] object and subsequently set it to the model.
-#' This is because there is no meaningful way to know for the package how the
-#' model shall behave for the newly introduced condition(s).
+#' For `conds<-()` the updated [dRiftDM::drift_dm] object.
+#'
 #'
 #' @examples
 #' # get a pre-built model to demonstrate the conds() function
@@ -1451,7 +1541,7 @@ conds.traces_dm_list <- function(object, ...) {
 #' It is possible to update parts of the "solver setttings" (i.e., parts of the
 #' underlying `prms_solve` vector). However, modifying `"nx"` or `"nt"` is not
 #' allowed! Any attempts to modify the respective entries will silently fail
-#' (no explicit error/warning etc. is ushered).
+#' (no explicit error/warning etc. is thrown).
 #'
 #' @returns
 #' For `prms_solve()` the vector `prms_solve` (see [dRiftDM::drift_dm()]).
@@ -1517,7 +1607,7 @@ prms_solve.fits_ids_dm <- function(object, ...) {
 #'
 #' @param eval_model logical, indicating if the model should be re-evaluated or
 #'  not when updating the solver (see [dRiftDM::re_evaluate_model]). Default is
-#'  `False`.
+#'  `FALSE`.
 #'
 #' @details
 #' `solver()` is a generic accessor function, and `solver<-()` is a
@@ -1591,9 +1681,9 @@ solver.fits_ids_dm <- function(object, ...) {
 #'
 #' @param eval_model logical, indicating if the model should be re-evaluated or
 #'  not when updating the solver settings (see [dRiftDM::re_evaluate_model]).
-#'  Default is `False`.
+#'  Default is `FALSE`.
 #'
-#' @param messaging logical, indicating if messages shall be ushered or not.
+#' @param messaging logical, indicating if messages shall be displayed or not.
 #'
 #' @details
 #' `obs_data()` is a generic accessor function, and `obs_data<-()` is a
@@ -1621,12 +1711,12 @@ solver.fits_ids_dm <- function(object, ...) {
 #' In theory, it is possible to update parts of the "observed data". However,
 #' because `obs_data()` returns a re-assembled [data.frame] for
 #' [dRiftDM::drift_dm] objects, great care has to be taken with respect to the
-#' ordering of the argument `value`. A message is ushered to remind the user
+#' ordering of the argument `value`. A message is displayed to remind the user
 #' that the returned [data.frame] may be sorted differently than expected.
 #'
 #' @returns
 #' For `obs_data()` a (re-assembled) [data.frame] of the observed data. A
-#' message is ushered to remind the user that the returned [data.frame] may
+#' message is displayed to remind the user that the returned [data.frame] may
 #' be sorted differently than expected.
 #'
 #' For `obs_data<-()` the updated [dRiftDM::drift_dm] object.
@@ -1735,13 +1825,13 @@ obs_data.fits_ids_dm <- function(object, ...) {
 #'
 #' @param eval_model logical, indicating if the model should be re-evaluated or
 #'  not when updating the component funtions (see [dRiftDM::re_evaluate_model]).
-#'  Default is `False`.
+#'  Default is `FALSE`.
 #'
 #' @details
 #' `comp_funs()` is a generic accessor function, and `comp_funs<-()` is a
 #' generic replacement function. The default methods get and set the "component
 #' functions". The component functions are a list of functions, with the
-#' following names (see also \code{vignette("use_ddm_models", "dRiftDM")} for
+#' following names (see also \code{vignette("customize_ddms", "dRiftDM")} for
 #' examples):
 #'
 #' * `mu_fun` and `mu_int_fun`, provide the drift rate and its integral,
@@ -1858,7 +1948,7 @@ obs_data.fits_ids_dm <- function(object, ...) {
 #' my_model <- ratcliff_dm()
 #' names(comp_funs(my_model))
 #'
-#' # direct replacement (see the pre-print/vignette for a more information on
+#' # direct replacement (see customize_ddms for a more information on
 #' # how to write custom component functions)
 #' # 1. Choose a uniform non-decision time from the pre-built component_shelf()
 #' nt_uniform <- component_shelf()$nt_uniform
@@ -1989,6 +2079,122 @@ b_coding.drift_dm <- function(object, ...) {
 b_coding.fits_ids_dm <- function(object, ...) {
   return(b_coding(object$drift_dm_fit_info$drift_dm_obj))
 }
+
+
+
+## ddm_opts ######
+
+#' Optional Arguments for the Component Functions
+#'
+#' Functions to get or set the optional, user-defined R objects attached
+#' to a model object.
+#'
+#' @param object an object of type [dRiftDM::drift_dm].
+#'
+#' @param ... additional arguments passed down to the specific method.
+#'
+#' @param value an arbitrary R object.
+#'
+#' @param eval_model logical, indicating if the model should be re-evaluated or
+#'  not after attaching the arbitrary R object to the model
+#'  (see [dRiftDM::re_evaluate_model]). Default is `FALSE`.
+#'
+#' @details
+#'
+#' When deriving model predictions, the model's component functions
+#' (see [dRiftDM::comp_funs()]) are evaluated and the returned values are
+#' passed forward to dedicated numerical methods implemented in dRiftDM.
+#' To allow users to access arbitrary R objects within their custom component
+#' functions, models may contain a `ddm_opts` entry (see also
+#' [dRiftDM::drift_dm()] and the end of
+#' \code{vignette("customize_ddms", "dRiftDM")} for an example).
+#'
+#' `ddm_opts()` is a generic accessor function, and `ddm_opts<-()` is a
+#' generic replacement function. The default methods get and set the optional
+#' R object.
+#'
+#' @returns
+#' For `ddm_opts()` the optional R object that was once supplied by the user, or
+#' `NULL`.
+#'
+#' For `ddm_opts<-()` the updated [dRiftDM::drift_dm] object.
+#'
+#'
+#' @examples
+#' # get a pre-built model for demonstration
+#' a_model <- ratcliff_dm()
+#' ddm_opts(a_model) <- "Hello World"
+#' ddm_opts(a_model)
+#'
+#'
+#' @seealso [dRiftDM::drift_dm()], [dRiftDM::comp_funs()]
+#'
+#'
+#' @export
+ddm_opts <- function(object, ...) {
+  UseMethod("ddm_opts")
+}
+
+
+# extract the R object
+#' @rdname ddm_opts
+#' @export
+ddm_opts.drift_dm <- function(object, ...) {
+  return(object$ddm_opts)
+}
+
+
+
+## pdfs ######
+
+#' Access the Probability Density Functions of a Model
+#'
+#' Functions to obtain the probability density functions (PDFs) of a model.
+#' These PDFs represent the first-passage-time.
+#'
+#' @param object an object of type [dRiftDM::drift_dm].
+#'
+#' @param ... additional arguments passed down to the specific method.
+#'
+#'
+#' @details
+#'
+#' If the model has not been evaluated, [dRiftDM::re_evaluate_model()] is
+#' called before returning the PDFs.
+#'
+#' @returns
+#' A list with named elements corresponding to the conditions of a model (see
+#' [dRiftDM::conds()]). Each of these elements is another list, containing the
+#' entries `pdf_u` and `pdf_l`, which are numeric vectors for the PDFs of the
+#' upper and lower boundary, respectively.
+#'
+#'
+#' @examples
+#' # get a pre-built model for demonstration purpose
+#' a_model <- dmc_dm()
+#' str(pdfs(a_model))
+#'
+#'
+#' @seealso [dRiftDM::drift_dm()], [dRiftDM::re_evaluate_model()],
+#' [dRiftDM::conds()]
+#'
+#'
+#' @export
+pdfs <- function(object, ...) {
+  UseMethod("pdfs")
+}
+
+
+# extract the pdfs
+#' @rdname pdfs
+#' @export
+pdfs.drift_dm <- function(object, ...) {
+  if (is.null(object$pdfs)) {
+    object <- re_evaluate_model(object)
+  }
+  return(object$pdfs)
+}
+
 
 
 ## coef, AIC, BIC, logLik #####
@@ -3105,7 +3311,7 @@ simulate_one_data_set <- function(drift_dm_obj, n) {
     )
   }
 
-  # get b_coding to label the simulate data frame correctly
+  # get b_coding to label the simulated data frame correctly
   b_coding <- attr(drift_dm_obj, "b_coding")
 
   # simulate the data across conditions

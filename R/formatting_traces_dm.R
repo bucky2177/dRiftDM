@@ -182,7 +182,7 @@ summary.traces_dm <- function(object, ...) {
   ts_fpt = t_vec[idx_fpt]
   resp = sapply(seq_along(idx_fpt), \(i) sign(traces[i,idx_fpt[i]]))
 
-  # responsees
+  # responses
   b_coding = attrbs$b_coding
   p_u = mean(resp == 1)
   fpt_desc = c(mean(ts_fpt), stats::sd(ts_fpt), p_u, 1 - p_u)

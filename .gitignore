@@ -19,3 +19,5 @@ tutorial/*.md
 tutorial/*.html
 cran-comments.md
 docs
+/doc/
+/Meta/

@@ -54,8 +54,8 @@
 #' @returns nothing (`NULL`; invisibly)
 #'
 #' @details
-#' Examples and more information can be found here
-#' \code{vignette("use_ddm_models", "dRiftDM")}.
+#' Examples and more information can also be found in
+#' \code{vignette("dRiftDM", "dRiftDM")}.
 #'
 #' When developing the fitting routine we had three levels of files/folders
 #' in mind:
@@ -127,7 +127,7 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
     stop("drift_dm_obj is not of type drift_dm")
   }
   if (!is.null(drift_dm_obj$obs_data)) {
-    warning("obs_data in drift_dm_obj will be ignored and deleted")
+    warning("obs_data in drift_dm_obj will be ignored and removed")
     drift_dm_obj$obs_data <- NULL
   }
   drift_dm_obj <- validate_drift_dm(drift_dm_obj)
@@ -738,6 +738,14 @@ validate_fits_ids <- function(fits_ids, progress) {
       )
     }
 
+
+    # check the ddm_opts
+    if (!isTRUE(all.equal(exp_model$ddm_opts, one_fit$ddm_opts))) {
+      stop(
+        "ddm_opts of the model of the fit procedure info doesn't match ",
+        "the ddm_opts of individual ", one_vp, "'s model "
+      )
+    }
 
     # check if parameters are in the boundary range
     fitted_model_prms <- coef(one_fit, select_unique = TRUE)

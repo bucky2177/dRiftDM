@@ -18,7 +18,7 @@
 #' @param instr optional string with "instructions", see
 #'   [dRiftDM::modify_flex_prms()].
 #'
-#' @param messaging optional logical, indicates if messages shall be ushered
+#' @param messaging optional logical, indicates if messages shall be displayed
 #'  when processing `instr`.
 #' @param round_digits integer, controls the number of digits shown when
 #'  printing out a `flex_prms` object. Default is `3`.
@@ -163,6 +163,9 @@ flex_prms.numeric <- function(object, ..., conds, instr = NULL,
   if (!is.character(conds) | length(conds) == 0) {
     stop("conds is not a character vector of length >= 1")
   }
+  if (anyDuplicated(conds) > 0) {
+    stop("names in conds must be unique")
+  }
 
   if (any(grepl("\\W", conds, perl = TRUE))) {
     stop("some condition name contain illegal non-alphanumeric characters")
@@ -279,7 +282,7 @@ x2prms_vals <- function(x, flex_prms_obj) {
 #' @param eval_model logical, indicating if the model should be re-evaluated or
 #'  not when updating modifying the flex_prms object
 #'  (see [dRiftDM::re_evaluate_model]). Default is `FALSE`.
-#' @param messaging logical, indicating if messages shall be ushered or not.
+#' @param messaging logical, indicating if messages shall be displayed or not.
 #' Can happen, for example, when setting a parameter value for a
 #' specific condition, although the parameter values are assumed to be the
 #' identical across conditions.
@@ -331,7 +334,7 @@ x2prms_vals <- function(x, flex_prms_obj) {
 #'
 #' The **"special dependency"** instruction:
 #'
-#'  * Sometimes, users wish to allow one parameter to depend on another. For
+#'  * Sometimes, users want to allow one parameter to depend on another. For
 #'  instance, in DMC (see [dRiftDM::dmc_dm]), the parameter A is positive in
 #'  the congruent condition, but negative in the incongruent condition. Thus,
 #'  parameters may have a 'special depencency' which can be expressed as an
@@ -346,21 +349,21 @@ x2prms_vals <- function(x, flex_prms_obj) {
 #'   has the value 5, then a in condition foo will be -5.
 #'  * The expression on the right-side can refer to any arbitrary
 #'  mathematical relation.
-#'  * Important: Make sure that each 'parameter ~ condition' combination are set
-#'  in brackets.
+#'  * Important: Make sure that each 'parameter ~ condition' combination on the
+#'  right-hand side of the equation are set in brackets.
 #'  * Another example: Parameter a in condition foo should be the mean of the
 #'  parameter b in conditions bar and baz; this would be the instruction
 #'  "a ~ foo == 0.5*(b ~ bar) + 0.5*(b ~ baz)"
 #'
 #'  The **"additional/custom parameter combination"** instruction:
 #'
-#'  * Sometimes, users may wish to combine multiple parameters to summarize
+#'  * Sometimes, users may want to combine multiple parameters to summarize
 #'  a certain property of the model. For example, in DMC (see [dRiftDM::dmc_dm]),
 #'  the shape and rate parameter jointly determine the peak latency.
-#'  * To avoid to manually calculate this, users can define "custom"
-#'  parameter combinations with the ":=" operation:
-#'  * An examplary instruction might look like this:
-#'    "peak_l := (a - 2) * tau"
+#'  * To avoid having to calculate this manually, users can define "custom"
+#'    parameter combinations using the ":=" operation:
+#'  * An exemplary instruction might look like this:
+#'    "peak_l := (a - 1) * tau"
 #'  * Expressions and values that provide calculations for those parameters are
 #'    stored in a separate list `cust_prms`.
 #'

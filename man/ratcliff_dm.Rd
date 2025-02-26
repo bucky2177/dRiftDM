@@ -73,6 +73,9 @@ my_model <- ratcliff_dm(
 )
 
 }
+\references{
+\insertRef{Ratcliff1978}{dRiftDM}
+}
 \seealso{
 \code{\link[=component_shelf]{component_shelf()}}, \code{\link[=drift_dm]{drift_dm()}}
 }
