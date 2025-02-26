@@ -15,10 +15,12 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/dRiftDM.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/use_ddm_models.html">use_ddm_models</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -78,17 +80,17 @@ model's <code><a href="b_coding.html">b_coding()</a></code>, (3) <code>Cond</cod
 <dt id="arg-eval-model">eval_model<a class="anchor" aria-label="anchor" href="#arg-eval-model"></a></dt>
 <dd><p>logical, indicating if the model should be re-evaluated or
 not when updating the solver settings (see <a href="re_evaluate_model.html">re_evaluate_model</a>).
-Default is <code>False</code>.</p></dd>
+Default is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-messaging">messaging<a class="anchor" aria-label="anchor" href="#arg-messaging"></a></dt>
-<dd><p>logical, indicating if messages shall be ushered or not.</p></dd>
+<dd><p>logical, indicating if messages shall be displayed or not.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>For <code>obs_data()</code> a (re-assembled) <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> of the observed data. A
-message is ushered to remind the user that the returned <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> may
+message is displayed to remind the user that the returned <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> may
 be sorted differently than expected.</p>
 <p>For <code>obs_data&lt;-()</code> the updated <a href="drift_dm.html">drift_dm</a> object.</p>
     </div>
@@ -116,7 +118,7 @@ will match with the <a href="https://rdrr.io/r/base/data.frame.html" class="exte
 <p>In theory, it is possible to update parts of the "observed data". However,
 because <code>obs_data()</code> returns a re-assembled <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> for
 <a href="drift_dm.html">drift_dm</a> objects, great care has to be taken with respect to the
-ordering of the argument <code>value</code>. A message is ushered to remind the user
+ordering of the argument <code>value</code>. A message is displayed to remind the user
 that the returned <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> may be sorted differently than expected.</p>
     </div>
     <div class="section level2">

@@ -2,8 +2,10 @@
 <url><loc>https://bucky2177.github.io/dRiftDM/404.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/LICENSE-text.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/LICENSE.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/articles/convert_dmc_parameters.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/articles/customize_ddms.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/articles/dRiftDM.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/articles/index.html</loc></url>
-<url><loc>https://bucky2177.github.io/dRiftDM/articles/use_ddm_models.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/authors.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/index.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/news/index.html</loc></url>
@@ -38,6 +40,7 @@
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/count_unique_prms_one_internal_entry.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/create_matrix_l_u.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/dRiftDM-package.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/reference/ddm_opts.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/defaults.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/dmc_dm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/dmc_synth_data.html</loc></url>
@@ -82,6 +85,7 @@
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/nt_uniform.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/obs_data.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/obs_data_to_rt_lists.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/reference/pdfs.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/plot.cafs.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/plot.delta_funs.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/plot.drift_dm.html</loc></url>
@@ -109,6 +113,7 @@
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/sort_one_internal_entry.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/ssp_dm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/summarize_drift_dm_info.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/reference/summary.coefs_dm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/summary.drift_dm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/summary.fits_ids_dm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/summary.flex_prms.html</loc></url>

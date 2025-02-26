@@ -21,10 +21,12 @@ the heart of the package and shape the model's behavior."><meta property="og:ima
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/dRiftDM.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/use_ddm_models.html">use_ddm_models</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -86,7 +88,7 @@ the heart of the package and shape the model's behavior.</p>
 <dt id="arg-eval-model">eval_model<a class="anchor" aria-label="anchor" href="#arg-eval-model"></a></dt>
 <dd><p>logical, indicating if the model should be re-evaluated or
 not when updating the component funtions (see <a href="re_evaluate_model.html">re_evaluate_model</a>).
-Default is <code>False</code>.</p></dd>
+Default is <code>FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -99,7 +101,7 @@ Default is <code>False</code>.</p></dd>
     <p><code>comp_funs()</code> is a generic accessor function, and <code>comp_funs&lt;-()</code> is a
 generic replacement function. The default methods get and set the "component
 functions". The component functions are a list of functions, with the
-following names (see also <code><a href="../articles/use_ddm_models.html">vignette("use_ddm_models", "dRiftDM")</a></code> for
+following names (see also <code><a href="../articles/customize_ddms.html">vignette("customize_ddms", "dRiftDM")</a></code> for
 examples):</p><ul><li><p><code>mu_fun</code> and <code>mu_int_fun</code>, provide the drift rate and its integral,
 respectively, across the time space.</p></li>
 <li><p><code>x_fun</code> provides a distribution of the starting point across the evidence
@@ -216,7 +218,7 @@ because replacing the component functions after the model has been fitted
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mu_fun"     "mu_int_fun" "x_fun"      "b_fun"      "dt_b_fun"  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [6] "nt_fun"    </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># direct replacement (see the pre-print/vignette for a more information on</span></span></span>
+<span class="r-in"><span><span class="co"># direct replacement (see customize_ddms for a more information on</span></span></span>
 <span class="r-in"><span><span class="co"># how to write custom component functions)</span></span></span>
 <span class="r-in"><span><span class="co"># 1. Choose a uniform non-decision time from the pre-built component_shelf()</span></span></span>
 <span class="r-in"><span><span class="va">nt_uniform</span> <span class="op">&lt;-</span> <span class="fu"><a href="component_shelf.html">component_shelf</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">nt_uniform</span></span></span>

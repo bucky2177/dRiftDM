@@ -17,10 +17,12 @@ object, specified as a string.'><meta property="og:image" content="https://bucky
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/dRiftDM.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/use_ddm_models.html">use_ddm_models</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -78,7 +80,7 @@ not when updating modifying the flex_prms object
 
 
 <dt id="arg-messaging">messaging<a class="anchor" aria-label="anchor" href="#arg-messaging"></a></dt>
-<dd><p>logical, indicating if messages shall be ushered or not.
+<dd><p>logical, indicating if messages shall be displayed or not.
 Can happen, for example, when setting a parameter value for a
 specific condition, although the parameter values are assumed to be the
 identical across conditions.</p></dd>
@@ -121,7 +123,7 @@ would be the shape parameter 'a' of DMC (see <a href="dmc_dm.html">dmc_dm</a>).<
 <li><p>The corresponding instruction looks something like "a &lt;!&gt; foo + bar"</p></li>
 <li><p>Usually, users want to call the "set" instruction prior or after the "fix"
 instruction, to set the corresponding parameter to a certain value.</p></li>
-</ul><p>The <strong>"special dependency"</strong> instruction:</p><ul><li><p>Sometimes, users wish to allow one parameter to depend on another. For
+</ul><p>The <strong>"special dependency"</strong> instruction:</p><ul><li><p>Sometimes, users want to allow one parameter to depend on another. For
 instance, in DMC (see <a href="dmc_dm.html">dmc_dm</a>), the parameter A is positive in
 the congruent condition, but negative in the incongruent condition. Thus,
 parameters may have a 'special depencency' which can be expressed as an
@@ -136,18 +138,18 @@ right-hand side.</p></li>
 has the value 5, then a in condition foo will be -5.</p></li>
 <li><p>The expression on the right-side can refer to any arbitrary
 mathematical relation.</p></li>
-<li><p>Important: Make sure that each 'parameter ~ condition' combination are set
-in brackets.</p></li>
+<li><p>Important: Make sure that each 'parameter ~ condition' combination on the
+right-hand side of the equation are set in brackets.</p></li>
 <li><p>Another example: Parameter a in condition foo should be the mean of the
 parameter b in conditions bar and baz; this would be the instruction
 "a ~ foo == 0.5*(b ~ bar) + 0.5*(b ~ baz)"</p></li>
-</ul><p>The <strong>"additional/custom parameter combination"</strong> instruction:</p><ul><li><p>Sometimes, users may wish to combine multiple parameters to summarize
+</ul><p>The <strong>"additional/custom parameter combination"</strong> instruction:</p><ul><li><p>Sometimes, users may want to combine multiple parameters to summarize
 a certain property of the model. For example, in DMC (see <a href="dmc_dm.html">dmc_dm</a>),
 the shape and rate parameter jointly determine the peak latency.</p></li>
-<li><p>To avoid to manually calculate this, users can define "custom"
-parameter combinations with the ":=" operation:</p></li>
-<li><p>An examplary instruction might look like this:
-"peak_l := (a - 2) * tau"</p></li>
+<li><p>To avoid having to calculate this manually, users can define "custom"
+parameter combinations using the ":=" operation:</p></li>
+<li><p>An exemplary instruction might look like this:
+"peak_l := (a - 1) * tau"</p></li>
 <li><p>Expressions and values that provide calculations for those parameters are
 stored in a separate list <code>cust_prms</code>.</p></li>
 </ul></div>

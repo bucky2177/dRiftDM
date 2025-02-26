@@ -15,10 +15,12 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/dRiftDM.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/use_ddm_models.html">use_ddm_models</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -59,10 +61,10 @@
         <dd>Calculate Statistics</dd>
       </dl><dl><dt>
 
-          <code><a href="coef.drift_dm.html">`coef&lt;-`()</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;drift_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;fits_ids_dm&gt;</i>)</a></code>
+          <code><a href="coef.drift_dm.html">`coef&lt;-`()</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;drift_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;fits_ids_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">print(<i>&lt;coefs_dm&gt;</i>)</a></code>
 
         </dt>
-        <dd>Convenient Coefficients Access</dd>
+        <dd>Access Coefficients of a Model</dd>
       </dl><dl><dt>
 
           <code><a href="comp_funs.html">`comp_funs&lt;-`()</a></code> <code><a href="comp_funs.html">comp_funs()</a></code>
@@ -77,10 +79,16 @@
         <dd>Diffusion Model Components</dd>
       </dl><dl><dt>
 
-          <code><a href="conds.html">conds()</a></code>
+          <code><a href="conds.html">`conds&lt;-`()</a></code> <code><a href="conds.html">conds()</a></code>
 
         </dt>
         <dd>The Conditions of an Object</dd>
+      </dl><dl><dt>
+
+          <code><a href="ddm_opts.html">`ddm_opts&lt;-`()</a></code> <code><a href="ddm_opts.html">ddm_opts()</a></code>
+
+        </dt>
+        <dd>Optional Arguments for the Component Functions</dd>
       </dl><dl><dt>
 
           <code><a href="dmc_dm.html">dmc_dm()</a></code>
@@ -165,6 +173,12 @@
 
         </dt>
         <dd>The Observed Data</dd>
+      </dl><dl><dt>
+
+          <code><a href="pdfs.html">pdfs()</a></code>
+
+        </dt>
+        <dd>Access the Probability Density Functions of a Model</dd>
       </dl><dl><dt>
 
           <code><a href="plot.cafs.html">plot(<i>&lt;cafs&gt;</i>)</a></code>
@@ -267,6 +281,12 @@
 
         </dt>
         <dd>Create the Shrinking Spotlight Model</dd>
+      </dl><dl><dt>
+
+          <code><a href="summary.coefs_dm.html">summary(<i>&lt;coefs_dm&gt;</i>)</a></code> <code><a href="summary.coefs_dm.html">print(<i>&lt;summary.coefs_dm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Summary for <code>coefs_dm</code> Objects</dd>
       </dl><dl><dt>
 
           <code><a href="summary.drift_dm.html">summary(<i>&lt;drift_dm&gt;</i>)</a></code> <code><a href="summary.drift_dm.html">print(<i>&lt;summary.drift_dm&gt;</i>)</a></code>
