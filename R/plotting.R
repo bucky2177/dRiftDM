@@ -1141,7 +1141,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #'
 #' @return A character vector of colors, matching the length of `unique_conds`.
 #'
-#' @keywords intern
+#' @keywords internal
 set_default_colors <- function(colors, unique_conds, default_colors) {
   if (is.null(colors)) {
     colors <- default_colors
