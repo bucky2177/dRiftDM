@@ -89,60 +89,10 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dRiftDM"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="how-to-use-driftdm">How to use dRiftDM<a class="anchor" aria-label="anchor" href="#how-to-use-driftdm"></a>
 </h2>
-<p>We are in the process of publishing a tutorial with more detailed instructions (see the respective <a href="https://osf.io/preprints/osf/3t2vf" class="external-link">OSF pre-print</a>). For now, here is an example of how to fit the Diffusion Model for Conflict Tasks to synthetic data using bounded Nelder-Mead:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bucky2177/dRiftDM" class="external-link">dRiftDM</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  ---------------------------------------------------- </span></span>
-<span><span class="co">#&gt; / Welcome to dRiftDM 0.2.1 Please report any bugs or \</span></span>
-<span><span class="co">#&gt; \ unexpected behavior                                /</span></span>
-<span><span class="co">#&gt;  ---------------------------------------------------- </span></span>
-<span><span class="co">#&gt;       \</span></span>
-<span><span class="co">#&gt;        \</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         ^__^ </span></span>
-<span><span class="co">#&gt;         (oo)\ ________ </span></span>
-<span><span class="co">#&gt;         (__)\         )\ /\ </span></span>
-<span><span class="co">#&gt;              ||------w|</span></span>
-<span><span class="co">#&gt;              ||      ||</span></span>
-<span><span class="va">dmc_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dmc_dm.html">dmc_dm</a></span><span class="op">(</span>dx <span class="op">=</span> <span class="fl">.002</span>, dt <span class="op">=</span> <span class="fl">.002</span>, t_max <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/obs_data.html">obs_data</a></span><span class="op">(</span><span class="va">dmc_model</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">dmc_synth_data</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">dmc_model</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Class(es): dmc_dm, drift_dm</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Current Parameter Matrix:</span></span>
-<span><span class="co">#&gt;        muc   b non_dec sd_non_dec  tau a    A alpha</span></span>
-<span><span class="co">#&gt; comp     4 0.6     0.3       0.02 0.04 2  0.1     4</span></span>
-<span><span class="co">#&gt; incomp   4 0.6     0.3       0.02 0.04 2 -0.1     4</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Unique Parameters:</span></span>
-<span><span class="co">#&gt;        muc b non_dec sd_non_dec tau a A alpha</span></span>
-<span><span class="co">#&gt; comp   1   2 3       4          5   0 6 7    </span></span>
-<span><span class="co">#&gt; incomp 1   2 3       4          5   0 d 7    </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Special Dependencies:</span></span>
-<span><span class="co">#&gt; A ~ incomp == -(A ~ comp)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Custom Parameters:</span></span>
-<span><span class="co">#&gt;        peak_l</span></span>
-<span><span class="co">#&gt; comp     0.04</span></span>
-<span><span class="co">#&gt; incomp   0.04</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Deriving PDFs:</span></span>
-<span><span class="co">#&gt;   solver: kfe</span></span>
-<span><span class="co">#&gt;   values: sigma=1, t_max=1.2, dt=0.002, dx=0.002, nt=600, nx=1000</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Observed Data: 300 trials comp; 300 trials incomp</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/estimate_model.html">estimate_model</a></span><span class="op">(</span></span>
-<span>  drift_dm_obj <span class="op">=</span> <span class="va">dmc_model</span>, <span class="co"># a model</span></span>
-<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.4</span>, <span class="fl">0.2</span>, <span class="fl">0.005</span>, <span class="fl">0.02</span>, <span class="fl">0.02</span>, <span class="fl">2</span><span class="op">)</span>, <span class="co"># lower boundary - search space</span></span>
-<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">0.8</span>, <span class="fl">0.5</span>, <span class="fl">0.050</span>, <span class="fl">0.12</span>, <span class="fl">0.30</span>, <span class="fl">7</span><span class="op">)</span>, <span class="co"># upper boundary - search space</span></span>
-<span>  verbose <span class="op">=</span> <span class="fl">2</span>, <span class="co"># print out each evaluation</span></span>
-<span>  use_de_optim <span class="op">=</span> <span class="cn">F</span>, use_nmkb <span class="op">=</span> <span class="cn">T</span> <span class="co"># use Nelder-Mead for demonstration</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<p>If you are interested in getting started with dRiftDM, we recommend reading the <a href="https://osf.io/preprints/osf/3t2vf" class="external-link">OSF pre-print</a>. More information on functions and model customization can be found in dRiftDM’s vignettes. These vignettes are also rendered in the “Getting started” and “Articles” tabs on our <a href="https://bucky2177.github.io/dRiftDM/">Github.io page</a>.</p>
+<p>If you have any questions, feel free to contact us!</p>
 </div>
 </div>
 
