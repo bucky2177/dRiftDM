@@ -66,8 +66,8 @@ install.packages("dRiftDM")
 If you are interested in getting started with dRiftDM, we recommend
 reading the [OSF pre-print](https://osf.io/preprints/osf/3t2vf). More
 information on functions and model customization can be found in
-dRiftDM’s vignettes. These vignettes are also rendered in the “Getting
-started” and “Articles” tabs on our [Github.io
+dRiftDM’s vignettes. These vignettes are also available from the
+“Getting started” and “Articles” tabs on our [Github.io
 page](https://bucky2177.github.io/dRiftDM/).
 
 If you have any questions, feel free to contact us!
