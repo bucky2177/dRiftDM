@@ -67,8 +67,8 @@
     
     
 <p>When working with Drift-Diffusion Models (DDMs), like the Diffusion
-Model for Conflict Tasks <span class="citation">(DMC, Ulrich et al.
-2015)</span>, a recurring nuisance is that the size of the model’s
+Model for Conflict Tasks [DMC; <span class="citation">Ulrich et al.
+(2015)</span>], a recurring nuisance is that the size of the model’s
 parameters depends on the time scale (seconds vs. milliseconds) and the
 diffusion constant. For example, in the original article by <span class="citation">Ulrich et al. (2015)</span>, DMC was introduced on the
 time scale of milliseconds and with a diffusion constant of
@@ -78,7 +78,7 @@ seconds and/or with a diffusion constant of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\sigma = 1</annotation></semantics></math>.</p>
 <p>The motivation for this vignette is to show how to convert
 <strong>DMC’s parameters</strong> for different time scales and
-diffusion constants, answering a frequently asked question <span class="citation">(see also Appendix B in Koob et al. 2023)</span>. While
+diffusion constants, thereby answering a frequently asked question <span class="citation">(see also Appendix B in Koob et al. 2023)</span>. While
 the following functions and equations only hold for DMC, the problem
 addressed here is a general one and partially applies to other DDMs as
 well. Therefore, we hope that this vignette may even be interesting to
@@ -93,10 +93,11 @@ researchers that are are not specifically concerned with DMC.</p>
 <li>
 <code>b</code> the (constant) boundary</li>
 <li>
-<code>non_dec</code> the mean of the non-decision time</li>
+<code>non_dec</code> the mean of the (normally-distributed)
+non-decision time</li>
 <li>
-<code>sd_non_dec</code> the standard deviation of the non-decision
-time</li>
+<code>sd_non_dec</code> the standard deviation of the
+(normally-distributed) non-decision time</li>
 <li>
 <code>tau</code> the scale of the automatic process</li>
 <li>
@@ -113,10 +114,10 @@ distribution (a symmetric beta-distribution)</li>
 <p>We have to consider the diffusion constant whenever a parameter
 depends on the scale of the evidence space (i.e., if it is somehow
 related to the scale of the y-axis of the evidence accumulation
-process). For DMC this is the case for <code>muc</code>, <code>b</code>,
-and <code>A</code>. We can transform these parameters with:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mo>=</mo><msub><mi>θ</mi><msub><mi>σ</mi><mrow><mi>o</mi><mi>l</mi><mi>d</mi></mrow></msub></msub><mo>⋅</mo><mfrac><msub><mi>σ</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><msub><mi>σ</mi><mrow><mi>o</mi><mi>l</mi><mi>d</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">
-\theta_{new} = \theta_{\sigma_{old}} \cdot \frac{\sigma_{new}}{\sigma_{old}}
+process). This is the case for <code>muc</code>, <code>b</code>, and
+<code>A</code> of DMC. We can transform these parameters with:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mo>=</mo><msub><mi>θ</mi><msub><mi>σ</mi><mrow><mi>o</mi><mi>l</mi><mi>d</mi></mrow></msub></msub><mo>⋅</mo><mfrac><msub><mi>σ</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><msub><mi>σ</mi><mrow><mi>o</mi><mi>l</mi><mi>d</mi></mrow></msub></mfrac><mspace width="0.167em"></mspace><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\theta_{new} = \theta_{\sigma_{old}} \cdot \frac{\sigma_{new}}{\sigma_{old}}\,.
 </annotation></semantics></math> Here,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><msub><mi>σ</mi><mrow><mi>o</mi><mi>l</mi><mi>d</mi></mrow></msub></msub><annotation encoding="application/x-tex">\theta_{\sigma_{old}}</annotation></semantics></math>
 is a parameter (e.g., <code>muc</code>, <code>b</code>, and
@@ -133,8 +134,8 @@ from a diffusion constant of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mrow><mi>o</mi><mi>l</mi><mi>d</mi></mrow></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\sigma_{old} = 4</annotation></semantics></math>
 to match a DDM with a diffusion constant of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\sigma_{new} = 1</annotation></semantics></math>,
-we compute:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.5</mn><mo>⋅</mo><mfrac><mn>1</mn><mn>4</mn></mfrac><mo>=</mo><mn>0.125</mn></mrow><annotation encoding="application/x-tex">0.5\cdot \frac{1}{4} = 0.125</annotation></semantics></math></p>
+we compute
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.5</mn><mo>⋅</mo><mfrac><mn>1</mn><mn>4</mn></mfrac><mo>=</mo><mn>0.125</mn><mspace width="0.167em"></mspace><mi>.</mi></mrow><annotation encoding="application/x-tex">0.5\cdot \frac{1}{4} = 0.125\,.</annotation></semantics></math></p>
 </div>
 <div class="section level3">
 <h3 id="scaling-the-time-space">Scaling the Time Space<a class="anchor" aria-label="anchor" href="#scaling-the-time-space"></a>
@@ -148,25 +149,25 @@ scale.</p>
 depend primarily on the time space. The transformation from seconds to
 milliseconds, or vice versa, is straightforward:</li>
 </ul>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>s</mi></msub><mo>=</mo><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mi>/</mi><mn>1000</mn><mspace width="1.0em"></mspace><mtext mathvariant="normal">and</mtext><mspace width="1.0em"></mspace><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mo>=</mo><msub><mi>θ</mi><mi>s</mi></msub><mo>⋅</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">\theta_{s} = \theta_{ms} / 1000 \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot 1000</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>s</mi></msub><mo>=</mo><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mi>/</mi><mn>1000</mn><mspace width="1.0em"></mspace><mtext mathvariant="normal">and</mtext><mspace width="1.0em"></mspace><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mo>=</mo><msub><mi>θ</mi><mi>s</mi></msub><mo>⋅</mo><mn>1000</mn><mspace width="0.167em"></mspace><mi>.</mi></mrow><annotation encoding="application/x-tex">\theta_{s} = \theta_{ms} / 1000 \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot 1000\,.</annotation></semantics></math></p>
 <ul>
 <li>
 <code>b</code> and <code>A</code> depend primarily on the evidence
 space scale. Yet, we still transform them slightly.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;They depend indirectly on the time scale through the
 variance of the diffusion process.&lt;/p&gt;"><sup>1</sup></a> For these parameters
-we can use:</li>
+we can use</li>
 </ul>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>s</mi></msub><mo>=</mo><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mi>/</mi><msqrt><mn>1000</mn></msqrt><mspace width="1.0em"></mspace><mtext mathvariant="normal">and</mtext><mspace width="1.0em"></mspace><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mo>=</mo><msub><mi>θ</mi><mi>s</mi></msub><mo>⋅</mo><msqrt><mn>1000</mn></msqrt></mrow><annotation encoding="application/x-tex">\theta_{s} = \theta_{ms} / \sqrt{1000} \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot \sqrt{1000}</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>s</mi></msub><mo>=</mo><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mi>/</mi><msqrt><mn>1000</mn></msqrt><mspace width="1.0em"></mspace><mtext mathvariant="normal">and</mtext><mspace width="1.0em"></mspace><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mo>=</mo><msub><mi>θ</mi><mi>s</mi></msub><mo>⋅</mo><msqrt><mn>1000</mn></msqrt><mspace width="0.167em"></mspace><mi>.</mi></mrow><annotation encoding="application/x-tex">\theta_{s} = \theta_{ms} / \sqrt{1000} \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot \sqrt{1000}\,.</annotation></semantics></math></p>
 <ul>
 <li>Finally, the drift rate <code>muc</code> describes the rate of
-<em>evidence increase</em> per <em>time step</em>. For it we have to use
-this formula:</li>
+<em>evidence increase</em> per <em>time step</em>. For it we have to
+use</li>
 </ul>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>s</mi></msub><mo>=</mo><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mo>⋅</mo><mfrac><mn>1000</mn><msqrt><mn>1000</mn></msqrt></mfrac><mspace width="1.0em"></mspace><mtext mathvariant="normal">and</mtext><mspace width="1.0em"></mspace><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mo>=</mo><msub><mi>θ</mi><mi>s</mi></msub><mo>⋅</mo><mfrac><msqrt><mn>1000</mn></msqrt><mn>1000</mn></mfrac></mrow><annotation encoding="application/x-tex">\theta_s = \theta_{ms} \cdot \frac{1000}{\sqrt{1000}} \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot \frac{\sqrt{1000}}{1000}</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>s</mi></msub><mo>=</mo><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mo>⋅</mo><mfrac><mn>1000</mn><msqrt><mn>1000</mn></msqrt></mfrac><mspace width="1.0em"></mspace><mtext mathvariant="normal">and</mtext><mspace width="1.0em"></mspace><msub><mi>θ</mi><mrow><mi>m</mi><mi>s</mi></mrow></msub><mo>=</mo><msub><mi>θ</mi><mi>s</mi></msub><mo>⋅</mo><mfrac><msqrt><mn>1000</mn></msqrt><mn>1000</mn></mfrac><mspace width="0.167em"></mspace><mi>.</mi></mrow><annotation encoding="application/x-tex">\theta_s = \theta_{ms} \cdot \frac{1000}{\sqrt{1000}} \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot \frac{\sqrt{1000}}{1000}\,.</annotation></semantics></math></p>
 <p>Example: To transform <code>muc</code>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">= 0.5</annotation></semantics></math>
-from milliseconds to seconds, we calculate:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.5</mn><mo>⋅</mo><mfrac><mn>1000</mn><msqrt><mn>1000</mn></msqrt></mfrac><mo>=</mo><mn>15.8</mn></mrow><annotation encoding="application/x-tex">0.5\cdot \frac{1000}{\sqrt{1000}} = 15.8</annotation></semantics></math></p>
+from milliseconds to seconds, we calculate
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.5</mn><mo>⋅</mo><mfrac><mn>1000</mn><msqrt><mn>1000</mn></msqrt></mfrac><mo>=</mo><mn>15.8</mn><mspace width="0.167em"></mspace><mi>.</mi></mrow><annotation encoding="application/x-tex">0.5\cdot \frac{1000}{\sqrt{1000}} = 15.8\,.</annotation></semantics></math></p>
 </div>
 </div>
 <div class="section level2">
@@ -182,8 +183,11 @@ apply to all DDMs, only to DMC&lt;/p&gt;"><sup>2</sup></a></p>
 <span><span class="co"># named_values: a named numeric vector</span></span>
 <span><span class="co"># sigma_old, sigma_new: the previous and target diffusion constants</span></span>
 <span><span class="co"># t_from_to: scaling of time (options: ms-&gt;s, s-&gt;ms, or none)</span></span>
-<span><span class="va">convert_prms</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">named_values</span>, <span class="va">sigma_old</span> <span class="op">=</span> <span class="fl">4</span>, <span class="va">sigma_new</span> <span class="op">=</span> <span class="fl">1</span>,</span>
+<span><span class="va">convert_prms</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">named_values</span>,</span>
+<span>                         <span class="va">sigma_old</span> <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>                         <span class="va">sigma_new</span> <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                         <span class="va">t_from_to</span> <span class="op">=</span> <span class="st">"ms-&gt;s"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  </span>
 <span>  <span class="co"># Some rough input checks</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">named_values</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">is.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">named_values</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">sigma_old</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">sigma_new</span><span class="op">)</span><span class="op">)</span></span>
@@ -243,17 +247,17 @@ are the same before and after scaling:</p>
 <span></span>
 <span><span class="co"># now the same with new diffusion constant of 4 and time scale in milliseconds</span></span>
 <span><span class="va">dmc_ms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"sigma"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">4</span> <span class="co"># new diffusion constant</span></span>
-<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"t_max"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">3000</span> <span class="co"># 3000 ms is new max time</span></span>
-<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="co"># 1 ms steps</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"sigma"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">4</span>     <span class="co"># new diffusion constant</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"t_max"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">3000</span>  <span class="co"># 3000 ms is new max time</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>        <span class="co"># 1 ms steps</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu">convert_prms</span><span class="op">(</span></span>
-<span>  named_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span>, <span class="co"># the previous parameters </span></span>
-<span>  sigma_old <span class="op">=</span> <span class="fl">1</span>, <span class="co"># diffusion constants</span></span>
+<span>  named_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span>,       <span class="co"># the previous parameters </span></span>
+<span>  sigma_old <span class="op">=</span> <span class="fl">1</span>,                     <span class="co"># diffusion constants</span></span>
 <span>  sigma_new <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>  t_from_to <span class="op">=</span> <span class="st">"s-&gt;ms"</span> <span class="co"># how shall the time be scaled?</span></span>
+<span>  t_from_to <span class="op">=</span> <span class="st">"s-&gt;ms"</span>                <span class="co"># how shall the time be scaled?</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">quants_ms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span><span class="va">dmc_ms</span>, <span class="st">"quantiles"</span><span class="op">)</span> <span class="co"># calculate predicted quantiles</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">quants_ms</span><span class="op">)</span> <span class="co"># show quantiles</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">quants_ms</span><span class="op">)</span>                      <span class="co"># show quantiles</span></span>
 <span><span class="co">#&gt; Type of Statistic: quantiles</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Source Cond Prob Quant_corr Quant_err</span></span>

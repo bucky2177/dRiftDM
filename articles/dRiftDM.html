@@ -69,9 +69,9 @@
 <p>When working with drift-diffusion models (DDMs) you probably want
 to:</p>
 <ul>
-<li><p>Build or select an existing model</p></li>
-<li><p>Explore the model behavior and validate the model’s
-reliability</p></li>
+<li><p>Build an new or select an existing model</p></li>
+<li><p>Explore the model behavior and validate the model’s reliability
+<!--@Vali Was ist mit Reliability gemeint?!--></p></li>
 <li><p>Fit the model to data</p></li>
 <li><p>Explore the model fit</p></li>
 </ul>
@@ -81,12 +81,12 @@ reliability</p></li>
 <li><p>Options to customize models</p></li>
 <li><p>With efficient algorithms to derive the model predictions <span class="citation">(see Richter, Ulrich, and Janczyk 2023)</span></p></li>
 </ul>
-<p>The pre-built models currently available are:</p>
+<p>Three pre-built models are currently available:</p>
 <ul>
 <li><p>The Ratcliff Diffusion Model <span class="citation">(see
 <code><a href="../reference/ratcliff_dm.html">ratcliff_dm()</a></code>, Ratcliff 1978)</span></p></li>
-<li><p>The Diffusion Model for Conflict Tasks <span class="citation">(see <code><a href="../reference/dmc_dm.html">dmc_dm()</a></code>, Ulrich et al.
-2015)</span></p></li>
+<li><p>The Diffusion Model for Conflict Tasks <span class="citation">(see <code><a href="../reference/dmc_dm.html">dmc_dm()</a></code>, Ulrich et al. 2015)</span>
+<!--@Vali: hier vielleicht auch noch auf den Comment zu RDMC verweisen?--></p></li>
 <li><p>The Shrinking Spotlight Model <span class="citation">(see
 <code><a href="../reference/ssp_dm.html">ssp_dm()</a></code>, White, Ratcliff, and Starns 2011)</span></p></li>
 </ul>
@@ -97,7 +97,10 @@ exploring and fitting a DDM.</p>
 </h3>
 <p>To explore some of the basic functions of dRiftDM, we’ll use the
 Diffusion Model for Conflict Tasks (DMC). It is a diffusion model
-commonly employed in the context of cognitive psychology.</p>
+commonly employed in the context of cognitive psychology. To create the
+model, the pre-built function <code>dmc_fun()</code> is assigned a
+custom name that represents the model:
+<!--@Vali: Den letzten Satz hab ich ergänzt. Passt der so?--></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -138,13 +141,13 @@ created with dRiftDM. For DMC this is:</p>
 <ul>
 <li><p>The model is of type <code>dmc_dm</code></p></li>
 <li><p>The model has the parameters <code>muc</code>, <code>b</code>, …,
-<code>alpha</code>, and the parameter values across conditions are shown
-under <code>Current Parameter Matrix</code>.</p></li>
+<code>alpha</code>, and the current parameter values for each conditions
+are shown under <code>Current Parameter Matrix</code>.</p></li>
 <li><p>Below this, under <code>Unique Parameters</code>, we obtain how
 each parameter behaves across conditions. If a number is the same for a
 parameter across conditions, this means that this parameter is equated
 across conditions. For example, the parameter <code>muc</code> is
-assumed to be identical across the conditions <code>comp</code> and
+assumed to be identical for the conditions <code>comp</code> and
 <code>incomp</code>. If a number is zero, this means that this parameter
 is assumed to be “fixed” and thus is not a “free” parameter that can be
 estimated. If an entry shows a “d”, this means there is a special
@@ -153,12 +156,12 @@ dependency, as listed under <code>Special Dependencies</code> (see
 information).
 <!--^[comp and incomp stand for compatible and incompatible, the two experimental conditions common to all conflict tasks. In a conflict task, participants perform a task while being presented with irrelevant, distracting information. For example, they have to respond to a single letter surrounded by irrelevant, flanking letters. In compatible vs. incompatible trials, the distracting information matches vs. mismatches with the task-relevant information, respectively.]--></p></li>
 <li><p>When fitting or exploring a model, we will have to derive the
-model predictions in terms of the first-passage-time (i.e., the duration
-of central response selection in the context of psychology). The
-settings for this are shown under <code>Deriving PDFs</code>. Currently,
-predictions are derived by a numerical discretization of the
+model predictions in terms of the first-passage-times (i.e., the
+duration of central response selection in the context of psychology).
+The settings for this are shown under <code>Deriving PDFs</code>.
+Currently, predictions are derived by a numerical discretization of the
 Kolmogorov-Forward-Equation (<code>kfe</code>). The diffusion constant
-<code>sigma</code> is 1. The maximum time space is 3 seconds. And the
+<code>sigma</code> is 1, the maximum time space is 3 seconds, and the
 discretization in time and space is done in steps of 0.001.</p></li>
 </ul>
 </div>
@@ -181,8 +184,7 @@ accumulation <em>traces</em> for central response selection, are common
 ways to visualize a diffusion model. The first argument requires the
 model object. The second argument requires the number of realizations to
 simulate.</p>
-<p>For example, we can simulate 5 traces for DMC per condition like
-this:</p>
+<p>For example, we can simulate 5 traces for DMC per condition:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">five_traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">five_traces</span></span>
@@ -238,7 +240,7 @@ symmetric beta distribution <span class="citation">(see Ulrich et al.
 <p><img src="dRiftDM_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 <p>When visualizing the basic model behavior, one often wants to display
 the expected time-course of the diffusion process. We can do so by
-eliminating the stochastic noise, setting the argument
+eliminating the stochastic noise with setting the argument
 <code>sigma = 0</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exp_behavior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, k <span class="op">=</span> <span class="fl">1</span>, sigma <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
@@ -249,7 +251,7 @@ eliminating the stochastic noise, setting the argument
 <h3 id="calc_stats">
 <code>calc_stats()</code><a class="anchor" aria-label="anchor" href="#calc_stats"></a>
 </h3>
-<p>A DDM predicts response choice and response times, with the latter
+<p>A DDM predicts response choices and response times, with the latter
 being the sum of the first-passage-time (i.e., the duration of central
 response selection) and the non-decision time. We can request summary
 statistics of this prediction with <code><a href="../reference/calc_stats.html">calc_stats()</a></code>. The first
@@ -303,7 +305,8 @@ method:</p>
 <h2 id="changing-model-properties">Changing Model Properties<a class="anchor" aria-label="anchor" href="#changing-model-properties"></a>
 </h2>
 <p>To get or set properties of the model, dRiftDM provides
-accessor/replacement methods for:</p>
+accessor/replacement methods for:
+<!--@Vali: müsste es hier überall heißen accesses/replaces"?--></p>
 <ul>
 <li><p><code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> access/replace parameter values</p></li>
 <li><p><code><a href="../reference/prms_solve.html">prms_solve()</a></code> access/replace settings for deriving
@@ -384,7 +387,8 @@ predicted probability density functions of response time and choice.
 Currently supported options are <code>"kfe"</code> and
 <code>"im_zero"</code>. While the <code>"kfe"</code> method can be
 applied to all models in dRiftDM, <code>"im_zero"</code> is restricted
-to models that don’t have a custom starting point.</p>
+to models that don’t have a custom starting point.
+<!--@Vali: "custom starting point" vielleicht "can only be used when the starting point is fixed to zero"? oder so?--></p>
 </div>
 <div class="section level3">
 <h3 id="b_coding">
@@ -482,11 +486,11 @@ that increases non-linearly. It is thus recommended to make the
 discretization more coarse to reduce the time waiting in front of the
 computer. As a rule of thumb, we currently recommend setting the
 discretization steps between 0.001 and 0.005. Yet, the impact of the
-respective settings depend on the model and its parameterization, so
-users will have to make sure that their discretization settings lead to
-reasonable model predictions.</p>
+respective settings depend on the model and its parameterization. As a
+consequence, users will have to make sure that their discretization
+settings lead to reasonable model predictions.</p>
 <p>Another choice is the maximum time space. It should be large enough
-to easily cover the largest response time in the observed data set.</p>
+to easily cover the longest response time in the observed data set.</p>
 <p>The following code adjusts the discretization settings, and
 subsequently fits DMC to a single data set.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -529,7 +533,8 @@ subsequently fits DMC to a single data set.</p>
 </h3>
 <p>To qualitatively check if a model fits the data, we can use
 <code><a href="../reference/calc_stats.html">calc_stats()</a></code> in combination with the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
-method.</p>
+method. Circles indicate observed data while lines indicate the model’s
+predictions.<!--@Vali: letzten Satz hinzugefügt--></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">check_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cafs"</span>, <span class="st">"quantiles"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">check_fit</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"green"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -542,8 +547,9 @@ method.</p>
 <p>Oftentimes, we don’t want to fit a model to a single individual, but
 to multiple individuals. For this, you can use
 <code><a href="../reference/estimate_model_ids.html">estimate_model_ids()</a></code>, which is a wrapper around
-<code><a href="../reference/estimate_model.html">estimate_model()</a></code>. In the following code chunk we fit DMC to
-the first two individuals of the flanker data set provided by <span class="citation">Ulrich et al. (2015)</span>.</p>
+<code><a href="../reference/estimate_model.html">estimate_model()</a></code>. In the following code chunk, we fit DMC
+to the first two individuals of the flanker data set provided by <span class="citation">Ulrich et al. (2015)</span> (included in
+<code>dRiftDM</code>).</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flanker_data</span> <span class="op">&lt;-</span> <span class="fu">dRiftDM</span><span class="fu">::</span><span class="va"><a href="../reference/ulrich_flanker_data.html">ulrich_flanker_data</a></span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">flanker_data</span><span class="op">)</span></span>
@@ -574,7 +580,7 @@ the first two individuals of the flanker data set provided by <span class="citat
 <span><span class="va">all_fits</span></span>
 <span><span class="co">#&gt; Fit procedure name: flanker_test_run</span></span>
 <span><span class="co">#&gt; Fitted model type: dmc_dm, drift_dm</span></span>
-<span><span class="co">#&gt; Time of (last) call: 2025-February-26_18-56</span></span>
+<span><span class="co">#&gt; Time of (last) call: 2025-February-27_08-46</span></span>
 <span><span class="co">#&gt; N Individuals: 2</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -597,10 +603,11 @@ the first two individuals of the flanker data set provided by <span class="citat
 <p>To simulate data based on a model, we can use the
 <code><a href="../reference/simulate_data.html">simulate_data()</a></code> function. The first argument takes the
 model object. The second argument a numeric vector, defining the number
-of trials per condition:</p>
+of trials per condition:
+<!--@Vali: "numeric vector" aber im Beispiel ist kein Vektor?--></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ddm</span> <span class="op">=</span> <span class="fu"><a href="../reference/ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># a model for demonstration purpose</span></span>
-<span><span class="va">sim_1</span> <span class="op">=</span> <span class="fu"><a href="../reference/simulate_data.html">simulate_data</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, n <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># a model for demonstration purpose</span></span>
+<span><span class="va">sim_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_data.html">simulate_data</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, n <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      RT Error Cond</span></span>
 <span><span class="co">#&gt; 1 0.684     0 null</span></span>
@@ -609,19 +616,21 @@ of trials per condition:</p>
 <span><span class="co">#&gt; 4 0.382     0 null</span></span>
 <span><span class="co">#&gt; 5 0.563     0 null</span></span>
 <span><span class="co">#&gt; 6 0.523     0 null</span></span></code></pre></div>
-<p>This returns a single synthetic data set for a “participant”. Note
-that the simulated RTs depend on the time discretization. For example,
-if the time discretization is <code>dt</code> = .005, then the RTs can
-only differ in steps of .005.</p>
+<p>This returns a single synthetic data set for one “participant”. Note
+that the simulated
+RTs<!--@Vali: ich glaube vorher hast Du es immer ausgeschriebn?-->
+depend on the time discretization. For example, if the time
+discretization is <code>dt</code> = .005, then the RTs can only differ
+in steps of .005.</p>
 <p>By specifying the argument <code>k</code>, we can simulate multiple
 synthetic data sets simultaneously. In this case, however, we must also
 specify lower and upper bounds to define the simulation space when
 drawing random parameter combinations per data set (see the
 <code>simulate_data</code> documentation for more details):</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sim_2</span> <span class="op">=</span> <span class="fu"><a href="../reference/simulate_data.html">simulate_data</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, n <span class="op">=</span> <span class="fl">200</span>, k <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>              lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">0.4</span>, non_dec <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>, </span>
-<span>              upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">6</span>, b <span class="op">=</span> <span class="fl">0.8</span>, non_dec <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sim_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_data.html">simulate_data</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, n <span class="op">=</span> <span class="fl">200</span>, k <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>                       lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">0.4</span>, non_dec <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>, </span>
+<span>                       upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">6</span>, b <span class="op">=</span> <span class="fl">0.8</span>, non_dec <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>This returns a list with the synthetic data sets and the
 corresponding parameter values:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
