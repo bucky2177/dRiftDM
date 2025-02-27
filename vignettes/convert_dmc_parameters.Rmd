@@ -17,9 +17,9 @@ library(dRiftDM)
 set.seed(1014)
 ```
 
-When working with Drift-Diffusion Models (DDMs), like the Diffusion Model for Conflict Tasks [DMC, @Ulrichetal.2015], a recurring nuisance is that the size of the model's parameters depends on the time scale (seconds vs. milliseconds) and the diffusion constant. For example, in the original article by @Ulrichetal.2015, DMC was introduced on the time scale of milliseconds and with a diffusion constant of $\sigma = 4$. However, it is not uncommon for DDMs to be realized in the time scale of seconds and/or with a diffusion constant of $\sigma = 1$. 
+When working with Drift-Diffusion Models (DDMs), like the Diffusion Model for Conflict Tasks [DMC; @Ulrichetal.2015], a recurring nuisance is that the size of the model's parameters depends on the time scale (seconds vs. milliseconds) and the diffusion constant. For example, in the original article by @Ulrichetal.2015, DMC was introduced on the time scale of milliseconds and with a diffusion constant of $\sigma = 4$. However, it is not uncommon for DDMs to be realized in the time scale of seconds and/or with a diffusion constant of $\sigma = 1$. 
 
-The motivation for this vignette is to show how to convert **DMC's parameters** for different time scales and diffusion constants, answering a frequently asked question [see also Appendix B in @Koobetal.2023]. While the following functions and equations only hold for DMC, the problem addressed here is a general one and partially applies to other DDMs as well. Therefore, we hope that this vignette may even be interesting to researchers that are are not specifically concerned with DMC.
+The motivation for this vignette is to show how to convert **DMC's parameters** for different time scales and diffusion constants, thereby answering a frequently asked question [see also Appendix B in @Koobetal.2023]. While the following functions and equations only hold for DMC, the problem addressed here is a general one and partially applies to other DDMs as well. Therefore, we hope that this vignette may even be interesting to researchers that are are not specifically concerned with DMC.
 
 # The Mathematical Equations 
 
@@ -27,8 +27,8 @@ DMC has 8 parameters in its most general form:
 
 - `muc` the drift rate of the controlled process
 - `b` the (constant) boundary 
-- `non_dec` the mean of the non-decision time
-- `sd_non_dec` the standard deviation of the non-decision time
+- `non_dec` the mean of the (normally-distributed) non-decision time
+- `sd_non_dec` the standard deviation of the (normally-distributed) non-decision time
 - `tau` the scale of the automatic process
 - `a` the shape of the automatic process
 - `A` the amplitude of the automatic process
@@ -36,15 +36,15 @@ DMC has 8 parameters in its most general form:
 
 ## Scaling for the Diffusion Constant
 
-We have to consider the diffusion constant whenever a parameter depends on the scale of the evidence space (i.e., if it is somehow related to the scale of the y-axis of the evidence accumulation process). For DMC this is the case for `muc`, `b`, and `A`. We can transform these parameters with: 
+We have to consider the diffusion constant whenever a parameter depends on the scale of the evidence space (i.e., if it is somehow related to the scale of the y-axis of the evidence accumulation process). This is the case for `muc`, `b`, and `A` of DMC. We can transform these parameters with: 
 
 $$
-\theta_{new} = \theta_{\sigma_{old}} \cdot \frac{\sigma_{new}}{\sigma_{old}}
+\theta_{new} = \theta_{\sigma_{old}} \cdot \frac{\sigma_{new}}{\sigma_{old}}\,.
 $$
 Here, $\theta_{\sigma_{old}}$ is a parameter (e.g., `muc`, `b`, and `A`) in the scale of the previous diffusion constant, $\sigma_{old}$, and $\theta_{\sigma_{new}}$ is the transformed parameter after scaling it to the target diffusion constant, $\sigma_{new}$.
 
-Example: To transform `muc` $= 0.5$ from a diffusion constant of $\sigma_{old} = 4$ to match a DDM with a diffusion constant of $\sigma_{new} = 1$, we compute:
-$$0.5\cdot \frac{1}{4} = 0.125$$
+Example: To transform `muc` $= 0.5$ from a diffusion constant of $\sigma_{old} = 4$ to match a DDM with a diffusion constant of $\sigma_{new} = 1$, we compute
+$$0.5\cdot \frac{1}{4} = 0.125\,.$$
 
 ## Scaling the Time Space
 
@@ -52,18 +52,18 @@ Time scaling is a bit more difficult, because we have to consider if and how a p
 
 - `non_dec`, `sd_non_dec`, and `tau` depend primarily on the time space. The transformation from seconds to milliseconds, or vice versa, is straightforward: 
 
-$$\theta_{s} = \theta_{ms} / 1000 \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot 1000$$
+$$\theta_{s} = \theta_{ms} / 1000 \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot 1000\,.$$
 
-- `b` and `A` depend primarily on the evidence space scale. Yet, we still transform them slightly.^[They depend indirectly on the time scale through the variance of the diffusion process.] For these parameters we can use:
+- `b` and `A` depend primarily on the evidence space scale. Yet, we still transform them slightly.^[They depend indirectly on the time scale through the variance of the diffusion process.] For these parameters we can use
 
-$$\theta_{s} = \theta_{ms} / \sqrt{1000} \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot \sqrt{1000}$$
+$$\theta_{s} = \theta_{ms} / \sqrt{1000} \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot \sqrt{1000}\,.$$
 
-- Finally, the drift rate `muc` describes the rate of *evidence increase* per *time step*. For it we have to use this formula: 
+- Finally, the drift rate `muc` describes the rate of *evidence increase* per *time step*. For it we have to use
 
-$$\theta_s = \theta_{ms} \cdot \frac{1000}{\sqrt{1000}} \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot \frac{\sqrt{1000}}{1000}$$
+$$\theta_s = \theta_{ms} \cdot \frac{1000}{\sqrt{1000}} \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot \frac{\sqrt{1000}}{1000}\,.$$
 
-Example: To transform `muc` $= 0.5$ from milliseconds to seconds, we calculate:
-$$0.5\cdot \frac{1000}{\sqrt{1000}} = 15.8$$ 
+Example: To transform `muc` $= 0.5$ from milliseconds to seconds, we calculate
+$$0.5\cdot \frac{1000}{\sqrt{1000}} = 15.8\,.$$ 
 
 # An R Helper Function
 
@@ -74,8 +74,11 @@ It would be tedious to do all the transformations "by hand," so we present here 
 # named_values: a named numeric vector
 # sigma_old, sigma_new: the previous and target diffusion constants
 # t_from_to: scaling of time (options: ms->s, s->ms, or none)
-convert_prms <- function(named_values, sigma_old = 4, sigma_new = 1,
+convert_prms <- function(named_values,
+                         sigma_old = 4,
+                         sigma_new = 1,
                          t_from_to = "ms->s") {
+  
   # Some rough input checks
   stopifnot(is.numeric(named_values), is.character(names(named_values)))
   stopifnot(is.numeric(sigma_old), is.numeric(sigma_new))
@@ -126,17 +129,17 @@ head(quants_s) # show quantiles
 
 # now the same with new diffusion constant of 4 and time scale in milliseconds
 dmc_ms <- dmc_dm()
-prms_solve(dmc_ms)["sigma"] <- 4 # new diffusion constant
-prms_solve(dmc_ms)["t_max"] <- 3000 # 3000 ms is new max time
-prms_solve(dmc_ms)["dt"] <- 1 # 1 ms steps
+prms_solve(dmc_ms)["sigma"] <- 4     # new diffusion constant
+prms_solve(dmc_ms)["t_max"] <- 3000  # 3000 ms is new max time
+prms_solve(dmc_ms)["dt"] <- 1        # 1 ms steps
 coef(dmc_ms) <- convert_prms(
-  named_values = coef(dmc_ms), # the previous parameters 
-  sigma_old = 1, # diffusion constants
+  named_values = coef(dmc_ms),       # the previous parameters 
+  sigma_old = 1,                     # diffusion constants
   sigma_new = 4,
-  t_from_to = "s->ms" # how shall the time be scaled?
+  t_from_to = "s->ms"                # how shall the time be scaled?
 )
 quants_ms <- calc_stats(dmc_ms, "quantiles") # calculate predicted quantiles
-head(quants_ms) # show quantiles
+head(quants_ms)                      # show quantiles
 ```
 Note: The transformed values in the unit of milliseconds and with a diffusion constant of 4 are similar in size to those obtained by @Ulrichetal.2015. 
 

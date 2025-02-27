@@ -16,7 +16,7 @@ library(dRiftDM)
 set.seed(1014)
 ```
 
-The `dRiftDM` package provides pre-built Drift-Diffusion Models (DDMs, see `vignette("dRiftDM", "dRiftDM")`). However, one of the strengths of `dRiftDM` is that it allows you to customize models by specifying arbitrary component functions for the drift rate, boundary, etc., and how the parameters relate across conditions. 
+The `dRiftDM` package provides pre-built Drift-Diffusion Models (DDMs; see `vignette("dRiftDM", "dRiftDM")`). However, one of the strengths of `dRiftDM` is that it allows you to customize models by specifying arbitrary component functions for the drift rate, boundary, etc., and how the parameters relate across conditions. 
 
 # The Model Structure in dRiftDM
 
@@ -36,7 +36,7 @@ With the  `flex_prms` object (stored as the first entry), we can specify the par
 
 With the functions stored in `comp_funs` (the fourth entry), we can control the drift rate, boundary, starting point, and non-decision time. Each function takes a set of arguments, including the model parameters, and returns a vector of values. For example, the drift rate function returns the drift rate of the diffusion model for each time step. 
 
-When deriving the model predictions, the `comp_funs` are evaluated with the currently set parameter values controlled by the `flex_prms` object. Dedicated numerical algorithms in the depths of `dRiftDM` then derive the model's predicted probability density functions of response times and choices. It is important to emphasize this interaction of `comp_funs` with the `flex_prms` object, as you will need to ensure that the two work together smoothly. For example, a function stored in `comp_funs` might fail if it is given a parameter vector that it does not expect. Or a model might not work as expected if a function stored in `comp_funs` doesn't return code for a certain parameter. We tried to emphasize the workflow in the following diagram:
+When deriving the model predictions, the `comp_funs` are evaluated with the currently set parameter values controlled by the `flex_prms` object. Dedicated numerical algorithms in the depths of `dRiftDM` then derive the model's predicted probability density functions of response times and choices.<!--@Vali: "separately for the possible choices"?--> It is important to emphasize this interaction of `comp_funs` with the `flex_prms` object, as you will need to ensure that the two work together smoothly. For example, a function stored in `comp_funs` might fail if it is given a parameter vector that it does not expect. Or a model might not work as expected if a function stored in `comp_funs` doesn't return code for a certain parameter. The workflow is emphasized in the following diagram:
 
 ```{r, echo=FALSE, out.width = '90%'}
 knitr::include_graphics("evaluation_chain.png")
@@ -62,7 +62,7 @@ flex_prms(ddm)
 
 Here we see the two core aspects of any `flex_prms` object (see also the first print statement in `vignette("dRiftDM", "dRiftDM")` for more information): 
 
-- The **Current Parameter Matrix** shows you the current parameter value across all conditions. 
+- The **Current Parameter Matrix** shows you the current parameter values for all conditions. 
 
 - The **Unique Parameters** show how each parameter behaves across conditions. 
 
@@ -72,7 +72,7 @@ The **Unique Parameters** are relevant to model customization, and we can change
 
 ```{r}
 ddm_free_muc <- modify_flex_prms(
-  ddm, # the model
+  ddm,            # the model
   instr = "muc ~" # an instructions in a formula-like format
 )
 flex_prms(ddm_free_muc)
@@ -93,14 +93,14 @@ coef(ddm_free_muc)
 
 - The vary instruction: Allows parameters to be estimated independently across conditions.
 
-- The "restrain" instruction: Force parameters to be identical across conditions.
+- The "restrain" instruction: Forces parameters to be identical across conditions.
 
-- The "fix" instruction: Keep parameters constant. They don't vary while the remaining parameters are estimated.
+- The "fix" instruction: Keeps parameters constant. They don't vary while the remaining parameters are estimated.
 
 - The "special dependency" instruction: Sometimes we want a parameter in one condition to depend on another parameter in a second condition. An example of this is already shown in the `flex_prms(ddm)` output above. Here the parameter `A` in the condition `incomp` is the negative of the parameter in the condition `comp`.
 
-- The "custom parameter" instruction: Sometimes, we want to calculate a linear combination of the model parameters. An example for this is already shown in the `flex_prms(ddm)` output above. Here, we have the custom parameter `peak_l`, which is $(a-1)\cdot tau$ (the equation is not apparent from the output). 
-
+- The "custom parameter" instruction: Sometimes, we want to calculate a linear combination of the model parameters. An example for this is already shown in the `flex_prms(ddm)` output above. Here, we have the custom parameter `peak_l` (for "peak latency"), which is $(a-1)\cdot tau$ (the equation is not apparent from the output). 
+<!--@Vali: tau hier auschreiebn oder mit \tau? Wenn ausscheiben wüde ich die Formel fast setzen als `peak_l = (a-1)*tau`um den Bezug zu verdeutlichen-->
 
 ## Defining New Conditions
 
@@ -119,7 +119,7 @@ Here we receive a message reminding us that all parameter values have been reset
 ```{r}
 flex_prms(ddm)
 ```
-While this may be a bit annoying in some cases, it actually makes sense because there is no way for dRifDM to know how the new conditions relate to the old ones. Consequently, we would now have to modify the underlying `flex_prms` object again to suit our needs. For example, we could restore the previous behavior for `A` in `incomp` conditions, while setting it to zero for the new `neutral` condition. We might also want to keep `a` again fixed for all conditions:
+While this may be a bit annoying in some cases, it actually makes sense because there is no way for dRifDM to know how the new conditions relate to the old ones. Consequently, we would now have to modify the underlying `flex_prms` object again to suit our needs. For example, we could restore the previous behavior for `A` in the `incomp` condition, while setting `A` to zero for the new `neutral` condition. We might also want to keep `a` again fixed for all conditions:
 
 ```{r}
 instructions <- "
@@ -145,8 +145,8 @@ ddm <- dmc_dm() # some pre-built model
 names(comp_funs(ddm))
 ```
 
-- `mu_fun()` and `mu_int_fun()` are the drift rate and its integral. The integral is required as an entry, but is only evaluated if the user chooses the non-default method "im_zero" when deriving model predictions.
-
+- `mu_fun()` and `mu_int_fun()` are the drift rate and its integral. The integral is required as an entry, but is only evaluated if the user chooses the non-default method "im_zero" to derive model predictions.
+<!--@Vali: Gibt es einen Unterscied zwischen ...are the drift rate.. und dann immer ..returns the...?-->
 - `x_fun()` returns the density for the initial distribution.
 
 - The `b_fun()` and `dt_b_fun()` functions returns the (upper) boundary and its derivative, respectively.
@@ -159,7 +159,7 @@ all_funs <- component_shelf()
 names(all_funs)
 ```
 
-The structure of each of these component functions is generally the same. The drift rate, boundary, and non-decision time functions (i.e., mu_fun, mu_int_fun, b_fun, dt_b_fun, and nt_fun) must have the following declaration: 
+The structure of each of these component functions is generally the same. The drift rate, boundary, and non-decision time functions (i.e., mu_fun, mu_int_fun, b_fun, dt_b_fun, and nt_fun<!--@Vali: in Klammern alle in `...` ?-->) must have the following declaration: 
 
 ```{r, eval = F}
 ... <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
@@ -168,7 +168,7 @@ The structure of each of these component functions is generally the same. The dr
 ```
 
 
-- `prms_model` is a named numeric vector and is identical to a row of the **Parameter Matrix** of a model.
+- `prms_model` is a named numeric vector and is identical to a row of the **Parameter Matrix** <!--@Vali: welche ist das?-->of a model.
 
 ```{r}
 flex_prms(ddm)
@@ -189,7 +189,7 @@ t_vec <- seq(0, t_max, dt)
 head(t_vec)
 tail(t_vec)
 ```
-- `one_cond` is the label of the current condition for which the model is being evaluated (i.e., a row name of the **Parameter Matrix**).
+- `one_cond` is the label of the current condition for which the model is being evaluated (i.e., a row name of the **Parameter Matrix**).<!--@Vali: hier auch-->
 
 - `ddm_opts` is taken directly from the model. It is used as a backdoor to inject arbitrary `R` objects (see the final comments below for an example)
 
@@ -223,6 +223,7 @@ In theory, you can simply replace component functions using the replacement meth
 ## Example: Custom Drift Rate
 
 Assume that we want a model with the following custom drift rate: 
+<!--@Vali im Code: mua und muc schreiben als\mu_a und \mu_c oder in texttt{} So sieht das irgendwie komisch aus-->
 $$\mu(t) = \left\{ 
   \begin{array}{ c l }
     muc + mua & \quad \textrm{for compatible conditions} \\
@@ -249,7 +250,7 @@ cust_mu <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 Within this function, we first extract the model parameters relevant to the calculation of the drift rate. Then, depending on an auxiliary parameter `sign`, we sum both parameters and return the vector of drift rates for each time step. 
 
 
-The next step is to create a function that assembles the custom model by calling dRiftDM's backbone function `drift_dm()`. Here we define vectors for all model parameters and conditions. We then assemble the model using not only our custom drift rate function, but also pre-built functions for the boundary, start point, and non-decision time.^[It would also be possible to omit the pre-built functions for the boundary, start point, and non-decision time. In this case dRiftDM will fall back to default settings, see also the documentation for `comp\_funs()`]. Finally, we ensure that the auxiliary sign parameter works as intended by modifying the parameter settings with `modify_flex_prms()`:
+The next step is to create a function that assembles the custom model by calling dRiftDM's backbone function `drift_dm()`. Here we define vectors for all model parameters and conditions. We then assemble the model using not only our custom drift rate function, but also pre-built functions for the boundary, start point, and non-decision time.^[It would also be possible to omit the pre-built functions for the boundary, start point, and non-decision time. In this case dRiftDM will fall back to default settings, see also the documentation for `comp\_funs()`]<!--@Vali: Der Unterstrich in der Fußnote wird mit dem \ angezeigt.. soll das so?--> Finally, we ensure that the auxiliary sign parameter works as intended by modifying the parameter settings with `modify_flex_prms()`:
 
 ```{r}
 cust_model <- function() {
@@ -269,12 +270,13 @@ cust_model <- function() {
     prms_model = prms_model,
     conds = conds,
     subclass = "my_custom_model",
-    mu_fun = cust_mu, # your custom drift rate function
-    mu_int_fun = comps$dummy_t, # a dummy function, because no integral of the drift rate is required per default
-    x_fun = comps$x_dirac_0, # pre-built dirac delta on zero for the starting point
-    b_fun = comps$b_constant, # pre-built time-independent boundary with parameter b
+    mu_fun = cust_mu,               # your custom drift rate function
+    mu_int_fun = comps$dummy_t,     # a dummy function, because no integral 
+                                    # of the drift rate is required per default
+    x_fun = comps$x_dirac_0,        # pre-built dirac delta on zero for the starting point
+    b_fun = comps$b_constant,       # pre-built time-independent boundary with parameter b
     dt_b_fun = comps$dt_b_constant, # pre-built derivative of the boundary
-    nt_fun = comps$nt_constant # pre-built non-decision time with parameter non_dec
+    nt_fun = comps$nt_constant      # pre-built non-decision time with parameter non_dec
   )
 
   # modify the flex_prms object to achieve the desired behavior of 'sign'
@@ -325,12 +327,12 @@ cust_model <- function() {
     prms_model = prms_model,
     conds = conds,
     subclass = "my_custom_model",
-    mu_fun = cust_mu, # custom defined
-    mu_int_fun = cust_mu_int, # to test :)
-    x_fun = comps$x_dirac_0, # dirac delta on zero for the starting point
-    b_fun = comps$b_constant, # time-independent boundary with parameter b
+    mu_fun = cust_mu,               # custom defined
+    mu_int_fun = cust_mu_int,       # to test :)
+    x_fun = comps$x_dirac_0,        # dirac delta on zero for the starting point
+    b_fun = comps$b_constant,       # time-independent boundary with parameter b
     dt_b_fun = comps$dt_b_constant, # respective derivative of the boundary
-    nt_fun = comps$nt_constant # non-decision time with parameter non_dec
+    nt_fun = comps$nt_constant      # non-decision time with parameter non_dec
   )
 
   # modify the flex_prms object to achieve the desired behavior of 'sign'
@@ -376,10 +378,10 @@ Then we write a function that assembles the custom model:
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
-    z = 0.75, # parameter for the custom starting point
-    muc = 4, # parameter for a time-independent drift rate "muc"
-    b = .6, # parameter for a time-independent boundary "b"
-    non_dec = .2 # parameter for a non-decision time "non_dec"
+    z = 0.75,     # parameter for the custom starting point
+    muc = 4,      # parameter for a time-independent drift rate "muc"
+    b = .6,       # parameter for a time-independent boundary "b"
+    non_dec = .2  # parameter for a non-decision time "non_dec"
   ) 
   
   # each model must have a condition (in this example it is not relevant, so we just call it "foo")
@@ -393,12 +395,12 @@ cust_model <- function() {
     prms_model = prms_model,
     conds = conds,
     subclass = "my_custom_model",
-    mu_fun = comps$mu_constant, # time-independent drift rate with parameter muc
+    mu_fun = comps$mu_constant,         # time-independent drift rate with parameter muc
     mu_int_fun = comps$mu_int_constant, # respective integral of the drift rate
-    x_fun = cust_x, # custom starting point function with parameter z
-    b_fun = comps$b_constant, # time-independent boundary with parameter b
-    dt_b_fun = comps$dt_b_constant, # respective derivative of the boundary
-    nt_fun = comps$nt_constant # non-decision time with parameter non_dec
+    x_fun = cust_x,                     # custom starting point function with parameter z
+    b_fun = comps$b_constant,           # time-independent boundary with parameter b
+    dt_b_fun = comps$dt_b_constant,     # respective derivative of the boundary
+    nt_fun = comps$nt_constant          # non-decision time with parameter non_dec
   )
   return(ddm)
 }
@@ -411,8 +413,8 @@ ddm <- cust_model()
 Remark: This example shows a reimplementation of the already pre-built `b_hyperbol()` and `dt_b_hyperbol()` component functions (see `component_shelf()`.
 
 Suppose we want collapsing boundaries. The formula for the upper boundary should be
-$$b(t) = b_0 \left(1-\kappa\cdot \frac{t}{t+t_{0.5}}\right)\,.$$
-Where $b_0$ is the initial value of the upper boundary, $\kappa$ is the rate of collapse, and $t_{0.5}$ is the time at which the boundary has collapsed by half. Since `dRiftDM` assumes symmetric boundaries, the lower bound is $-b(t)$. 
+$$b(t) = b_0 \left(1-\kappa\cdot \frac{t}{t+t_{0.5}}\right)\,,$$
+where $b_0$ is the initial value of the upper boundary, $\kappa$ is the rate of collapse, and $t_{0.5}$ is the time at which the boundary has collapsed by half. Since `dRiftDM` assumes symmetric boundaries, the lower bound is $-b(t)$. 
 
 The corresponding R function for this is: 
 
@@ -427,7 +429,7 @@ cust_b <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 }
 ```
 
-To make this work with `dRiftDM`, we also provide the derivative of the boundary, 
+To make this work with `dRiftDM`, we also provide the derivative of the boundary:
 $$\frac{d}{dt} b(t) = -\left(\frac{b_0 \cdot \kappa \cdot t_{0.5}}{(t + t_{0.5})^2}\right)\,.$$
 
 The corresponding R function for this is: 
@@ -445,14 +447,18 @@ cust_dt_b <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
 Then we write a function that assembles the custom model:
+<!--@Vali: im COde hast du manchmal Werte ohen Führungsnull und manchmal mit, vielleicht
+noch einheitlih machen?-->
 
 ```{r}
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
-    b0 = 0.6, kappa = 0.5, t05 = 0.15, # parameters for the custom boundary
-    muc = 4, # parameter for a time-independent drift rate "muc"
-    non_dec = .2 # parameter for a non-decision time "non_dec"
+    b0 = 0.6,      # parameters for the custom boundary
+    kappa = 0.5,
+    t05 = 0.15, 
+    muc = 4,       # parameter for a time-independent drift rate "muc"
+    non_dec = .2   # parameter for a non-decision time "non_dec"
   ) 
 
   # each model must have a condition (in this example it is not relevant, so we just call it "foo")
@@ -466,12 +472,12 @@ cust_model <- function() {
     prms_model = prms_model,
     conds = conds,
     subclass = "my_custom_model",
-    mu_fun = comps$mu_constant, # time-independent drift rate with parameter muc
+    mu_fun = comps$mu_constant,         # time-independent drift rate with parameter muc
     mu_int_fun = comps$mu_int_constant, # respective integral of the drift rate
-    x_fun = comps$x_dirac_0, # dirac delta on zero
-    b_fun = cust_b, # custom time-dependent boundary
-    dt_b_fun = cust_dt_b, # respective derivative of the boundary
-    nt_fun = comps$nt_constant # non-decision time with parameter non_dec
+    x_fun = comps$x_dirac_0,            # dirac delta on zero
+    b_fun = cust_b,                     # custom time-dependent boundary
+    dt_b_fun = cust_dt_b,               # respective derivative of the boundary
+    nt_fun = comps$nt_constant          # non-decision time with parameter non_dec
   )
   return(ddm)
 }
@@ -486,6 +492,7 @@ plot(
 ```
 
 ## Example: Custom Non-Decision Time
+<!--@Vali: Man könnte die Examples noch durchnummerieren? Und dann oben einmal erwänen, was alles kommt und eben verweisen? "The following section provides examples for a custom drift rate (Example 1), ..."?-->
 
 Remark: This example shows a reimplementation of the already pre-built `nt_uniform()` component function (see `component_shelf()`.
 
@@ -514,9 +521,10 @@ Then we write a function that assembles the custom model:
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
-    non_dec = .2, range_non_dec = 0.05, # parameters for the custom non-decision time
-    muc = 4, # parameter for a time-independent drift rate
-    b = .6 # parameter for a time-independent boundary
+    non_dec = .2,         # parameters for the custom non-decision time
+    range_non_dec = 0.05, 
+    muc = 4,              # parameter for a time-independent drift rate
+    b = .6                # parameter for a time-independent boundary
   ) 
 
   # each model must have a condition (in this example it is not relevant, so we just call it "foo")
@@ -530,12 +538,12 @@ cust_model <- function() {
     prms_model = prms_model,
     conds = conds,
     subclass = "my_custom_model",
-    mu_fun = comps$mu_constant, # time-independent drift rate with parameter muc
+    mu_fun = comps$mu_constant,         # time-independent drift rate with parameter muc
     mu_int_fun = comps$mu_int_constant, # respective integral of the drift rate
-    x_fun = comps$x_dirac_0, # dirac delta on zero
-    b_fun = comps$b_constant, # time-independent boundary b
-    dt_b_fun = comps$dt_b_constant, # respective derivative of the boundary
-    nt_fun = cust_nt # custom non-decision time 
+    x_fun = comps$x_dirac_0,            # dirac delta on zero
+    b_fun = comps$b_constant,           # time-independent boundary b
+    dt_b_fun = comps$dt_b_constant,     # respective derivative of the boundary
+    nt_fun = cust_nt                    # custom non-decision time 
   )
   return(ddm)
 }
@@ -587,8 +595,8 @@ cust_mu <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   return(muc)
 }
 
-a_model <- ratcliff_dm() # a dummy model for demonstration purpose
-ddm_opts(a_model) <- "Hello World" # attach "Hello World" to the model
+a_model <- ratcliff_dm()                  # a dummy model for demonstration purpose
+ddm_opts(a_model) <- "Hello World"        # attach "Hello World" to the model
 comp_funs(a_model)[["mu_fun"]] <- cust_mu # swap in the custom component function
 
 # evaluate the model (which will evaluate the custom drift rate function with the user-defined R 
