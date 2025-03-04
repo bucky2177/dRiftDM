@@ -21,7 +21,6 @@ test_that("print.traces_dm works as expected", {
 
 
 test_that("summary.traces_dm works as expected", {
-
   withr::local_preserve_seed()
   set.seed(1)
 
@@ -36,17 +35,22 @@ test_that("summary.traces_dm works as expected", {
   expect_identical(summary_traces$k, 10L)
   expect_identical(summary_traces$add_x, FALSE)
   expect_identical(summary_traces$orig_model_class, c("dmc_dm", "drift_dm"))
-  expect_identical(summary_traces$orig_prms,
-                   some_model$flex_prms_obj$prms_matrix["comp",])
+  expect_identical(
+    summary_traces$orig_prms,
+    some_model$flex_prms_obj$prms_matrix["comp", ]
+  )
   expect_identical(summary_traces$prms_solve, some_model$prms_solve)
 
   # Check first passage time statistics
   idx_fpt <- apply(traces_dm_obj, 1, function(x) max(which(!is.na(x))))
   t_vec <- seq(0, some_model$prms_solve["t_max"],
-               length.out = some_model$prms_solve["nt"] + 1)
+    length.out = some_model$prms_solve["nt"] + 1
+  )
   ts_fpt <- t_vec[idx_fpt]
-  resp <- sapply(seq_along(idx_fpt),
-                 function(i) sign(traces_dm_obj[i, idx_fpt[i]]))
+  resp <- sapply(
+    seq_along(idx_fpt),
+    function(i) sign(traces_dm_obj[i, idx_fpt[i]])
+  )
 
   p_u <- mean(resp == 1)
   expected_fpt_desc <- c(mean(ts_fpt), sd(ts_fpt), p_u, 1 - p_u)
@@ -67,13 +71,14 @@ test_that("summary.traces_dm works as expected", {
 
 
 test_that("summary.traces_dm_list works as expected", {
-
-  some_model = dmc_dm(dt = .005, dx = .005)
+  some_model <- dmc_dm(dt = .005, dx = .005)
   withr::local_preserve_seed()
   set.seed(1)
-  traces_dm_list_obj <- simulate_traces(some_model, k = c(5, 10),
-                                        add_x = c(TRUE, FALSE),
-                                        sigma = c(0, 1))
+  traces_dm_list_obj <- simulate_traces(some_model,
+    k = c(5, 10),
+    add_x = c(TRUE, FALSE),
+    sigma = c(0, 1)
+  )
   summary_traces_list <- summary(traces_dm_list_obj)
 
 
@@ -85,13 +90,15 @@ test_that("summary.traces_dm_list works as expected", {
   expect_identical(summary_traces_list$add_x, c(comp = TRUE, incomp = FALSE))
 
   # Check parameter matrices
-  expect_identical(summary_traces_list$orig_prms,
-                   some_model$flex_prms_obj$prms_matrix)
+  expect_identical(
+    summary_traces_list$orig_prms,
+    some_model$flex_prms_obj$prms_matrix
+  )
 
-  temp = some_model$prms_solve
-  temp = rbind(temp, temp)
-  rownames(temp) = c("comp", "incomp")
-  temp[,1] = c(0, 1)
+  temp <- some_model$prms_solve
+  temp <- rbind(temp, temp)
+  rownames(temp) <- c("comp", "incomp")
+  temp[, 1] <- c(0, 1)
   expect_identical(summary_traces_list$prms_solve, temp)
 
   # Check original model class consistency
@@ -111,4 +118,3 @@ test_that("summary.traces_dm_list works as expected", {
     c("k", "add_x", "orig_prms", "orig_model_class", "prms_solve", "fpt_desc")
   )
 })
-

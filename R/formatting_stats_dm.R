@@ -101,6 +101,10 @@ print.sum_dist <- function(x, ...) {
 print.stats_dm_list <- function(x, ...) {
   stats_dm_list_obj <- x
 
+  if (length(x) == 0) {
+    print(unclass(x))
+    return(invisible(x))
+  }
 
   for (idx in seq_along(stats_dm_list_obj)) {
     one_stats_obj <- stats_dm_list_obj[[idx]]
@@ -111,8 +115,10 @@ print.stats_dm_list <- function(x, ...) {
     if (idx != length(stats_dm_list_obj)) cat("\n")
   }
 
-  cat("(access the list's elements as usual, ")
+
+  cat("(extract the list's elements as usual, ")
   cat("e.g., with $", names(stats_dm_list_obj)[1], ")", sep = "")
+  invisible(x)
 }
 
 # summary functions -------------------------------------------------------
@@ -327,7 +333,8 @@ print.summary.cafs <- function(x, ...) {
 
   # call the higher-order sum_dist printing function, and drop cond and bin
   print.summary.sum_dist(summary_obj, ...,
-                         drop_cols = c("ID", "Source", "Cond", "Bin"))
+    drop_cols = c("ID", "Source", "Cond", "Bin")
+  )
 
   # print cafs specific information
   cat("Conditions:", paste(summary_obj$conds, collapse = ", "), "\n")
@@ -345,7 +352,8 @@ print.summary.quantiles <- function(x, ...) {
 
   # call the higher-order sum_dist printing function, and drop cond and probs
   print.summary.sum_dist(summary_obj, ...,
-                         drop_cols = c("ID", "Source", "Cond", "Prob"))
+    drop_cols = c("ID", "Source", "Cond", "Prob")
+  )
 
   # print quantiles specific information
   cat("Conditions:", paste(summary_obj$conds, collapse = ", "), "\n")
@@ -363,7 +371,8 @@ print.summary.delta_funs <- function(x, ...) {
 
   # call the higher-order sum_dist printing function, and drop probs
   print.summary.sum_dist(summary_obj, ...,
-                         drop_cols = c("ID", "Source", "Prob"))
+    drop_cols = c("ID", "Source", "Prob")
+  )
 
   # print quantiles specific information
   cat("Probs:", paste(summary_obj$probs, collapse = ", "), "\n")

@@ -28,9 +28,13 @@ for flexible arrangement of multiple plots on a single graphics device.
 }
 \details{
 The \code{plot.stats_dm_list()} function is "merely" a wrapper. All plotting
-is done by the respective \code{plot()} methods. When users want more control
-over each plot, it is best to call the \code{plot()} function separately for
-each statistic in the list (e.g., \code{plot(x$cafs)}; \code{plot(x$quantiles)})
+is done by the respective \code{plot()} methods. If \code{dRiftDM} doesn't provide a
+\code{plot()} method for an object stored in \code{x}, the respective entry is
+skipped and a message is displayed.
+
+When users want more control over each plot, it is best to call the
+\code{plot()} function separately for each statistic in the list
+(e.g., \code{plot(x$cafs)}; \code{plot(x$quantiles)})
 }
 \examples{
 # get a list of statistics for demonstration purpose

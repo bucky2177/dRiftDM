@@ -22,8 +22,7 @@ When working with drift-diffusion models (DDMs) you probably want to:
 
 * Build an new or select an existing model
 
-* Explore the model behavior and validate the model's reliability
-<!--@Vali Was ist mit Reliability gemeint?!-->
+* Explore the model behavior and validate that model parameters are estimated reliably
 
 * Fit the model to data
 
@@ -42,8 +41,7 @@ Three pre-built models are currently available:
 
 * The Ratcliff Diffusion Model [see `ratcliff_dm()`, @Ratcliff1978] 
 
-* The Diffusion Model for Conflict Tasks [see `dmc_dm()`, @Ulrichetal.2015]
-<!--@Vali: hier vielleicht auch noch auf den Comment zu RDMC verweisen?-->
+* The Diffusion Model for Conflict Tasks [see `dmc_dm()`, @Ulrichetal.2015; @Janczyketal.2024]
 
 * The Shrinking Spotlight Model [see `ssp_dm()`, @Whiteetal.2011]
 
@@ -53,7 +51,7 @@ This document introduces you to dRiftDM, focusing on first steps in exploring an
 
 ## An Examplary Model
 
-To explore some of the basic functions of dRiftDM, we'll use the Diffusion Model for Conflict Tasks (DMC). It is a diffusion model commonly employed in the context of cognitive psychology. To create the model, the pre-built function `dmc_fun()` is assigned a custom name that represents the model: <!--@Vali: Den letzten Satz hab ich ergänzt. Passt der so?--> 
+To explore some of the basic functions of dRiftDM, we'll use the Diffusion Model for Conflict Tasks (DMC). It is a diffusion model commonly employed in the context of cognitive psychology. To create the model, we call the pre-built function `dmc_fun()` and assign its output to a variable:
 
 ```{r}
 ddm <- dmc_dm()
@@ -142,25 +140,22 @@ plot(sum_stats, col = c("green", "red"))
 # Changing Model Properties
 
 To get or set properties of the model, dRiftDM provides accessor/replacement methods for:
-<!--@Vali: müsste es hier überall heißen accesses/replaces"?-->
 
-- `coef()` access/replace parameter values
+- `coef()` accesses/replaces parameter values
 
-- `prms_solve()` access/replace settings for deriving model predictions (this also includes changing the diffusion constant)
+- `prms_solve()` accesses/replaces settings for deriving model predictions (this also includes changing the diffusion constant)
 
-- `solver()` access/replace the method for deriving model predictions
+- `solver()` accesses/replaces the method for deriving model predictions
 
-- `b_coding()` access/replace the coding of the upper and lower boundary
+- `b_coding()` accesses/replaces the coding of the upper and lower boundary
 
-- `obs_data()` access/replace the data set (of a single participant) attached to the model
+- `obs_data()` accesses/replaces the data set (of a single participant) attached to the model
 
-- `flex_prms()` access/replace the object that controls how each parameter relates across conditions
+- `flex_prms()` accesses/replaces the object that controls how each parameter relates across conditions
 
-- `conds()` access/replace the conditions of a model
+- `conds()` accesses/replaces the conditions of a model
 
-- `comp_funs()` access/replace the underlying component functions for the drift rate, boundary, etc.
-
-
+- `comp_funs()` accesses/replaces the underlying component functions for the drift rate, boundary, etc.
 
 `comp_funs()`, `flex_prms()`, and `conds()` are covered in `vignette("customize_ddms", "dRiftDM")`.
 
@@ -184,6 +179,7 @@ coef(ddm, select_unique = FALSE)
 ```
 In this case, we can not combine `coef()` with the `[]` operator. To change a parameter value for a specific condition, you can use the function `modify_flex_prms()`.
 
+
 ## `prms_solve()`
 
 ```{r}
@@ -192,7 +188,7 @@ prms_solve(ddm)
 This shows the diffusion constant and the discretization settings. We can again use a combination with `[]` to modify these values.
 
 ```{r}
-prms_solve(ddm)["dt"] <- 0.0025
+prms_solve(ddm)["dt"] <- .0025
 prms_solve(ddm)
 ```
 
@@ -201,8 +197,7 @@ prms_solve(ddm)
 ```{r}
 solver(ddm)
 ```
-This shows the currently set method for deriving the model's predicted probability density functions of response time and choice. Currently supported options are `"kfe"` and `"im_zero"`. While the `"kfe"` method can be applied to all models in dRiftDM, `"im_zero"` is restricted to models that don't have a custom starting point.
-<!--@Vali: "custom starting point" vielleicht "can only be used when the starting point is fixed to zero"? oder so?-->
+This shows the currently set method for deriving the model's predicted probability density functions of response time and choice. Currently supported options are `"kfe"` and `"im_zero"`. While the `"kfe"` method can be applied to all models in dRiftDM, `"im_zero"` can only be used when the starting point is fixed to zero.
 
 ## `b_coding()`
 
@@ -226,15 +221,25 @@ We can set observed data of a single individual to a model (or access it) with `
 
 ```{r}
 data <- dRiftDM::dmc_synth_data # some synthetic data suitable for DMC that ships with dRiftDM
-# the Cond column matches with conds(ddm). 
+# the Cond column matches with conds(ddm).
 # The Error column matches b_coding(ddm)
 # the RT column is in seconds ;)
-head(data) 
+head(data)
 
 obs_data(ddm) <- data
 ```
 
 Note that the supplied data set is not stored "as is" within the model object. Thus, when accessing a data set of a model, the data is re-assembled, and this might change the order of rows or column with respect to the original data set.
+
+## The `summary()` Function 
+
+We can request a detailed summary of the model, providing information about it's core properties with the generic `summary()` function:
+
+```{r}
+summary(ddm)
+```
+
+
 
 # Fitting a Model 
 
@@ -263,8 +268,8 @@ data <- dRiftDM::dmc_synth_data
 head(data)
 
 # increase the discretization steps to 0.005 and set the maximum time space to 1.5 seconds
-prms_solve(ddm)["dt"] <- 0.005
-prms_solve(ddm)["dx"] <- 0.005
+prms_solve(ddm)["dt"] <- .005
+prms_solve(ddm)["dx"] <- .005
 prms_solve(ddm)["t_max"] <- 1.5
 max(data$RT) # maximum time space easily covers the maximum RT
 
@@ -274,8 +279,8 @@ obs_data(ddm) <- data
 # now call the estimation routine
 ddm <- estimate_model(
   drift_dm_obj = ddm,
-  lower = c(muc = 1, b = 0.3, non_dec = 0.1, sd_non_dec = 0.005, tau = 0.03, A = 0.01, alpha = 2),
-  upper = c(muc = 6, b = 0.9, non_dec = 0.5, sd_non_dec = 0.05, tau = 0.12, A = 0.15, alpha = 9),
+  lower = c(muc = 1, b = .3, non_dec = .1, sd_non_dec = .005, tau = .03, A = .01, alpha = 2),
+  upper = c(muc = 6, b = .9, non_dec = .5, sd_non_dec = .050, tau = .12, A = .15, alpha = 9),
   use_de_optim = FALSE, # overrule the default Differential Evolution setting
   use_nmkb = TRUE
 )
@@ -283,11 +288,18 @@ ddm <- estimate_model(
 coef(ddm)
 ```
 
+We can also extract the fit statistic and information criteria: 
+
+```{r}
+logLik(ddm)
+AIC(ddm)
+BIC(ddm)
+```
 
 ## Checking Model Fit (1)
 
 
-To qualitatively check if a model fits the data, we can use `calc_stats()` in combination with the `plot()` method. Circles indicate observed data while lines indicate the model's predictions.<!--@Vali: letzten Satz hinzugefügt-->
+To qualitatively check if a model fits the data, we can use `calc_stats()` in combination with the `plot()` method. Circles indicate observed data while lines indicate the model's predictions.
 
 ```{r}
 check_fit <- calc_stats(object = ddm, type = c("cafs", "quantiles"))
@@ -309,8 +321,8 @@ obs_data(ddm) <- NULL # detach data (from the previous sections) to avoid a warn
 estimate_model_ids(
   drift_dm_obj = ddm,
   obs_data_ids = flanker_data,
-  lower = c(muc = 1, b = 0.3, non_dec = 0.1, sd_non_dec = 0.005, tau = 0.03, A = 0.01, alpha = 2),
-  upper = c(muc = 6, b = 0.9, non_dec = 0.5, sd_non_dec = 0.05, tau = 0.12, A = 0.15, alpha = 9),
+  lower = c(muc = 1, b = .3, non_dec = .1, sd_non_dec = .005, tau = .03, A = .01, alpha = 2),
+  upper = c(muc = 6, b = .9, non_dec = .5, sd_non_dec = .050, tau = .12, A = .15, alpha = 9),
   fit_procedure_name = "flanker_test_run", # a label to identify the fits
   fit_path = tempdir(), # to save fits in the working directory use getwd()
   use_de_optim = FALSE, # overrule the default Differential Evolution setting
@@ -325,6 +337,27 @@ all_fits <- load_fits_ids(path = tempdir(), fit_procedure_name = "flanker_test_r
 all_fits
 ```
 
+A summary of the parameter estimates across all conditions can be requested via the generic `summary()` function: 
+
+```{r}
+summary(all_fits)
+```
+
+Note that most of DMC's parameters are per default equal across conditions. This is why you obtain exactly the same mean and standard errors for each condition. If you want to have the individual parameter estimates across conditions, you can call: 
+
+```{r}
+coef_fits <- coef(all_fits)
+coef_fits
+```
+
+Fit statistics and information criteria across individuals can be extracted as well:
+
+```{r}
+logLik(all_fits)
+AIC(all_fits)
+BIC(all_fits)
+```
+
 ## Checking Model Fit (2)
 
 As before, we can check the model fit using a combination of `calc_stats()` and `plot()`:
@@ -337,7 +370,7 @@ plot(check_fit, col = c("green", "red"))
 
 # Simulating Data
 
-To simulate data based on a model, we can use the `simulate_data()` function. The first argument takes the model object. The second argument a numeric vector, defining the number of trials per condition: <!--@Vali: "numeric vector" aber im Beispiel ist kein Vektor?-->
+To simulate data based on a model, we can use the `simulate_data()` function. The first argument takes the model object. The second argument is a numeric (vector), defining the number of trials per condition:
 
 ```{r}
 ddm <- ratcliff_dm() # a model for demonstration purpose
@@ -345,14 +378,16 @@ sim_1 <- simulate_data(object = ddm, n = 200)
 head(sim_1)
 ```
 
-This returns a single synthetic data set for one "participant". Note that the simulated RTs<!--@Vali: ich glaube vorher hast Du es immer ausgeschriebn?--> depend on the time discretization. For example, if the time discretization is `dt` = .005, then the RTs can only differ in steps of .005. 
+This returns a single synthetic data set for one "participant". Note that the simulated response times depend on the time discretization. For example, if the time discretization is `dt` = .005, then the response times can only differ in steps of .005. 
 
 By specifying the argument `k`, we can simulate multiple synthetic data sets simultaneously. In this case, however, we must also specify lower and upper bounds to define the simulation space when drawing random parameter combinations per data set (see the `simulate_data` documentation for more details):
 
 ```{r}
-sim_2 <- simulate_data(object = ddm, n = 200, k = 2,
-                       lower = c(muc = 1, b = 0.4, non_dec = 0.2), 
-                       upper = c(muc = 6, b = 0.8, non_dec = 0.4))
+sim_2 <- simulate_data(
+  object = ddm, n = 200, k = 2,
+  lower = c(muc = 1, b = .4, non_dec = .2),
+  upper = c(muc = 6, b = .8, non_dec = .4)
+)
 ```
 This returns a list with the synthetic data sets and the corresponding parameter values:
 
@@ -362,6 +397,24 @@ head(sim_2$prms)
 ```
 
 The returned data sets are in a format that can be passed directly to `estimate_model_ids()`, making parameter recovery exercises very easy.
+
+
+# Remark: Stripping Away "Unnecesary" Attributes and Class Labels
+
+Many functions in `dRiftDM` return summary statistics or data.frames. Often these returned objects are S3 objects with a custom class label. In principle, this is great because it allows you to reuse generic functions like `plot()`, `print()`, or `summary()` as we saw above.
+
+However, sometimes this also hides the true structure of the underlying data type. Therefore, we provide the `unpack_obj()` function, which allows you to strip away unnecessary attributes and class labels. This can be useful, for example, if you want to create your own plot or wrangle the data into a particular format.
+
+```{r}
+ddm <- dmc_dm(dt = .005, dx = .005)
+traces <- simulate_traces(ddm, k = 2)
+# although this object is essentially a list of matrices, the class label ...
+class(traces)
+print(traces) # ... leads to nicely formatted output; but hides the underlying structure
+
+raw <- unpack_obj(traces) # provides the plain list of matrices
+head(t(raw$comp))
+```
 
 
 ## References

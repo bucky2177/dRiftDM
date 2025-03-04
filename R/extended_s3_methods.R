@@ -194,8 +194,9 @@ coef.drift_dm <- function(object, ..., select_unique = TRUE,
 #' Defaults to 2 (standard AIC).
 #' @param ... additional arguments
 #'
-#' @return A data.frame containing the respective statistic in one column (named
-#' `Log_Like`, `AIC`, or `BIC`) and a corresponding `ID` column.
+#' @return An object of type `fit_stats` containing the respective statistic in
+#' one column (named `Log_Like`, `AIC`, or `BIC`) and a corresponding `ID`
+#' column.
 #'
 #' @details
 #'
@@ -304,4 +305,18 @@ try_cast_integer <- function(values) {
   }
 
   return(values)
+}
+
+
+
+# UNPACK METHODS ----------------------------------------------------------
+
+#' @rdname unpack_obj
+#' @export
+unpack_obj.coefs_dm <- function(object, ..., unpack_elements = TRUE) {
+  if (unpack_elements) {
+    object <- as.data.frame(object)
+  }
+
+  return(object)
 }

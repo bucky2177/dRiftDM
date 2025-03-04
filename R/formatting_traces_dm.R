@@ -1,4 +1,3 @@
-
 # print traces_dm_list and traces_dm ----------------------------------------
 
 
@@ -164,34 +163,37 @@ print.traces_dm <- function(x, ...,
 #'
 #' @export
 summary.traces_dm <- function(object, ...) {
-
   # one set of traces
-  traces = object
+  traces <- object
 
   # store infos
-  ans = list()
-  ans$k = dim(traces)[1]
+  ans <- list()
+  ans$k <- dim(traces)[1]
 
-  attrbs = attributes(traces)
-  ans <- c(ans, attrbs[c("add_x", "orig_model_class", "orig_prms",
-                         "prms_solve")])
+  attrbs <- attributes(traces)
+  ans <- c(ans, attrbs[c(
+    "add_x", "orig_model_class", "orig_prms",
+    "prms_solve"
+  )])
 
   # first passage times
-  idx_fpt = apply(traces, 1, \(x) max(which(!is.na(x))))
-  t_vec = seq(0, ans$prms_solve["t_max"], length.out = ans$prms_solve["nt"] + 1)
-  ts_fpt = t_vec[idx_fpt]
-  resp = sapply(seq_along(idx_fpt), \(i) sign(traces[i,idx_fpt[i]]))
+  idx_fpt <- apply(traces, 1, \(x) max(which(!is.na(x))))
+  t_vec <- seq(0, ans$prms_solve["t_max"], length.out = ans$prms_solve["nt"] + 1)
+  ts_fpt <- t_vec[idx_fpt]
+  resp <- sapply(seq_along(idx_fpt), \(i) sign(traces[i, idx_fpt[i]]))
 
   # responses
-  b_coding = attrbs$b_coding
-  p_u = mean(resp == 1)
-  fpt_desc = c(mean(ts_fpt), stats::sd(ts_fpt), p_u, 1 - p_u)
-  names(fpt_desc) = c("mean", "sd",
-                      paste0("p_", names(b_coding$u_name_value)),
-                      paste0("p_", names(b_coding$l_name_value)))
+  b_coding <- attrbs$b_coding
+  p_u <- mean(resp == 1)
+  fpt_desc <- c(mean(ts_fpt), stats::sd(ts_fpt), p_u, 1 - p_u)
+  names(fpt_desc) <- c(
+    "mean", "sd",
+    paste0("p_", names(b_coding$u_name_value)),
+    paste0("p_", names(b_coding$l_name_value))
+  )
 
   # add and pass back
-  ans$fpt_desc = fpt_desc
+  ans$fpt_desc <- fpt_desc
   class(ans) <- "summary.traces_dm"
   return(ans)
 }
@@ -201,11 +203,10 @@ summary.traces_dm <- function(object, ...) {
 #' @rdname summary.traces_dm
 #' @export
 print.summary.traces_dm <- function(x, ...,
-                                   round_digits = drift_dm_default_rounding()) {
-
+                                    round_digits = drift_dm_default_rounding()) {
   summary_obj <- x
 
-  bool = ifelse(summary_obj$add_x, "yes", "no")
+  bool <- ifelse(summary_obj$add_x, "yes", "no")
   cat("Starting Points Added:", bool)
   cat("\n")
 
@@ -241,37 +242,35 @@ print.summary.traces_dm <- function(x, ...,
 
 #' @rdname summary.traces_dm
 #' @export
-summary.traces_dm_list = function(object, ...){
-
-
-  traces_list = object
+summary.traces_dm_list <- function(object, ...) {
+  traces_list <- object
   ans <- list()
-  summaries = lapply(traces_list, summary)
+  summaries <- lapply(traces_list, summary)
 
   # number of traces per condition and conditions
-  ks = lapply(summaries, \(x) x[["k"]])
-  ans$k = unlist(ks)
+  ks <- lapply(summaries, \(x) x[["k"]])
+  ans$k <- unlist(ks)
 
   # add_x
-  add_xs = lapply(summaries, \(x) x[["add_x"]])
-  ans$add_x = unlist(add_xs)
+  add_xs <- lapply(summaries, \(x) x[["add_x"]])
+  ans$add_x <- unlist(add_xs)
 
   # parameters
-  prms = sapply(summaries, \(x) x[["orig_prms"]])
-  ans$orig_prms = t(prms)
+  prms <- sapply(summaries, \(x) x[["orig_prms"]])
+  ans$orig_prms <- t(prms)
 
   # orig_model_class (should always be the same, as this is not an argument to
   # simulate_traces)
-  ans$orig_model_class = summaries[[1]][["orig_model_class"]]
+  ans$orig_model_class <- summaries[[1]][["orig_model_class"]]
 
   # prms_solve (maybe sigma can be variable in future version)
-  prms_solve = sapply(summaries, \(x) x[["prms_solve"]])
-  ans$prms_solve = t(prms_solve)
+  prms_solve <- sapply(summaries, \(x) x[["prms_solve"]])
+  ans$prms_solve <- t(prms_solve)
 
 
   # fpt summaries
-  fpt_desc = sapply(summaries, \(x) x[["fpt_desc"]])
-  ans$fpt_desc = t(fpt_desc)
+  fpt_desc <- sapply(summaries, \(x) x[["fpt_desc"]])
+  ans$fpt_desc <- t(fpt_desc)
 
 
   # pass back
@@ -283,11 +282,10 @@ summary.traces_dm_list = function(object, ...){
 #' @rdname summary.traces_dm
 #' @export
 print.summary.traces_dm_list <- function(x, ...,
-                                    round_digits = drift_dm_default_rounding()) {
-
+                                         round_digits = drift_dm_default_rounding()) {
   summary_obj <- x
 
-  bool = ifelse(summary_obj$add_x, "yes", "no")
+  bool <- ifelse(summary_obj$add_x, "yes", "no")
   cat("Starting Points Added:\n")
   print(noquote(bool))
   cat("\n")

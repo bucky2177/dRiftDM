@@ -30,9 +30,8 @@ called before returning the PDFs.
 }
 \examples{
 # get a pre-built model for demonstration purpose
-a_model <- dmc_dm()
+a_model <- dmc_dm(dx = .0025, dt = .0025)
 str(pdfs(a_model))
-
 
 }
 \seealso{

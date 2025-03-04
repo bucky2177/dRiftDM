@@ -1,6 +1,7 @@
 test_that("print.coefs_dm works as expected", {
   fits_ids <- load_fits_ids(
-    test_path("fixtures"), fit_procedure_name = "test_case_saved"
+    test_path("fixtures"),
+    fit_procedure_name = "test_case_saved"
   )
   coefs <- coef(fits_ids)
 
@@ -12,7 +13,8 @@ test_that("print.coefs_dm works as expected", {
 
 test_that("summary.coefs_dm works as expected", {
   fits_ids <- load_fits_ids(
-    test_path("fixtures"), fit_procedure_name = "test_case_saved"
+    test_path("fixtures"),
+    fit_procedure_name = "test_case_saved"
   )
   coefs <- coef(fits_ids)
   summary_coefs <- summary(coefs)
@@ -34,5 +36,3 @@ test_that("summary.coefs_dm works as expected", {
     c("type", "summary_dataframe", "n_ids")
   )
 })
-
-

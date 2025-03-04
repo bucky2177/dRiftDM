@@ -105,7 +105,7 @@
 #'
 #' @seealso [dRiftDM::conds()], [dRiftDM::flex_prms()], [dRiftDM::prms_solve()],
 #' [dRiftDM::solver()], [dRiftDM::obs_data()], [dRiftDM::comp_funs()],
-#' [dRiftDM::b_coding()], [dRiftDM::coef()]
+#' [dRiftDM::b_coding()], [dRiftDM::coef()], [dRiftDM::pdfs()]
 #'
 #' @export
 drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
@@ -457,8 +457,10 @@ validate_drift_dm <- function(drift_dm_obj) {
 
 
   # check that there aren't any unexpected entries or attributes
-  expected_names = c("flex_prms_obj", "prms_solve", "solver", "comp_funs",
-                     "pdfs", "log_like_val", "obs_data", "ddm_opts")
+  expected_names <- c(
+    "flex_prms_obj", "prms_solve", "solver", "comp_funs",
+    "pdfs", "log_like_val", "obs_data", "ddm_opts"
+  )
   if (!all(names(drift_dm_obj) %in% expected_names)) {
     stop("the model contains unexpected entries")
   }
@@ -722,9 +724,8 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
 #' @export
 `conds<-.drift_dm` <- function(object, ..., eval_model = FALSE, messaging = TRUE,
                                value) {
-
   # detach data (if present)
-  msg_string = "resetting parameter specifications"
+  msg_string <- "resetting parameter specifications"
   if (!is.null(object$obs_data)) {
     msg_string <- paste(msg_string, "and removing attached data from the model")
     object$obs_data <- NULL
@@ -1033,7 +1034,6 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
 #' @rdname ddm_opts
 #' @export
 `ddm_opts<-.drift_dm` <- function(object, ..., eval_model = FALSE, value) {
-
   # attach it to the model
   object$ddm_opts <- value
 
@@ -2126,7 +2126,6 @@ b_coding.fits_ids_dm <- function(object, ...) {
 #' ddm_opts(a_model) <- "Hello World"
 #' ddm_opts(a_model)
 #'
-#'
 #' @seealso [dRiftDM::drift_dm()], [dRiftDM::comp_funs()]
 #'
 #'
@@ -2171,9 +2170,8 @@ ddm_opts.drift_dm <- function(object, ...) {
 #'
 #' @examples
 #' # get a pre-built model for demonstration purpose
-#' a_model <- dmc_dm()
+#' a_model <- dmc_dm(dx = .0025, dt = .0025)
 #' str(pdfs(a_model))
-#'
 #'
 #' @seealso [dRiftDM::drift_dm()], [dRiftDM::re_evaluate_model()],
 #' [dRiftDM::conds()]
@@ -2569,7 +2567,7 @@ simulate_traces.drift_dm <- function(object, k, ..., conds = NULL, add_x = FALSE
 
   # get and check the sigma (numeric check done in simulate_one_traces)
   if (is.null(sigma)) {
-    sigma = object$prms_solve[["sigma"]]
+    sigma <- object$prms_solve[["sigma"]]
   }
 
   sigmas <- sigma
@@ -2744,7 +2742,7 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
   attr(e_samples, "add_x") <- add_x
   attr(e_samples, "orig_model_class") <- class(drift_dm_obj)
 
-  orig_prms = flex_prms(drift_dm_obj)$prms_matrix[one_cond,]
+  orig_prms <- flex_prms(drift_dm_obj)$prms_matrix[one_cond, ]
   attr(e_samples, "orig_prms") <- orig_prms
   attr(e_samples, "b_coding") <- b_coding(drift_dm_obj)
   temp_prms_solve <- drift_dm_obj$prms_solve
@@ -2760,23 +2758,23 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
 #'
 #' @description
 #'
-#' When calling [dRiftDM::simulate_traces()] or [dRiftDM::calc_stats], the
-#' returned objects will be custom objects (e.g., subclasses of [list] or
-#' [data.frame]). The respective subclasses were created to provide convenient
-#' plotting and printing, but they don't really provide any additional
-#' functionality.
+#' When calling [dRiftDM::simulate_traces()], [dRiftDM::calc_stats], or
+#' [dRiftDM::coef.fits_ids_dm] the returned objects will be custom objects
+#' (e.g., subclasses of [list] or [data.frame]). The respective subclasses were
+#' created to provide convenient plotting and printing, but they don't
+#' really provide any additional functionality.
 #'
 #' The goal of `unpack_obj()` is to provide a convenient way to strip away
 #' the attributes of the respective objects (revealing them as standard
 #' [array]s, [data.frame]s, or [list]s).
 #'
 #' @param object an object of type `stats_dm`, `stats_dm_list`, `traces_dm`,
-#'  or `traces_dm_list`.
+#'  `traces_dm_list`, or `coefs_dm`
 #'
 #' @param ... further arguments passed on to the respective method.
 #'
-#' @param unpack_elements logical, indicating if the `traces_dm` or
-#'  `stats_dm` objects shall be unpacked. Default is `TRUE`.
+#' @param unpack_elements logical, indicating if the `traces_dm`,
+#'  `stats_dm`, or `coefs_dm` objects shall be unpacked. Default is `TRUE`.
 #'
 #' @param conds optional character vector, indicating specific condition(s). The
 #' default `NULL` will lead to `conds = conds(object)`. Thus, per default all
@@ -2787,9 +2785,10 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
 #'
 #' @details
 #' `unpack_obj()` is a generic function to strip away the custom information
-#' and class labels of `stats_dm`, `stats_dm_list`, `traces_dm`, and
-#' `traces_dm_list` objects. These objects are created when calling
-#' [dRiftDM::simulate_traces()] or [dRiftDM::calc_stats].
+#' and class labels of `stats_dm`, `stats_dm_list`, `traces_dm`,
+#' `traces_dm_list`, and `coefs_dm` objects. These objects are created when
+#' calling [dRiftDM::simulate_traces()], [dRiftDM::calc_stats], or
+#' [dRiftDM::coef.fits_ids_dm].
 #'
 #' For `traces_dm_list`, `unpack_obj()` returns the
 #' requested conditions (see the argument `conds`). The result contains
@@ -2824,6 +2823,10 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
 #' statistic, if `unpack=TRUE`. If `unpack=FALSE`, the unmodified object is
 #' returned.
 #'
+#' For `coefs_dm`, `unpack_obj()` returns a [data.frame] with the
+#' parameters, if `unpack=TRUE`. If `unpack=FALSE`, the unmodified object is
+#' returned.
+#'
 #' @examples
 #' # get a pre-built model to demonstrate the function
 #' my_model <- dmc_dm()
@@ -2839,6 +2842,11 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
 #' some_stats <- calc_stats(my_model, type = "cafs")
 #' class(some_stats)
 #' class(unpack_obj(some_stats))
+#'
+#' # get some parameters ...
+#' some_coefs <- coef(get_example_fits_ids())
+#' class(some_coefs)
+#' class(unpack_obj(some_coefs))
 #'
 #' @export
 unpack_obj <- function(object, ...) {
@@ -2862,7 +2870,7 @@ unpack_obj.traces_dm <- function(object, ..., unpack_elements = TRUE) {
 #' @rdname unpack_obj
 #' @export
 unpack_obj.traces_dm_list <- function(object, ..., unpack_elements = TRUE,
-                                  conds = NULL) {
+                                      conds = NULL) {
   # default is all conds
   if (is.null(conds)) {
     conds <- names(object)

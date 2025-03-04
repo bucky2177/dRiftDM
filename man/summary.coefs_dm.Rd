@@ -40,8 +40,8 @@ number of unique IDs (\code{n_ids}).
 }
 \examples{
 # get a fits_ids object for demonstration purpose
-fits_ids = get_example_fits_ids()
-coefs = coef(fits_ids)
+fits_ids <- get_example_fits_ids()
+coefs <- coef(fits_ids)
 summary(coefs)
 
 }

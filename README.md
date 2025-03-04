@@ -39,7 +39,7 @@ Compared to the previous version 0.1.1, versions \>0.2.0 make greater
 use of the S3 object system. Additionally, beginning with version 0.2.0,
 models use “flex_prms” objects to handle parameters across conditions.
 
-If you wish to install the older version (0.1.1), you can use:
+To install the older version (0.1.1), you can use:
 
 ``` r
 devtools::install_github("bucky2177/dRiftDM", ref = "0.1.1")

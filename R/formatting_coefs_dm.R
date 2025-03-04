@@ -1,4 +1,3 @@
-
 # coef.fits_ids_dm points to coef.drift_dm
 #' @rdname coef.drift_dm
 #' @export
@@ -71,8 +70,8 @@ print.coefs_dm <- function(x, ...,
 #'
 #' @examples
 #' # get a fits_ids object for demonstration purpose
-#' fits_ids = get_example_fits_ids()
-#' coefs = coef(fits_ids)
+#' fits_ids <- get_example_fits_ids()
+#' coefs <- coef(fits_ids)
 #' summary(coefs)
 #'
 #' @export
@@ -119,6 +118,3 @@ print.summary.coefs_dm <- function(x, ..., show_header = TRUE) {
 
   invisible(x)
 }
-
-
-

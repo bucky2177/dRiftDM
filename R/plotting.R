@@ -738,9 +738,13 @@ plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
 #'
 #' @details
 #' The `plot.stats_dm_list()` function is "merely" a wrapper. All plotting
-#' is done by the respective `plot()` methods. When users want more control
-#' over each plot, it is best to call the `plot()` function separately for
-#' each statistic in the list (e.g., `plot(x$cafs)`; `plot(x$quantiles)`)
+#' is done by the respective `plot()` methods. If `dRiftDM` doesn't provide a
+#' `plot()` method for an object stored in `x`, the respective entry is
+#' skipped and a message is displayed.
+#'
+#' When users want more control over each plot, it is best to call the
+#' `plot()` function separately for each statistic in the list
+#' (e.g., `plot(x$cafs)`; `plot(x$quantiles)`)
 #'
 #'
 #' @returns
@@ -763,8 +767,17 @@ plot.stats_dm_list <- function(x, ..., mfrow = NULL) {
     withr::local_par(mfrow = mfrow)
   }
 
-  for (one_stats_obj in x) {
-    plot(one_stats_obj, ...)
+
+  for (obj in x) {
+    class_obj <- class(obj)[1]
+    if (!(class_obj %in% c("cafs", "quantiles", "delta_funs"))) {
+      message(
+        "dRiftDM doesn't provide a plot method for objects of type ",
+        class_obj, ", skipping this entry."
+      )
+      next
+    }
+    plot(obj, ...)
   }
   invisible()
 }
@@ -1011,7 +1024,7 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 
   # plot everything
   if (is.null(mfrow)) {
-    mfrow = c(3, 2)
+    mfrow <- c(3, 2)
   }
   withr::local_par(mfrow = mfrow)
   # get the relevant time steps (for y-axis scaling)

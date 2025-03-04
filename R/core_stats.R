@@ -839,7 +839,7 @@ calc_stats <- function(object, type, ...) {
       calc_stats(object = object, type = one_type, ...)
     }, simplify = FALSE, USE.NAMES = TRUE)
 
-    class(all_stats) <- c("stats_dm_list", "list")
+    class(all_stats) <- c("stats_dm_list")
     return(all_stats)
   }
 
@@ -1024,7 +1024,7 @@ calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
     )
     pb$tick(0)
   }
-#
+  #
 
 
   # call statistic across individuals
@@ -1433,7 +1433,6 @@ copy_class_attributes.stats_dm <- function(old, new) {
 #' @rdname unpack_obj
 #' @export
 unpack_obj.stats_dm <- function(object, ..., unpack_elements = TRUE) {
-
   if (unpack_elements) {
     object <- as.data.frame(object)
     attr(object, "b_coding") <- NULL
@@ -1446,7 +1445,7 @@ unpack_obj.stats_dm <- function(object, ..., unpack_elements = TRUE) {
 #' @rdname unpack_obj
 #' @export
 unpack_obj.stats_dm_list <- function(object, ..., unpack_elements = TRUE,
-                                 type = NULL) {
+                                     type = NULL) {
   # default is all stored stat types
   if (is.null(type)) {
     type <- names(object)

@@ -1,25 +1,28 @@
-
 # PRINT FUNCTIONS ---------------------------------------------------------
 
 
 test_that("print.stats_dm works as expected", {
   some_stats <- calc_stats(
-    dmc_dm(dx = .005, dt = .005), type = "cafs"
+    dmc_dm(dx = .005, dt = .005),
+    type = "cafs"
   )
 
-  class(some_stats) <- class(some_stats)[-c(1,2)]
+  class(some_stats) <- class(some_stats)[-c(1, 2)]
   withr::local_preserve_seed()
   set.seed(1)
   expect_snapshot(
-    print(some_stats, some = TRUE,
-          print_rows = 3, show_header = FALSE, show_note = FALSE)
+    print(some_stats,
+      some = TRUE,
+      print_rows = 3, show_header = FALSE, show_note = FALSE
+    )
   )
 })
 
 
 test_that("print.cafs works as expected", {
   cafs_obj <- calc_stats(
-    dmc_dm(dx = .005, dt = .005), type = "cafs"
+    dmc_dm(dx = .005, dt = .005),
+    type = "cafs"
   )
   expect_snapshot(
     print(cafs_obj)
@@ -29,7 +32,8 @@ test_that("print.cafs works as expected", {
 
 test_that("print.quantiles works as expected", {
   quantiles_obj <- calc_stats(
-    dmc_dm(dx = .005, dt = .005), type = "quantiles"
+    dmc_dm(dx = .005, dt = .005),
+    type = "quantiles"
   )
   expect_snapshot(
     print(quantiles_obj)
@@ -39,7 +43,8 @@ test_that("print.quantiles works as expected", {
 
 test_that("print.delta_funs works as expected", {
   delta_funs_obj <- calc_stats(
-    dmc_dm(dx = .005, dt = .005), type = "delta_funs", minuends = "incomp",
+    dmc_dm(dx = .005, dt = .005),
+    type = "delta_funs", minuends = "incomp",
     subtrahends = "comp"
   )
   expect_snapshot(
@@ -49,7 +54,10 @@ test_that("print.delta_funs works as expected", {
 
 
 test_that("print.fit_stats works as expected", {
-  fit_stats_obj <- calc_stats(get_example_fits_ids(), type = "fit_stats")
+  fits_ids <- load_fits_ids(test_path("fixtures"),
+    fit_procedure_name = "test_case_saved"
+  )
+  fit_stats_obj <- calc_stats(fits_ids, type = "fit_stats")
   expect_snapshot(
     print(fit_stats_obj)
   )
@@ -58,8 +66,12 @@ test_that("print.fit_stats works as expected", {
 
 
 test_that("print.stats_dm_list works as expected", {
-  stats_dm_list_obj <- calc_stats(get_example_fits_ids(),
-                                  type = c("fit_stats", "quantiles"))
+  fits_ids <- load_fits_ids(test_path("fixtures"),
+    fit_procedure_name = "test_case_saved"
+  )
+  stats_dm_list_obj <- calc_stats(fits_ids,
+    type = c("fit_stats", "quantiles")
+  )
 
   expect_snapshot(
     print(stats_dm_list_obj)
@@ -71,8 +83,10 @@ test_that("print.stats_dm_list works as expected", {
 # SUMMARY FUNCTIONS -------------------------------------------------------
 
 test_that("summary.stats_dm works as expected", {
-  some_stats <- calc_stats(get_example_fits_ids(),
-                           type = "fit_stats")
+  fits_ids <- get_example_fits_ids()
+  some_stats <- calc_stats(fits_ids,
+    type = "fit_stats"
+  )
   class(some_stats) <- class(some_stats)[-1]
   summary_stats <- summary(some_stats)
 
@@ -111,7 +125,10 @@ test_that("summary.sum_dist works as expected", {
 
 
 test_that("summary.cafs works as expected", {
-  some_stats <-  calc_stats(get_example_fits_ids(), type = "cafs")
+  fits_ids <- load_fits_ids(test_path("fixtures"),
+    fit_procedure_name = "test_case_saved"
+  )
+  some_stats <- calc_stats(fits_ids, type = "cafs")
   summary_stats <- summary(some_stats, round_digits = 2)
 
   # Check class
@@ -152,8 +169,10 @@ test_that("summary.quantiles works as expected", {
 
 
 test_that("summary.delta_funs works as expected", {
-  some_stats <- calc_stats(dmc_dm(), type = "delta_funs",
-                           minuends = "incomp", subtrahends = "comp")
+  some_stats <- calc_stats(dmc_dm(dt = .005, dx = .01),
+    type = "delta_funs",
+    minuends = "incomp", subtrahends = "comp"
+  )
   summary_stats <- summary(some_stats)
 
   # Check class
@@ -174,7 +193,10 @@ test_that("summary.delta_funs works as expected", {
 
 
 test_that("summary.fit_stats works as expected", {
-  some_stats <- calc_stats(get_example_fits_ids(), type = "fit_stats")
+  fits_ids <- load_fits_ids(test_path("fixtures"),
+    fit_procedure_name = "test_case_saved"
+  )
+  some_stats <- calc_stats(fits_ids, type = "fit_stats")
   summary_stats <- summary(some_stats)
 
   # Check class
@@ -191,8 +213,9 @@ test_that("summary.fit_stats works as expected", {
 
 
 test_that("summary.stats_dm_list works as expected", {
-  some_stats_list <- calc_stats(dmc_dm(dx = .005, dt = .005),
-                                type = c("quantiles", "cafs"))
+  some_stats_list <- calc_stats(dmc_dm(dx = .01, dt = .005),
+    type = c("quantiles", "cafs")
+  )
   summary_list <- summary(some_stats_list)
 
   # Check class
@@ -207,4 +230,3 @@ test_that("summary.stats_dm_list works as expected", {
   # Check print output snapshot
   expect_snapshot(print(summary_list))
 })
-

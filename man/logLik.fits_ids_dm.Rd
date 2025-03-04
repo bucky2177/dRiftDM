@@ -21,8 +21,9 @@
 Defaults to 2 (standard AIC).}
 }
 \value{
-A data.frame containing the respective statistic in one column (named
-\code{Log_Like}, \code{AIC}, or \code{BIC}) and a corresponding \code{ID} column.
+An object of type \code{fit_stats} containing the respective statistic in
+one column (named \code{Log_Like}, \code{AIC}, or \code{BIC}) and a corresponding \code{ID}
+column.
 }
 \description{
 These methods are wrappers to extract specific model fit statistics

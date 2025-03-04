@@ -1,16 +1,12 @@
 #' ---
-#' title: "Reproducing the dRiftDM Introduction"
-#' author: "Valentin Koob (bucky)"
-#' date: "28.12.2024"
+#' title: "Reproducing dRiftDM Article Output"
+#' author: "Valentin Koob (bucky2177)"
+#' date: "27.02.2025"
 #' ---
 #'
-#' This document contains the code of dRiftDM's tutorial to facilitate review.
-#' Note that it sometimes provides additional R statements that were skipped
-#' in the pre-print/manuscript for brevity. Yet, those primarily show
-#' alternative ways to access information or simple plots.
+#' This document contains the code for dRiftDM's article to facilitate review.
 
 rm(list = ls())
-
 
 # -------------------------------------------------------------------------
 #' # Getting Started
@@ -26,10 +22,11 @@ print(a_model) # print the model to the console
 #+ modify_a_ddm
 coef(a_model) # the unique model parameters
 coef(a_model)["muc"] <- 3.2 # sets the value of muc to 3.2
-coef(a_model)["b"] <- 0.5 # sets the value of b to 0.5
+coef(a_model)["b"] <- .5 # sets the value of b to 0.5
 
 prms_solve(a_model) # the "solver settings" (= scaling and discretization)
-prms_solve(a_model)[c("t_max", "dt")] <- c(2, 0.005) # sets the time space
+prms_solve(a_model)["t_max"] <- 2 # changes the maximum time
+prms_solve(a_model)["dt"] <- .005 # changes the time discretization
 
 print(a_model) # see the changes
 
@@ -50,9 +47,9 @@ par(mfrow = c(1, 2)) # to plot the traces with and without noise side-by-side
 plot(
   some_traces, # the traces object
   col = "gray30", # the desired color for each trace
-  xlim = c(0, 0.4) # controls the x-axis limit
+  xlim = c(0, .4) # controls the x-axis limit
 )
-plot(some_traces_no_noise, col = "gray30", xlim = c(0, 0.4))
+plot(some_traces_no_noise, col = "gray30", xlim = c(0, .4))
 
 
 #' Calculate summary statistics. For speed, evaluate the model before
@@ -74,12 +71,11 @@ plot(some_stats, mfrow = c(1, 2), col = "black")
 # -------------------------------------------------------------------------
 #' # Change Solver
 #' "kfe" is the default solver, but users can change this to the
-#' integral approach for models that have dirac delta on zero for the starting
+#' integral approach for models that have a dirac delta on zero for the starting
 #' point
 #+ change_solver
-solver(a_model)
-solver(a_model) <- "im_zero" # use the method based on integral equations
-print(a_model)
+solver(a_model) # shows the current method
+solver(a_model) <- "im_zero" # changes method to the integral approach
 
 
 
@@ -94,37 +90,37 @@ print(a_model) # note the special dependencies and custom parameters
 # set some data
 head(dmc_synth_data) # available with dRiftDM
 obs_data(a_model) <- dmc_synth_data
-print(a_model)
 
 #' Increase discretization for speed and then estimate the model using (bounded)
 #' Nelder-Mead
 #+ estimate_one_data_set_nmkb
 # set the discretization
-# t_max -> should be large enough to easily cover even the slowest observed RTs
-# dt, dx -> depend on the model; no recommendation yet
-prms_solve(a_model)[c("t_max", "dt", "dx")] <- c(1.5, .0025, .0025)
+# t_max -> should be large enough to easily cover even the largest observed RTs
+# dt, dx -> depend on the model; no general recommendation yet
+prms_solve(a_model)["t_max"] <- 2
+prms_solve(a_model)["dt"] <- .002
+prms_solve(a_model)["dx"] <- .01
 
 # create the search space -> defined this way, the lower and upper search
 # space will be the same for all conditions (see ?estimate_model for more
 # details on how to specify the search space)
 lower_prm_bnd <- c(
-  muc = 2, b = 0.3, non_dec = 0.2, sd_non_dec = 0.01,
-  tau = 0.02, A = 0.02, alpha = 3
+  muc = 2, b = .3, non_dec = .2, sd_non_dec = .01,
+  tau = .02, A = .02, alpha = 3
 )
 upper_prm_bnd <- c(
-  muc = 6, b = 0.8, non_dec = 0.4, sd_non_dec = 0.06,
-  tau = 0.15, A = 0.20, alpha = 7
+  muc = 6, b = .8, non_dec = .4, sd_non_dec = .06,
+  tau = .15, A = .20, alpha = 7
 )
 
 # estimate the model with (bounded) Nelder-Mead
-a_model <- estimate_model( # takes about 30 seconds
+a_model <- estimate_model( # takes about 15 seconds
   drift_dm_obj = a_model, # the model (i.e., DMC)
   lower = lower_prm_bnd, # the lower end of the search space
   upper = upper_prm_bnd, # the upper end of the search space
   use_de_optim = F, # don't use the (default) DE algorithm
   use_nmkb = T # but use (bounded) Nelder-Mead
 )
-
 round(coef(a_model), 3)
 
 #' Repeat the same, but now use Differential Evolution
@@ -134,7 +130,7 @@ round(coef(a_model), 3)
 n_cores <- pmin(parallel::detectCores(), 2)
 
 # use DE algorithm with multiple cores
-a_model <- estimate_model( # takes about 12 minutes with 2 cores
+a_model <- estimate_model( # takes about 7 minutes with 2 cores
   drift_dm_obj = a_model,
   lower = lower_prm_bnd,
   upper = upper_prm_bnd,
@@ -145,10 +141,6 @@ a_model <- estimate_model( # takes about 12 minutes with 2 cores
 #' Investigate results
 #+ calc_stats_single_fit
 summary(a_model)
-
-# extract fit statistics
-# gives log-likelihood, AIC, and BIC (see also ?logLik.drift_dm, ?AIC, ?BIC)
-calc_stats(a_model, type = "fit_stats")
 
 # calculate summary statistics
 sum_stats <- calc_stats(
@@ -180,11 +172,11 @@ head(large_dat)
 #' Fit a model to each participant
 #+ fit_multiple_ids
 # fresh model without data
-a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+a_model <- dmc_dm(t_max = 2, dx = .01, dt = .002)
 
 # now call the fit procedure.
 # we'll write each fit into the working directory
-estimate_model_ids( # takes about 10-15 minutes
+estimate_model_ids( # takes about 10 minutes
   drift_dm_obj = a_model, # the model to fit ...
   obs_data_ids = large_dat, # to each participant in large_dat
   lower = lower_prm_bnd, # lower boundary of the search space
@@ -209,10 +201,6 @@ all_fits <- load_fits_ids(
 )
 print(all_fits)
 
-# access parameters
-all_prms <- coef(all_fits) # returns data.frame of all prms across IDs
-head(all_prms, 2)
-
 # investigate model fit (as above)
 sum_stats <- calc_stats(
   all_fits,
@@ -235,8 +223,8 @@ a_model <- ratcliff_dm(t_max = 2)
 #' Generate the original parameters and simulate synthetic data
 #+ gen_synth_data
 # define a simulation space
-lower_sim_bnd <- c(muc = 2, b = 0.3, non_dec = 0.2)
-upper_sim_bnd <- c(muc = 6, b = 0.8, non_dec = 0.4)
+lower_sim_bnd <- c(muc = 2, b = .3, non_dec = .2)
+upper_sim_bnd <- c(muc = 6, b = .8, non_dec = .4)
 
 # draw parameter values and simulate synthetic data
 set.seed(1)
@@ -245,7 +233,7 @@ data_prms <- simulate_data(
   n = 100, # how many trials per data set?
   k = 50, # how many data sets?
   lower = lower_sim_bnd, # the lower and
-  upper = upper_sim_bnd # upper simulation space
+  upper = upper_sim_bnd # upper end of the simulation space
 )
 
 synth_data <- data_prms$synth_data # extract the synthetic data
@@ -257,7 +245,8 @@ head(orig_prms)
 #' Fit the model to the synthetic data
 #+ fit_prm_recovery
 # set discretization for the recovery
-prms_solve(a_model)[c("dx", "dt")] <- c(.005, .005)
+prms_solve(a_model)["dx"] <- c(.005)
+prms_solve(a_model)["dt"] <- c(.005)
 
 # fit the model to each synthetic data
 n_cores <- pmin(parallel::detectCores(), 2) # use 2 cores (if available)
@@ -324,11 +313,11 @@ flex_prms(my_dmc_model) # here we see the reset
 # 3.) set A = 0 for neutral condition and keep it fixed
 # -> can be done via a set of "instructions" (see ?modify_flex_prms)
 instructions <- "
-a <!>             # a is 'fixed' across all conditions
+a <!>                      # a is 'fixed' across all conditions
 A ~ incomp == -(A ~ comp)  # A in incomp conditions is
                            # -1 times A in comp conditions
-A <!> neutral     # A is 'fixed' for neutral
-A ~ neutral => 0  # sets A to zero for neutral
+A <!> neutral              # A is 'fixed' for neutral
+A ~ neutral => 0           # sets A to zero for neutral
 "
 
 my_dmc_model <- modify_flex_prms(
@@ -337,13 +326,15 @@ my_dmc_model <- modify_flex_prms(
 )
 print(my_dmc_model)
 
-#' Now swap in the new flex_prms object and visualize the results
+#' Now Visualize the results
 #+ plot_neutral_dmc, fig.width = 10, fig.height = 10
 
 # visualize the results
-plot(my_dmc_model,
-  xlim = c(0, 0.5),
-  col = c("green", "orange", "red")
+plot(
+  my_dmc_model,
+  xlim = c(0, .4),
+  col = c("green", "orange", "red"),
+  legend_pos = "topleft"
 )
 
 
@@ -363,11 +354,11 @@ mu_ssp <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
   # calculate the standard deviation at each time step
-  sd_t <- pmax(sd_0 - r * t_vec, 0.001)
+  sd_t <- pmax(sd_0 - r * t_vec, .001)
 
   # calculate attentional weights
-  a_tar_t <- pnorm(q = 0.5, mean = 0, sd = sd_t) -
-    pnorm(q = -0.5, mean = 0, sd = sd_t)
+  a_tar_t <- pnorm(q = .5, mean = 0, sd = sd_t) -
+    pnorm(q = -.5, mean = 0, sd = sd_t)
   a_fl_t <- 1 - a_tar_t
 
   # pass back the drift rate, depending on the condition
@@ -376,13 +367,15 @@ mu_ssp <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 }
 
 # write a function for creating the complete SSP
-ssp_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
-                   dx = .001) {
+ssp_dm <- function() {
   # define parameters and conditions
+  # -> p, sd_0, r, and sign are required by our custom drift rate function
+  # b is required for the boundary
+  # non_dec is required for the non-decision time
   prms_model <- c(p = 3.3, sd_0 = 1.2, r = 10, b = .6, non_dec = .2, sign = 1)
   conds <- c("comp", "incomp")
 
-  # provides access to pre-build component functions
+  # provides access to pre-built component functions
   comps <- component_shelf()
 
   # call the drift_dm function which is the backbone of dRiftDM
@@ -390,14 +383,9 @@ ssp_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
     prms_model = prms_model,
     conds = conds,
     subclass = "ssp",
-    obs_data = obs_data,
-    sigma = sigma,
-    t_max = t_max,
-    dt = dt,
-    dx = dx,
-    mu_fun = mu_ssp, # custom defined
-    mu_int_fun = comps$dummy_t, # no integral of drift
-    x_fun = comps$x_dirac_0, # dirac delta on zero
+    mu_fun = mu_ssp, # our custom drift rate function
+    mu_int_fun = comps$dummy_t, # no integral of drift needed
+    x_fun = comps$x_dirac_0, # dirac delta on zero for the starting point
     b_fun = comps$b_constant, # constant boundary b
     dt_b_fun = comps$dt_b_constant, # derivative of b
     nt_fun = comps$nt_constant # constant non-decision time non_dec
@@ -416,114 +404,11 @@ ssp_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
 #' Call the function and explore some traces
 #+ plot_ssp, fig.width = 5, fig.height = 4
 my_ssp <- ssp_dm()
-print(my_ssp)
 
 # simulate expected time course
 set.seed(1)
 some_traces_no_noise <- simulate_traces(my_ssp, k = 1, sigma = 0)
-
 plot(some_traces_no_noise, col = c("green", "red"))
-
-
-
-
-# -------------------------------------------------------------------------
-#' # Build a Custom Model 2: Collapsing Boundaries and Custom Starting Point
-#' Here, we want to implement a model with collapsing boundaries according to a
-#' hyperbolic ratio function. Furthermore, we want to have a starting point
-#' variability that matches with a centered beta distribution.
-#+ coll_b_start
-# the boundary function
-cust_b <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-  b0 <- prms_model[["b0"]]
-  kappa <- prms_model[["kappa"]]
-  t05 <- prms_model[["t05"]]
-
-
-  return(b0 * (1 - kappa * t_vec / (t_vec + t05)))
-}
-
-# the derivative of the boundary function
-cust_dt_b <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-  b0 <- prms_model[["b0"]]
-  kappa <- prms_model[["kappa"]]
-  t05 <- prms_model[["t05"]]
-
-  return(-(b0 * kappa * t05) / (t_vec + t05)^2)
-}
-
-
-# the custom beta-shaped starting point distribution
-cust_x <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
-  alpha <- prms_model[["alpha"]]
-  start_dist <- dbeta(x_vec / 2 + 0.5, alpha, alpha)
-
-  # ensure that the distribution always integrates to 1
-  dx <- prms_solve[["dx"]]
-  start_dist <- start_dist / (sum(start_dist) * dx)
-  return(start_dist)
-}
-
-#' Now write a function that assembles everything
-#+
-coll_dm <- function(obs_data = NULL, sigma = 1, t_max = 3, dt = .001,
-                    dx = .001) {
-  # define parameters and conditions
-  prms_model <- c(
-    b0 = 0.6, kappa = 0.5, t05 = 0.15, alpha = 3,
-    muc = 4, non_dec = 0.3
-  )
-  conds <- c("null")
-
-  # provides access to pre-build component functions
-  comps <- component_shelf()
-
-  # call the drift_dm function which is the backbone of dRiftDM
-  coll_dm <- drift_dm(
-    prms_model = prms_model,
-    conds = conds,
-    subclass = "coll_dm",
-    obs_data = obs_data,
-    sigma = sigma,
-    t_max = t_max,
-    dt = dt,
-    dx = dx,
-    mu_fun = comps$mu_constant, # constant drift muc
-    mu_int_fun = comps$mu_int_constant, # integral of drift
-    x_fun = cust_x, # custom beta-shaped start distribution
-    b_fun = cust_b, # custom collapsing boundary
-    dt_b_fun = cust_dt_b, # derivative of b
-    nt_fun = comps$nt_constant # constant non-decision time non_dec
-  )
-
-  return(coll_dm)
-}
-
-#' Create the model and show some trajectories
-#+ plot_coll_start, fig.width = 5, fig.height = 4
-a_cust_model <- coll_dm()
-set.seed(2)
-some_traces <- simulate_traces(a_cust_model, k = 10, add_x = T)
-plot(some_traces, xlim = c(0, 0.4), col = "gray30")
-
-
-
-# -------------------------------------------------------------------------
-#' # Final Remark: Using ddm_opts
-#' Users can "inject" arbitrary code/objects by using the ddm_opts argument of
-#' any component function.
-#+ art_example_ddm_opts
-a_model <- ratcliff_dm()
-
-cust_mu <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-  print(ddm_opts$my_string)
-  muc <- rep(prms_model[["muc"]], length(t_vec))
-  return(muc)
-}
-
-comp_funs(a_model)[["mu_fun"]] <- cust_mu
-a_model$ddm_opts$my_string <- "Hello World"
-a_model <- re_evaluate_model(a_model)
 
 
 # -------------------------------------------------------------------------

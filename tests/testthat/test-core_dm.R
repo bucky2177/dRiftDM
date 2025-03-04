@@ -264,7 +264,7 @@ test_that("validate_drift_dm fails as expected", {
 
   # check entries
   temp <- a_model
-  temp$foo = "bar"
+  temp$foo <- "bar"
   expect_error(
     validate_drift_dm(temp),
     "unexpected entries"
@@ -273,7 +273,7 @@ test_that("validate_drift_dm fails as expected", {
 
   # check attributes
   temp <- a_model
-  attr(temp, "foo") = "bar"
+  attr(temp, "foo") <- "bar"
   expect_warning(
     expect_error(
       validate_drift_dm(temp),
@@ -538,7 +538,7 @@ test_that("obs_data -> extractor and replacement works as expected", {
   )
 
   # test with simulated data
-  prms_solve(a_model)[c("dx", "dt")] = c(0.005, 0.0025)
+  prms_solve(a_model)[c("dx", "dt")] <- c(0.005, 0.0025)
   synth_data <- simulate_data(a_model, n = c(50, 100))
   obs_data(a_model) <- synth_data[sample(1:nrow(synth_data)), ]
   extr_data <- obs_data(a_model, messaging = F)
@@ -760,11 +760,16 @@ test_that("conds <- works as expected", {
 
   expect_identical(conds(a_model), c("foo", "bar"))
   expect_identical(a_model$obs_data, NULL)
-  expect_identical(a_model$flex_prms_obj$prms_matrix[1,],
-                   a_model$flex_prms_obj$prms_matrix[2,])
-
+  expect_identical(
+    a_model$flex_prms_obj$prms_matrix[1, ],
+    a_model$flex_prms_obj$prms_matrix[2, ]
+  )
 })
 
+test_that("pdfs -> works as expected", {
+  a_model <- readRDS(file = test_path("fixtures", "dmc.rds"))
+  expect_identical(pdfs(a_model), a_model$pdfs)
+})
 
 
 # HELPER FUNCTIONS --------------------------------------------------------
@@ -944,8 +949,10 @@ test_that("simulate_traces -> works as expected", {
   # call with multiple conditions and with multiple ks
   # here test also for the presence of the attributes
   a_model <- dmc_dm(t_max = 1, dt = .005, dx = .005)
-  out <- simulate_traces(a_model, k = c(comp = 2, incomp = 3), add_x = c(T, F),
-                         sigma = c(0,1))
+  out <- simulate_traces(a_model,
+    k = c(comp = 2, incomp = 3), add_x = c(T, F),
+    sigma = c(0, 1)
+  )
 
   expect_s3_class(out, "traces_dm_list")
   expect_identical(names(out), c("comp", "incomp"))
@@ -957,8 +964,10 @@ test_that("simulate_traces -> works as expected", {
   # traces_dm specific
   expect_identical(
     names(attributes(out$comp)),
-    c("dim", "class", "t_vec", "mu_vals", "b_vals", "samp_x", "add_x",
-      "orig_model_class", "orig_prms", "b_coding", "prms_solve")
+    c(
+      "dim", "class", "t_vec", "mu_vals", "b_vals", "samp_x", "add_x",
+      "orig_model_class", "orig_prms", "b_coding", "prms_solve"
+    )
   )
   expect_identical(dim(out$comp), c(2L, 201L))
   expect_identical(attr(out$comp, "add_x"), T)
@@ -1216,4 +1225,51 @@ test_that("simulate_data.drift_dm -> input checks", {
     ),
     "must be valid numbers"
   )
+})
+
+
+
+# UNPACK METHOD -----------------------------------------------------------
+
+test_that("unpack_obj() works as expected", {
+  # traces
+  model <- readRDS(test_path("fixtures", "ssp.rds"))
+  traces <- simulate_traces(model, k = 2)
+
+  raw <- unpack_obj(traces)
+  expect_type(raw, "list")
+  expect_identical(class(raw$comp), c("matrix", "array"))
+  expect_identical(names(attributes(raw$comp)), c("dim"))
+
+  raw <- unpack_obj(traces, unpack_elements = F)
+  expect_identical(class(raw), "list")
+  expect_s3_class(raw$comp, "traces_dm")
+
+  expect_identical(class(unpack_obj(raw$comp)), c("matrix", "array"))
+
+
+  # stats
+  stats <- calc_stats(model, type = c("cafs", "quantiles"))
+
+  raw <- unpack_obj(stats)
+  expect_type(raw, "list")
+  expect_identical(class(raw$caf), "data.frame")
+  expect_identical(names(attributes(raw$cafs)), c("names", "row.names", "class"))
+
+  raw <- unpack_obj(stats, unpack_elements = F)
+  expect_identical(class(raw), "list")
+  expect_s3_class(raw$caf, "stats_dm")
+
+  expect_identical(class(unpack_obj(raw$caf)), "data.frame")
+
+  # coefs
+  some_fits <- load_fits_ids(
+    path = test_path("fixtures"),
+    fit_procedure_name = "test_case_saved",
+    check_data = F
+  )
+  coefs <- coef(some_fits)
+  raw <- unpack_obj(coefs)
+  expect_identical(class(raw), "data.frame")
+  expect_identical(names(attributes(raw)), c("names", "row.names", "class"))
 })

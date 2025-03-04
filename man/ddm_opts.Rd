@@ -55,7 +55,6 @@ a_model <- ratcliff_dm()
 ddm_opts(a_model) <- "Hello World"
 ddm_opts(a_model)
 
-
 }
 \seealso{
 \code{\link[=drift_dm]{drift_dm()}}, \code{\link[=comp_funs]{comp_funs()}}

@@ -2,26 +2,24 @@
 
 0 errors | 0 warnings | 1 note
 
-* This is a new release.
+* unable to verify current time.
 
 
 ## Resubmission
-This is a resubmission. In this version (0.2.1) I have:
 
-* omitted the redundant "in R" at the end of your title.
+In this version (0.2.2) I have made small changes to address reviewer 
+requests of JSS:
 
-* removed unnecessary spaces in the description field.
+* written print() and summary() methods for several object types.
 
-* omitted examples for unexported functions (is_numeric)
+* deprecated unpack_traces() and introduced the more general S3 method 
+unpack_obj(). 
 
-* removed all dontrun statements
-  -> for estimate_model, there is now only one example which runs quickly
-  -> estimate_model_ids, there is now only one example which runs quickly
-  -> load_fits_ids, I have placed a fit procedure in the inst folder of the 
-  package, which is now loaded in the example.
-  
-* ensured that only 2 cores will be used in examples and tests
+* introduced the S3 method pdfs().
 
-* ensured that functions do not write by default to user's filespace (users now
-  have to specify the argument fit_path when calling estimate_model_ids)
+* added an argument to coef.drift_dm().
 
+* renamed the class list_stats_dm to stats_dm_list for name consistency.
+
+* added a couple of attributes to traces_dm that I required for appropriate 
+print and summary methods.

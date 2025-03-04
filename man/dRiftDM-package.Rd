@@ -25,11 +25,7 @@ Useful links:
 Authors:
 \itemize{
   \item Thomas Richter [copyright holder]
-}
-
-Other contributors:
-\itemize{
-  \item Markus Janczyk [contributor]
+  \item Markus Janczyk
 }
 
 }

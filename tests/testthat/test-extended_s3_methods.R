@@ -42,7 +42,7 @@ test_that("coef.drift_dm returns values as expected", {
     prms_matrix
   )
   prms_matrix <- a_model$flex_prms_obj$prms_matrix
-  prms_matrix <- cbind(prms_matrix, peak_l = prms_matrix[,"tau"])
+  prms_matrix <- cbind(prms_matrix, peak_l = prms_matrix[, "tau"])
   expect_identical(
     coef(a_model, select_unique = FALSE, select_custom_prms = TRUE),
     prms_matrix
@@ -90,3 +90,7 @@ test_that("logLik|AIC|BIC.fits_ids_dm return values as expected", {
   expect_true(is.data.frame(bics))
   expect_equal(names(bics), c("ID", "BIC"))
 })
+
+
+
+# UNPACK COEFS_DM ---------------------------------------------------------

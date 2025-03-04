@@ -184,13 +184,15 @@ print.summary.drift_dm <- function(x, ...,
   cat("\n  values:", to_str, "\n")
 
   cat("\nBoundary Coding:\n")
-  u_name_value = summary_obj$b_coding$u_name_value
-  l_name_value = summary_obj$b_coding$l_name_value
+  u_name_value <- summary_obj$b_coding$u_name_value
+  l_name_value <- summary_obj$b_coding$l_name_value
   upper_str <- paste("  upper:", names(u_name_value))
   lower_str <- paste("  lower:", names(l_name_value))
-  in_data_str <- paste0("  expected data column: ", summary_obj$b_coding$column,
-                       " (", names(u_name_value), " = ",  u_name_value,
-                       "; ", names(l_name_value), " = ",  l_name_value, ")")
+  in_data_str <- paste0(
+    "  expected data column: ", summary_obj$b_coding$column,
+    " (", names(u_name_value), " = ", u_name_value,
+    "; ", names(l_name_value), " = ", l_name_value, ")"
+  )
   cat(upper_str, "\n")
   cat(lower_str, "\n")
   cat(in_data_str, "\n")

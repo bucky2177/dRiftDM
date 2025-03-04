@@ -90,9 +90,8 @@
       Type of Statistic: fit_stats
       
         ID Log_Like      AIC      BIC
-      1  1  409.169 -804.338 -777.619
-      2  2  382.262 -750.524 -723.846
-      3  3  470.229 -926.458 -899.738
+      1  1  274.725 -543.451 -532.339
+      2  2  234.308 -462.616 -451.505
       
       (access the data.frame's columns/rows as usual)
 
@@ -104,27 +103,26 @@
       Element 1, contains fit_stats
       
         ID Log_Like      AIC      BIC
-      1  1  409.169 -804.338 -777.619
-      2  2  382.262 -750.524 -723.846
-      3  3  470.229 -926.458 -899.738
+      1  1  274.725 -543.451 -532.339
+      2  2  234.308 -462.616 -451.505
       
       
       Element 2, contains quantiles
       
-         ID Source   Cond Prob Quant_corr Quant_err
-      1   1    obs   comp  0.1      0.335     0.361
-      2   1    obs   comp  0.2      0.368     0.388
-      3   1    obs   comp  0.3      0.385     0.415
-      4   1    obs   comp  0.4      0.385     0.441
-      5   1    obs   comp  0.5      0.401     0.468
-      6   1    obs   comp  0.6      0.418     0.468
-      7   1    obs   comp  0.7      0.435     0.468
-      8   1    obs   comp  0.8      0.452     0.468
-      9   1    obs   comp  0.9      0.501     0.468
-      10  1    obs incomp  0.1      0.368     0.361
+         ID Source Cond Prob Quant_corr Quant_err
+      1   1    obs null  0.1      0.370     0.360
+      2   1    obs null  0.2      0.390     0.370
+      3   1    obs null  0.3      0.410     0.370
+      4   1    obs null  0.4      0.430     0.370
+      5   1    obs null  0.5      0.450     0.440
+      6   1    obs null  0.6      0.470     0.510
+      7   1    obs null  0.7      0.501     0.510
+      8   1    obs null  0.8      0.550     0.510
+      9   1    obs null  0.9      0.637     0.600
+      10  1   pred null  0.1      0.367     0.367
       ...
       
-      (access the list's elements as usual, e.g., with $fit_stats)
+      (extract the list's elements as usual, e.g., with $fit_stats)
 
 # summary.stats_dm works as expected
 
@@ -140,7 +138,7 @@
        Median :2.0   Median :409   Median :-804   Median :-778  
        Mean   :2.0   Mean   :421   Mean   :-827   Mean   :-800  
        3rd Qu.:2.5   3rd Qu.:440   3rd Qu.:-777   3rd Qu.:-751  
-       Max.   :3.0   Max.   :470   Max.   :-751   Max.   :-724  
+       Max.   :3.0   Max.   :470   Max.   :-750   Max.   :-724  
       
       N IDs: 3 
 
@@ -171,16 +169,16 @@
       
       Dependent Variables:
            P_corr    
-       Min.   :0.74  
-       1st Qu.:0.97  
+       Min.   :0.96  
+       1st Qu.:0.98  
        Median :0.98  
-       Mean   :0.96  
-       3rd Qu.:1.00  
+       Mean   :0.98  
+       3rd Qu.:0.98  
        Max.   :1.00  
       
-      N IDs: 3 
+      N IDs: 2 
       Sources: obs, pred 
-      Conditions: comp, incomp 
+      Conditions: null 
       Bins: 1, 2, 3, 4, 5 
 
 # summary.quantiles works as expected
@@ -214,12 +212,12 @@
       
       Dependent Variables:
        Quant_corr_comp Quant_corr_incomp Delta_incomp_comp  Avg_incomp_comp
-       Min.   :0.325   Min.   :0.352     Min.   :-0.00106   Min.   :0.338  
-       1st Qu.:0.363   1st Qu.:0.393     1st Qu.: 0.01284   1st Qu.:0.378  
-       Median :0.406   Median :0.431     Median : 0.02429   Median :0.418  
-       Mean   :0.423   Mean   :0.442     Mean   : 0.01955   Mean   :0.433  
-       3rd Qu.:0.465   3rd Qu.:0.478     3rd Qu.: 0.02810   3rd Qu.:0.472  
-       Max.   :0.576   Max.   :0.575     Max.   : 0.03002   Max.   :0.575  
+       Min.   :0.323   Min.   :0.350     Min.   :-0.00072   Min.   :0.336  
+       1st Qu.:0.362   1st Qu.:0.392     1st Qu.: 0.01310   1st Qu.:0.377  
+       Median :0.404   Median :0.429     Median : 0.02442   Median :0.417  
+       Mean   :0.421   Mean   :0.441     Mean   : 0.01966   Mean   :0.431  
+       3rd Qu.:0.463   3rd Qu.:0.477     3rd Qu.: 0.02813   3rd Qu.:0.470  
+       Max.   :0.574   Max.   :0.573     Max.   : 0.02999   Max.   :0.573  
       
       Sources: pred 
       Probs: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 
@@ -233,14 +231,14 @@
       
       Dependent Variables:
           Log_Like        AIC            BIC      
-       Min.   :382   Min.   :-926   Min.   :-900  
-       1st Qu.:396   1st Qu.:-865   1st Qu.:-839  
-       Median :409   Median :-804   Median :-778  
-       Mean   :421   Mean   :-827   Mean   :-800  
-       3rd Qu.:440   3rd Qu.:-777   3rd Qu.:-751  
-       Max.   :470   Max.   :-751   Max.   :-724  
+       Min.   :234   Min.   :-543   Min.   :-532  
+       1st Qu.:244   1st Qu.:-523   1st Qu.:-512  
+       Median :255   Median :-503   Median :-492  
+       Mean   :255   Mean   :-503   Mean   :-492  
+       3rd Qu.:265   3rd Qu.:-483   3rd Qu.:-472  
+       Max.   :275   Max.   :-463   Max.   :-452  
       
-      N IDs: 3 
+      N IDs: 2 
 
 # summary.stats_dm_list works as expected
 

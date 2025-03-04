@@ -379,8 +379,10 @@ test_that("load_fits_ids menu and errors work as expected", {
   local({
     # Here, we override the menu function to force expected choice
     suppressWarnings(
-      local_mocked_bindings(menu = function(choices, graphics = FALSE, title = NULL) 1,
-                            .package = "utils")
+      local_mocked_bindings(
+        menu = function(choices, graphics = FALSE, title = NULL) 1,
+        .package = "utils"
+      )
     )
 
     case_1 <- load_fits_ids(
@@ -406,8 +408,10 @@ test_that("load_fits_ids menu and errors work as expected", {
   local({
     # Here, we override the menu function to force expected choice
     suppressWarnings(
-      local_mocked_bindings(menu = function(choices, graphics = FALSE, title = NULL) 0,
-                            .package = "utils")
+      local_mocked_bindings(
+        menu = function(choices, graphics = FALSE, title = NULL) 0,
+        .package = "utils"
+      )
     )
 
     expect_message(expect_equal(
@@ -594,7 +598,7 @@ test_that("validate_models errs as expected", {
 
   # modify the ddm_opts
   temp <- case_1
-  ddm_opts(temp$drift_dm_fit_info$drift_dm_obj) =  "foo"
+  ddm_opts(temp$drift_dm_fit_info$drift_dm_obj) <- "foo"
   expect_error(
     validate_fits_ids(temp, progress = 0),
     "doesn't match the ddm_opts"

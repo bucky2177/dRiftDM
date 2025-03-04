@@ -1,13 +1,13 @@
 Type: Package
 Package: dRiftDM
 Title: Estimating (Time-Dependent) Drift Diffusion Models
-Version: 0.2.1.9000
+Version: 0.2.2
 Authors@R: c(
     person("Valentin", "Koob", 
     email = "v.koob@web.de",
     role = c("cre", "aut", "cph")),
     person("Thomas", "Richter", role = c("aut",  "cph")),
-    person("Markus", "Janczyk", role = "ctb")
+    person("Markus", "Janczyk", role = "aut")
   )
 License: MIT + file LICENSE
 Description: Fit and explore Drift Diffusion Models (DDMs),

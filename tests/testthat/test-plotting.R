@@ -14,6 +14,14 @@ test_that("snapshot stats_list plots", {
     title = "cafs_quantiles_delta",
     fig = plot_all()
   )
+
+  all_stats$foo <- "bar"
+  expect_message({
+    vdiffr::expect_doppelganger(
+      title = "cafs_quantiles_delta",
+      fig = plot_all()
+    )
+  })
 })
 
 
