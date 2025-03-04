@@ -11,7 +11,7 @@ calling coef() with an object of type fits_ids_dm)."><meta property="og:image" c
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,8 +99,8 @@ number of unique IDs (<code>n_ids</code>).</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># get a fits_ids object for demonstration purpose</span></span></span>
-<span class="r-in"><span><span class="va">fits_ids</span> <span class="op">=</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">coefs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fits_ids</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fits_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fits_ids</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">coefs</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Object Type: coefs_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -129,7 +129,7 @@ number of unique IDs (<code>n_ids</code>).</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Valentin Koob, Thomas Richter.</p>
+  <p>Developed by Valentin Koob, Thomas Richter, Markus Janczyk.</p>
 </div>
 
 <div class="pkgdown-footer-right">

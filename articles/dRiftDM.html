@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,8 +70,8 @@
 to:</p>
 <ul>
 <li><p>Build an new or select an existing model</p></li>
-<li><p>Explore the model behavior and validate the model’s reliability
-<!--@Vali Was ist mit Reliability gemeint?!--></p></li>
+<li><p>Explore the model behavior and validate that model parameters are
+estimated reliably</p></li>
 <li><p>Fit the model to data</p></li>
 <li><p>Explore the model fit</p></li>
 </ul>
@@ -85,8 +85,8 @@ to:</p>
 <ul>
 <li><p>The Ratcliff Diffusion Model <span class="citation">(see
 <code><a href="../reference/ratcliff_dm.html">ratcliff_dm()</a></code>, Ratcliff 1978)</span></p></li>
-<li><p>The Diffusion Model for Conflict Tasks <span class="citation">(see <code><a href="../reference/dmc_dm.html">dmc_dm()</a></code>, Ulrich et al. 2015)</span>
-<!--@Vali: hier vielleicht auch noch auf den Comment zu RDMC verweisen?--></p></li>
+<li><p>The Diffusion Model for Conflict Tasks <span class="citation">(see <code><a href="../reference/dmc_dm.html">dmc_dm()</a></code>, Ulrich et al. 2015;
+Janczyk, Mackenzie, and Koob 2024)</span></p></li>
 <li><p>The Shrinking Spotlight Model <span class="citation">(see
 <code><a href="../reference/ssp_dm.html">ssp_dm()</a></code>, White, Ratcliff, and Starns 2011)</span></p></li>
 </ul>
@@ -98,9 +98,8 @@ exploring and fitting a DDM.</p>
 <p>To explore some of the basic functions of dRiftDM, we’ll use the
 Diffusion Model for Conflict Tasks (DMC). It is a diffusion model
 commonly employed in the context of cognitive psychology. To create the
-model, the pre-built function <code>dmc_fun()</code> is assigned a
-custom name that represents the model:
-<!--@Vali: Den letzten Satz hab ich ergänzt. Passt der so?--></p>
+model, we call the pre-built function <code>dmc_fun()</code> and assign
+its output to a variable:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -293,7 +292,7 @@ model predictions:</p>
 <span><span class="co">#&gt; 10   pred incomp  0.1      0.352     0.300</span></span>
 <span><span class="co">#&gt; ...</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; (access the list's elements as usual, e.g., with $cafs)</span></span></code></pre></div>
+<span><span class="co">#&gt; (extract the list's elements as usual, e.g., with $cafs)</span></span></code></pre></div>
 <p>We can visualize summary statistics with the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
 method:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -305,25 +304,24 @@ method:</p>
 <h2 id="changing-model-properties">Changing Model Properties<a class="anchor" aria-label="anchor" href="#changing-model-properties"></a>
 </h2>
 <p>To get or set properties of the model, dRiftDM provides
-accessor/replacement methods for:
-<!--@Vali: müsste es hier überall heißen accesses/replaces"?--></p>
+accessor/replacement methods for:</p>
 <ul>
-<li><p><code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> access/replace parameter values</p></li>
-<li><p><code><a href="../reference/prms_solve.html">prms_solve()</a></code> access/replace settings for deriving
+<li><p><code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> accesses/replaces parameter values</p></li>
+<li><p><code><a href="../reference/prms_solve.html">prms_solve()</a></code> accesses/replaces settings for deriving
 model predictions (this also includes changing the diffusion
 constant)</p></li>
-<li><p><code><a href="../reference/solver.html">solver()</a></code> access/replace the method for deriving
+<li><p><code><a href="../reference/solver.html">solver()</a></code> accesses/replaces the method for deriving
 model predictions</p></li>
-<li><p><code><a href="../reference/b_coding.html">b_coding()</a></code> access/replace the coding of the upper
+<li><p><code><a href="../reference/b_coding.html">b_coding()</a></code> accesses/replaces the coding of the upper
 and lower boundary</p></li>
-<li><p><code><a href="../reference/obs_data.html">obs_data()</a></code> access/replace the data set (of a single
-participant) attached to the model</p></li>
-<li><p><code><a href="../reference/flex_prms.html">flex_prms()</a></code> access/replace the object that controls
-how each parameter relates across conditions</p></li>
-<li><p><code><a href="../reference/conds.html">conds()</a></code> access/replace the conditions of a
+<li><p><code><a href="../reference/obs_data.html">obs_data()</a></code> accesses/replaces the data set (of a
+single participant) attached to the model</p></li>
+<li><p><code><a href="../reference/flex_prms.html">flex_prms()</a></code> accesses/replaces the object that
+controls how each parameter relates across conditions</p></li>
+<li><p><code><a href="../reference/conds.html">conds()</a></code> accesses/replaces the conditions of a
 model</p></li>
-<li><p><code><a href="../reference/comp_funs.html">comp_funs()</a></code> access/replace the underlying component
-functions for the drift rate, boundary, etc.</p></li>
+<li><p><code><a href="../reference/comp_funs.html">comp_funs()</a></code> accesses/replaces the underlying
+component functions for the drift rate, boundary, etc.</p></li>
 </ul>
 <p><code><a href="../reference/comp_funs.html">comp_funs()</a></code>, <code><a href="../reference/flex_prms.html">flex_prms()</a></code>, and
 <code><a href="../reference/conds.html">conds()</a></code> are covered in
@@ -370,7 +368,7 @@ condition, you can use the function <code><a href="../reference/modify_flex_prms
 can again use a combination with <code>[]</code> to modify these
 values.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.0025</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.0025</span></span>
 <span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   sigma   t_max      dt      dx      nt      nx </span></span>
 <span><span class="co">#&gt; 1.0e+00 3.0e+00 2.5e-03 1.0e-03 1.2e+03 2.0e+03</span></span></code></pre></div>
@@ -386,9 +384,8 @@ values.</p>
 predicted probability density functions of response time and choice.
 Currently supported options are <code>"kfe"</code> and
 <code>"im_zero"</code>. While the <code>"kfe"</code> method can be
-applied to all models in dRiftDM, <code>"im_zero"</code> is restricted
-to models that don’t have a custom starting point.
-<!--@Vali: "custom starting point" vielleicht "can only be used when the starting point is fixed to zero"? oder so?--></p>
+applied to all models in dRiftDM, <code>"im_zero"</code> can only be
+used when the starting point is fixed to zero.</p>
 </div>
 <div class="section level3">
 <h3 id="b_coding">
@@ -437,10 +434,10 @@ make sure that the supplied <code>data.frame</code> provides columns
 matching with the boundary coding and the conditions of the model.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">dRiftDM</span><span class="fu">::</span><span class="va"><a href="../reference/dmc_synth_data.html">dmc_synth_data</a></span> <span class="co"># some synthetic data suitable for DMC that ships with dRiftDM</span></span>
-<span><span class="co"># the Cond column matches with conds(ddm). </span></span>
+<span><span class="co"># the Cond column matches with conds(ddm).</span></span>
 <span><span class="co"># The Error column matches b_coding(ddm)</span></span>
 <span><span class="co"># the RT column is in seconds ;)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      RT Error Cond</span></span>
 <span><span class="co">#&gt; 1 0.349     0 comp</span></span>
 <span><span class="co">#&gt; 2 0.444     0 comp</span></span>
@@ -454,6 +451,54 @@ matching with the boundary coding and the conditions of the model.</p>
 model object. Thus, when accessing a data set of a model, the data is
 re-assembled, and this might change the order of rows or column with
 respect to the original data set.</p>
+</div>
+<div class="section level3">
+<h3 id="the-summary-function">The <code>summary()</code> Function<a class="anchor" aria-label="anchor" href="#the-summary-function"></a>
+</h3>
+<p>We can request a detailed summary of the model, providing information
+about it’s core properties with the generic <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+function:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Class(es): dmc_dm, drift_dm</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Current Parameter Matrix:</span></span>
+<span><span class="co">#&gt;        muc   b non_dec sd_non_dec  tau a    A alpha</span></span>
+<span><span class="co">#&gt; comp     5 0.6     0.3       0.02 0.04 2  0.1     4</span></span>
+<span><span class="co">#&gt; incomp   5 0.6     0.3       0.02 0.04 2 -0.1     4</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Unique Parameters:</span></span>
+<span><span class="co">#&gt;        muc b non_dec sd_non_dec tau a A alpha</span></span>
+<span><span class="co">#&gt; comp   1   2 3       4          5   0 6 7    </span></span>
+<span><span class="co">#&gt; incomp 1   2 3       4          5   0 d 7    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Special Dependencies:</span></span>
+<span><span class="co">#&gt; A ~ incomp == -(A ~ comp)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Custom Parameters:</span></span>
+<span><span class="co">#&gt;        peak_l</span></span>
+<span><span class="co">#&gt; comp     0.04</span></span>
+<span><span class="co">#&gt; incomp   0.04</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Observed Data:</span></span>
+<span><span class="co">#&gt;              min. 1st qu. median  mean 3rd qu.  max.   n</span></span>
+<span><span class="co">#&gt; corr comp   0.331   0.436  0.479 0.507   0.549 1.075 292</span></span>
+<span><span class="co">#&gt; corr incomp 0.313   0.474  0.528 0.543   0.592 0.879 268</span></span>
+<span><span class="co">#&gt; err comp    0.428   0.458  0.526 0.564   0.621 0.871   8</span></span>
+<span><span class="co">#&gt; err incomp  0.302   0.398  0.452 0.458   0.498 0.771  32</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Fit Indices:</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -------</span></span>
+<span><span class="co">#&gt; Deriving PDFs:</span></span>
+<span><span class="co">#&gt;   solver: kfe</span></span>
+<span><span class="co">#&gt;   values: sigma=1, t_max=3, dt=0.002, dx=0.001, nt=1200, nx=2000 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Boundary Coding:</span></span>
+<span><span class="co">#&gt;   upper: corr </span></span>
+<span><span class="co">#&gt;   lower: err </span></span>
+<span><span class="co">#&gt;   expected data column: Error (corr = 0; err = 1)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -493,7 +538,7 @@ settings lead to reasonable model predictions.</p>
 to easily cover the longest response time in the observed data set.</p>
 <p>The following code adjusts the discretization settings, and
 subsequently fits DMC to a single data set.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># get some data (here we use again the synthetic data that ships with dRiftDM)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">dRiftDM</span><span class="fu">::</span><span class="va"><a href="../reference/dmc_synth_data.html">dmc_synth_data</a></span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
@@ -506,8 +551,8 @@ subsequently fits DMC to a single data set.</p>
 <span><span class="co">#&gt; 6 0.535     0 comp</span></span>
 <span></span>
 <span><span class="co"># increase the discretization steps to 0.005 and set the maximum time space to 1.5 seconds</span></span>
-<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.005</span></span>
-<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span><span class="op">[</span><span class="st">"dx"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.005</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.005</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span><span class="op">[</span><span class="st">"dx"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.005</span></span>
 <span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span><span class="op">[</span><span class="st">"t_max"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">RT</span><span class="op">)</span> <span class="co"># maximum time space easily covers the maximum RT</span></span>
 <span><span class="co">#&gt; [1] 1.075</span></span>
@@ -518,8 +563,8 @@ subsequently fits DMC to a single data set.</p>
 <span><span class="co"># now call the estimation routine</span></span>
 <span><span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_model.html">estimate_model</a></span><span class="op">(</span></span>
 <span>  drift_dm_obj <span class="op">=</span> <span class="va">ddm</span>,</span>
-<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">0.3</span>, non_dec <span class="op">=</span> <span class="fl">0.1</span>, sd_non_dec <span class="op">=</span> <span class="fl">0.005</span>, tau <span class="op">=</span> <span class="fl">0.03</span>, A <span class="op">=</span> <span class="fl">0.01</span>, alpha <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">6</span>, b <span class="op">=</span> <span class="fl">0.9</span>, non_dec <span class="op">=</span> <span class="fl">0.5</span>, sd_non_dec <span class="op">=</span> <span class="fl">0.05</span>, tau <span class="op">=</span> <span class="fl">0.12</span>, A <span class="op">=</span> <span class="fl">0.15</span>, alpha <span class="op">=</span> <span class="fl">9</span><span class="op">)</span>,</span>
+<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">.3</span>, non_dec <span class="op">=</span> <span class="fl">.1</span>, sd_non_dec <span class="op">=</span> <span class="fl">.005</span>, tau <span class="op">=</span> <span class="fl">.03</span>, A <span class="op">=</span> <span class="fl">.01</span>, alpha <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">6</span>, b <span class="op">=</span> <span class="fl">.9</span>, non_dec <span class="op">=</span> <span class="fl">.5</span>, sd_non_dec <span class="op">=</span> <span class="fl">.050</span>, tau <span class="op">=</span> <span class="fl">.12</span>, A <span class="op">=</span> <span class="fl">.15</span>, alpha <span class="op">=</span> <span class="fl">9</span><span class="op">)</span>,</span>
 <span>  use_de_optim <span class="op">=</span> <span class="cn">FALSE</span>, <span class="co"># overrule the default Differential Evolution setting</span></span>
 <span>  use_nmkb <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
@@ -527,6 +572,14 @@ subsequently fits DMC to a single data set.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        muc          b    non_dec sd_non_dec        tau          A      alpha </span></span>
 <span><span class="co">#&gt; 3.42861562 0.49852737 0.39639307 0.04461241 0.05974238 0.13098245 5.12756820</span></span></code></pre></div>
+<p>We can also extract the fit statistic and information criteria:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 'log Lik.' 438.5371 (df=7)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -863.0742</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -832.2957</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="checking-model-fit-1">Checking Model Fit (1)<a class="anchor" aria-label="anchor" href="#checking-model-fit-1"></a>
@@ -534,11 +587,11 @@ subsequently fits DMC to a single data set.</p>
 <p>To qualitatively check if a model fits the data, we can use
 <code><a href="../reference/calc_stats.html">calc_stats()</a></code> in combination with the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
 method. Circles indicate observed data while lines indicate the model’s
-predictions.<!--@Vali: letzten Satz hinzugefügt--></p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+predictions.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">check_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cafs"</span>, <span class="st">"quantiles"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">check_fit</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"green"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/unnamed-chunk-20-1.png" width="700"><img src="dRiftDM_files/figure-html/unnamed-chunk-20-2.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/unnamed-chunk-22-1.png" width="700"><img src="dRiftDM_files/figure-html/unnamed-chunk-22-2.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="estimate_model_ids">
@@ -550,7 +603,7 @@ to multiple individuals. For this, you can use
 <code><a href="../reference/estimate_model.html">estimate_model()</a></code>. In the following code chunk, we fit DMC
 to the first two individuals of the flanker data set provided by <span class="citation">Ulrich et al. (2015)</span> (included in
 <code>dRiftDM</code>).</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flanker_data</span> <span class="op">&lt;-</span> <span class="fu">dRiftDM</span><span class="fu">::</span><span class="va"><a href="../reference/ulrich_flanker_data.html">ulrich_flanker_data</a></span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">flanker_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   ID        RT Error   Cond</span></span>
@@ -566,8 +619,8 @@ to the first two individuals of the flanker data set provided by <span class="ci
 <span><span class="fu"><a href="../reference/estimate_model_ids.html">estimate_model_ids</a></span><span class="op">(</span></span>
 <span>  drift_dm_obj <span class="op">=</span> <span class="va">ddm</span>,</span>
 <span>  obs_data_ids <span class="op">=</span> <span class="va">flanker_data</span>,</span>
-<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">0.3</span>, non_dec <span class="op">=</span> <span class="fl">0.1</span>, sd_non_dec <span class="op">=</span> <span class="fl">0.005</span>, tau <span class="op">=</span> <span class="fl">0.03</span>, A <span class="op">=</span> <span class="fl">0.01</span>, alpha <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">6</span>, b <span class="op">=</span> <span class="fl">0.9</span>, non_dec <span class="op">=</span> <span class="fl">0.5</span>, sd_non_dec <span class="op">=</span> <span class="fl">0.05</span>, tau <span class="op">=</span> <span class="fl">0.12</span>, A <span class="op">=</span> <span class="fl">0.15</span>, alpha <span class="op">=</span> <span class="fl">9</span><span class="op">)</span>,</span>
+<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">.3</span>, non_dec <span class="op">=</span> <span class="fl">.1</span>, sd_non_dec <span class="op">=</span> <span class="fl">.005</span>, tau <span class="op">=</span> <span class="fl">.03</span>, A <span class="op">=</span> <span class="fl">.01</span>, alpha <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">6</span>, b <span class="op">=</span> <span class="fl">.9</span>, non_dec <span class="op">=</span> <span class="fl">.5</span>, sd_non_dec <span class="op">=</span> <span class="fl">.050</span>, tau <span class="op">=</span> <span class="fl">.12</span>, A <span class="op">=</span> <span class="fl">.15</span>, alpha <span class="op">=</span> <span class="fl">9</span><span class="op">)</span>,</span>
 <span>  fit_procedure_name <span class="op">=</span> <span class="st">"flanker_test_run"</span>, <span class="co"># a label to identify the fits</span></span>
 <span>  fit_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="co"># to save fits in the working directory use getwd()</span></span>
 <span>  use_de_optim <span class="op">=</span> <span class="cn">FALSE</span>, <span class="co"># overrule the default Differential Evolution setting</span></span>
@@ -575,26 +628,93 @@ to the first two individuals of the flanker data set provided by <span class="ci
 <span><span class="op">)</span></span></code></pre></div>
 <p>We can then load all saved fits using
 <code><a href="../reference/load_fits_ids.html">load_fits_ids()</a></code>:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_fits_ids.html">load_fits_ids</a></span><span class="op">(</span>path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, fit_procedure_name <span class="op">=</span> <span class="st">"flanker_test_run"</span><span class="op">)</span></span>
 <span><span class="va">all_fits</span></span>
 <span><span class="co">#&gt; Fit procedure name: flanker_test_run</span></span>
 <span><span class="co">#&gt; Fitted model type: dmc_dm, drift_dm</span></span>
-<span><span class="co">#&gt; Time of (last) call: 2025-February-27_08-46</span></span>
+<span><span class="co">#&gt; Time of (last) call: 2025-March-04_09-37</span></span>
 <span><span class="co">#&gt; N Individuals: 2</span></span></code></pre></div>
+<p>A summary of the parameter estimates across all conditions can be
+requested via the generic <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> function:</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Fit Procedure Name: flanker_test_run</span></span>
+<span><span class="co">#&gt; N Individuals: 2 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Parameter Summary: comp </span></span>
+<span><span class="co">#&gt;           muc     b non_dec sd_non_dec  tau a     A alpha peak_l</span></span>
+<span><span class="co">#&gt; mean    5.184 0.426   0.324      0.037 0.04 2 0.104 5.671   0.04</span></span>
+<span><span class="co">#&gt; std_err 0.498 0.011   0.020      0.004 0.01 0 0.007 3.329   0.01</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Parameter Summary: incomp </span></span>
+<span><span class="co">#&gt;           muc     b non_dec sd_non_dec  tau a      A alpha peak_l</span></span>
+<span><span class="co">#&gt; mean    5.184 0.426   0.324      0.037 0.04 2 -0.104 5.671   0.04</span></span>
+<span><span class="co">#&gt; std_err 0.498 0.011   0.020      0.004 0.01 0  0.007 3.329   0.01</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Parameter Space:</span></span>
+<span><span class="co">#&gt;       muc   b non_dec sd_non_dec  tau    A alpha</span></span>
+<span><span class="co">#&gt; lower   1 0.3     0.1      0.005 0.03 0.01     2</span></span>
+<span><span class="co">#&gt; upper   6 0.9     0.5      0.050 0.12 0.15     9</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -------</span></span>
+<span><span class="co">#&gt; Fitted Model Type: dmc_dm, drift_dm</span></span>
+<span><span class="co">#&gt; Time of (Last) Call: 2025-March-04_09-37</span></span></code></pre></div>
+<p>Note that most of DMC’s parameters are per default equal across
+conditions. This is why you obtain exactly the same mean and standard
+errors for each condition. If you want to have the individual parameter
+estimates across conditions, you can call:</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coef_fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span>
+<span><span class="va">coef_fits</span></span>
+<span><span class="co">#&gt; Object Type: coefs_dm</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   ID   muc     b non_dec sd_non_dec   tau     A alpha</span></span>
+<span><span class="co">#&gt; 1  1 4.686 0.437   0.343      0.033 0.030 0.111 9.000</span></span>
+<span><span class="co">#&gt; 2  2 5.682 0.415   0.304      0.042 0.051 0.098 2.341</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; (access the data.frame's columns/rows as usual)</span></span></code></pre></div>
+<p>Fit statistics and information criteria across individuals can be
+extracted as well:</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Type of Statistic: fit_stats</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   ID Log_Like</span></span>
+<span><span class="co">#&gt; 1  1  410.101</span></span>
+<span><span class="co">#&gt; 2  2  383.912</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; (access the data.frame's columns/rows as usual)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Type of Statistic: fit_stats</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   ID      AIC</span></span>
+<span><span class="co">#&gt; 1  1 -806.202</span></span>
+<span><span class="co">#&gt; 2  2 -753.824</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; (access the data.frame's columns/rows as usual)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Type of Statistic: fit_stats</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   ID      BIC</span></span>
+<span><span class="co">#&gt; 1  1 -779.482</span></span>
+<span><span class="co">#&gt; 2  2 -727.146</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; (access the data.frame's columns/rows as usual)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="checking-model-fit-2">Checking Model Fit (2)<a class="anchor" aria-label="anchor" href="#checking-model-fit-2"></a>
 </h3>
 <p>As before, we can check the model fit using a combination of
 <code><a href="../reference/calc_stats.html">calc_stats()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">check_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">all_fits</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cafs"</span>, <span class="st">"quantiles"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">check_fit</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"green"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Aggregating across ID</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/unnamed-chunk-23-1.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/unnamed-chunk-28-1.png" width="700"></p>
 <pre><code><span><span class="co">#&gt; Aggregating across ID</span></span></code></pre>
-<p><img src="dRiftDM_files/figure-html/unnamed-chunk-23-2.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/unnamed-chunk-28-2.png" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -602,10 +722,9 @@ to the first two individuals of the flanker data set provided by <span class="ci
 </h2>
 <p>To simulate data based on a model, we can use the
 <code><a href="../reference/simulate_data.html">simulate_data()</a></code> function. The first argument takes the
-model object. The second argument a numeric vector, defining the number
-of trials per condition:
-<!--@Vali: "numeric vector" aber im Beispiel ist kein Vektor?--></p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+model object. The second argument is a numeric (vector), defining the
+number of trials per condition:</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># a model for demonstration purpose</span></span>
 <span><span class="va">sim_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_data.html">simulate_data</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, n <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_1</span><span class="op">)</span></span>
@@ -617,23 +736,23 @@ of trials per condition:
 <span><span class="co">#&gt; 5 0.563     0 null</span></span>
 <span><span class="co">#&gt; 6 0.523     0 null</span></span></code></pre></div>
 <p>This returns a single synthetic data set for one “participant”. Note
-that the simulated
-RTs<!--@Vali: ich glaube vorher hast Du es immer ausgeschriebn?-->
-depend on the time discretization. For example, if the time
-discretization is <code>dt</code> = .005, then the RTs can only differ
-in steps of .005.</p>
+that the simulated response times depend on the time discretization. For
+example, if the time discretization is <code>dt</code> = .005, then the
+response times can only differ in steps of .005.</p>
 <p>By specifying the argument <code>k</code>, we can simulate multiple
 synthetic data sets simultaneously. In this case, however, we must also
 specify lower and upper bounds to define the simulation space when
 drawing random parameter combinations per data set (see the
 <code>simulate_data</code> documentation for more details):</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sim_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_data.html">simulate_data</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, n <span class="op">=</span> <span class="fl">200</span>, k <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                       lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">0.4</span>, non_dec <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>, </span>
-<span>                       upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">6</span>, b <span class="op">=</span> <span class="fl">0.8</span>, non_dec <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_data.html">simulate_data</a></span><span class="op">(</span></span>
+<span>  object <span class="op">=</span> <span class="va">ddm</span>, n <span class="op">=</span> <span class="fl">200</span>, k <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">.4</span>, non_dec <span class="op">=</span> <span class="fl">.2</span><span class="op">)</span>,</span>
+<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">6</span>, b <span class="op">=</span> <span class="fl">.8</span>, non_dec <span class="op">=</span> <span class="fl">.4</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>This returns a list with the synthetic data sets and the
 corresponding parameter values:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_2</span><span class="op">$</span><span class="va">synth_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      RT Error Cond ID</span></span>
 <span><span class="co">#&gt; 1 0.572     0 null  1</span></span>
@@ -649,10 +768,59 @@ corresponding parameter values:</p>
 <p>The returned data sets are in a format that can be passed directly to
 <code><a href="../reference/estimate_model_ids.html">estimate_model_ids()</a></code>, making parameter recovery exercises
 very easy.</p>
+</div>
+<div class="section level2">
+<h2 id="remark-stripping-away-unnecesary-attributes-and-class-labels">Remark: Stripping Away “Unnecesary” Attributes and Class Labels<a class="anchor" aria-label="anchor" href="#remark-stripping-away-unnecesary-attributes-and-class-labels"></a>
+</h2>
+<p>Many functions in <code>dRiftDM</code> return summary statistics or
+data.frames. Often these returned objects are S3 objects with a custom
+class label. In principle, this is great because it allows you to reuse
+generic functions like <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, or
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> as we saw above.</p>
+<p>However, sometimes this also hides the true structure of the
+underlying data type. Therefore, we provide the
+<code><a href="../reference/unpack_obj.html">unpack_obj()</a></code> function, which allows you to strip away
+unnecessary attributes and class labels. This can be useful, for
+example, if you want to create your own plot or wrangle the data into a
+particular format.</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmc_dm.html">dmc_dm</a></span><span class="op">(</span>dt <span class="op">=</span> <span class="fl">.005</span>, dx <span class="op">=</span> <span class="fl">.005</span><span class="op">)</span></span>
+<span><span class="va">traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="va">ddm</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co"># although this object is essentially a list of matrices, the class label ...</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">traces</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "traces_dm_list"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">traces</span><span class="op">)</span> <span class="co"># ... leads to nicely formatted output; but hides the underlying structure</span></span>
+<span><span class="co">#&gt; Class(es): traces_dm_list</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Time space:</span></span>
+<span><span class="co">#&gt; 0.000, 0.005, 0.010, 0.015 ... 3.000 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Condition: comp </span></span>
+<span><span class="co">#&gt; ~&gt;  0.000, -0.023, -0.028,  0.040 ...  0.609 </span></span>
+<span><span class="co">#&gt; ~&gt;  0.000,  0.219,  0.234,  0.355 ...  0.679 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Condition: incomp </span></span>
+<span><span class="co">#&gt; ~&gt;  0.000,  0.051,  0.059,  0.205 ...  0.753 </span></span>
+<span><span class="co">#&gt; ~&gt;  0.000,  0.001,  0.080,  0.042 ...  0.637</span></span>
+<span></span>
+<span><span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/unpack_obj.html">unpack_obj</a></span><span class="op">(</span><span class="va">traces</span><span class="op">)</span> <span class="co"># provides the plain list of matrices</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">raw</span><span class="op">$</span><span class="va">comp</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             [,1]      [,2]</span></span>
+<span><span class="co">#&gt; [1,]  0.00000000 0.0000000</span></span>
+<span><span class="co">#&gt; [2,] -0.02346033 0.2194351</span></span>
+<span><span class="co">#&gt; [3,] -0.02815202 0.2338606</span></span>
+<span><span class="co">#&gt; [4,]  0.03980365 0.3550320</span></span>
+<span><span class="co">#&gt; [5,]  0.23576146 0.3012896</span></span>
+<span><span class="co">#&gt; [6,]  0.28760829 0.1937707</span></span></code></pre></div>
 <div class="section level3">
 <h3 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h3>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-Janczyketal.2024" class="csl-entry">
+Janczyk, Markus, Ian Grant Mackenzie, and Valentin Koob. 2024. <span>“A
+Comment on the Revised Diffusion Model for Conflict Tasks
+(RDMC).”</span> <em>Psychonomic Bulletin &amp; Review</em>, 1–15.
+</div>
 <div id="ref-Ratcliff1978" class="csl-entry">
 Ratcliff, Roger. 1978. <span>“A Theory of Memory Retrieval.”</span>
 <em>Psychological Review</em> 85 (2): 59–108. <a href="https://doi.org/10.1037/0033-295X.85.2.59" class="external-link">https://doi.org/10.1037/0033-295X.85.2.59</a>.
@@ -685,7 +853,7 @@ Attentional Selection.”</span> <em>Cognitive Psychology</em> 63 (4):
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Valentin Koob, Thomas Richter.</p>
+  <p>Developed by Valentin Koob, Thomas Richter, Markus Janczyk.</p>
 </div>
 
 <div class="pkgdown-footer-right">

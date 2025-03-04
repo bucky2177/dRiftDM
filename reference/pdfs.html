@@ -9,7 +9,7 @@ These PDFs represent the first-passage-time."><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,16 +86,15 @@ called before returning the PDFs.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># get a pre-built model for demonstration purpose</span></span></span>
-<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span>dx <span class="op">=</span> <span class="fl">.0025</span>, dt <span class="op">=</span> <span class="fl">.0025</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu">pdfs</span><span class="op">(</span><span class="va">a_model</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> List of 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ comp  :List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pdf_u: num [1:3001] 1e-10 1e-10 1e-10 1e-10 1e-10 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pdf_l: num [1:3001] 1e-10 1e-10 1e-10 1e-10 1e-10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pdf_u: num [1:1201] 1e-10 1e-10 1e-10 1e-10 1e-10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pdf_l: num [1:1201] 1e-10 1e-10 1e-10 1e-10 1e-10 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ incomp:List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pdf_u: num [1:3001] 1e-10 1e-10 1e-10 1e-10 1e-10 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pdf_l: num [1:3001] 1e-10 1e-10 1e-10 1e-10 1e-10 ...</span>
-<span class="r-in"><span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pdf_u: num [1:1201] 1e-10 1e-10 1e-10 1e-10 1e-10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pdf_l: num [1:1201] 1e-10 1e-10 1e-10 1e-10 1e-10 ...</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -104,7 +103,7 @@ called before returning the PDFs.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Valentin Koob, Thomas Richter.</p>
+  <p>Developed by Valentin Koob, Thomas Richter, Markus Janczyk.</p>
 </div>
 
 <div class="pkgdown-footer-right">

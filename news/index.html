@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,20 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="driftdm-development-version">dRiftDM (development version)<a class="anchor" aria-label="anchor" href="#driftdm-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.2.2" id="driftdm-022">dRiftDM 0.2.2<a class="anchor" aria-label="anchor" href="#driftdm-022"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-2-2">New features:<a class="anchor" aria-label="anchor" href="#new-features-0-2-2"></a></h3>
+<ul><li><p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> methods are now available for <code>traces_dm</code>, <code>traces_dm_list</code>, <code>stats_dm</code>, <code>stats_dm_list</code>, and <code>coefs_dm</code> objects.</p></li>
+<li><p>New <code><a href="../reference/unpack_obj.html">unpack_obj()</a></code> makes it easy to strip away attributes and class labels of objects created by dRiftDM. The more specific predecessor function <code><a href="../reference/unpack_traces.html">unpack_traces()</a></code> is now deprecated <code><a href="../reference/unpack_traces.html">unpack_traces()</a></code>.</p></li>
+<li><p>New <code><a href="../reference/pdfs.html">pdfs()</a></code> provides access to a model’s predicted probability density function.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-improvements-and-changes-0-2-2">Minor improvements and changes:<a class="anchor" aria-label="anchor" href="#minor-improvements-and-changes-0-2-2"></a></h3>
+<ul><li><p><code><a href="../reference/coef.drift_dm.html">coef.drift_dm()</a></code> gains a <code>select_custom_prms</code> argument.</p></li>
+<li><p><code>list_stats_dm</code> objects are now called <code>stats_dm_list</code> for name consistency.</p></li>
+<li><p><code>traces_dm</code> objects now have additional attributes (which were required for appropriate print and summary methods).</p></li>
+<li><p>More consistent capitalization in <code>print.summary.*()</code> methods.</p></li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.1" id="driftdm-021">dRiftDM 0.2.1<a class="anchor" aria-label="anchor" href="#driftdm-021"></a></h2><p class="text-muted">CRAN release: 2025-01-08</p>
@@ -49,7 +62,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Valentin Koob, Thomas Richter.</p>
+  <p>Developed by Valentin Koob, Thomas Richter, Markus Janczyk.</p>
 </div>
 
 <div class="pkgdown-footer-right">

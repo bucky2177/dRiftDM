@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,8 +67,8 @@
     
     
 <p>When working with Drift-Diffusion Models (DDMs), like the Diffusion
-Model for Conflict Tasks [DMC; <span class="citation">Ulrich et al.
-(2015)</span>], a recurring nuisance is that the size of the model’s
+Model for Conflict Tasks <span class="citation">(DMC, Ulrich et al.
+2015)</span>, a recurring nuisance is that the size of the model’s
 parameters depends on the time scale (seconds vs. milliseconds) and the
 diffusion constant. For example, in the original article by <span class="citation">Ulrich et al. (2015)</span>, DMC was introduced on the
 time scale of milliseconds and with a diffusion constant of
@@ -187,7 +187,6 @@ apply to all DDMs, only to DMC&lt;/p&gt;"><sup>2</sup></a></p>
 <span>                         <span class="va">sigma_old</span> <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>                         <span class="va">sigma_new</span> <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                         <span class="va">t_from_to</span> <span class="op">=</span> <span class="st">"ms-&gt;s"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  </span>
 <span>  <span class="co"># Some rough input checks</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">named_values</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">is.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">named_values</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">sigma_old</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">sigma_new</span><span class="op">)</span><span class="op">)</span></span>
@@ -247,17 +246,17 @@ are the same before and after scaling:</p>
 <span></span>
 <span><span class="co"># now the same with new diffusion constant of 4 and time scale in milliseconds</span></span>
 <span><span class="va">dmc_ms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"sigma"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">4</span>     <span class="co"># new diffusion constant</span></span>
-<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"t_max"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">3000</span>  <span class="co"># 3000 ms is new max time</span></span>
-<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>        <span class="co"># 1 ms steps</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"sigma"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">4</span> <span class="co"># new diffusion constant</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"t_max"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">3000</span> <span class="co"># 3000 ms is new max time</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="co"># 1 ms steps</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu">convert_prms</span><span class="op">(</span></span>
-<span>  named_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span>,       <span class="co"># the previous parameters </span></span>
-<span>  sigma_old <span class="op">=</span> <span class="fl">1</span>,                     <span class="co"># diffusion constants</span></span>
+<span>  named_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">dmc_ms</span><span class="op">)</span>, <span class="co"># the previous parameters</span></span>
+<span>  sigma_old <span class="op">=</span> <span class="fl">1</span>, <span class="co"># diffusion constants</span></span>
 <span>  sigma_new <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>  t_from_to <span class="op">=</span> <span class="st">"s-&gt;ms"</span>                <span class="co"># how shall the time be scaled?</span></span>
+<span>  t_from_to <span class="op">=</span> <span class="st">"s-&gt;ms"</span> <span class="co"># how shall the time be scaled?</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">quants_ms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span><span class="va">dmc_ms</span>, <span class="st">"quantiles"</span><span class="op">)</span> <span class="co"># calculate predicted quantiles</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">quants_ms</span><span class="op">)</span>                      <span class="co"># show quantiles</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">quants_ms</span><span class="op">)</span> <span class="co"># show quantiles</span></span>
 <span><span class="co">#&gt; Type of Statistic: quantiles</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Source Cond Prob Quant_corr Quant_err</span></span>
@@ -307,7 +306,7 @@ Tasks: Superimposed Diffusion Processes and Delta Functions.”</span>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Valentin Koob, Thomas Richter.</p>
+  <p>Developed by Valentin Koob, Thomas Richter, Markus Janczyk.</p>
 </div>
 
 <div class="pkgdown-footer-right">
