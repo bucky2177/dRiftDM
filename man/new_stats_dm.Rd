@@ -11,8 +11,8 @@ new_stats_dm(stat_df, type, ...)
 encapsulated within the \code{stats_dm} class.}
 
 \item{type}{a character string, specifying the type of statistic provided by
-\code{stat_df}. Valid options include \code{"cafs"}, \code{"quantiles"}, \code{"delta_funs"},
-and \code{"fit_stats"}.}
+\code{stat_df}. Valid options include \code{"basic_stats"}, \code{"cafs"}, \code{"quantiles"},
+\code{"delta_funs"}, and \code{"fit_stats"}.}
 
 \item{...}{Additional arguments passed to set attributes. For \code{"cafs"},
 \code{"quantiles"}, and \code{"delta_funs"}, a \code{b_coding} attribute is required.}
@@ -28,13 +28,13 @@ store necessary attributes for the custom methods (such as \verb{plot_*})
 \details{
 \code{new_stats_dm} sets up the \code{stat_df} object by assigning it the class
 \code{stats_dm}, along with additional classes based on the specified \code{type}.
-For"cafs", "quantiles", "delta_funs", this will be c(\verb{<type>}, "sum_dist",
-"stats_dm", "data.frame")". For fit statistics, this will be c("fit_stats",
-"stats_dm", "data.frame")".
+For "basic_stats", "cafs", "quantiles", "delta_funs", this will be
+c(\verb{<type>}, "sum_dist", "stats_dm", "data.frame")". For "fit_stats", this
+will be c("\if{html}{\out{<type>}}", "stats_dm", "data.frame")".
 
-For Conditional Accuracy Functions (CAFs), Quantiles, and Delta Functions,
-the function requires a \code{b_coding} argument, which specifies boundary coding
-details and is set as an attribute.
+For basic stats, Conditional Accuracy Functions (CAFs), Quantiles, and
+Delta Functions, the function requires a \code{b_coding} argument, which specifies
+boundary coding details and is set as an attribute.
 
 The function performs validation through \link{validate_stats_dm} to
 ensure that the \code{stats_dm} object is well formatted.

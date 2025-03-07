@@ -2,6 +2,7 @@
 % Please edit documentation in R/formatting_stats_dm.R
 \name{summary.stats_dm}
 \alias{summary.stats_dm}
+\alias{summary.basic_stats}
 \alias{summary.cafs}
 \alias{summary.quantiles}
 \alias{summary.delta_funs}
@@ -9,6 +10,7 @@
 \alias{summary.sum_dist}
 \alias{summary.stats_dm_list}
 \alias{print.summary.stats_dm}
+\alias{print.summary.basic_stats}
 \alias{print.summary.cafs}
 \alias{print.summary.quantiles}
 \alias{print.summary.delta_funs}
@@ -18,6 +20,8 @@
 \title{Summary for \code{stats_dm} Objects}
 \usage{
 \method{summary}{stats_dm}(object, ..., round_digits = drift_dm_default_rounding())
+
+\method{summary}{basic_stats}(object, ...)
 
 \method{summary}{cafs}(object, ...)
 
@@ -33,6 +37,8 @@
 
 \method{print}{summary.stats_dm}(x, ..., show_header = TRUE, drop_cols = NULL)
 
+\method{print}{summary.basic_stats}(x, ...)
+
 \method{print}{summary.cafs}(x, ...)
 
 \method{print}{summary.quantiles}(x, ...)
@@ -46,17 +52,14 @@
 \method{print}{summary.stats_dm_list}(x, ...)
 }
 \arguments{
-\item{object}{an object of class \code{stats_dm}, \code{cafs}, \code{quantiles},
-\code{delta_funs}, \code{fit_stats}, \code{sum_dist}, or \code{stats_dm_list}.}
+\item{object}{an object of the respective class}
 
 \item{...}{additional arguments passed forward.}
 
 \item{round_digits}{integer, specifying the number of decimal places for
 rounding the summary of the underlying \link{data.frame}. Default is 3.}
 
-\item{x}{an object of class \code{summary.stats_dm}, \code{summary.cafs},
-\code{summary.quantiles}, \code{summary.delta_funs}, \code{summary.fit_stats},
-\code{summary.sum_dist}, or \code{summary.stats_dm_list}.}
+\item{x}{an object of the respective class.}
 
 \item{show_header}{logical. If \code{TRUE}, a header specifying the type of
 statistic will be displayed.}
@@ -73,8 +76,8 @@ For \verb{print.*()} methods, the respective object is returned invisibly
 }
 \description{
 Summary and corresponding printing methods for objects of the classes
-\code{stats_dm}, \code{cafs}, \code{quantiles}, \code{delta_funs}, \code{fit_stats}, \code{sum_dist}, and
-\code{stats_dm_list}. These object types result from a call to
+\code{stats_dm}, \code{basic_stats}, \code{cafs}, \code{quantiles}, \code{delta_funs}, \code{fit_stats},
+\code{sum_dist}, and \code{stats_dm_list}. These object types result from a call to
 \code{\link[=calc_stats]{calc_stats()}}.
 }
 \details{
@@ -84,6 +87,8 @@ a summary of the underlying \link{data.frame} (\code{summary_dataframe}), and, i
 possible, the number of unique IDs (\code{n_ids}).
 \item \code{summary.sum_dist()}: Extends \code{summary.stats_dm()} with additional
 information about the source (\code{source}).
+\item \code{summary.basic_stats()}: Extends \code{summary.sum_dist()} with additional
+information about the conditions (\code{conds}).
 \item \code{summary.cafs()}: Extends \code{summary.sum_dist()} with additional information
 about the bins (\code{bins}) and conditions (\code{conds}).
 \item \code{summary.quantiles()}: Extends \code{summary.sum_dist()} with additional
@@ -97,8 +102,10 @@ the list and returns a list of the respective summary objects.
 
 Note the following class relationships and properties:
 \itemize{
-\item \code{cafs}, \code{quantiles}, and \code{delta_funs} are all inheriting from \code{sum_dist}.
-\item All \code{sum_dist} and \code{fit_stats} objects are inheriting from \code{stats_dm}.
+\item \code{basic_stats}, \code{cafs}, \code{quantiles}, and \code{delta_funs} are all inheriting
+from \code{sum_dist}.
+\item All \code{sum_dist} and \code{fit_stats} objects are inheriting from
+\code{stats_dm}.
 \item Each \code{stats_dm_list} object is just a list containing instances of
 \code{stats_dm}.
 }

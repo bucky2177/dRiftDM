@@ -2,13 +2,16 @@
 % Please edit documentation in R/core_stats.R
 \name{aggregate_stats}
 \alias{aggregate_stats}
+\alias{aggregate_stats.basic_stats}
 \alias{aggregate_stats.cafs}
 \alias{aggregate_stats.quantiles}
 \alias{aggregate_stats.delta_funs}
 \alias{aggregate_stats.fit_stats}
-\title{Aggregate Statistics ACROSS ID}
+\title{Aggregate Statistics Across ID}
 \usage{
 aggregate_stats(stat_df)
+
+\method{aggregate_stats}{basic_stats}(stat_df)
 
 \method{aggregate_stats}{cafs}(stat_df)
 

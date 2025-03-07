@@ -1,5 +1,17 @@
 # dRiftDM (development version)
 
+## New features: 
+
+- `calc_stats()` gains the option `basic_stats` for the `type` argument. This 
+allows you to request means, standard deviations, and a ratio of response 
+choices.
+
+
+## Minor: 
+
+- `nt_constant()` now uses `round()` instead of `as.integer()` to get the 
+index for the dirac delta. This reduces the bias in non-decision time estimates.
+
 # dRiftDM 0.2.2
 
 

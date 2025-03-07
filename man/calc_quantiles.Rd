@@ -8,28 +8,36 @@ calc_quantiles(
   pdf_u = NULL,
   pdf_l = NULL,
   t_vec = NULL,
+  dt = NULL,
   rts_u = NULL,
   rts_l = NULL,
   one_cond,
   probs = NULL,
-  b_coding
+  b_coding,
+  skip_if_contr_low = NULL
 )
 }
 \arguments{
-\item{pdf_u, pdf_l}{either NULL or density vectors}
+\item{pdf_u, pdf_l}{density values for the upper and lower boundary}
 
 \item{t_vec}{the time space (required for the pdfs)}
 
-\item{rts_u, rts_l}{either NULL or RT vectors}
+\item{dt}{the step size corresponding to the time space}
+
+\item{rts_u, rts_l}{vectors of RTs for the upper and lower boundary}
 
 \item{one_cond}{character label}
 
 \item{probs}{numeric vector with values between 0 and 1 for the probability
-levels. Default is \code{\link[=drift_dm_default_probs]{drift_dm_default_probs()}}.}
+levels}
 
 \item{b_coding}{used for accessing the upper/lower boundary labels,
 determines the corresponding columns of the returned data.frame
 (e.g., Quant_\code{corr}).}
+
+\item{skip_if_contr_low}{numeric. If the contribution of the upper
+or lower PDF to the overall PDF is too low, return NAs for
+this PDF (see also \code{\link[=drift_dm_skip_if_contr_low]{drift_dm_skip_if_contr_low()}}).}
 }
 \value{
 a data.frame with "Source", "Cond", "Prob"s, "Quant_<u_label>",
@@ -38,7 +46,7 @@ c("quantiles", "sum_dist", "stats_dm", "data.frame")
 }
 \description{
 Function that calls the underlying quantile calculation functions
-\link{calc_quantiles_obs} and \link{calc_quantiles_pred}. Does
+\code{\link[=calc_quantiles_obs]{calc_quantiles_obs()}} and \code{\link[=calc_quantiles_pred]{calc_quantiles_pred()}}. Does
 input checks and the data wrangling
 }
 \details{

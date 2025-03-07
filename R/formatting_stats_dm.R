@@ -69,6 +69,13 @@ print.cafs <- function(x, ...) {
 #' @rdname print.cafs
 #' @export
 #' @keywords internal
+print.basic_stats <- function(x, ...) {
+  NextMethod()
+}
+
+#' @rdname print.cafs
+#' @export
+#' @keywords internal
 print.quantiles <- function(x, ...) {
   NextMethod()
 }
@@ -86,6 +93,7 @@ print.delta_funs <- function(x, ...) {
 print.fit_stats <- function(x, ...) {
   NextMethod()
 }
+
 
 #' @rdname print.cafs
 #' @export
@@ -126,12 +134,11 @@ print.stats_dm_list <- function(x, ...) {
 #' Summary for `stats_dm` Objects
 #'
 #' Summary and corresponding printing methods for objects of the classes
-#' `stats_dm`, `cafs`, `quantiles`, `delta_funs`, `fit_stats`, `sum_dist`, and
-#' `stats_dm_list`. These object types result from a call to
+#' `stats_dm`, `basic_stats`, `cafs`, `quantiles`, `delta_funs`, `fit_stats`,
+#' `sum_dist`, and `stats_dm_list`. These object types result from a call to
 #' [dRiftDM::calc_stats()].
 #'
-#' @param object an object of class `stats_dm`, `cafs`, `quantiles`,
-#'  `delta_funs`, `fit_stats`, `sum_dist`, or `stats_dm_list`.
+#' @param object an object of the respective class
 #' @param round_digits integer, specifying the number of decimal places for
 #' rounding the summary of the underlying [data.frame]. Default is 3.
 #' @param show_header logical. If `TRUE`, a header specifying the type of
@@ -140,9 +147,7 @@ print.stats_dm_list <- function(x, ...) {
 #'  of the table summarizing the underlying [data.frame] should not be
 #'  displayed.
 #' @param ... additional arguments passed forward.
-#' @param x an object of class `summary.stats_dm`, `summary.cafs`,
-#' `summary.quantiles`, `summary.delta_funs`, `summary.fit_stats`,
-#' `summary.sum_dist`, or `summary.stats_dm_list`.
+#' @param x an object of the respective class.
 #'
 #' @return
 #'  For `summary.*()` methods, a summary object of class corresponding to the
@@ -158,6 +163,9 @@ print.stats_dm_list <- function(x, ...) {
 #'
 #' - `summary.sum_dist()`: Extends `summary.stats_dm()` with additional
 #'   information about the source (`source`).
+#'
+#' - `summary.basic_stats()`: Extends `summary.sum_dist()` with additional
+#'    information about the conditions (`conds`).
 #'
 #' - `summary.cafs()`: Extends `summary.sum_dist()` with additional information
 #'    about the bins (`bins`) and conditions (`conds`).
@@ -176,9 +184,11 @@ print.stats_dm_list <- function(x, ...) {
 #'
 #' Note the following class relationships and properties:
 #'
-#' - `cafs`, `quantiles`, and `delta_funs` are all inheriting from `sum_dist`.
+#' - `basic_stats`, `cafs`, `quantiles`, and `delta_funs` are all inheriting
+#'   from `sum_dist`.
 #'
-#' - All `sum_dist` and `fit_stats` objects are inheriting from `stats_dm`.
+#' - All `sum_dist` and `fit_stats` objects are inheriting from
+#'   `stats_dm`.
 #'
 #' - Each `stats_dm_list` object is just a list containing instances of
 #'   `stats_dm`.
@@ -213,6 +223,18 @@ summary.stats_dm <- function(object, ...,
 }
 
 
+
+#' @rdname summary.stats_dm
+#' @export
+summary.basic_stats <- function(object, ...) {
+  basic_obj <- object
+
+  ans <- NextMethod()
+  ans$conds <- conds(basic_obj)
+
+  class(ans) <- "summary.basic_stats"
+  return(ans)
+}
 
 #' @rdname summary.stats_dm
 #' @export
@@ -255,6 +277,9 @@ summary.delta_funs <- function(object, ...) {
   class(ans) <- "summary.delta_funs"
   return(ans)
 }
+
+
+
 
 
 #' @rdname summary.stats_dm
@@ -328,6 +353,23 @@ print.summary.stats_dm <- function(x, ...,
 
 #' @rdname summary.stats_dm
 #' @export
+print.summary.basic_stats <- function(x, ...) {
+  summary_obj <- x
+
+  # call the higher-order sum_dist printing function, and drop cond and bin
+  print.summary.sum_dist(summary_obj, ...,
+                         drop_cols = c("ID", "Source", "Cond")
+  )
+
+  # print cafs specific information
+  cat("Conditions:", paste(summary_obj$conds, collapse = ", "), "\n")
+
+  invisible(x)
+}
+
+
+#' @rdname summary.stats_dm
+#' @export
 print.summary.cafs <- function(x, ...) {
   summary_obj <- x
 
@@ -390,6 +432,7 @@ print.summary.fit_stats <- function(x, ...) {
   print.summary.stats_dm(summary_obj, ..., drop_cols = "ID")
   invisible(x)
 }
+
 
 
 #' @rdname summary.stats_dm

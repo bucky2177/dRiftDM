@@ -1,7 +1,190 @@
+
+# Basic Stats -------------------------------------------------------------
+
+test_that("calc_basic_stats_obs works as expected", {
+
+  rts_u = c(1,2,2,3,3,4)
+  rts_l = c(1,2,6, 3)
+
+  returned_dat = calc_basic_stats_obs(rts_u, rts_l, one_cond = "foo")
+
+  # expectation
+  exp = data.frame(Cond = "foo", Mean_U = mean(rts_u), Mean_L = mean(rts_l),
+                   SD_U = sd(rts_u), SD_L = sd(rts_l), P_U = 0.6)
+  expect_identical(exp, returned_dat)
+
+})
+
+
+test_that("calc_basic_stats_pred works as expected", {
+
+  dt = .005
+  t_vec = seq(0, 2, dt)
+
+  pdf_u = dgamma(t_vec, shape = 2, scale = .125) * 0.65
+  pdf_l = dnorm(t_vec, mean = 0.3, sd = 0.05) * 0.35
+
+
+  returned_dat = calc_basic_stats_pred(pdf_u = pdf_u, pdf_l = pdf_l,
+                                       one_cond = "bar", t_vec = t_vec,
+                                       dt = dt)
+
+  # expectation
+  exp = data.frame(Cond = "bar", Mean_U = 0.25, Mean_L = 0.3,
+                   SD_U = 0.17678, SD_L = 0.05, P_U = 0.65)
+  expect_s3_class(returned_dat, "data.frame")
+  expect_equal(exp$Cond, returned_dat$Cond)
+  expect_true(abs(exp$Mean_U - returned_dat$Mean_U) < .0001)
+  expect_equal(exp$Mean_L, returned_dat$Mean_L)
+  expect_true(abs(exp$SD_U - returned_dat$SD_U) < .0001)
+  expect_true(abs(exp$SD_L - returned_dat$SD_L) < .0001)
+  expect_true(abs(exp$P_U - returned_dat$P_U) < .0001)
+
+})
+
+
+test_that("calc_basic_stats -> works as expected", {
+
+  # get a model to test
+  model <- dmc_dm(dt = .005, dx = .005, obs_data = dmc_synth_data,
+                  t_max = 2)
+
+  model <- re_evaluate_model(model)
+
+
+  # expectations based on the pdfs
+  t_vec = seq(0, 2, 0.005)
+  pdfs_pred = pdfs(model)
+  exps_pred_comp = calc_basic_stats_pred(pdf_u = pdfs_pred$comp$pdf_u,
+                                         pdf_l = pdfs_pred$comp$pdf_l,
+                                         one_cond = "comp", t_vec = t_vec,
+                                         dt = .005, skip_if_contr_low = NULL)
+  exps_pred_comp = cbind(Source = "pred", exps_pred_comp)
+
+  exps_pred_incomp = calc_basic_stats_pred(pdf_u = pdfs_pred$incomp$pdf_u,
+                                           pdf_l = pdfs_pred$incomp$pdf_l,
+                                           one_cond = "incomp", t_vec = t_vec,
+                                           dt = .005, skip_if_contr_low = NULL)
+  exps_pred_incomp = cbind(Source = "pred", exps_pred_incomp)
+
+
+  # expectations based on the data
+  exps_obs_comp = calc_basic_stats_obs(rts_u = model$obs_data$rts_u$comp,
+                                       rts_l = model$obs_data$rts_l$comp,
+                                       one_cond = "comp")
+  exps_obs_comp = cbind(Source = "obs", exps_obs_comp)
+  exps_obs_incomp = calc_basic_stats_obs(rts_u = model$obs_data$rts_u$incomp,
+                                         rts_l = model$obs_data$rts_l$incomp,
+                                         one_cond = "incomp")
+  exps_obs_incomp = cbind(Source = "obs", exps_obs_incomp)
+
+  exps = rbind(exps_obs_comp, exps_obs_incomp, exps_pred_comp, exps_pred_incomp)
+
+
+  # calculate via calc_stats.drift_dm
+  basics <- calc_stats(model, type = "basic_stats")
+
+  # test equivalence (workaround because row names are different)
+  expect_identical(basics$Mean_corr, exps$Mean_U)
+  expect_identical(basics$Mean_err, exps$Mean_L)
+  expect_identical(basics$SD_corr, exps$SD_U)
+  expect_identical(basics$SD_err, exps$SD_L)
+  expect_identical(basics$P_corr, exps$P_U)
+  expect_identical(basics$Cond, exps$Cond)
+  expect_identical(basics$Source, exps$Source)
+
+
+  ## validate object attributes/aspects
+  expect_equal(class(basics), c("basic_stats", "sum_dist", "stats_dm",
+                                "data.frame"))
+  expect_equal(colnames(basics),
+               c("Source", "Cond", "Mean_corr", "Mean_err", "SD_corr",
+                 "SD_err", "P_corr"))
+  expect_true(!is.null(attr(basics, "b_coding")))
+})
+
+
+test_that("basic_stats -> validate work as expected", {
+  data_id <- dRiftDM::ulrich_flanker_data
+  obs_basic_stats <- calc_stats(data_id, type = "basic_stats")
+
+  test <- aggregate(cbind(Mean_corr, Mean_err, SD_corr, SD_err, P_corr) ~
+                    Source + Cond, obs_basic_stats, mean,
+                    na.action = na.pass, na.rm = T)
+
+  # test what is returned
+  basic_stats_agg <- calc_stats(data_id, type = "basic_stats", average = T)
+  expect_equal(unpack_obj(basic_stats_agg), test)
+  expect_equal(class(basic_stats_agg),
+               c("basic_stats", "sum_dist", "stats_dm", "data.frame"))
+  expect_equal(attr(basic_stats_agg, "b_coding"), drift_dm_default_b_coding())
+
+  # input checks of validate
+  temp <- basic_stats_agg
+  attr(temp, "b_coding") <- NULL
+  expect_error(validate_stats_dm(temp), "b_coding")
+
+  temp <- basic_stats_agg
+  colnames(temp)[1] <- "foo"
+  expect_error(validate_stats_dm(temp), "Source")
+
+  temp <- basic_stats_agg
+  colnames(temp)[2] <- "foo"
+  expect_error(validate_stats_dm(temp), "Cond")
+
+  temp <- basic_stats_agg
+  colnames(temp)[3] <- "foo"
+  expect_error(validate_stats_dm(temp), "Mean_")
+
+  temp <- basic_stats_agg
+  colnames(temp)[4] <- "foo"
+  expect_error(validate_stats_dm(temp), "Mean_")
+
+  temp <- basic_stats_agg
+  colnames(temp)[5] <- "foo"
+  expect_error(validate_stats_dm(temp), "SD_")
+
+  temp <- basic_stats_agg
+  colnames(temp)[6] <- "foo"
+  expect_error(validate_stats_dm(temp), "SD_")
+
+  temp <- basic_stats_agg
+  colnames(temp)[7] <- "foo"
+  expect_error(validate_stats_dm(temp), "P_")
+
+  temp <- basic_stats_agg
+  temp$P_foo <- temp$P_corr
+  expect_error(validate_stats_dm(temp), "P_")
+})
+
+
+
+test_that("basic_stats -> input checks", {
+  b_coding <- drift_dm_default_b_coding()
+
+  # input checks
+  expect_error(
+    calc_cafs(
+      pdf_u = c(0, 1, 0), pdf_l = NULL, rts_u = NULL, rts_l = NULL,
+      one_cond = "foo", b_coding = b_coding
+    ),
+    "both NULL or not"
+  )
+
+  expect_error(
+    calc_cafs(
+      pdf_u = NULL, pdf_l = NULL, rts_u = c(0, 1, 0), rts_l = NULL,
+      one_cond = "foo", b_coding = b_coding
+    ),
+    "both NULL or not"
+  )
+})
+
+
 # CAFS --------------------------------------------------------------------
 
 test_that("calc_caf -> observed works as expected", {
-  # cafs via calc_stats.drift_dm ####
+
   params <- c(a = 1)
   conds <- c("null", "foo")
   dummy_model <- drift_dm(params, conds, subclass = "test")

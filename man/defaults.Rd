@@ -10,6 +10,7 @@
 \alias{drift_dm_default_rounding}
 \alias{drift_dm_default_probs}
 \alias{drift_dm_default_b_coding}
+\alias{drift_dm_skip_if_contr_low}
 \title{Default Values for the dRiftDM Package}
 \usage{
 drift_dm_approx_error()
@@ -27,6 +28,8 @@ drift_dm_default_rounding()
 drift_dm_default_probs()
 
 drift_dm_default_b_coding()
+
+drift_dm_skip_if_contr_low()
 }
 \value{
 the respective values/lists as described in the Details section
@@ -55,6 +58,11 @@ for quantiles (0.1, 0.2, ..., 0.9)
 \item \code{drift_dm_default_b_coding()}: Returns the default boundary coding
 (list(column = "Error", u_name_value = c("corr" = 0),
 l_name_value = c("err" = 1))
+\item \code{drift_dm_skip_if_contr_low()}: returns the value 0.0001. If a PDF
+integrates to a value lower than that (i.e., if there is almost no
+contribution of a PDF; most likely this will be pdf_l), then summary
+functions returned by \code{\link[=calc_stats]{calc_stats()}} might contain the value NA
+for the respective PDF.
 }
 }
 \keyword{internal}

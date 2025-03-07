@@ -13,7 +13,8 @@ calc_quantiles_pred(
   t_vec,
   one_cond,
   probs,
-  skip_if_contr_low = 1e-04
+  dt,
+  skip_if_contr_low = NULL
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ levels}
 
 \item{t_vec}{the time space (required for the pdfs)}
 
-\item{skip_if_contr_low}{numeric. If the relative contribution of the upper
-or lower PDF to the overall PDF is too low (default 0.01\%), return NAs for
-this PDF.}
+\item{dt}{the step size corresponding to the time space}
+
+\item{skip_if_contr_low}{numeric. If the contribution of the upper
+or lower PDF to the overall PDF is too low, return NAs for
+this PDF (see also \code{\link[=drift_dm_skip_if_contr_low]{drift_dm_skip_if_contr_low()}}).}
 }
 \value{
 a data.frame with the "Cond" label, the "Prob"s and "Quant_U" and

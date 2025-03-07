@@ -2,6 +2,7 @@
 % Please edit documentation in R/core_stats.R
 \name{validate_stats_dm}
 \alias{validate_stats_dm}
+\alias{validate_stats_dm.basic_stats}
 \alias{validate_stats_dm.cafs}
 \alias{validate_stats_dm.quantiles}
 \alias{validate_stats_dm.delta_funs}
@@ -11,6 +12,8 @@
 \title{Validate a stats_dm Object}
 \usage{
 validate_stats_dm(stat_df)
+
+\method{validate_stats_dm}{basic_stats}(stat_df)
 
 \method{validate_stats_dm}{cafs}(stat_df)
 
@@ -25,9 +28,9 @@ validate_stats_dm(stat_df)
 \method{validate_stats_dm}{stats_dm}(stat_df)
 }
 \arguments{
-\item{stat_df}{A \code{data.frame} of class \code{stats_dm}, \code{cafs}, \code{quantiles},
-\code{delta_funs}, \code{sum_dist}, or \code{fit_stats} containing the calculated statistics
-to be validated.}
+\item{stat_df}{A \code{data.frame} of class \code{stats_dm}, \code{basic_stats}, \code{cafs},
+\code{quantiles}, \code{delta_funs}, \code{sum_dist}, or \code{fit_stats} containing the
+calculated statistics to be validated.}
 }
 \value{
 Returns the unmodified \code{stat_df} for convenience.
@@ -35,15 +38,18 @@ Returns the unmodified \code{stat_df} for convenience.
 \description{
 \code{validate_stats_dm} is an internal (i.e., not exported) generic function to
 ensure that \code{stats_dm} objects, as well as their specific subclasses
-(\code{cafs}, \code{quantiles}, \code{delta_funs}, \code{sum_dist}, and \code{fit_stats}), meet the
-necessary structural and column requirements. Each method performs
-class-specific validation checks.
+(\code{basic_stats}, \code{cafs}, \code{quantiles}, \code{delta_funs}, \code{sum_dist}, and
+\code{fit_stats}), meet the necessary structural and column requirements. Each
+method performs class-specific validation checks.
 }
 \details{
 The validation process checks for required columns and structure based on the
 class of \code{stat_df}. Each class has specific requirements:
 \itemize{
 \item \strong{\code{validate_stats_dm.stats_dm}:} Ensures \code{stat_df} is a \code{data.frame}.
+\item \strong{\code{validate_stats_dm.basic_stats}:} Checks for the presence of \code{"Cond"},
+exactly two columns with prefix \verb{"Mean_}, and exactly one column prefixed
+with \code{"P_"}
 \item \strong{\code{validate_stats_dm.cafs}:} Checks for the presence of \code{"Bin"}, \code{"Cond"},
 and exactly one column prefixed with \code{"P_"}
 \item \strong{\code{validate_stats_dm.quantiles}:} Requires \code{"Prob"}, \code{"Cond"}, and exactly

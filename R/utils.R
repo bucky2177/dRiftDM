@@ -530,6 +530,11 @@ check_unique_special_boundary <- function(drift_dm_obj, l_u) {
 #' - `drift_dm_default_b_coding()`: Returns the default boundary coding
 #' (list(column = "Error", u_name_value = c("corr" = 0),
 #' l_name_value = c("err" = 1))
+#' - `drift_dm_skip_if_contr_low()`: returns the value 0.0001. If a PDF
+#' integrates to a value lower than that (i.e., if there is almost no
+#' contribution of a PDF; most likely this will be pdf_l), then summary
+#' functions returned by [dRiftDM::calc_stats()] might contain the value NA
+#' for the respective PDF.
 #'
 #' @name defaults
 #'
@@ -578,6 +583,10 @@ drift_dm_default_b_coding <- function() {
   return(b_coding)
 }
 
+#' @rdname defaults
+drift_dm_skip_if_contr_low <- function() {
+ return(0.0001)
+}
 
 
 # FOR EXAMPLES ------------------------------------------------------------

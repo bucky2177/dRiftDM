@@ -118,7 +118,7 @@ Here we receive a message reminding us that all parameter values have been reset
 ```{r}
 flex_prms(ddm)
 ```
-While this may be a bit annoying in some cases, it actually makes sense because there is no way for dRifDM to know how the new conditions relate to the old ones. Consequently, we now have to modify the underlying `flex_prms` object again to suit our needs. For example, we could restore the previous behavior for `A` in the `incomp` condition, while setting `A` to zero for the new `neutral` condition. We might also want to keep `a` again fixed for all conditions:
+While this may be a bit annoying in some cases, it actually makes sense because there is no way for dRiftDM to know how the new conditions relate to the old ones. Consequently, we now have to modify the underlying `flex_prms` object again to suit our needs. For example, we could restore the previous behavior for `A` in the `incomp` condition, while setting `A` to zero for the new `neutral` condition. We might also want to keep `a` again fixed for all conditions:
 
 ```{r}
 instructions <- "

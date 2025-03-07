@@ -24,14 +24,16 @@ A data frame with the calculated statistic across \code{conds}
 (ordered according to \code{Source}).
 }
 \description{
-This function derives statistics that can be calculated for both model
-predictions and observed data. However, it does not calculate it, but
+This function derives statistics that can be calculated for model
+predictions and/or observed data. However, it does not calculate it, but
 rather calls the respective backend functions.
 Supported statistics currently include:
 \itemize{
+\item Basic Summary Statistics (i.e., means and response percentages
+\code{\link[=calc_basic_stats]{calc_basic_stats()}})
 \item Conditional Accuracy Functions (CAFs; \code{\link[=calc_cafs]{calc_cafs()}})
 \item Quantiles (\code{\link[=calc_quantiles]{calc_quantiles()}})
-\item Delta Functions (\code{\link[=calc_delta_funs]{calc_delta_funs()}})
+\item Delta Functions (\code{\link[=calc_delta_funs]{calc_delta_funs()}}).
 }
 }
 \details{
@@ -41,9 +43,13 @@ When calling this function the arguments \code{all_rts_u}/\code{all_rts_l} and/o
 functions won't work properly. Further arguments are:
 \itemize{
 \item for CAFS: \code{n_bins} controls the number of bins, with a default of 5.
-\item for Quantiles and Delta Functions: \code{probs} c ontrols the quantiles to
+\item for Quantiles and Delta Functions: \code{probs} controls the quantiles to
 calculate. Default is \code{seq(0.1, 0.9, 0.1)}
 (see \code{\link[=drift_dm_default_probs]{drift_dm_default_probs()}}).
+\item For basic summary satistics, Quantiles, and Delta Function:
+\code{skip_if_contr_low} controls if quantiles and means are calculated for PDFs
+with very small contribution (see also
+\code{\link[=drift_dm_skip_if_contr_low]{drift_dm_skip_if_contr_low()}}).
 }
 
 This function gets called by \link{calc_stats}

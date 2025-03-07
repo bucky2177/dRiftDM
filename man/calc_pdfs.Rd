@@ -26,7 +26,7 @@ a list of PDFs, with named entries for each condition. Each of this
 entry contains a list of vectors, named "pdf_u" and "pdf_l"
 }
 \description{
-This method takes the a model, the time and space vectors, and the
+This method takes a model, the time and space vectors, and the
 unpacked parameters for solving the PDF to derive the first passage
 time across all conditions. It is a wrapper around the cpp implementations
 and \link{add_residual}. Important: This function is used in the

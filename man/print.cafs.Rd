@@ -2,6 +2,7 @@
 % Please edit documentation in R/formatting_stats_dm.R
 \name{print.cafs}
 \alias{print.cafs}
+\alias{print.basic_stats}
 \alias{print.quantiles}
 \alias{print.delta_funs}
 \alias{print.fit_stats}
@@ -9,6 +10,8 @@
 \title{Print Functions for Stats Objects}
 \usage{
 \method{print}{cafs}(x, ...)
+
+\method{print}{basic_stats}(x, ...)
 
 \method{print}{quantiles}(x, ...)
 

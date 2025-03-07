@@ -1,7 +1,7 @@
 #' ---
 #' title: "Reproducing dRiftDM Article Output"
 #' author: "Valentin Koob (bucky2177)"
-#' date: "27.02.2025"
+#' date: "04.03.2025"
 #' ---
 #'
 #' This document contains the code for dRiftDM's article to facilitate review.
@@ -13,7 +13,7 @@ rm(list = ls())
 
 #' Load the package and choose a pre-built model.
 #+ get_a_ddm
-library(dRiftDM)
+library("dRiftDM")
 a_model <- ratcliff_dm() # a basic DDM (the Ratcliff DDM)
 print(a_model) # print the model to the console
 
@@ -118,10 +118,9 @@ a_model <- estimate_model( # takes about 15 seconds
   drift_dm_obj = a_model, # the model (i.e., DMC)
   lower = lower_prm_bnd, # the lower end of the search space
   upper = upper_prm_bnd, # the upper end of the search space
-  use_de_optim = F, # don't use the (default) DE algorithm
-  use_nmkb = T # but use (bounded) Nelder-Mead
+  use_de_optim = FALSE, # don't use the (default) DE algorithm
+  use_nmkb = TRUE # but use (bounded) Nelder-Mead
 )
-round(coef(a_model), 3)
 
 #' Repeat the same, but now use Differential Evolution
 #+ estimate_one_data_set_de
@@ -183,15 +182,14 @@ estimate_model_ids( # takes about 10 minutes
   upper = upper_prm_bnd, # upper boundary of the search space
   fit_path = getwd(), # write in the working directory
   fit_procedure_name = "ulrich_flanker", # a label for the fit procedure
-  use_de_optim = F, # DE is default
-  use_nmkb = T # but use Nelder-Mead (faster; for the tutorial)
+  use_de_optim = FALSE, # DE is default
+  use_nmkb = TRUE # but use Nelder-Mead (faster; for the tutorial)
 )
 
 #' See the folder structure
 #+ folder_str
 # fit procedure structure (saved within working directory; getwd())
 list.dirs()
-list.files(file.path(getwd(), "./drift_dm_fits/ulrich_flanker/"))
 
 #' Load all fits to investigate model fit and the parameter estimates
 #+ load_plot_multiple_ids, fig.width = 8, fig.height = 4
@@ -199,7 +197,6 @@ list.files(file.path(getwd(), "./drift_dm_fits/ulrich_flanker/"))
 all_fits <- load_fits_ids(
   fit_procedure_name = "ulrich_flanker",
 )
-print(all_fits)
 
 # investigate model fit (as above)
 sum_stats <- calc_stats(
@@ -236,15 +233,12 @@ data_prms <- simulate_data(
   upper = upper_sim_bnd # upper end of the simulation space
 )
 
-synth_data <- data_prms$synth_data # extract the synthetic data
-head(synth_data)
-
-orig_prms <- data_prms$prms # the parameter underlying the synth. data
-head(orig_prms)
 
 #' Fit the model to the synthetic data
 #+ fit_prm_recovery
-# set discretization for the recovery
+synth_data <- data_prms$synth_data # extract the synthetic data
+
+# increase discretization
 prms_solve(a_model)["dx"] <- c(.005)
 prms_solve(a_model)["dt"] <- c(.005)
 
@@ -266,8 +260,8 @@ estimate_model_ids( # takes about 30 minutes with 2 cores
 #' biases.
 #+ summarize_prm_recovery
 recov_fits <- load_fits_ids(fit_procedure_name = "ratcliff_recovery")
-recov_prms <- coef(recov_fits) # extracts parameters
-stopifnot(recov_prms$ID == orig_prms$ID) # ensure that the order of IDs matches
+recov_prms <- coef(recov_fits) # the estimated parameter values
+orig_prms <- data_prms$prms # the original parameter values
 
 # correlations
 cor(recov_prms$muc, orig_prms$muc)
@@ -275,12 +269,9 @@ cor(recov_prms$b, orig_prms$b)
 cor(recov_prms$non_dec, orig_prms$non_dec)
 
 # biases
-mean(recov_prms$muc - orig_prms$muc) /
-  diff(range(orig_prms$muc))
-mean(recov_prms$b - orig_prms$b) /
-  diff(range(orig_prms$b))
-mean(recov_prms$non_dec - orig_prms$non_dec) /
-  diff(range(orig_prms$non_dec))
+mean(recov_prms$muc - orig_prms$muc) / diff(range(orig_prms$muc))
+mean(recov_prms$b - orig_prms$b) / diff(range(orig_prms$b))
+mean(recov_prms$non_dec - orig_prms$non_dec) / diff(range(orig_prms$non_dec))
 
 
 
@@ -340,9 +331,14 @@ plot(
 
 # -------------------------------------------------------------------------
 #' # Build a Model from Scratch: SPP
-#' Here, we create the Shrinking Spotlight Model. To this end, we first
-#' define the custom drift rate of this model, and then write a wrapper around
-#' a function call to `drift_dm()`.
+#'
+#' We can access each component function with `comp_funs()`
+#+ comp_funs
+names(comp_funs(a_model))
+
+#' In the following, we create the Shrinking Spotlight Model. To this end, we
+#' first define the custom drift rate of this model, and then write a wrapper
+#' around a function call to `drift_dm()`.
 #+ ssp_code
 # drift rate for SSP
 mu_ssp <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {

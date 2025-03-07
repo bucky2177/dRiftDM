@@ -284,9 +284,8 @@ nt_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("t_vec is not a vector")
   }
 
-  dt <- prms_solve[["dt"]]
   d_nt <- numeric(length(t_vec))
-  which_index <- as.integer(non_dec / dt)
+  which_index <- round(non_dec / dt)
   d_nt[which_index + 1] <- 1 / dt
   return(d_nt)
 }

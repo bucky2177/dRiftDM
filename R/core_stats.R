@@ -1,3 +1,212 @@
+
+# FUNCTIONS FOR BASIC SUMMARY STATISTICS ------------------------------------
+
+#' Calculate Basic Mean, Standard Deviations, and Percentages for Observed and
+#' Predicted Data
+#'
+#' Backend functions to compute the mean response times, standard deviations of
+#' response times, and response proportions; for both observed RTs or the
+#' predicted probability density functions.
+#'
+#' @param rts_u,rts_l numeric, vectors of response times for the upper and lower
+#'  boundaries.
+#' @param pdf_u,pdf_l numeric, vectors of probability density values for the
+#'  upper and lower boundaries.
+#' @param one_cond character, a label for the condition.
+#' @param t_vec numeric vector, containing the time points corresponding to the
+#'  probability density values.
+#' @param dt a single numeric, providing the step size in `t_vec`.
+#' @param skip_if_contr_low a single numeric, threshold below which probability
+#' densities are ignored (default is obtained from
+#' [dRiftDM::drift_dm_skip_if_contr_low()]).
+#'
+#' @returns A [data.frame] with columns:
+#'   - `Cond`: Condition label.
+#'   - `Mean_U`: Mean response time for the upper boundary
+#'   - `Mean_L`: Mean response time for the lower boundary
+#'   - `SD_U`: Mean response time for the upper boundary
+#'   - `SD_L`: Mean response time for the lower boundary
+#'   - `P_U`: Proportion of upper-boundary responses.
+#'
+#' @details
+#' - For observed data, calculates mean RTs, standard deviations of RTs, and
+#'   the proportion of upper responses.
+#' - The same statistics are calculated for the probability density values (via
+#'   simple numerical integration)
+#'
+#' @keywords internal
+calc_basic_stats_obs <- function(rts_u, rts_l, one_cond) {
+
+  # calculate the means
+  mean_u = mean(rts_u)
+  mean_l = mean(rts_l)
+
+  # calculate the sds
+  sd_u = stats::sd(rts_u)
+  sd_l = stats::sd(rts_l)
+
+  # calculate the percentages (e.g., error rates)
+  ratio = length(rts_u) / (length(rts_u) + length(rts_l))
+
+  # pack up as a data.frame and return
+  basic_stats <- data.frame(
+    Cond = one_cond,
+    Mean_U = mean_u,
+    Mean_L = mean_l,
+    SD_U = sd_u,
+    SD_L = sd_l,
+    P_U = ratio
+  )
+  return(basic_stats)
+}
+
+
+#' @rdname calc_basic_stats_obs
+calc_basic_stats_pred <- function(pdf_u, pdf_l, one_cond, t_vec, dt,
+                                  skip_if_contr_low = NULL) {
+
+  stopifnot(length(pdf_u) == length(pdf_l))
+  stopifnot(length(pdf_u) == length(t_vec))
+  stopifnot(!is.null(dt))
+
+  if (is.null(skip_if_contr_low))
+    skip_if_contr_low <- drift_dm_skip_if_contr_low()
+
+  # first, calculate the ratio of the probability mass
+  sum_pdf_u <- sum(pdf_u)
+  sum_pdf_l <- sum(pdf_l)
+
+  ratio = sum(pdf_u) / (sum(pdf_u) + sum(pdf_l))
+
+  # determine if the contribution is relevant
+  if (sum_pdf_u*dt < skip_if_contr_low) pdf_u <- rep(NA, length(pdf_u))
+  if (sum_pdf_l*dt < skip_if_contr_low) pdf_l <- rep(NA, length(pdf_l))
+
+
+  # scale the pdfs so that they integrate to one
+  pdf_u <- pdf_u / (sum(pdf_u) * dt)
+  pdf_l <- pdf_l / (sum(pdf_l) * dt)
+
+  # then calculate the mean
+  mean_u = sum(t_vec * pdf_u) * dt
+  mean_l = sum(t_vec * pdf_l) * dt
+
+  # and the standard deviation (V(X) = E(X^2) - E(X)^2)
+  sd_u = sqrt(sum(t_vec^2 * pdf_u) * dt - mean_u^2)
+  sd_l = sqrt(sum(t_vec^2 * pdf_l) * dt - mean_l^2)
+
+  # pass back
+  basic_stats <- data.frame(
+    Cond = one_cond,
+    Mean_U = mean_u,
+    Mean_L = mean_l,
+    SD_U = sd_u,
+    SD_L = sd_l,
+    P_U = ratio
+  )
+  return(basic_stats)
+}
+
+
+
+
+#' Calculate Basic Statistics for Response Times or Probability Densities
+#'
+#' Function that calls the underlying functions
+#' [dRiftDM::calc_basic_stats_obs] and [dRiftDM::calc_basic_stats_pred].
+#' Handles input checks and data wrangling.
+#'
+#' @inheritParams calc_basic_stats_obs
+#' @param b_coding list, used for accessing the upper boundary label, determines
+#' the corresponding column of the returned data.frame (e.g., P_`corr`).
+#'
+#' @return A [data.frame] with columns:
+#'   - `Source`: Indicates whether the statistics refer to observed (`obs`) or
+#'    predicted (`pred`) data.
+#'   - `Cond`: A condition label.
+#'   - `Mean_<u_label>`: Mean response time for the upper boundary.
+#'   - `Mean_<l_label>`: Mean response time for the lower boundary.
+#'   - `P_<u_label>`: Proportion of upper-boundary responses.
+#'
+#'
+#' @details
+#' - If `pdf_u` and `pdf_l` are provided, the function computes statistics for
+#'   the probability densities.
+#' - If `rts_u` and `rts_l` are provided, the function computes statistics for
+#'   the observed RTs.
+#' - If both sets of inputs are provided, both types of statistics are computed
+#'   and returned.
+#'
+#' @seealso [dRiftDM::calc_basic_stats_obs], [dRiftDM::calc_basic_stats_pred],
+#' [dRiftDM::new_stats_dm]
+#'
+#' @keywords internal
+calc_basic_stats <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL,
+                             rts_l = NULL, one_cond, b_coding, t_vec = NULL,
+                             dt = NULL, skip_if_contr_low = NULL) {
+
+
+  # boundary settings and checks
+  u_name <- names(b_coding$u_name_value)
+  l_name <- names(b_coding$l_name_value)
+
+
+  # check pdf_l and pdf_u
+  if (xor(is.null(pdf_l), is.null(pdf_u))) {
+    stop("pdf_l and pdf_u either have to be both NULL or not")
+  }
+
+  # check rts_u and rts_l
+  if (xor(is.null(rts_u), is.null(rts_l))) {
+    stop("rts_u and rts_l either have to be both NULL or not")
+  }
+
+  # calculate the respective statistics
+  # if pdfs are supplied ...
+  result_pred <- NULL
+  if (!is.null(pdf_u)) {
+    result_pred <- calc_basic_stats_pred(
+      pdf_u = pdf_u, pdf_l = pdf_l, one_cond = one_cond,
+      t_vec = t_vec, dt = dt, skip_if_contr_low = skip_if_contr_low
+    )
+    result_pred <- cbind(Source = "pred", result_pred)
+
+  }
+
+  result_obs <- NULL
+  if (!is.null(rts_u)) {
+    result_obs <- calc_basic_stats_obs(
+      rts_u = rts_u, rts_l = rts_l, one_cond = one_cond
+    )
+    result_obs <- cbind(Source = "obs", result_obs)
+  }
+
+
+
+  # combine and format names
+  result <- rbind(result_obs, result_pred)
+
+  if (!is.null(result)) {
+    new_names_u = gsub(pattern = "_U$", replacement = paste0("_", u_name),
+                       x = grep("_U$", names(result), value = T))
+    colnames(result)[grepl(pattern = "_U$", x = names(result))] <-
+      new_names_u
+
+    new_names_l = gsub(pattern = "_L$", replacement = paste0("_", l_name),
+                       x = grep("_L$", names(result), value = T))
+    colnames(result)[grepl(pattern = "_L$", x = names(result))] <-
+      new_names_l
+  }
+
+  # make it a stats_dm class and pass back
+  stats_dm_obj <- new_stats_dm(
+    stat_df = result, type = "basic_stats",
+    b_coding = b_coding
+  )
+  return(stats_dm_obj)
+}
+
+
 # FUNCTIONS FOR CALCULATING THE CAF ---------------------------------------
 
 #' Calculate CAFs
@@ -193,10 +402,11 @@ calc_cafs <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL, rts_l = NULL,
 #' @param probs numeric vector with values between 0 and 1 for the probability
 #' levels
 #' @param t_vec the time space (required for the pdfs)
+#' @param dt the step size corresponding to the time space
 #'
-#' @param skip_if_contr_low numeric. If the relative contribution of the upper
-#' or lower PDF to the overall PDF is too low (default 0.01%), return NAs for
-#' this PDF.
+#' @param skip_if_contr_low numeric. If the contribution of the upper
+#' or lower PDF to the overall PDF is too low, return NAs for
+#' this PDF (see also [dRiftDM::drift_dm_skip_if_contr_low()]).
 #'
 #' @returns a data.frame with the "Cond" label, the "Prob"s and "Quant_U" and
 #' "Quant_L" for the quantiles
@@ -222,10 +432,14 @@ calc_quantiles_obs <- function(rts_u, rts_l, one_cond, probs) {
 }
 
 #' @rdname calc_quantiles_obs
-calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs,
-                                skip_if_contr_low = 0.0001) {
+calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs, dt,
+                                skip_if_contr_low = NULL) {
   stopifnot(length(pdf_u) == length(pdf_l))
   stopifnot(length(pdf_u) == length(t_vec))
+  stopifnot(!is.null(dt))
+
+  if (is.null(skip_if_contr_low))
+    skip_if_contr_low <- drift_dm_skip_if_contr_low()
 
   quants <-
     apply(cbind(pdf_u, pdf_l), MARGIN = 2, function(a_pdf, t_vec, probs) {
@@ -243,10 +457,10 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs,
   sum_pdf_l <- sum(pdf_l)
   sum_pdf_u <- sum(pdf_u)
 
-  if (sum_pdf_u / (sum_pdf_u + sum_pdf_l) <= skip_if_contr_low) {
+  if (sum_pdf_u * dt < skip_if_contr_low) {
     quants["Quant_U"] <- NA
   }
-  if (sum_pdf_l / (sum_pdf_u + sum_pdf_l) <= skip_if_contr_low) {
+  if (sum_pdf_l * dt < skip_if_contr_low) {
     quants["Quant_L"] <- NA
   }
 
@@ -257,18 +471,14 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs,
 #' Calculate Quantiles
 #'
 #' Function that calls the underlying quantile calculation functions
-#' [dRiftDM::calc_quantiles_obs] and [dRiftDM::calc_quantiles_pred]. Does
+#' [dRiftDM::calc_quantiles_obs()] and [dRiftDM::calc_quantiles_pred()]. Does
 #' input checks and the data wrangling
 #'
-#' @param pdf_u,pdf_l either NULL or density vectors
-#' @param t_vec the time space (required for the pdfs)
-#' @param rts_u,rts_l either NULL or RT vectors
-#' @param one_cond character label
-#' @param probs numeric vector with values between 0 and 1 for the probability
-#' levels. Default is [dRiftDM::drift_dm_default_probs()].
+#' @inheritParams calc_quantiles_obs
 #' @param b_coding used for accessing the upper/lower boundary labels,
 #' determines the corresponding columns of the returned data.frame
 #' (e.g., Quant_`corr`).
+
 #'
 #' @returns a data.frame with "Source", "Cond", "Prob"s, "Quant_<u_label>",
 #' "Quant_<l_label>" of type
@@ -284,9 +494,9 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs,
 #' @seealso [dRiftDM::new_stats_dm()]
 #'
 #' @keywords internal
-calc_quantiles <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL,
+calc_quantiles <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL, dt = NULL,
                            rts_u = NULL, rts_l = NULL, one_cond,
-                           probs = NULL, b_coding) {
+                           probs = NULL, b_coding, skip_if_contr_low = NULL) {
   # default settings and parameter extraction
   if (is.null(probs)) {
     probs <- drift_dm_default_probs()
@@ -319,8 +529,8 @@ calc_quantiles <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL,
   if (!is.null(pdf_u)) {
     result_pred <- calc_quantiles_pred(
       pdf_u = pdf_u, pdf_l = pdf_l,
-      t_vec = t_vec, one_cond = one_cond,
-      probs = probs
+      t_vec = t_vec, dt = dt, one_cond = one_cond,
+      probs = probs, skip_if_contr_low = skip_if_contr_low
     )
     result_pred <- cbind(Source = "pred", result_pred)
 
@@ -579,13 +789,15 @@ calc_ic <- function(drift_dm_obj, ...) {
 
 #' Calculate Statistics for Model Prediction and/or Observed Data
 #'
-#' This function derives statistics that can be calculated for both model
-#' predictions and observed data. However, it does not calculate it, but
+#' This function derives statistics that can be calculated for model
+#' predictions and/or observed data. However, it does not calculate it, but
 #' rather calls the respective backend functions.
 #' Supported statistics currently include:
+#' - Basic Summary Statistics (i.e., means and response percentages
+#'   [dRiftDM::calc_basic_stats()])
 #' - Conditional Accuracy Functions (CAFs; [dRiftDM::calc_cafs()])
 #' - Quantiles ([dRiftDM::calc_quantiles()])
-#' - Delta Functions ([dRiftDM::calc_delta_funs()])
+#' - Delta Functions ([dRiftDM::calc_delta_funs()]).
 #'
 #' @param type character string, specifying the type of statistic to calculate.
 #'   Available options are `"cafs"`, `"quantiles"`, and `"delta_funs"`.
@@ -604,9 +816,13 @@ calc_ic <- function(drift_dm_obj, ...) {
 #' functions won't work properly. Further arguments are:
 #'
 #' - for CAFS: `n_bins` controls the number of bins, with a default of 5.
-#' - for Quantiles and Delta Functions: `probs` c ontrols the quantiles to
+#' - for Quantiles and Delta Functions: `probs` controls the quantiles to
 #' calculate. Default is `seq(0.1, 0.9, 0.1)`
 #' (see [dRiftDM::drift_dm_default_probs()]).
+#' - For basic summary satistics, Quantiles, and Delta Function:
+#' `skip_if_contr_low` controls if quantiles and means are calculated for PDFs
+#' with very small contribution (see also
+#' [dRiftDM::drift_dm_skip_if_contr_low()]).
 #'
 #' This function gets called by [dRiftDM::calc_stats]
 #'
@@ -623,9 +839,26 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
   }
 
   # only these types are available for both observed and predicted data
-  type <- match.arg(type, c("cafs", "quantiles", "delta_funs"))
+  type <- match.arg(type, c("basic_stats", "cafs", "quantiles", "delta_funs"))
 
   # iterate through the requested types and calculate the stats
+  if (type == "basic_stats") {
+    result <-
+      lapply(conds, function(one_cond) {
+        pdf_u <- dotdot$all_pdfs[[one_cond]]$pdf_u
+        pdf_l <- dotdot$all_pdfs[[one_cond]]$pdf_l
+        rts_u <- dotdot$all_rts_u[[one_cond]]
+        rts_l <- dotdot$all_rts_l[[one_cond]]
+
+        calc_basic_stats(
+          pdf_u = pdf_u, pdf_l = pdf_l, rts_u = rts_u, rts_l = rts_l,
+          one_cond = one_cond, b_coding = b_coding,
+          t_vec = dotdot$t_vec, dt = dotdot$dt,
+          skip_if_contr_low = dotdot$skip_if_contr_low
+        )
+      })
+    result <- do.call("rbind", result)
+  }
   if (type == "quantiles") {
     result <-
       lapply(conds, function(one_cond) {
@@ -635,10 +868,10 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
         rts_l <- dotdot$all_rts_l[[one_cond]]
 
         calc_quantiles(
-          pdf_u = pdf_u, pdf_l = pdf_l, t_vec = dotdot$t_vec,
+          pdf_u = pdf_u, pdf_l = pdf_l, t_vec = dotdot$t_vec, dt = dotdot$dt,
           rts_u = rts_u, rts_l = rts_l,
           one_cond = one_cond, probs = dotdot$probs,
-          b_coding = b_coding
+          b_coding = b_coding, skip_if_contr_low = dotdot$skip_if_contr_low
         )
       })
     result <- do.call("rbind", result)
@@ -689,15 +922,16 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #'
 #' `calc_stats` provides an interface for calculating statistics/metrics on
 #' model predictions and/or observed data. Supported statistics include
-#' Conditional Accuracy Functions (CAFs), Quantiles, Delta Functions, and fit
-#' statistics. Results can be aggregated across individuals.
+#' basic statistics on mean and standard deviation, Conditional Accuracy
+#' Functions (CAFs), Quantiles, Delta Functions, and fit statistics. Results can
+#' be aggregated across individuals.
 #'
 #' @param object an object for which statistics are calculated. This can be a
 #' [data.frame] of observed data, a [dRiftDM::drift_dm] object, or a
 #' `fits_ids_dm` object (see [dRiftDM::estimate_model_ids]).
 #' @param type a character vector, specifying the statistics to calculate.
-#' Supported values include `"cafs"`, `"quantiles"`, `"delta_funs"`, and
-#' `"fit_stats"`.
+#' Supported values include `"basic_stats"`, `"cafs"`, `"quantiles"`,
+#' `"delta_funs"`, and `"fit_stats"`.
 #' @param ... additional arguments passed to the respective method and the
 #' underlying calculation functions (see Details for mandatory arguments).
 #' @param conds optional character vector specifying conditions to include.
@@ -707,7 +941,7 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #' is `TRUE`.
 #' @param b_coding a list for boundary coding (see [dRiftDM::b_coding]). Only
 #' relevant when `object` is a [data.frame]. For other `object` types, the
-#' `b_coding` of the `Object` is used.
+#' `b_coding` of the `object` is used.
 #' @param average logical. If `TRUE`, averages the statistics across individuals
 #' where applicable. Default is `FALSE`.
 #' @param verbose integer, indicating if information about the progress
@@ -728,6 +962,10 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #' statistics/metrics for the supported object types. Per default, it returns
 #' the requested statistics/metrics.
 #'
+#' ## Basic Statistics
+#'
+#' With "basic statistics", we refer to a summary of the mean and standard
+#' deviation of response times, including a proportion of response choices.
 #'
 #'
 #' ## Conditional Accuracy Function (CAFs)
@@ -782,6 +1020,7 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #' can provide a `k` argument to penalize the AIC statistic (see [stats::AIC]
 #' and [dRiftDM::AIC.fits_ids_dm])
 #'
+#'
 #' @returns
 #' If `type` is a single character string, then a subclass of [data.frame] is
 #' returned, containing the respective statistic. Objects of type `sum_dist`
@@ -798,6 +1037,14 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
 #'
 #' The print methods `print.stats_dm()` and `print.stats_dm_list()` each
 #' invisibly return the supplied object `x`.
+#'
+#' @note
+#'
+#' When a model's predicted density function integrates to a value of less than
+#' [dRiftDM::drift_dm_skip_if_contr_low()], means and quantiles return the
+#' values `NA`. Users can alter this by explicitly passing the argument
+#' `skip_if_contr_low` when calling `calc_stats()` (e.g.,
+#' `calc_stats(..., skip_if_contr_low = -Inf)`)
 #'
 #'
 #' @examples
@@ -940,7 +1187,8 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
 #' @export
 calc_stats.drift_dm <- function(object, type, ..., conds = NULL) {
   drift_dm_obj <- object
-  type <- match.arg(type, c("cafs", "quantiles", "delta_funs", "fit_stats"))
+  type <- match.arg(type, c("basic_stats", "cafs", "quantiles", "delta_funs",
+                            "fit_stats"))
 
 
   # get b_coding
@@ -998,7 +1246,7 @@ calc_stats.drift_dm <- function(object, type, ..., conds = NULL) {
     conds = conds, all_pdfs = all_pdfs,
     all_rts_u = drift_dm_obj$obs_data$rts_u,
     all_rts_l = drift_dm_obj$obs_data$rts_l,
-    t_vec = t_vec, ...
+    t_vec = t_vec, dt = dt, ...
   )
 
   return(result)
@@ -1062,21 +1310,21 @@ calc_stats.fits_ids_dm <- function(object, type, ..., verbose = 1,
 #' @param stat_df a `data.frame`, containing calculated statistics to be
 #' encapsulated within the `stats_dm` class.
 #' @param type a character string, specifying the type of statistic provided by
-#' `stat_df`. Valid options include `"cafs"`, `"quantiles"`, `"delta_funs"`,
-#' and `"fit_stats"`.
+#' `stat_df`. Valid options include `"basic_stats"`, `"cafs"`, `"quantiles"`,
+#' `"delta_funs"`, and `"fit_stats"`.
 #' @param ... Additional arguments passed to set attributes. For `"cafs"`,
 #' `"quantiles"`, and `"delta_funs"`, a `b_coding` attribute is required.
 #'
 #' @details
 #' `new_stats_dm` sets up the `stat_df` object by assigning it the class
 #' `stats_dm`, along with additional classes based on the specified `type`.
-#' For"cafs", "quantiles", "delta_funs", this will be c(`<type>`, "sum_dist",
-#' "stats_dm", "data.frame")". For fit statistics, this will be c("fit_stats",
-#' "stats_dm", "data.frame")".
+#' For "basic_stats", "cafs", "quantiles", "delta_funs", this will be
+#' c(`<type>`, "sum_dist", "stats_dm", "data.frame")". For "fit_stats", this
+#' will be c("<type>", "stats_dm", "data.frame")".
 #'
-#' For Conditional Accuracy Functions (CAFs), Quantiles, and Delta Functions,
-#' the function requires a `b_coding` argument, which specifies boundary coding
-#' details and is set as an attribute.
+#' For basic stats, Conditional Accuracy Functions (CAFs), Quantiles, and
+#' Delta Functions, the function requires a `b_coding` argument, which specifies
+#' boundary coding details and is set as an attribute.
 #'
 #' The function performs validation through [dRiftDM::validate_stats_dm] to
 #' ensure that the `stats_dm` object is well formatted.
@@ -1090,22 +1338,25 @@ new_stats_dm <- function(stat_df, type, ...) {
   stopifnot(is.data.frame(stat_df))
   type <- match.arg(
     arg = type,
-    choices = c("cafs", "quantiles", "delta_funs", "fit_stats")
+    choices = c("basic_stats", "cafs", "quantiles", "delta_funs", "fit_stats")
   )
+
+  # turn all NaNs to NA (to have a consistent output for missing values
+  stat_df[] <- lapply(stat_df, \(x) { x[is.nan(x)] <- NA; x })
 
   # define the stat_df object as an object of class stats_dm
   class(stat_df) <- c("stats_dm", "data.frame")
 
   # if cafs, quantiles, delta_funs, add b_coding and more info about object
   dots <- list(...)
-  if (type %in% c("cafs", "quantiles", "delta_funs")) {
+  if (type %in% c("basic_stats", "cafs", "quantiles", "delta_funs")) {
     b_coding <- dots$b_coding
     stopifnot(!is.null(b_coding))
     attr(stat_df, "b_coding") <- b_coding
     class(stat_df) <- c(type, "sum_dist", class(stat_df))
 
-    # if fit_stats, add the object info
-  } else if (type == "fit_stats") {
+    # else just add the object info
+  } else {
     class(stat_df) <- c(type, class(stat_df))
   }
 
@@ -1125,19 +1376,22 @@ new_stats_dm <- function(stat_df, type, ...) {
 #' @description
 #' `validate_stats_dm` is an internal (i.e., not exported) generic function to
 #' ensure that `stats_dm` objects, as well as their specific subclasses
-#' (`cafs`, `quantiles`, `delta_funs`, `sum_dist`, and `fit_stats`), meet the
-#' necessary structural and column requirements. Each method performs
-#' class-specific validation checks.
+#' (`basic_stats`, `cafs`, `quantiles`, `delta_funs`, `sum_dist`, and
+#' `fit_stats`), meet the necessary structural and column requirements. Each
+#' method performs class-specific validation checks.
 #'
-#' @param stat_df A `data.frame` of class `stats_dm`, `cafs`, `quantiles`,
-#' `delta_funs`, `sum_dist`, or `fit_stats` containing the calculated statistics
-#' to be validated.
+#' @param stat_df A `data.frame` of class `stats_dm`, `basic_stats`, `cafs`,
+#' `quantiles`, `delta_funs`, `sum_dist`, or `fit_stats` containing the
+#' calculated statistics to be validated.
 #'
 #' @details
 #' The validation process checks for required columns and structure based on the
 #' class of `stat_df`. Each class has specific requirements:
 #'
 #' - **`validate_stats_dm.stats_dm`:** Ensures `stat_df` is a `data.frame`.
+#' - **`validate_stats_dm.basic_stats`:** Checks for the presence of `"Cond"`,
+#'   exactly two columns with prefix `"Mean_`, and exactly one column prefixed
+#'   with `"P_"`
 #' - **`validate_stats_dm.cafs`:** Checks for the presence of `"Bin"`, `"Cond"`,
 #'   and exactly one column prefixed with `"P_"`
 #' - **`validate_stats_dm.quantiles`:** Requires `"Prob"`, `"Cond"`, and exactly
@@ -1157,6 +1411,31 @@ validate_stats_dm <- function(stat_df) {
   UseMethod("validate_stats_dm")
 }
 
+
+#' @rdname validate_stats_dm
+#' @export
+validate_stats_dm.basic_stats <- function(stat_df) {
+  NextMethod() # to validate stats_dm objects
+
+
+  if (!("Cond" %in% colnames(stat_df))) {
+    stop("no column 'Cond' in stats_dm")
+  }
+
+  if (sum("Mean_" == substr(colnames(stat_df), 1, 5)) != 2) {
+    stop("couldn't find two Mean_ columns")
+  }
+
+  if (sum("SD_" == substr(colnames(stat_df), 1, 3)) != 2) {
+    stop("couldn't find two SD_ columns")
+  }
+
+  if (sum("P_" == substr(colnames(stat_df), 1, 2)) != 1) {
+    stop("no unique column 'P_' in stats_dm")
+  }
+
+  return(stat_df)
+}
 
 #' @rdname validate_stats_dm
 #' @export
@@ -1271,7 +1550,7 @@ validate_stats_dm.stats_dm <- function(stat_df) {
 
 # AGGREGATE stats_dm OBJECTS ----------------------------------------------
 
-#' Aggregate Statistics ACROSS ID
+#' Aggregate Statistics Across ID
 #'
 #' @description
 #' `aggregate_stats` is a (not exported) generic function to aggregate
@@ -1298,6 +1577,15 @@ aggregate_stats <- function(stat_df) {
   }
 
   UseMethod("aggregate_stats")
+}
+
+#' @rdname aggregate_stats
+#' @export
+aggregate_stats.basic_stats <- function(stat_df) {
+  internal_aggregate(
+    data = stat_df,
+    group_cols = c("Source", "Cond")
+  )
 }
 
 #' @rdname aggregate_stats

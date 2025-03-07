@@ -44,8 +44,8 @@ calc_stats(object, type, ...)
 \code{fits_ids_dm} object (see \link{estimate_model_ids}).}
 
 \item{type}{a character vector, specifying the statistics to calculate.
-Supported values include \code{"cafs"}, \code{"quantiles"}, \code{"delta_funs"}, and
-\code{"fit_stats"}.}
+Supported values include \code{"basic_stats"}, \code{"cafs"}, \code{"quantiles"},
+\code{"delta_funs"}, and \code{"fit_stats"}.}
 
 \item{...}{additional arguments passed to the respective method and the
 underlying calculation functions (see Details for mandatory arguments).}
@@ -65,7 +65,7 @@ is \code{TRUE}.}
 
 \item{b_coding}{a list for boundary coding (see \link{b_coding}). Only
 relevant when \code{object} is a \link{data.frame}. For other \code{object} types, the
-\code{b_coding} of the \code{Object} is used.}
+\code{b_coding} of the \code{object} is used.}
 
 \item{x}{an object of type \code{stats_dm} or \code{stats_dm_list}, as returned by
 the function \code{calc_stats()}.}
@@ -103,13 +103,20 @@ invisibly return the supplied object \code{x}.
 \description{
 \code{calc_stats} provides an interface for calculating statistics/metrics on
 model predictions and/or observed data. Supported statistics include
-Conditional Accuracy Functions (CAFs), Quantiles, Delta Functions, and fit
-statistics. Results can be aggregated across individuals.
+basic statistics on mean and standard deviation, Conditional Accuracy
+Functions (CAFs), Quantiles, Delta Functions, and fit statistics. Results can
+be aggregated across individuals.
 }
 \details{
 \code{calc_stats} is a generic function to handle the calculation of different
 statistics/metrics for the supported object types. Per default, it returns
 the requested statistics/metrics.
+\subsection{Basic Statistics}{
+
+With "basic statistics", we refer to a summary of the mean and standard
+deviation of response times, including a proportion of response choices.
+}
+
 \subsection{Conditional Accuracy Function (CAFs)}{
 
 CAFs are a way to quantify response accuracy against speed. To calculate
@@ -168,6 +175,13 @@ Calculates the Akaike and Bayesian Information Criteria (AIC and BIC). Users
 can provide a \code{k} argument to penalize the AIC statistic (see \link[stats:AIC]{stats::AIC}
 and \link{AIC.fits_ids_dm})
 }
+}
+\note{
+When a model's predicted density function integrates to a value of less than
+\code{\link[=drift_dm_skip_if_contr_low]{drift_dm_skip_if_contr_low()}}, means and quantiles return the
+values \code{NA}. Users can alter this by explicitly passing the argument
+\code{skip_if_contr_low} when calling \code{calc_stats()} (e.g.,
+\code{calc_stats(..., skip_if_contr_low = -Inf)})
 }
 \examples{
 # Example 1: Calculate CAFs and Quantiles from a model ---------------------
