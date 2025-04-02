@@ -61,7 +61,9 @@ dRiftDM package."><meta property="og:image" content="https://bucky2177.github.io
 <span></span>
 <span><span class="fu">drift_dm_default_probs</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">drift_dm_default_b_coding</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">drift_dm_default_b_coding</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">drift_dm_skip_if_contr_low</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -89,6 +91,11 @@ for quantiles (0.1, 0.2, ..., 0.9)</p></li>
 <li><p><code>drift_dm_default_b_coding()</code>: Returns the default boundary coding
 (list(column = "Error", u_name_value = c("corr" = 0),
 l_name_value = c("err" = 1))</p></li>
+<li><p><code>drift_dm_skip_if_contr_low()</code>: returns the value 0.0001. If a PDF
+integrates to a value lower than that (i.e., if there is almost no
+contribution of a PDF; most likely this will be pdf_l), then summary
+functions returned by <code><a href="calc_stats.html">calc_stats()</a></code> might contain the value NA
+for the respective PDF.</p></li>
 </ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

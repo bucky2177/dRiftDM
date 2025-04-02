@@ -52,7 +52,8 @@
 <span>  <span class="va">t_vec</span>,</span>
 <span>  <span class="va">one_cond</span>,</span>
 <span>  <span class="va">probs</span>,</span>
-<span>  skip_if_contr_low <span class="op">=</span> <span class="fl">1e-04</span></span>
+<span>  <span class="va">dt</span>,</span>
+<span>  skip_if_contr_low <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -81,10 +82,14 @@ levels</p></dd>
 <dd><p>the time space (required for the pdfs)</p></dd>
 
 
+<dt id="arg-dt">dt<a class="anchor" aria-label="anchor" href="#arg-dt"></a></dt>
+<dd><p>the step size corresponding to the time space</p></dd>
+
+
 <dt id="arg-skip-if-contr-low">skip_if_contr_low<a class="anchor" aria-label="anchor" href="#arg-skip-if-contr-low"></a></dt>
-<dd><p>numeric. If the relative contribution of the upper
-or lower PDF to the overall PDF is too low (default 0.01%), return NAs for
-this PDF.</p></dd>
+<dd><p>numeric. If the contribution of the upper
+or lower PDF to the overall PDF is too low, return NAs for
+this PDF (see also <code><a href="defaults.html">drift_dm_skip_if_contr_low()</a></code>).</p></dd>
 
 </dl></div>
     <div class="section level2">

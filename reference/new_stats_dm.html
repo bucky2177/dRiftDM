@@ -61,8 +61,8 @@ encapsulated within the <code>stats_dm</code> class.</p></dd>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>a character string, specifying the type of statistic provided by
-<code>stat_df</code>. Valid options include <code>"cafs"</code>, <code>"quantiles"</code>, <code>"delta_funs"</code>,
-and <code>"fit_stats"</code>.</p></dd>
+<code>stat_df</code>. Valid options include <code>"basic_stats"</code>, <code>"cafs"</code>, <code>"quantiles"</code>,
+<code>"delta_funs"</code>, and <code>"fit_stats"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -79,12 +79,12 @@ depending on <code>type</code>.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>new_stats_dm</code> sets up the <code>stat_df</code> object by assigning it the class
 <code>stats_dm</code>, along with additional classes based on the specified <code>type</code>.
-For"cafs", "quantiles", "delta_funs", this will be c(<code>&lt;type&gt;</code>, "sum_dist",
-"stats_dm", "data.frame")". For fit statistics, this will be c("fit_stats",
-"stats_dm", "data.frame")".</p>
-<p>For Conditional Accuracy Functions (CAFs), Quantiles, and Delta Functions,
-the function requires a <code>b_coding</code> argument, which specifies boundary coding
-details and is set as an attribute.</p>
+For "basic_stats", "cafs", "quantiles", "delta_funs", this will be
+c(<code>&lt;type&gt;</code>, "sum_dist", "stats_dm", "data.frame")". For "fit_stats", this
+will be c("<type>", "stats_dm", "data.frame")".</type></p>
+<p>For basic stats, Conditional Accuracy Functions (CAFs), Quantiles, and
+Delta Functions, the function requires a <code>b_coding</code> argument, which specifies
+boundary coding details and is set as an attribute.</p>
 <p>The function performs validation through <a href="validate_stats_dm.html">validate_stats_dm</a> to
 ensure that the <code>stats_dm</code> object is well formatted.</p>
     </div>
