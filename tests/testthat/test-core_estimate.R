@@ -140,14 +140,14 @@ test_that("input checks estimate_model", {
 })
 
 test_that("snapshot of the model running through nmkb", {
-  a_model <- ratcliff_dm(dt = .005, dx = .05)
+  a_model <- ratcliff_dm(dt = .005, dx = .05, var_non_dec = T)
 
   new_data <- simulate_data(a_model, n = 2000, seed = 1)
   obs_data(a_model) <- new_data
-  coef(a_model) <- c(muc = 2, b = 0.5, non_dec = 0.2)
+  coef(a_model) <- c(muc = 2, b = 0.5, non_dec = 0.2, range_non_dec = 0.02)
   expect_snapshot(
     estimate_model(a_model,
-      lower = c(1, 0.2, 0.1), upper = c(7, 0.8, 0.6),
+      lower = c(1, 0.2, 0.1, 0.01), upper = c(7, 0.8, 0.6, 0.1),
       use_de_optim = F, use_nmkb = T, verbose = 2
     )
   )
