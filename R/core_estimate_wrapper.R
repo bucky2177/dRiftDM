@@ -37,7 +37,7 @@
 #'  via \code{base::create.dir(fit_dir, recursive = TRUE)} in the location
 #'  provided by `fit_path`. Default is `"drift_dm_fits"`.
 #' @param force_refit logical, if `TRUE` each individual of a fitting routine will
-#'  be fitted once more. Default is `FALSE` which indicates that saved files
+#'  be fitted once more. Default is `FALSE`.
 #' @param progress numerical, indicating if and how progress shall be displayed.
 #'  If 0, no progress is shown. If 1, the currently fitted individual is printed
 #'  out. If 2, a progressbar is shown. Default is 2.

@@ -201,11 +201,11 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
     )
 
     # evaluate
-    drift_dm_obj <- tryCatch(
+    tryCatch(
       {
-        re_evaluate_model(drift_dm_obj = drift_dm_obj, eval_model = TRUE)
+        drift_dm_obj <- re_evaluate_model(drift_dm_obj = drift_dm_obj,
+                                          eval_model = TRUE)
       },
-      silent = TRUE,
       error = function(e) {
         prms <- prms_to_str(drift_dm_obj)
         stop("Evaluation of the model failed, tried values: \n", prms)

@@ -9,642 +9,572 @@
       muc=>2
       b=>0.5
       non_dec=>0.2
-      ==> gave -log_like_val of -267.7863[0m
+      ==> gave -log_like_val of -161.8231[0m
       [33mINFO: Parameters
       muc=>4.582
       b=>0.574
       non_dec=>0.246
-      ==> gave -log_like_val of 412.1934[0m
+      ==> gave -log_like_val of 310.231[0m
       [33mINFO: Parameters
       muc=>2.489
       b=>0.729
       non_dec=>0.246
-      ==> gave -log_like_val of -1952.079[0m
+      ==> gave -log_like_val of -1287.317[0m
       [33mINFO: Parameters
       muc=>2.489
       b=>0.574
       non_dec=>0.425
-      ==> gave -log_like_val of 27775.24[0m
+      ==> gave -log_like_val of 18441.08[0m
       [33mINFO: Parameters
       muc=>3.349
       b=>0.658
       non_dec=>0.131
-      ==> gave -log_like_val of 1061.246[0m
+      ==> gave -log_like_val of 729.8266[0m
       [33mINFO: Parameters
       muc=>3.115
       b=>0.639
       non_dec=>0.166
-      ==> gave -log_like_val of 46.3558[0m
+      ==> gave -log_like_val of 51.53757[0m
       [33mINFO: Parameters
       muc=>1.411
       b=>0.691
       non_dec=>0.166
-      ==> gave -log_like_val of -734.37[0m
+      ==> gave -log_like_val of -480.1808[0m
       [33mINFO: Parameters
       muc=>1.3
       b=>0.675
       non_dec=>0.246
-      ==> gave -log_like_val of -1269.42[0m
+      ==> gave -log_like_val of -837.5875[0m
       [33mINFO: Parameters
       muc=>1.333
       b=>0.777
       non_dec=>0.229
-      ==> gave -log_like_val of -1011.911[0m
+      ==> gave -log_like_val of -667.5447[0m
       [33mINFO: Parameters
       muc=>1.728
       b=>0.768
       non_dec=>0.351
-      ==> gave -log_like_val of 5852.809[0m
+      ==> gave -log_like_val of 3911.451[0m
       [33mINFO: Parameters
       muc=>1.475
       b=>0.718
       non_dec=>0.198
-      ==> gave -log_like_val of -1108.999[0m
+      ==> gave -log_like_val of -730.2406[0m
       [33mINFO: Parameters
       muc=>2.091
       b=>0.534
       non_dec=>0.228
-      ==> gave -log_like_val of -1133.72[0m
+      ==> gave -log_like_val of -739.8018[0m
       [33mINFO: Parameters
       muc=>2.334
       b=>0.578
       non_dec=>0.291
-      ==> gave -log_like_val of -2187.319[0m
+      ==> gave -log_like_val of -1442.121[0m
       [33mINFO: Parameters
       muc=>3.056
       b=>0.481
       non_dec=>0.348
-      ==> gave -log_like_val of 1427.117[0m
+      ==> gave -log_like_val of 1010.138[0m
       [33mINFO: Parameters
       muc=>1.695
       b=>0.748
       non_dec=>0.297
-      ==> gave -log_like_val of -1005.075[0m
+      ==> gave -log_like_val of -662.424[0m
       [33mINFO: Parameters
       muc=>1.978
       b=>0.609
       non_dec=>0.243
-      ==> gave -log_like_val of -1682.095[0m
+      ==> gave -log_like_val of -1108.015[0m
       [33mINFO: Parameters
       muc=>4.417
       b=>0.622
       non_dec=>0.273
-      ==> gave -log_like_val of -1285.134[0m
+      ==> gave -log_like_val of -824.2821[0m
+      [33mINFO: Parameters
+      muc=>1.632
+      b=>0.663
+      non_dec=>0.253
+      ==> gave -log_like_val of -1067.853[0m
       [33mINFO: Parameters
       muc=>3.228
       b=>0.636
       non_dec=>0.266
-      ==> gave -log_like_val of -1983.929[0m
+      ==> gave -log_like_val of -1301.538[0m
       [33mINFO: Parameters
       muc=>3.571
       b=>0.698
       non_dec=>0.293
-      ==> gave -log_like_val of -2213.183[0m
+      ==> gave -log_like_val of -1453.273[0m
       [33mINFO: Parameters
       muc=>4.572
       b=>0.728
       non_dec=>0.32
-      ==> gave -log_like_val of -1299.909[0m
+      ==> gave -log_like_val of -855.0066[0m
       [33mINFO: Parameters
       muc=>3.599
       b=>0.509
       non_dec=>0.324
-      ==> gave -log_like_val of -1797.357[0m
+      ==> gave -log_like_val of -1161.249[0m
       [33mINFO: Parameters
       muc=>2.736
       b=>0.692
       non_dec=>0.264
-      ==> gave -log_like_val of -2136.188[0m
+      ==> gave -log_like_val of -1408.003[0m
       [33mINFO: Parameters
       muc=>2.499
       b=>0.685
       non_dec=>0.299
-      ==> gave -log_like_val of -1948.891[0m
+      ==> gave -log_like_val of -1285.078[0m
       [33mINFO: Parameters
       muc=>3.031
       b=>0.65
       non_dec=>0.274
-      ==> gave -log_like_val of -2191.259[0m
+      ==> gave -log_like_val of -1441.738[0m
       [33mINFO: Parameters
       muc=>3.161
       b=>0.591
       non_dec=>0.309
-      ==> gave -log_like_val of -2249.035[0m
+      ==> gave -log_like_val of -1477[0m
       [33mINFO: Parameters
       muc=>3.39
       b=>0.527
       non_dec=>0.333
-      ==> gave -log_like_val of -1063.932[0m
+      ==> gave -log_like_val of -654.4024[0m
       [33mINFO: Parameters
-      muc=>4.344
-      b=>0.705
-      non_dec=>0.293
-      ==> gave -log_like_val of -1974.282[0m
-      [33mINFO: Parameters
-      muc=>2.757
-      b=>0.616
-      non_dec=>0.292
-      ==> gave -log_like_val of -2267.746[0m
-      [33mINFO: Parameters
-      muc=>3.275
-      b=>0.629
+      muc=>2.938
+      b=>0.605
       non_dec=>0.322
-      ==> gave -log_like_val of -1854.277[0m
+      ==> gave -log_like_val of -1269.992[0m
       [33mINFO: Parameters
-      muc=>3.091
-      b=>0.645
-      non_dec=>0.286
-      ==> gave -log_like_val of -2261.533[0m
-      [33mINFO: Parameters
-      muc=>2.499
-      b=>0.512
-      non_dec=>0.298
-      ==> gave -log_like_val of -2191.116[0m
-      [33mINFO: Parameters
-      muc=>3.278
-      b=>0.662
-      non_dec=>0.294
-      ==> gave -log_like_val of -2269.068[0m
-      [33mINFO: Parameters
-      muc=>2.915
-      b=>0.684
-      non_dec=>0.273
-      ==> gave -log_like_val of -2214.933[0m
-      [33mINFO: Parameters
-      muc=>3.098
-      b=>0.617
-      non_dec=>0.3
-      ==> gave -log_like_val of -2291.271[0m
-      [33mINFO: Parameters
-      muc=>2.987
-      b=>0.62
-      non_dec=>0.305
-      ==> gave -log_like_val of -2248.268[0m
-      [33mINFO: Parameters
-      muc=>3.065
+      muc=>3.008
       b=>0.639
-      non_dec=>0.291
-      ==> gave -log_like_val of -2282.584[0m
+      non_dec=>0.286
+      ==> gave -log_like_val of -1488.756[0m
       [33mINFO: Parameters
-      muc=>3.569
-      b=>0.662
-      non_dec=>0.298
-      ==> gave -log_like_val of -2223.698[0m
+      muc=>4.327
+      b=>0.7
+      non_dec=>0.301
+      ==> gave -log_like_val of -1288.588[0m
       [33mINFO: Parameters
-      muc=>2.947
-      b=>0.628
+      muc=>2.754
+      b=>0.614
       non_dec=>0.293
-      ==> gave -log_like_val of -2287.454[0m
+      ==> gave -log_like_val of -1499.301[0m
       [33mINFO: Parameters
-      muc=>2.808
-      b=>0.59
-      non_dec=>0.295
-      ==> gave -log_like_val of -2284.297[0m
-      [33mINFO: Parameters
-      muc=>2.837
-      b=>0.583
-      non_dec=>0.301
-      ==> gave -log_like_val of -2295.074[0m
-      [33mINFO: Parameters
-      muc=>2.728
-      b=>0.553
-      non_dec=>0.307
-      ==> gave -log_like_val of -2284.8[0m
-      [33mINFO: Parameters
-      muc=>3.117
-      b=>0.629
-      non_dec=>0.301
-      ==> gave -log_like_val of -2281.664[0m
-      [33mINFO: Parameters
-      muc=>2.883
-      b=>0.6
-      non_dec=>0.296
-      ==> gave -log_like_val of -2290.514[0m
-      [33mINFO: Parameters
-      muc=>2.928
-      b=>0.571
-      non_dec=>0.305
-      ==> gave -log_like_val of -2294.228[0m
-      [33mINFO: Parameters
-      muc=>3.025
-      b=>0.581
-      non_dec=>0.308
-      ==> gave -log_like_val of -2259.57[0m
-      [33mINFO: Parameters
-      muc=>2.918
-      b=>0.596
+      muc=>2.451
+      b=>0.505
       non_dec=>0.299
-      ==> gave -log_like_val of -2297.26[0m
+      ==> gave -log_like_val of -1428.271[0m
       [33mINFO: Parameters
-      muc=>2.701
-      b=>0.547
+      muc=>3.263
+      b=>0.661
+      non_dec=>0.295
+      ==> gave -log_like_val of -1493.074[0m
+      [33mINFO: Parameters
+      muc=>2.85
+      b=>0.679
+      non_dec=>0.274
+      ==> gave -log_like_val of -1455.753[0m
+      [33mINFO: Parameters
+      muc=>3.081
+      b=>0.616
+      non_dec=>0.3
+      ==> gave -log_like_val of -1507.714[0m
+      [33mINFO: Parameters
+      muc=>3.046
+      b=>0.623
+      non_dec=>0.306
+      ==> gave -log_like_val of -1479.24[0m
+      [33mINFO: Parameters
+      muc=>3.017
+      b=>0.635
+      non_dec=>0.291
+      ==> gave -log_like_val of -1502.501[0m
+      [33mINFO: Parameters
+      muc=>2.658
+      b=>0.577
+      non_dec=>0.295
+      ==> gave -log_like_val of -1493.31[0m
+      [33mINFO: Parameters
+      muc=>2.799
+      b=>0.6
+      non_dec=>0.295
+      ==> gave -log_like_val of -1505.313[0m
+      [33mINFO: Parameters
+      muc=>3.187
+      b=>0.62
+      non_dec=>0.297
+      ==> gave -log_like_val of -1503.862[0m
+      [33mINFO: Parameters
+      muc=>3.021
+      b=>0.587
       non_dec=>0.304
-      ==> gave -log_like_val of -2280.892[0m
+      ==> gave -log_like_val of -1505.824[0m
       [33mINFO: Parameters
-      muc=>2.995
-      b=>0.601
-      non_dec=>0.301
-      ==> gave -log_like_val of -2297.972[0m
-      [33mINFO: Parameters
-      muc=>2.903
-      b=>0.615
-      non_dec=>0.296
-      ==> gave -log_like_val of -2290.997[0m
-      [33mINFO: Parameters
-      muc=>2.922
-      b=>0.582
-      non_dec=>0.303
-      ==> gave -log_like_val of -2290.747[0m
-      [33mINFO: Parameters
-      muc=>3.034
-      b=>0.603
+      muc=>2.756
+      b=>0.581
       non_dec=>0.302
-      ==> gave -log_like_val of -2297.506[0m
+      ==> gave -log_like_val of -1507.234[0m
       [33mINFO: Parameters
-      muc=>3.076
+      muc=>3.106
+      b=>0.59
+      non_dec=>0.309
+      ==> gave -log_like_val of -1478.309[0m
+      [33mINFO: Parameters
+      muc=>2.874
+      b=>0.598
+      non_dec=>0.299
+      ==> gave -log_like_val of -1509.989[0m
+      [33mINFO: Parameters
+      muc=>2.785
       b=>0.609
+      non_dec=>0.297
+      ==> gave -log_like_val of -1503.555[0m
+      [33mINFO: Parameters
+      muc=>2.96
+      b=>0.593
+      non_dec=>0.302
+      ==> gave -log_like_val of -1512.372[0m
+      [33mINFO: Parameters
+      muc=>3.199
+      b=>0.622
+      non_dec=>0.298
+      ==> gave -log_like_val of -1503.058[0m
+      [33mINFO: Parameters
+      muc=>2.862
+      b=>0.592
       non_dec=>0.301
-      ==> gave -log_like_val of -2295.434[0m
+      ==> gave -log_like_val of -1510.819[0m
+      [33mINFO: Parameters
+      muc=>2.724
+      b=>0.571
+      non_dec=>0.301
+      ==> gave -log_like_val of -1505.052[0m
+      [33mINFO: Parameters
+      muc=>2.989
+      b=>0.605
+      non_dec=>0.3
+      ==> gave -log_like_val of -1510.852[0m
+      [33mINFO: Parameters
+      muc=>3
+      b=>0.596
+      non_dec=>0.304
+      ==> gave -log_like_val of -1502.052[0m
+      [33mINFO: Parameters
+      muc=>2.905
+      b=>0.597
+      non_dec=>0.3
+      ==> gave -log_like_val of -1511.177[0m
+      [33mINFO: Parameters
+      muc=>3.043
+      b=>0.605
+      non_dec=>0.3
+      ==> gave -log_like_val of -1510.912[0m
+      [33mINFO: Parameters
+      muc=>2.95
+      b=>0.592
+      non_dec=>0.301
+      ==> gave -log_like_val of -1512.362[0m
+      [33mINFO: Parameters
+      muc=>2.836
+      b=>0.583
+      non_dec=>0.302
+      ==> gave -log_like_val of -1510.493[0m
+      [33mINFO: Parameters
+      muc=>2.99
+      b=>0.599
+      non_dec=>0.301
+      ==> gave -log_like_val of -1511.965[0m
       [33mINFO: Parameters
       muc=>3.029
-      b=>0.615
-      non_dec=>0.299
-      ==> gave -log_like_val of -2291.695[0m
-      [33mINFO: Parameters
-      muc=>3.041
-      b=>0.593
+      b=>0.592
       non_dec=>0.303
-      ==> gave -log_like_val of -2286.866[0m
+      ==> gave -log_like_val of -1504.078[0m
       [33mINFO: Parameters
-      muc=>3.032
-      b=>0.61
-      non_dec=>0.3
-      ==> gave -log_like_val of -2295.031[0m
-      [33mINFO: Parameters
-      muc=>3.038
-      b=>0.599
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.134[0m
-      [33mINFO: Parameters
-      muc=>3.041
-      b=>0.593
-      non_dec=>0.303
-      ==> gave -log_like_val of -2286.866[0m
-      [33mINFO: Parameters
-      muc=>2.969
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.826[0m
-      [33mINFO: Parameters
-      muc=>2.916
-      b=>0.584
-      non_dec=>0.303
-      ==> gave -log_like_val of -2289.189[0m
-      [33mINFO: Parameters
-      muc=>2.967
-      b=>0.591
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.804[0m
-      [33mINFO: Parameters
-      muc=>2.988
-      b=>0.588
-      non_dec=>0.304
-      ==> gave -log_like_val of -2289.519[0m
-      [33mINFO: Parameters
-      muc=>2.993
-      b=>0.597
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.577[0m
-      [33mINFO: Parameters
-      muc=>2.916
-      b=>0.589
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.103[0m
-      [33mINFO: Parameters
-      muc=>3.007
+      muc=>2.936
       b=>0.596
+      non_dec=>0.301
+      ==> gave -log_like_val of -1512.028[0m
+      [33mINFO: Parameters
+      muc=>2.907
+      b=>0.587
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.66[0m
+      ==> gave -log_like_val of -1512.016[0m
       [33mINFO: Parameters
-      muc=>2.969
-      b=>0.589
-      non_dec=>0.303
-      ==> gave -log_like_val of -2287.899[0m
-      [33mINFO: Parameters
-      muc=>2.987
-      b=>0.595
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.767[0m
-      [33mINFO: Parameters
-      muc=>2.942
+      muc=>2.928
       b=>0.59
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.584[0m
+      ==> gave -log_like_val of -1512.27[0m
       [33mINFO: Parameters
-      muc=>2.991
-      b=>0.595
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.803[0m
-      [33mINFO: Parameters
-      muc=>2.964
-      b=>0.59
+      muc=>2.956
+      b=>0.587
       non_dec=>0.303
-      ==> gave -log_like_val of -2286.966[0m
+      ==> gave -log_like_val of -1505.387[0m
+      [33mINFO: Parameters
+      muc=>2.941
+      b=>0.594
+      non_dec=>0.301
+      ==> gave -log_like_val of -1512.28[0m
+      [33mINFO: Parameters
+      muc=>2.973
+      b=>0.595
+      non_dec=>0.301
+      ==> gave -log_like_val of -1512.32[0m
       [33mINFO: Parameters
       muc=>2.981
-      b=>0.594
+      b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.826[0m
+      ==> gave -log_like_val of -1512.255[0m
+      [33mINFO: Parameters
+      muc=>2.951
+      b=>0.593
+      non_dec=>0.301
+      ==> gave -log_like_val of -1512.351[0m
+      [33mINFO: Parameters
+      muc=>2.935
+      b=>0.59
+      non_dec=>0.302
+      ==> gave -log_like_val of -1512.301[0m
+      [33mINFO: Parameters
+      muc=>2.963
+      b=>0.594
+      non_dec=>0.301
+      ==> gave -log_like_val of -1512.362[0m
+      [33mINFO: Parameters
+      muc=>2.965
+      b=>0.592
+      non_dec=>0.302
+      ==> gave -log_like_val of -1512.347[0m
       [33mINFO: Parameters
       muc=>2.954
-      b=>0.591
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.723[0m
+      b=>0.593
+      non_dec=>0.301
+      ==> gave -log_like_val of -1512.369[0m
       [33mINFO: Parameters
-      muc=>2.982
-      b=>0.594
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.838[0m
-      [33mINFO: Parameters
-      muc=>2.987
+      muc=>2.969
       b=>0.595
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.764[0m
+      ==> gave -log_like_val of -1512.323[0m
       [33mINFO: Parameters
-      muc=>2.972
+      muc=>2.954
+      b=>0.592
+      non_dec=>0.301
+      ==> gave -log_like_val of -1512.373[0m
+      [33mINFO: Parameters
+      muc=>2.95
       b=>0.592
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.835[0m
+      ==> gave -log_like_val of -1512.366[0m
       [33mINFO: Parameters
-      muc=>2.988
-      b=>0.594
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.819[0m
-      [33mINFO: Parameters
-      muc=>2.974
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.838[0m
-      [33mINFO: Parameters
-      muc=>2.97
+      muc=>2.953
       b=>0.592
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.824[0m
+      ==> gave -log_like_val of -1512.372[0m
       [33mINFO: Parameters
-      muc=>2.979
-      b=>0.594
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.838[0m
-      [33mINFO: Parameters
-      muc=>2.984
-      b=>0.594
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.819[0m
-      [33mINFO: Parameters
-      muc=>2.975
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.841[0m
-      [33mINFO: Parameters
-      muc=>2.983
-      b=>0.594
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.835[0m
-      [33mINFO: Parameters
-      muc=>2.976
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.841[0m
-      [33mINFO: Parameters
-      muc=>2.977
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
-      [33mINFO: Parameters
-      muc=>2.976
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.841[0m
-      [33mINFO: Parameters
-      muc=>2.97
+      muc=>2.958
       b=>0.592
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.83[0m
+      ==> gave -log_like_val of -1512.366[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.955
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.842[0m
+      ==> gave -log_like_val of -1512.373[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.948
+      b=>0.592
+      non_dec=>0.301
+      ==> gave -log_like_val of -1512.365[0m
+      [33mINFO: Parameters
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.958
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.373[0m
       [33mINFO: Parameters
-      muc=>2.98
+      muc=>2.958
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.373[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.955
+      b=>0.592
+      non_dec=>0.302
+      ==> gave -log_like_val of -1512.371[0m
+      [33mINFO: Parameters
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.842[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.955
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.373[0m
       [33mINFO: Parameters
-      muc=>2.98
+      muc=>2.959
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.373[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.955
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.975
+      muc=>2.959
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.841[0m
+      ==> gave -log_like_val of -1512.373[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.958
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.959
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.373[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.955
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.98
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.956
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.978
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       [33mINFO: Parameters
-      muc=>2.979
+      muc=>2.957
       b=>0.593
       non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
-      [33mINFO: Parameters
-      muc=>2.979
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
-      [33mINFO: Parameters
-      muc=>2.979
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
-      [33mINFO: Parameters
-      muc=>2.978
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
-      [33mINFO: Parameters
-      muc=>2.979
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
-      [33mINFO: Parameters
-      muc=>2.979
-      b=>0.593
-      non_dec=>0.302
-      ==> gave -log_like_val of -2298.843[0m
+      ==> gave -log_like_val of -1512.374[0m
       Class(es): ratcliff_dm, drift_dm
       
       Current Parameter Matrix:
              muc     b non_dec
-      null 2.979 0.593   0.302
+      null 2.957 0.593   0.302
       
       Unique Parameters:
            muc b non_dec
@@ -654,7 +584,7 @@
         solver: kfe
         values: sigma=1, t_max=3, dt=0.005, dx=0.05, nt=600, nx=40
       
-      Observed Data: 3000 trials null
+      Observed Data: 2000 trials null
 
 # behavior of DE and nmkb toggles
 

@@ -54,7 +54,7 @@ a path. Per default \code{folder_name} is identical to \code{fit_procedure_name}
 Default is \code{NULL} which means no seed.}
 
 \item{force_refit}{logical, if \code{TRUE} each individual of a fitting routine will
-be fitted once more. Default is \code{FALSE} which indicates that saved files}
+be fitted once more. Default is \code{FALSE}.}
 
 \item{progress}{numerical, indicating if and how progress shall be displayed.
 If 0, no progress is shown. If 1, the currently fitted individual is printed
