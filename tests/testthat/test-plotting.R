@@ -42,6 +42,20 @@ test_that("snapshot the traces plot", {
     fig = plot_all_traces()
   )
 
+
+  plot_all_traces <- function() {
+    plot(traces_obj,
+         col = c("green", "red"),
+         col_b = "blue", xlim = c(-0.1, 0.4), ylim = c(-0.7, 0.7),
+         xlab = "foo", ylab = "bar", lty = 2,
+         legend_pos = "bottomright"
+    )
+  }
+  vdiffr::expect_doppelganger(
+    title = "all_traces_def_legend",
+    fig = plot_all_traces()
+  )
+
   plot_one_trace <- function() {
     plot(traces_obj[[1]],
       col = c("green"),

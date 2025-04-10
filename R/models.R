@@ -109,7 +109,7 @@ mu_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("parameter muc is not a single number")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
   muc <- rep(muc, length(t_vec))
   return(muc)
@@ -133,7 +133,7 @@ mu_int_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("muc is not a single number")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
   return(muc * t_vec)
 }
@@ -161,7 +161,7 @@ x_dirac_0 <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
 
   # starting point at 0
   if (!is.numeric(x_vec) | length(x_vec) <= 1) {
-    stop("x_vec is not a vector")
+    stop("x_vec is not a numeric vector with more than one entry")
   }
   x <- numeric(length = length(x_vec))
   x[(length(x) + 1) %/% 2] <- 1 / dx
@@ -188,7 +188,7 @@ x_uniform <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
     stop("parameter range_start is not a single number")
   }
   if (!is.numeric(x_vec) | length(x_vec) <= 1) {
-    stop("x_vec is not a vector")
+    stop("x_vec is not a numeric vector with more than one entry")
   }
 
   # uniform around staring point of 0
@@ -220,7 +220,7 @@ b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("b is not a single number")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
   b <- rep(b, length(t_vec))
   return(b)
@@ -241,7 +241,7 @@ b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 dt_b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   # constant boundary
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
   dt_b <- rep(0, length(t_vec))
   return(dt_b)
@@ -264,24 +264,24 @@ dt_b_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' @keywords internal
 nt_constant <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   non_dec <- prms_model[["non_dec"]]
-  tmax <- prms_solve[["t_max"]]
+  t_max <- prms_solve[["t_max"]]
   dt <- prms_solve[["dt"]]
   if (!is.numeric(non_dec) | length(non_dec) != 1) {
     stop("non_dec is not a single number")
   }
-  if (!is.numeric(tmax) | length(tmax) != 1) {
-    stop("tmax is not a single number")
+  if (!is.numeric(t_max) | length(t_max) != 1) {
+    stop("t_max is not a single number")
   }
   if (!is.numeric(dt) | length(dt) != 1) {
     stop("dt is not a single number")
   }
 
-  if (non_dec < 0 | non_dec > prms_solve[["t_max"]]) {
+  if (non_dec < 0 | non_dec > t_max) {
     stop("non_dec larger than t_max or smaller than 0!")
   }
 
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
 
   d_nt <- numeric(length(t_vec))
@@ -317,11 +317,17 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   if (!is.numeric(range_non_dec) | length(range_non_dec) != 1) {
     stop("range_non_dec is not a single number")
   }
+  if (!is.numeric(t_max) | length(t_max) != 1) {
+    stop("t_max is not a single number")
+  }
+  if (!is.numeric(dt) | length(dt) != 1) {
+    stop("dt is not a single number")
+  }
   if (non_dec < 0 | non_dec > t_max) {
     stop("non_dec_time larger than t_max or smaller than 0!")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
   if (range_non_dec <= dt) {
     stop("range_non_dec should not be smaller than dt!")
@@ -509,7 +515,7 @@ mu_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("parameter A is not a single number")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
 
   # calculate the first derivative of the gamma-function
@@ -559,7 +565,7 @@ mu_int_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("parameter A is not a single number")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
 
   # calculate the gamma-function and the linear function
@@ -591,7 +597,7 @@ x_beta <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
     stop("parameter alpha is not a single number")
   }
   if (!is.numeric(x_vec) | length(x_vec) <= 1) {
-    stop("x_vec is not a vector")
+    stop("x_vec is not a numeric vector with more than one entry")
   }
 
   xx <- seq(0, 1, length.out = length(x_vec))
@@ -630,11 +636,17 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
   if (!is.numeric(sd_non_dec) | length(sd_non_dec) != 1) {
     stop("sd_non_dec is not a single number")
   }
+  if (!is.numeric(t_max) | length(t_max) != 1) {
+    stop("t_max is not a single number")
+  }
+  if (!is.numeric(dt) | length(dt) != 1) {
+    stop("dt is not a single number")
+  }
   if (non_dec < 0 | non_dec > t_max) {
     stop("non_dec_time larger than t_max or smaller than 0!")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
   if (sd_non_dec < dt) {
     stop("sd_non_dec should not be smaller than dt!")
@@ -794,7 +806,7 @@ mu_ssp <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("sign is not a single number")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
 
   sd_t <- pmax(sd_0 - r * t_vec, 0.001)
@@ -848,7 +860,7 @@ b_hyperbol <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("t05 is not a single number")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
 
   return(b0 * (1 - kappa * t_vec / (t_vec + t05)))
@@ -870,7 +882,7 @@ dt_b_hyperbol <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("t05 is not a single number")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
 
   return(-(b0 * kappa * t05) / (t_vec + t05)^2)
@@ -903,7 +915,7 @@ b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   kappa <- prms_model[["kappa"]]
 
   if (!is.numeric(b0) | length(b0) != 1) {
-    stop("b0 is not b0 single number")
+    stop("b0 is not a single number")
   }
   if (!is.numeric(lambda) | length(lambda) != 1) {
     stop("lambda is not a single number")
@@ -915,7 +927,7 @@ b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("kappa is not a single number")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
 
   return(b0 - (1 - exp(-(t_vec / lambda)^k)) * kappa * b0)
@@ -930,7 +942,7 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   kappa <- prms_model[["kappa"]]
 
   if (!is.numeric(b0) | length(b0) != 1) {
-    stop("b0 is not b0 single number")
+    stop("b0 is not a single number")
   }
   if (!is.numeric(lambda) | length(lambda) != 1) {
     stop("lambda is not a single number")
@@ -942,7 +954,7 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("kappa is not a single number")
   }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-    stop("t_vec is not a vector")
+    stop("t_vec is not a numeric vector with more than one entry")
   }
 
   numer <- -b0 * kappa * k * (t_vec / lambda)^(k - 1) * exp(-(t_vec / lambda)^k)

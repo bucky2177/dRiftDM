@@ -10,7 +10,9 @@ validate_drift_dm(drift_dm_obj)
 \item{drift_dm_obj}{the ddm object}
 }
 \value{
-the unmodified ddm object, after it passed all checks
+the ddm object, after it passed all checks. Usually, it will be unmodified.
+The only exception is when the observed RTs are larger than \code{t_max}. Then,
+the returned ddm object has a new \code{t_max}that covers the largest RTs.
 }
 \description{
 Performs basic checks to ensure everything is as expected with the model.

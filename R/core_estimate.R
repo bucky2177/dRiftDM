@@ -140,14 +140,14 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
 
 
   # get lower upper vectors
-  lower_upper <- get_lower_upper_smart(
+  lower_upper <- get_parameters_smart(
     drift_dm_obj = drift_dm_obj,
-    lower = lower,
-    upper = upper,
+    input_a = lower,
+    input_b = upper,
     labels = FALSE
   )
-  lower <- lower_upper$lower
-  upper <- lower_upper$upper
+  lower <- lower_upper$vec_a
+  upper <- lower_upper$vec_b
 
   # continue checks
   if (!is.numeric(verbose) | length(verbose) != 1 | !(verbose %in% c(0, 1, 2))) {

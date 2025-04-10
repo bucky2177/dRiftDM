@@ -19,28 +19,25 @@ int cpp_kfe(NumericVector& pdf_u,
              const NumericVector& x_vec) {
 
   if (pdf_u.size() != nt+1){
-    Rcerr << "pdf-upper has wrong size!" << std::endl; return -1;
+    stop("pdf-upper has wrong size!");
   }
   if (pdf_l.size() != nt+1) {
-    Rcerr << "pdf-lower has wrong size!" << std::endl; return -1;
+    stop("pdf-lower has wrong size!");
   }
   if (b_vals.size() != nt+1) {
-    Rcerr << "b_vals has wrong size!" << std::endl; return -1;
+    stop("b_vals has wrong size!");
   }
   if (mu_vals.size() != nt+1) {
-    Rcerr << "mu_vals has wrong size!" << std::endl; return -1;
+    stop("mu_vals has wrong size!");
   }
   if (dt_b_vals.size() != nt+1) {
-    Rcerr << "dt_b_vals has wrong size!" << std::endl; return -1;
-  }
-  if (pdf_l.size() != nt+1) {
-    Rcerr << "pdf-lower has wrong size!" << std::endl; return -1;
+    stop("dt_b_vals has wrong size!");
   }
   if (xx.size() != nx+1) {
-    Rcerr << "x_vals has wrong size!" << std::endl; return -1;
+    stop("xx has wrong size!");
   }
   if (x_vec.size() != nx+1) {
-    Rcerr << "x_vec has wrong size!" << std::endl; return -1;
+    stop("x_vec has wrong size!");
   }
 
   NumericVector f(nx+1, 0.);  // storing the solution
@@ -124,7 +121,7 @@ int cpp_kfe(NumericVector& pdf_u,
       c[i] =      dt * theta * (-L_new      + dx3 * mu_new[i]);
     }
     if ( (f[0]!=0) || (f[nx]!=0) ) {
-      Rcerr << "rhs not zero on thresholds!" << std::endl; return -1;
+      stop("rhs not zero on thresholds!");
     }
 
     // adapt for boundary

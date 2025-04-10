@@ -23,7 +23,8 @@ log_like_heart(pdf_u, pdf_l, t_vec, rts_u, rts_l)
 \item{rts_u, rts_l}{numeric vectors of the observed RTs (unpacked)}
 }
 \value{
-a single value of the log-likelihood
+a single value of the log-likelihood. If no data is provided,
+\code{NULL} is returned. If the calculation fails, \code{-Inf} is returned.
 }
 \description{
 Wrapper function around \code{log_like_heart}

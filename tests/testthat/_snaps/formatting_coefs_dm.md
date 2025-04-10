@@ -11,6 +11,21 @@
       
       (access the data.frame's columns/rows as usual)
 
+---
+
+    Code
+      print(coefs, round_digits = 2, some = TRUE, print_rows = 3)
+    Output
+      Object Type: coefs_dm
+      
+        ID  muc    b non_dec
+      1  1 3.35 0.59    0.31
+      3  3 3.35 0.59    0.31
+      4  4 3.09 0.61    0.31
+      ...
+      
+      (access the data.frame's columns/rows as usual)
+
 # summary.coefs_dm works as expected
 
     Code

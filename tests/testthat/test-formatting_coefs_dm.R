@@ -8,6 +8,16 @@ test_that("print.coefs_dm works as expected", {
   expect_snapshot(
     print(coefs, round_digits = 2)
   )
+
+  withr::local_preserve_seed()
+  set.seed(1)
+  coefs = rbind(coefs, coefs, coefs)
+  coefs$ID = 1:nrow(coefs)
+
+  expect_snapshot(
+    print(coefs, round_digits = 2, some = TRUE, print_rows = 3)
+  )
+
 })
 
 

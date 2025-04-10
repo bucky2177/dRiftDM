@@ -221,7 +221,7 @@ simulate_values <- function(lower, upper, k, distr = NULL,
       stop("means is not a valid numeric vector with length equal to lower/upper")
     }
     if (!is_numeric(sds) | length(sds) != n_prms) {
-      stop("sds is not numeric with length equal to lower/upper")
+      stop("sds is not a valid numeric vector with length equal to lower/upper")
     }
     names_means <- names(means)
     names_sds <- names(sds)
@@ -229,7 +229,7 @@ simulate_values <- function(lower, upper, k, distr = NULL,
       stop("labels provided in means and sds don't match!")
     }
     if (!isTRUE(all.equal(names_means, names_upper))) {
-      stop("labels provided in means/sds don't match with upper/lower!")
+      stop("labels provided in means/sds don't match with lower/upper!")
     }
 
     prms <- lapply(1:n_prms, function(i) {

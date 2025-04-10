@@ -211,7 +211,7 @@ prm_cond_combo_2_labels <- function(prms_cond_combo, sep = ".") {
 #'
 #' Outsourced, deep inside the package function to avoid large nesting
 #'
-#' @param l_u either a list or a vector of numeric values
+#' @param input either a list or a vector of numeric values
 #' @param conds a character string, conceptually representing the
 #'  conditions of a model
 #' @param prm_labels a character string with parameter labels. Used as a fall
@@ -220,9 +220,9 @@ prm_cond_combo_2_labels <- function(prms_cond_combo, sep = ".") {
 #' @details
 #' The goal of this function is to build up a matrix, serving as the upper or
 #' lower end of a parameter space (relevant when simulating data). The function
-#' gets called by [dRiftDM::get_lower_upper_smart()].
+#' gets called by [dRiftDM::get_parameters_smart()].
 #'
-#' It assumes the following: `l_u` is either a list or a numeric vector.
+#' It assumes the following: `input` is either a list or a numeric vector.
 #'
 #' * The easiest case is when it is a numeric vector. In this case, the
 #'   function builds a matrix with as many rows as entries in `conds`. The
@@ -230,10 +230,10 @@ prm_cond_combo_2_labels <- function(prms_cond_combo, sep = ".") {
 #'   either the names specified with the numeric vector, or the labels specified
 #'   in `prm_labels`
 #'
-#' * The less intuitive case is when `l_u` is a list. In this case, the list
+#' * The less intuitive case is when `input` is a list. In this case, the list
 #'   requires an entry called "default_values" which specifies the named or plain
 #'   numeric vector as above. If the list only contains this entry, then the
-#'   behavior is as if `l_u` was already a numeric vector. However, the `l_u`
+#'   behavior is as if `input` was already a numeric vector. However, the `input`
 #'   list can also have entries labeled as specific conditions, which contain
 #'   named (!) numeric vectors with parameter labels. This will modify the
 #'   value for the upper/lower parameter space with respect to the specified
@@ -241,13 +241,13 @@ prm_cond_combo_2_labels <- function(prms_cond_combo, sep = ".") {
 #'
 #' @returns a matrix indicating either the upper or lower end of a parameter
 #' space. There will be as many rows as `conds` implies. The number of columns
-#' depend on `l_u` (matching its length if it is a vector, or matching the
+#' depend on `input` (matching its length if it is a vector, or matching the
 #' length of the entry "default_values" if it is a list).
 #'
 #' @seealso [dRiftDM::simulate_data()], [dRiftDM::simulate_values()]
 #'
 #' @keywords internal
-create_matrix_l_u <- function(l_u, conds, prm_labels = NULL) {
+create_matrix_smart <- function(input, conds, prm_labels = NULL) {
   if (!is.character(conds) | length(conds) == 0) {
     stop("conds must be a character vector")
   }
@@ -255,8 +255,8 @@ create_matrix_l_u <- function(l_u, conds, prm_labels = NULL) {
 
   # if it is a list, extract default values and keep the rest
   # otherwise, just use the vector directly
-  if (is.list(l_u)) {
-    if (sum(names(l_u) == "default_values") != 1) {
+  if (is.list(input)) {
+    if (sum(names(input) == "default_values") != 1) {
       stop(
         "remember to have (only) one entry of lower/upper with the name",
         " 'default_values', to ensure 'default' parameter ranges"
@@ -270,10 +270,10 @@ create_matrix_l_u <- function(l_u, conds, prm_labels = NULL) {
         "dRiftDM. Please rename your conditions..."
       )
     }
-    def_values <- l_u$default_values
-    l_u <- l_u[which(names(l_u) != "default_values")]
-  } else if (is_numeric(l_u)) {
-    def_values <- l_u
+    def_values <- input$default_values
+    input <- input[which(names(input) != "default_values")]
+  } else if (is_numeric(input)) {
+    def_values <- input
   } else {
     stop("illegal data type for (values in) l_u")
   }
@@ -304,8 +304,8 @@ create_matrix_l_u <- function(l_u, conds, prm_labels = NULL) {
 
   # if there is a remaining list, then fill in the specific lower/upper
   # values
-  if (is.list(l_u) & length(l_u) > 0) {
-    rem_prms_conds <- lapply(l_u, names)
+  if (is.list(input) & length(input) > 0) {
+    rem_prms_conds <- lapply(input, names)
 
     if (!all(unlist(rem_prms_conds) %in% colnames(result))) {
       stop(
@@ -324,13 +324,13 @@ create_matrix_l_u <- function(l_u, conds, prm_labels = NULL) {
     # Fill the matrix with values from the list
     for (i in seq_along(rem_prms_conds)) {
       one_cond <- names(rem_prms_conds)[i]
-      prm_vals <- l_u[[i]]
+      prm_vals <- input[[i]]
 
       if (is.null(prm_vals)) {
         stop("specific lower/upper values must provide parameter names")
       }
       prm_names <- names(prm_vals)
-      result[one_cond, prm_names] <- l_u[[one_cond]]
+      result[one_cond, prm_names] <- input[[one_cond]]
     }
   }
 
@@ -342,9 +342,10 @@ create_matrix_l_u <- function(l_u, conds, prm_labels = NULL) {
 
 
 
-#' Turn default/special upper and lower arguments to vectors
+#' Turn default/special parameter specifications to vectors
 #'
-#' The function is used in the depths of the package to get the search space as
+#' The function is used in the depths to map parameter inputs to the parameters
+#' of a model. Most of the time, it is used to get the search space as
 #' a vector, matching with the free parameters of a model.
 #' Only relevant when users use the "default parameters" approach where they
 #' only specify the parameter labels and assume the package figures out
@@ -354,25 +355,30 @@ create_matrix_l_u <- function(l_u, conds, prm_labels = NULL) {
 #' the vectors for lower/upper to match with [dRiftDM::x2prms_vals])
 #'
 #' @param drift_dm_obj an object of type drift_dm
-#' @param lower,upper either a vector or list (see [dRiftDM::create_matrix_l_u])
+#' @param input_a,input_b either a atomic vector or list (see
+#' [dRiftDM::create_matrix_smart])
 #' @param labels optional logical, if `TRUE`, then the returned vectors have
 #' the unique parameter labels according to [dRiftDM::prm_cond_combo_2_labels].
+#' @param is_l_u optional logical, if `TRUE`, a warning is thrown when
+#' `input_a` leads to larger values than `input_b`. Useful when `input_a` and
+#' `input_b` span a (search) space.
 #'
 #' @details
 #' The function first gets all unique parameters across conditions using
 #' [dRiftDM::prms_cond_combo]. The unique parameter labels are then forwarded
-#' to [dRiftDM::create_matrix_l_u], together with all (!) the conditions in the
-#' model and the `upper`/`lower` arguments. Subsequently, the created matrices
+#' to [dRiftDM::create_matrix_smart], together with all (!) the conditions in the
+#' model and the `input_a`/`input_b` arguments. Subsequently, the created matrices
 #' are wrangled into vectors in accordance with [dRiftDM::prms_cond_combo]. The
 #' vectors are then passed back.
 #'
 #'
-#' @returns a list with two vectors named `lower/upper` that describe the search
-#' space. The length and names (if requested) matches with
-#' coef(model, select_unique = TRUE).
+#' @returns a list with two vectors named `vec_a/vec_b`. Usually, those will be
+#' the search space or simulation space. The length and names (if requested)
+#' matches with coef(model, select_unique = TRUE).
 #'
 #' @keywords internal
-get_lower_upper_smart <- function(drift_dm_obj, lower, upper, labels = TRUE) {
+get_parameters_smart <- function(drift_dm_obj, input_a, input_b,
+                                 labels = TRUE, is_l_u = TRUE) {
   # input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -380,16 +386,16 @@ get_lower_upper_smart <- function(drift_dm_obj, lower, upper, labels = TRUE) {
   stopifnot(is.logical(labels) & length(labels) == 1)
 
   # specific check that non_default values are unique!
-  if (is.list(lower)) {
-    lower <- check_unique_special_boundary(
+  if (is.list(input_a)) {
+    input_a <- check_unique_special_boundary(
       drift_dm_obj = drift_dm_obj,
-      l_u = lower
+      a_list = input_a
     )
   }
-  if (is.list(upper)) {
-    upper <- check_unique_special_boundary(
+  if (is.list(input_b)) {
+    input_b <- check_unique_special_boundary(
       drift_dm_obj = drift_dm_obj,
-      l_u = upper
+      a_list = input_b
     )
   }
 
@@ -399,17 +405,17 @@ get_lower_upper_smart <- function(drift_dm_obj, lower, upper, labels = TRUE) {
   prm_labels <- unique(prm_cond_combo[1, ])
 
   # get the upper and lower matrices
-  lower_matrix <- create_matrix_l_u(
-    l_u = lower, conds = conds,
+  matrix_a <- create_matrix_smart(
+    input = input_a, conds = conds,
     prm_labels = prm_labels
   )
-  upper_matrix <- create_matrix_l_u(
-    l_u = upper, conds = conds,
+  matrix_b <- create_matrix_smart(
+    input = input_b, conds = conds,
     prm_labels = prm_labels
   )
 
-  if (!all(colnames(lower_matrix) %in% prm_labels) ||
-    !all(colnames(upper_matrix) %in% prm_labels)) {
+  if (!all(colnames(matrix_a) %in% prm_labels) ||
+    !all(colnames(matrix_b) %in% prm_labels)) {
     stop(
       "parameter labels in the created lower/upper matrices for the upper ",
       "don't match with the model parameters that are considered free"
@@ -417,56 +423,58 @@ get_lower_upper_smart <- function(drift_dm_obj, lower, upper, labels = TRUE) {
   }
 
   # get the upper and lower vectors (which works with unsorted matrices)
-  lower_vec <- sapply(1:ncol(prm_cond_combo), function(idx) {
+  vec_a <- sapply(1:ncol(prm_cond_combo), function(idx) {
     prm <- prm_cond_combo[1, idx]
     cond <- prm_cond_combo[2, idx]
-    lower_matrix[cond, prm]
+    matrix_a[cond, prm]
   })
 
-  upper_vec <- sapply(1:ncol(prm_cond_combo), function(idx) {
+  vec_b <- sapply(1:ncol(prm_cond_combo), function(idx) {
     prm <- prm_cond_combo[1, idx]
     cond <- prm_cond_combo[2, idx]
-    upper_matrix[cond, prm]
+    matrix_b[cond, prm]
   })
 
   if (labels) {
     names_prms <- prm_cond_combo_2_labels(prm_cond_combo)
-    names(lower_vec) <- names_prms
-    names(upper_vec) <- names_prms
+    names(vec_a) <- names_prms
+    names(vec_b) <- names_prms
   }
 
-  if (any(lower_vec > upper_vec)) {
+  if (is_l_u && any(vec_a > vec_b)) {
     warning(
-      "values in the created lower vector are sometimes larger than",
-      " in the created upper vector. This likely isn't intended."
+      "values in the created vec_a (e.g., lower) vector are sometimes larger",
+      " than in the created vec_b (e.g., upper) vector. This likely isn't",
+        "intended."
     )
   }
 
-  return(list(lower = lower_vec, upper = upper_vec))
+  return(list(vec_a = vec_a, vec_b = vec_b))
 }
 
 
 #' Check for Unique Special Boundary Values
 #'
 #' Internal, deep in the depths of the package, function. Verifies that each
-#' specified parameter value within a condition in `l_u` is unique within
+#' specified parameter value within a condition in `a_list` is unique within
 #' the `linear_internal_list` in `drift_dm_obj`. If the same
 #' value is associated with multiple conditions, an error is raised. Used for
-#' checking the input to [dRiftDM::get_lower_upper_smart].
+#' checking the input to [dRiftDM::get_parameters_smart].
 #'
 #' @param drift_dm_obj an object of type [dRiftDM::drift_dm]
-#' @param l_u a list specifying the upper/lower parameter/search space (see
-#' [dRiftDM::simulate_data], or [dRiftDM::estimate_model]).
+#' @param a_list a list specifying the parameter space (e.g., the lower/upper
+#' parameter space, see [dRiftDM::simulate_data], or [dRiftDM::estimate_model]).
 #'
-#' @details For each condition in `l_u`, the function examines if the parameter
-#' value specified is unique with respect to the `linear_internal_list`.
-#' Non-unique values for a parameter-condition combination raise an error.
+#' @details For each condition in `a_list`, the function examines if the
+#' parameter value specified is unique with respect to the
+#' `linear_internal_list`. Non-unique values for a parameter-condition
+#' combination raise an error.
 #'
 #' @keywords internal
-check_unique_special_boundary <- function(drift_dm_obj, l_u) {
+check_unique_special_boundary <- function(drift_dm_obj, a_list) {
   lin_list <- drift_dm_obj$flex_prms_obj$linear_internal_list
 
-  red_list <- l_u
+  red_list <- a_list
   red_list$default_values <- NULL
   conds <- names(red_list)
   check <- setdiff(conds, conds(drift_dm_obj))
@@ -496,7 +504,7 @@ check_unique_special_boundary <- function(drift_dm_obj, l_u) {
       }
     }
   }
-  return(l_u)
+  return(a_list)
 }
 
 

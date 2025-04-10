@@ -12,11 +12,22 @@ test_that("print.stats_dm works as expected", {
   set.seed(1)
   expect_snapshot(
     print(some_stats,
-      some = TRUE,
-      print_rows = 3, show_header = FALSE, show_note = FALSE
+          some = TRUE,
+          print_rows = 3, show_header = FALSE, show_note = FALSE
     )
   )
 })
+
+test_that("print.basic_stats works as expected", {
+  basic_obj <- calc_stats(
+    ratcliff_dm(dx = .005, dt = .005),
+    type = "basic_stats"
+  )
+  expect_snapshot(
+    print(basic_obj)
+  )
+})
+
 
 
 test_that("print.cafs works as expected", {
@@ -55,7 +66,7 @@ test_that("print.delta_funs works as expected", {
 
 test_that("print.fit_stats works as expected", {
   fits_ids <- load_fits_ids(test_path("fixtures"),
-    fit_procedure_name = "test_case_saved"
+                            fit_procedure_name = "test_case_saved"
   )
   fit_stats_obj <- calc_stats(fits_ids, type = "fit_stats")
   expect_snapshot(
@@ -67,14 +78,20 @@ test_that("print.fit_stats works as expected", {
 
 test_that("print.stats_dm_list works as expected", {
   fits_ids <- load_fits_ids(test_path("fixtures"),
-    fit_procedure_name = "test_case_saved"
+                            fit_procedure_name = "test_case_saved"
   )
   stats_dm_list_obj <- calc_stats(fits_ids,
-    type = c("fit_stats", "quantiles")
+                                  type = c("fit_stats", "quantiles")
   )
 
   expect_snapshot(
     print(stats_dm_list_obj)
+  )
+
+  test = stats_dm_list_obj[-c(1,2)]
+  class(test) = "stats_dm_list"
+  expect_snapshot(
+    print(test)
   )
 })
 
@@ -85,7 +102,7 @@ test_that("print.stats_dm_list works as expected", {
 test_that("summary.stats_dm works as expected", {
   fits_ids <- get_example_fits_ids()
   some_stats <- calc_stats(fits_ids,
-    type = "fit_stats"
+                           type = "fit_stats"
   )
   class(some_stats) <- class(some_stats)[-1]
   summary_stats <- summary(some_stats)
@@ -124,9 +141,32 @@ test_that("summary.sum_dist works as expected", {
 })
 
 
+test_that("summary.basic_stats works as expected", {
+  fits_ids <- load_fits_ids(test_path("fixtures"),
+                            fit_procedure_name = "test_case_saved"
+  )
+  some_stats <- calc_stats(fits_ids, type = "basic_stats")
+  summary_stats <- summary(some_stats, round_digits = 2)
+
+  # Check class
+  expect_s3_class(summary_stats, "summary.basic_stats")
+
+  # Check stored attributes
+  expect_identical(summary_stats$type, "basic_stats")
+  expect_identical(summary_stats$conds, unique(some_stats$Cond))
+  expect_s3_class(summary_stats$summary_dataframe, "table")
+  expect_identical(summary_stats$source, c("obs", "pred"))
+  expect_identical(summary_stats$n_ids, length(unique(some_stats$ID)))
+
+
+  # Check print output snapshot
+  expect_snapshot(print(summary_stats))
+})
+
+
 test_that("summary.cafs works as expected", {
   fits_ids <- load_fits_ids(test_path("fixtures"),
-    fit_procedure_name = "test_case_saved"
+                            fit_procedure_name = "test_case_saved"
   )
   some_stats <- calc_stats(fits_ids, type = "cafs")
   summary_stats <- summary(some_stats, round_digits = 2)
@@ -170,8 +210,8 @@ test_that("summary.quantiles works as expected", {
 
 test_that("summary.delta_funs works as expected", {
   some_stats <- calc_stats(dmc_dm(dt = .005, dx = .01),
-    type = "delta_funs",
-    minuends = "incomp", subtrahends = "comp"
+                           type = "delta_funs",
+                           minuends = "incomp", subtrahends = "comp"
   )
   summary_stats <- summary(some_stats)
 
@@ -194,7 +234,7 @@ test_that("summary.delta_funs works as expected", {
 
 test_that("summary.fit_stats works as expected", {
   fits_ids <- load_fits_ids(test_path("fixtures"),
-    fit_procedure_name = "test_case_saved"
+                            fit_procedure_name = "test_case_saved"
   )
   some_stats <- calc_stats(fits_ids, type = "fit_stats")
   summary_stats <- summary(some_stats)
@@ -214,7 +254,7 @@ test_that("summary.fit_stats works as expected", {
 
 test_that("summary.stats_dm_list works as expected", {
   some_stats_list <- calc_stats(dmc_dm(dx = .01, dt = .005),
-    type = c("quantiles", "cafs")
+                                type = c("quantiles", "cafs")
   )
   summary_list <- summary(some_stats_list)
 

@@ -188,7 +188,7 @@ test_that("prm_con_combo_2_labels input checks", {
 })
 
 
-test_that("get_lower_upper_smart works as expected", {
+test_that("get_parameters_smart works as expected", {
   # test case 1 - just vectors
   a_model <- drift_dm(
     prms_model = c(a = 2, b = 2, c = 2),
@@ -197,18 +197,18 @@ test_that("get_lower_upper_smart works as expected", {
   )
 
   expect_list <- list(
-    lower = c("a" = 1, "b.i" = 2, "b.c" = 2, "c" = 3),
-    upper = c("a" = 4, "b.i" = 5, "b.c" = 5, "c" = 6)
+    vec_a = c("a" = 1, "b.i" = 2, "b.c" = 2, "c" = 3),
+    vec_b = c("a" = 4, "b.i" = 5, "b.c" = 5, "c" = 6)
   )
   expect_identical(
-    get_lower_upper_smart(a_model, c(1, 2, 3), c(4, 5, 6)),
+    get_parameters_smart(a_model, c(1, 2, 3), c(4, 5, 6)),
     expect_list
   )
 
 
   # continue with test case 2 - named numeric vectors
   expect_identical(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model, c(b = 2, a = 1, c = 3),
       c(a = 4, c = 6, b = 5)
     ),
@@ -217,7 +217,7 @@ test_that("get_lower_upper_smart works as expected", {
 
   # continue with test case 3 - lists
   expect_identical(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model,
       list(default_values = c(1, 2, 3)),
       list(default_values = c(c = 6, b = 5, a = 4))
@@ -227,9 +227,9 @@ test_that("get_lower_upper_smart works as expected", {
 
 
   # continue with test case 3 - lists, but with special variation
-  expect_list$lower["b.i"] <- 4
+  expect_list$vec_a["b.i"] <- 4
   expect_identical(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model,
       list(
         default_values = c(a = 1, b = 2, c = 3),
@@ -248,11 +248,11 @@ test_that("get_lower_upper_smart works as expected", {
   )
 
   expect_list <- list(
-    lower = c(1, 2, 2, 3),
-    upper = c(4, 5, 5, 6)
+    vec_a = c(1, 2, 2, 3),
+    vec_b = c(4, 5, 5, 6)
   )
   expect_identical(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model,
       c(1, 2, 3),
       c(4, 5, 6),
@@ -263,7 +263,7 @@ test_that("get_lower_upper_smart works as expected", {
 })
 
 
-test_that("get_lower_upper_smart input checks", {
+test_that("get_parameters_smart input checks", {
   # general input errors
   a_model <- drift_dm(
     prms_model = c(a = 2, b = 2, c = 2),
@@ -271,42 +271,42 @@ test_that("get_lower_upper_smart input checks", {
     subclass = "test", instr = "b ~ "
   )
   expect_error(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model,
-      lower = c("1", "2", "3"),
-      upper = c("1")
+      input_a = c("1", "2", "3"),
+      input_b = c("1")
     ), "illegal data type"
   )
 
   expect_error(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model,
-      lower = c(1, 2),
-      upper = c("1")
+      input_a = c(1, 2),
+      input_b = c("1")
     ), "must match"
   )
 
   expect_error(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model,
-      lower = c(1, 2, 3),
-      upper = c(1, 2, 3),
+      input_a = c(1, 2, 3),
+      input_b = c(1, 2, 3),
       labels = NULL
     ), "is.logical"
   )
 
   # check if lower < upper
   expect_warning(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model,
-      lower = c(1, 2, 3),
-      upper = c(0, 2, 3)
+      input_a = c(1, 2, 3),
+      input_b = c(0, 2, 3)
     ), "larger than"
   )
 
   # check from list formation
   expect_error(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model,
       list(
         i = c(b = 4),
@@ -318,7 +318,7 @@ test_that("get_lower_upper_smart input checks", {
   )
 
   expect_error(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model,
       list(
         default_valu = c(a = 1, b = 2, c = 3),
@@ -330,7 +330,7 @@ test_that("get_lower_upper_smart input checks", {
   )
 
   expect_error(
-    get_lower_upper_smart(
+    get_parameters_smart(
       a_model,
       list(
         default_values = c(a = 1, b = 2, c = 3),

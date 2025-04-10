@@ -566,8 +566,242 @@ test_that("mu_constant", {
     t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
   )
   expect_equal(mu_vals, 4 * c(0, 0.5, 1))
+
+
+  # input checks mu_constant
+  expect_error(
+    mu_constant(
+      prms_model = c("muc" = "4"), prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "not a single number"
+  )
+
+  expect_error(
+    mu_constant(
+      prms_model = c("muc" = 5), prms_solve = NULL,
+      t_vec = c(0), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+
+
+  # input checks mu_int_constant
+  expect_error(
+    mu_int_constant(
+      prms_model = c("muc" = "4"), prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "not a single number"
+  )
+
+  expect_error(
+    mu_int_constant(
+      prms_model = c("muc" = 5), prms_solve = NULL,
+      t_vec = c(0), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+
 })
 
+
+test_that("mu_dmc", {
+
+  # return values are tested when testing DMC, here just input checks
+  # input checks mu_dmc
+  expect_error(
+    mu_dmc(
+      prms_model = c(muc = "4", tau = 0.3, a = 2, A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "muc is not a single number"
+  )
+
+  expect_error(
+    mu_dmc(
+      prms_model = list(muc = 4, tau = c(0.3, "0.4"), a = 2, A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "tau is not a single number"
+  )
+
+  expect_error(
+    mu_dmc(
+      prms_model = list(muc = 4, tau = 0.3, a = list(2, 4), A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "a is not a single number"
+  )
+
+  expect_error(
+    mu_dmc(
+      prms_model = list(muc = 4, tau = 0.3, a = 2, A = NULL),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "A is not a single number"
+  )
+
+
+  expect_error(
+    mu_dmc(
+      prms_model = list(muc = 4, tau = 0.3, a = 2, A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+
+
+
+  # input checks mu_int_dmc
+  expect_error(
+    mu_int_dmc(
+      prms_model = c(muc = "4", tau = 0.3, a = 2, A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "muc is not a single number"
+  )
+
+  expect_error(
+    mu_int_dmc(
+      prms_model = list(muc = 4, tau = c(0.3, "0.4"), a = 2, A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "tau is not a single number"
+  )
+
+  expect_error(
+    mu_int_dmc(
+      prms_model = list(muc = 4, tau = 0.3, a = list(2, 4), A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "a is not a single number"
+  )
+
+  expect_error(
+    mu_int_dmc(
+      prms_model = list(muc = 4, tau = 0.3, a = 2, A = NULL),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "A is not a single number"
+  )
+
+
+  expect_error(
+    mu_int_dmc(
+      prms_model = list(muc = 4, tau = 0.3, a = 2, A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+})
+
+
+
+test_that("mu_ssp", {
+
+  # return values are tested when testing DMC, here just input checks
+  # input checks mu_dmc
+  expect_error(
+    mu_ssp(
+      prms_model = c(p = "3", sd_0 = 1.2, r = 10, sign = 1),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "p is not a single number"
+  )
+
+  expect_error(
+    mu_ssp(
+      prms_model = list(p = 3, sd_0 = NA, r = 10, sign = 1),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "sd_0 is not a single number"
+  )
+
+  expect_error(
+    mu_ssp(
+      prms_model = list(p = 3, sd_0 = 1.2, r = NA, sign = 1),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "r is not a single number"
+  )
+
+  expect_error(
+    mu_ssp(
+      prms_model = list(p = 3, sd_0 = 1.2, r = 10, sign = NA),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "sign is not a single number"
+  )
+
+  expect_error(
+    mu_ssp(
+      prms_model = list(p = 3, sd_0 = 1.2, r = 10, sign = 1),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+})
+
+
+test_that("x_beta", {
+
+  # return values are tested when testing DMC, here just input checks
+
+  expect_error(
+    x_beta(
+      prms_model = c(alpha = "4"), prms_solve = c(dx = .02),
+      x_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "alpha is not a single number"
+  )
+
+   expect_error(
+     x_beta(
+       prms_model = c(alpha = 4), prms_solve = c(dx = .02),
+       x_vec = c("1", 0.5, 1), one_cond = NULL, ddm_opts = NULL
+     ), "x_vec is not a numeric vector"
+  )
+
+
+
+  # input checks mu_int_dmc
+  expect_error(
+    mu_int_dmc(
+      prms_model = c(muc = "4", tau = 0.3, a = 2, A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "muc is not a single number"
+  )
+
+  expect_error(
+    mu_int_dmc(
+      prms_model = list(muc = 4, tau = c(0.3, "0.4"), a = 2, A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "tau is not a single number"
+  )
+
+  expect_error(
+    mu_int_dmc(
+      prms_model = list(muc = 4, tau = 0.3, a = list(2, 4), A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "a is not a single number"
+  )
+
+  expect_error(
+    mu_int_dmc(
+      prms_model = list(muc = 4, tau = 0.3, a = 2, A = NULL),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "A is not a single number"
+  )
+
+
+  expect_error(
+    mu_int_dmc(
+      prms_model = list(muc = 4, tau = 0.3, a = 2, A = 0.2),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+})
 
 
 test_that("x_dirac_0", {
@@ -577,6 +811,22 @@ test_that("x_dirac_0", {
     ddm_opts = NULL
   )
   expect_equal(x_vals, c(0, 0, 1 / .01, 0, 0))
+
+  # input check
+  expect_error(
+    x_dirac_0(
+      prms_model = NULL, prms_solve = c(dx = "4"),
+      x_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "not a single number"
+  )
+
+  expect_error(
+    x_dirac_0(
+      prms_model = NULL, prms_solve = c(dx = .01),
+      x_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+
 })
 
 
@@ -588,6 +838,23 @@ test_that("x_uniform", {
     one_cond = NULL, ddm_opts = NULL
   )
   expect_equal(x_vals, c(0, 0, 20, 20, 20, 20, 20, 0, 0))
+
+
+  # input check
+  expect_error(
+    x_uniform(
+      prms_model = c(range_start = "0.1"), prms_solve = c(dx = .01),
+      x_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "not a single number"
+  )
+
+  expect_error(
+    x_uniform(
+      prms_model = c(range_start = 0.1), prms_solve = c(dx = .01),
+      x_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+
 })
 
 
@@ -604,6 +871,30 @@ test_that("b_constant", {
     t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
   )
   expect_equal(b_vals, rep(0, 3))
+
+  # input check b_constant
+  expect_error(
+    b_constant(
+      prms_model = c(b = "0.1"), prms_solve = c(dx = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "not a single number"
+  )
+
+  expect_error(
+    b_constant(
+      prms_model = c(b = 0.1), prms_solve = c(dx = .01),
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+
+  # input check dt_b_constant
+  expect_error(
+    dt_b_constant(
+      prms_model = c(b = 0.1), prms_solve = c(dx = .01),
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+
 })
 
 
@@ -619,6 +910,59 @@ test_that("nt_constant", {
   exp_vals <- numeric(length = 101)
   exp_vals[31] <- 1 / .01
   expect_equal(nt_vals, exp_vals)
+
+
+  # input checks
+  expect_error(
+    nt_constant(
+      prms_model = c(non_dec = "0.1"), prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "not a single number"
+  )
+
+  expect_error(
+    nt_constant(
+      prms_model = c(non_dec = 0.1), prms_solve = c(t_max = "1", dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "t_max is not a single number"
+  )
+
+  expect_error(
+    nt_constant(
+      prms_model = c(non_dec = 0.1),
+      prms_solve = list(t_max = 1, dt = c(.01, 0.1)),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "dt is not a single number"
+  )
+
+  expect_error(
+    nt_constant(
+      prms_model = c(non_dec = -0.1), prms_solve = c(t_max = 1, dt = .5),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "larger than t_max or smaller than 0"
+  )
+
+  expect_error(
+    nt_constant(
+      prms_model = c(non_dec = 2), prms_solve = c(t_max = 1, dt = .5),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "larger than t_max or smaller than 0"
+  )
+
+  expect_error(
+    nt_constant(
+      prms_model = c(non_dec = 0.5), prms_solve = c(t_max = 1, dt = .5),
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+
+  expect_error(
+    nt_constant(
+      prms_model = c(non_dec = 0.5), prms_solve = c(t_max = 1, dt = .5),
+      t_vec = c(0), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector with more than one entry"
+  )
+
 })
 
 
@@ -632,9 +976,148 @@ test_that("nt_uniform", {
   )
   exp_vals <- dunif(x = t_vec, min = 0.25, max = 0.35)
   expect_equal(nt_vals, exp_vals)
+
+
+  # input check
+  expect_error(
+    nt_uniform(
+      prms_model = c(non_dec = "0.1", range_non_dec = 0.1),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "non_dec is not a single number"
+  )
+
+  expect_error(
+    nt_uniform(
+      prms_model = list(non_dec = 0.1, range_non_dec = c(0.1, 0.2)),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "range_non_dec is not a single number"
+  )
+
+  expect_error(
+    nt_uniform(
+      prms_model = c(non_dec = 0.1, range_non_dec = 0.1),
+      prms_solve = c(t_max = "1", dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "t_max is not a single number"
+  )
+
+  expect_error(
+    nt_uniform(
+      prms_model = c(non_dec = 0.1, range_non_dec = 0.1),
+      prms_solve = list(t_max = 1, dt = c(.01, 0.05)),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "dt is not a single number"
+  )
+
+
+  expect_error(
+    nt_uniform(
+      prms_model = c(non_dec = -0.1, range_non_dec = 0.1),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "larger than t_max or smaller than 0"
+  )
+
+  expect_error(
+    nt_uniform(
+      prms_model = c(non_dec = 2, range_non_dec = 0.1),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "larger than t_max or smaller than 0"
+  )
+
+  expect_error(
+    nt_uniform(
+      prms_model = c(non_dec = 0.5, range_non_dec = 0.01),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "range_non_dec should not be smaller than dt"
+  )
+
+  expect_error(
+    nt_uniform(
+      prms_model = c(non_dec = 0.5, range_non_dec = 0.05),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
 })
 
-# typical DMC and SSP components are tested in the respective sections
+
+test_that("nt_truncated", {
+
+  # return values are tested when testing DMC/SSP, here just input checks
+  expect_error(
+    nt_truncated_normal(
+      prms_model = c(non_dec = "0.1", sd_non_dec = 0.05),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "non_dec is not a single number"
+  )
+
+
+  expect_error(
+    nt_truncated_normal(
+      prms_model = list(non_dec = 0.1, sd_non_dec = "0.05"),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "sd_non_dec is not a single number"
+  )
+
+
+
+  expect_error(
+    nt_truncated_normal(
+      prms_model = c(non_dec = 0.1, sd_non_dec = 0.05),
+      prms_solve = c(t_max = "1", dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "t_max is not a single number"
+  )
+
+  expect_error(
+    nt_truncated_normal(
+      prms_model = c(non_dec = 0.1, sd_non_dec = 0.05),
+      prms_solve = list(t_max = 1, dt = c(.01, 0.05)),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "dt is not a single number"
+  )
+
+
+  expect_error(
+    nt_truncated_normal(
+      prms_model = c(non_dec = -0.1, sd_non_dec = 0.05),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "larger than t_max or smaller than 0"
+  )
+
+  expect_error(
+    nt_truncated_normal(
+      prms_model = c(non_dec = 2, sd_non_dec = 0.05),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "larger than t_max or smaller than 0"
+  )
+
+  expect_error(
+    nt_truncated_normal(
+      prms_model = c(non_dec = 0.1, sd_non_dec = 0.005),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "sd_non_dec should not be smaller than dt"
+  )
+
+  expect_error(
+    nt_truncated_normal(
+      prms_model = c(non_dec = 0.1, sd_non_dec = 0.005),
+      prms_solve = c(t_max = 1, dt = .01),
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+})
+
 
 test_that("b_hyperbol", {
   t_vec <- seq(0, 1, 0.0001)
@@ -665,10 +1148,80 @@ test_that("b_hyperbol", {
   dt_b_vals <- dt_b_vals[1:100]
 
   expect_true(all(abs(dt_b_vals - exp_vals) < .001))
+
+
+  # input checks b_hyperbol
+  expect_error(
+    b_hyperbol(
+      prms_model = c(b0 = "75", kappa = 0.6, t05 = 0.15),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "b0 is not a single number"
+  )
+
+  expect_error(
+    b_hyperbol(
+      prms_model = list(b0 = 75, kappa = NA, t05 = 0.15),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "kappa is not a single number"
+  )
+
+
+  expect_error(
+    b_hyperbol(
+      prms_model = list(b0 = 75, kappa = 0.6, t05 = c(0.2, 0.1)),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "t05 is not a single number"
+  )
+
+  expect_error(
+    b_hyperbol(
+      prms_model = list(b0 = 75, kappa = 0.6, t05 = 0.15),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
+
+
+  # input checks dt_b_hyperbol
+  expect_error(
+    dt_b_hyperbol(
+      prms_model = c(b0 = "75", kappa = 0.6, t05 = 0.15),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "b0 is not a single number"
+  )
+
+  expect_error(
+    dt_b_hyperbol(
+      prms_model = list(b0 = 75, kappa = NA, t05 = 0.15),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "kappa is not a single number"
+  )
+
+
+  expect_error(
+    dt_b_hyperbol(
+      prms_model = list(b0 = 75, kappa = 0.6, t05 = c(0.2, 0.1)),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "t05 is not a single number"
+  )
+
+  expect_error(
+    dt_b_hyperbol(
+      prms_model = list(b0 = 75, kappa = 0.6, t05 = 0.15),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, "1"), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector"
+  )
 })
 
 
-test_that("b_hyperbol", {
+test_that("b_weibull", {
   t_vec <- seq(0, 1, 0.0001)
   b_vals <- b_weibull(
     prms_model = c(b0 = 75, lambda = 0.5, k = 3, kappa = 1),
@@ -698,6 +1251,92 @@ test_that("b_hyperbol", {
   dt_b_vals <- dt_b_vals[1:100]
 
   expect_true(all(abs(dt_b_vals - exp_vals) < .001))
+
+
+  # input checks b_weibull
+  expect_error(
+    b_weibull(
+      prms_model = c(b0 = "75", lambda = 0.5, k = 3, kappa = 1),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "b0 is not a single number"
+  )
+
+  expect_error(
+    b_weibull(
+      prms_model = list(b0 = 75, lambda = NA, k = 3, kappa = 1),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "lambda is not a single number"
+  )
+
+
+  expect_error(
+    b_weibull(
+      prms_model = list(b0 = 75, lambda = 0.5, k = NA, kappa = 1),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "k is not a single number"
+  )
+
+  expect_error(
+    b_weibull(
+      prms_model = list(b0 = 75, lambda = 0.5, k = 3, kappa = c(1,2)),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "kappa is not a single number"
+  )
+
+  expect_error(
+    b_weibull(
+      prms_model = list(b0 = 75, lambda = 0.5, k = 3, kappa = 1),
+      prms_solve = NULL,
+      t_vec = c(0), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector with more than one entry"
+  )
+
+
+  # input checks dt_b_weibull
+  expect_error(
+    dt_b_weibull(
+      prms_model = c(b0 = "75", lambda = 0.5, k = 3, kappa = 1),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "b0 is not a single number"
+  )
+
+  expect_error(
+    dt_b_weibull(
+      prms_model = list(b0 = 75, lambda = NA, k = 3, kappa = 1),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "lambda is not a single number"
+  )
+
+
+  expect_error(
+    dt_b_weibull(
+      prms_model = list(b0 = 75, lambda = 0.5, k = NA, kappa = 1),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "k is not a single number"
+  )
+
+  expect_error(
+    dt_b_weibull(
+      prms_model = list(b0 = 75, lambda = 0.5, k = 3, kappa = c(1,2)),
+      prms_solve = NULL,
+      t_vec = c(0, 0.5, 1), one_cond = NULL, ddm_opts = NULL
+    ), "kappa is not a single number"
+  )
+
+  expect_error(
+    dt_b_weibull(
+      prms_model = list(b0 = 75, lambda = 0.5, k = 3, kappa = 1),
+      prms_solve = NULL,
+      t_vec = c(0), one_cond = NULL, ddm_opts = NULL
+    ), "not a numeric vector with more than one entry"
+  )
 })
 
 
@@ -717,3 +1356,6 @@ test_that("test_dummy", {
   a_model$comp_funs$mu_fun <- dummy_t
   expect_error(comp_vals(a_model), "should not be called")
 })
+
+
+

@@ -4,24 +4,25 @@
 \alias{check_unique_special_boundary}
 \title{Check for Unique Special Boundary Values}
 \usage{
-check_unique_special_boundary(drift_dm_obj, l_u)
+check_unique_special_boundary(drift_dm_obj, a_list)
 }
 \arguments{
 \item{drift_dm_obj}{an object of type \link{drift_dm}}
 
-\item{l_u}{a list specifying the upper/lower parameter/search space (see
-\link{simulate_data}, or \link{estimate_model}).}
+\item{a_list}{a list specifying the parameter space (e.g., the lower/upper
+parameter space, see \link{simulate_data}, or \link{estimate_model}).}
 }
 \description{
 Internal, deep in the depths of the package, function. Verifies that each
-specified parameter value within a condition in \code{l_u} is unique within
+specified parameter value within a condition in \code{a_list} is unique within
 the \code{linear_internal_list} in \code{drift_dm_obj}. If the same
 value is associated with multiple conditions, an error is raised. Used for
-checking the input to \link{get_lower_upper_smart}.
+checking the input to \link{get_parameters_smart}.
 }
 \details{
-For each condition in \code{l_u}, the function examines if the parameter
-value specified is unique with respect to the \code{linear_internal_list}.
-Non-unique values for a parameter-condition combination raise an error.
+For each condition in \code{a_list}, the function examines if the
+parameter value specified is unique with respect to the
+\code{linear_internal_list}. Non-unique values for a parameter-condition
+combination raise an error.
 }
 \keyword{internal}

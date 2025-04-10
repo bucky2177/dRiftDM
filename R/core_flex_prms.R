@@ -434,8 +434,22 @@ modify_flex_prms.drift_dm <- function(object, instr, ..., eval_model = FALSE) {
 modify_flex_prms.flex_prms <- function(object, instr, ..., messaging = NULL) {
   flex_prms_obj <- object
 
+  # input checks and default value handling
+  if (is.null(instr)) {
+    return(flex_prms_obj)
+  }
+
+  if (!is.character(instr)) {
+    stop("argument 'instr' must be character")
+  }
+
   if (is.null(messaging)) messaging <- TRUE
 
+  if (!is.logical(messaging) | length(messaging) != 1) {
+    stop("messaging must be a single logical")
+  }
+
+  # messaging handling
   if (!messaging) {
     flex_prms_obj <- suppressMessages(
       modify_flex_prms(
@@ -446,24 +460,9 @@ modify_flex_prms.flex_prms <- function(object, instr, ..., messaging = NULL) {
     return(flex_prms_obj)
   }
 
-  # input checks
-  if (!inherits(flex_prms_obj, "flex_prms")) {
-    stop("flex_prms_obj is not of type flex_prms")
-  }
 
-  if (is.null(instr)) {
-    return(flex_prms_obj)
-  }
-
-  if (!is.character(instr)) {
-    stop("argument 'instr' must be character")
-  }
-
+  # paste instr
   instr <- paste(instr, collapse = "\n")
-
-  if (!is.logical(messaging) | length(messaging) != 1) {
-    stop("messaging must be single logical")
-  }
 
   # remove comments from instr
   instr <- gsub("#[^\n]*", "", instr)
@@ -1214,7 +1213,7 @@ prms_conds_to_modify <- function(formula_instr, operation,
 
   if (length(split_vector) > 2 & operation == "set") {
     stop(
-      "Only a single '~' allowed when setting specific parameter values; ",
+      "Only a single '=>' allowed when setting specific parameter values; ",
       "found in: ", formula_instr
     )
   }

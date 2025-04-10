@@ -103,13 +103,13 @@ summary.fits_ids_dm <- function(object, ...) {
   ans$fit_procedure_name <- fits_ids$drift_dm_fit_info$fit_procedure_name
   ans$time_call <- fits_ids$drift_dm_fit_info$time_call
 
-  l_u <- get_lower_upper_smart(
+  l_u <- get_parameters_smart(
     drift_dm_obj = fits_ids$drift_dm_fit_info$drift_dm_obj,
-    lower = fits_ids$drift_dm_fit_info$lower,
-    upper = fits_ids$drift_dm_fit_info$upper
+    input_a = fits_ids$drift_dm_fit_info$lower,
+    input_b = fits_ids$drift_dm_fit_info$upper
   )
-  ans$lower <- l_u$lower
-  ans$upper <- l_u$upper
+  ans$lower <- l_u$vec_a
+  ans$upper <- l_u$vec_b
   ans$model_type <- paste(
     class(fits_ids$drift_dm_fit_info$drift_dm_obj),
     collapse = ", "

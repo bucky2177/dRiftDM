@@ -230,7 +230,9 @@ new_drift_dm <- function(flex_prms_obj, prms_solve, solver, comp_funs,
 #'
 #' @return
 #'
-#' the unmodified ddm object, after it passed all checks
+#' the ddm object, after it passed all checks. Usually, it will be unmodified.
+#' The only exception is when the observed RTs are larger than `t_max`. Then,
+#' the returned ddm object has a new `t_max`that covers the largest RTs.
 #'
 #' @keywords internal
 validate_drift_dm <- function(drift_dm_obj) {
@@ -240,6 +242,26 @@ validate_drift_dm <- function(drift_dm_obj) {
 
   # check the flex_prms_obj
   validate_flex_prms(drift_dm_obj$flex_prms_obj)
+
+
+  # check the obs_data list (to ensure that obs_data only contains valid RTs)
+  if (!is.null(drift_dm_obj$obs_data)) {
+    if (!identical(names(drift_dm_obj$obs_data$rts_u), conds(drift_dm_obj))) {
+      stop("the rts_u entry of obs_data is not labeled like the conditions")
+    }
+    if (!identical(names(drift_dm_obj$obs_data$rts_l), conds(drift_dm_obj))) {
+      stop("the rts_l entry of obs_data is not labeled like the conditions")
+    }
+
+    check <- sapply(drift_dm_obj$obs_data, function(x) {
+      all(as.vector(sapply(x, is_numeric)))
+    })
+    if (!all(check)) {
+      stop("rts in obs_data are not of type numeric or contain",
+           " missing/infinite values")
+    }
+  }
+
 
 
   # check the prms_solve entry
@@ -310,29 +332,12 @@ validate_drift_dm <- function(drift_dm_obj) {
 
   # check if im_zero, that x_fun provides a dirac delta on 0
   if (drift_dm_obj$solver == "im_zero") {
-    comp_vals <- comp_vals(drift_dm_obj)
-    x_check <- sapply(names(comp_vals), function(one_cond) {
-      obs_x_vals <- comp_vals[[one_cond]]$x_vals
-
-      x_vec <- seq(-1, 1, length.out = drift_dm_obj$prms_solve[["nx"]] + 1)
-      nec_x_vals <- x_dirac_0(
-        prms_model = NULL,
-        prms_solve = drift_dm_obj$prms_solve,
-        x_vec = x_vec,
-        one_cond = NULL, ddm_opts = NULL
-      )
-      return(isTRUE(all.equal(obs_x_vals, nec_x_vals)))
-    }, simplify = TRUE, USE.NAMES = TRUE)
-
-
-    if (any(!x_check)) {
-      names_conds <- names(which(!x_check))
-      names_conds <- paste(names_conds, collapse = ", ")
+    if (!isTRUE(all.equal(drift_dm_obj$comp_funs$x_fun, x_dirac_0))) {
       warning(
         "You selected im_zero for a solver, but the distribution of",
-        " starting conditions (", names_conds, ") is different from ",
-        " dRiftDM's x_dirac_0 function. Note that im_zero assumes that ",
-        " evidence accumulation always starts at 0!"
+        " starting conditions is not identical to dRiftDM's x_dirac_0()",
+        " function. Note that im_zero assumes that evidence accumulation",
+        " always starts at 0!"
       )
     }
   }
@@ -412,48 +417,9 @@ validate_drift_dm <- function(drift_dm_obj) {
   }
 
 
-  # check the obs_data list
-  # check pdfs
-  if (!is.null(drift_dm_obj$obs_data)) {
-    if (!identical(names(drift_dm_obj$obs_data$rts_u), conds(drift_dm_obj))) {
-      stop("the rts_u entry of obs_data is not labeled like the conditions")
-    }
-    if (!identical(names(drift_dm_obj$obs_data$rts_l), conds(drift_dm_obj))) {
-      stop("the rts_l entry of obs_data is not labeled like the conditions")
-    }
-
-    check <- sapply(drift_dm_obj$obs_data, function(x) {
-      all(as.vector(sapply(x, is_numeric)))
-    })
-    if (!all(check)) {
-      stop("rts in obs_data are not of type numeric")
-    }
-  }
-
-
   # check boundary encoding
-  # check encoding
   b_coding <- attr(drift_dm_obj, "b_coding")
-  if (!is.character(b_coding$column) | length(b_coding$column) != 1) {
-    stop("b_coding_column is not a single character")
-  }
-
-  if (class(b_coding$u_name_value) != class(b_coding$l_name_value)) {
-    stop("u_name_value and l_name_value in b_coding are not of the same type")
-  }
-
-  if (length(b_coding$u_name_value) != 1 | length(b_coding$l_name_value) != 1) {
-    stop("u_name_value or l_name_value in b_coding are not of length 1")
-  }
-  names_u <- names(b_coding$u_name_value)
-  if (is.null(names_u)) {
-    stop("u_name_value in b_coding is not a named vector")
-  }
-
-  names_l <- names(b_coding$l_name_value)
-  if (is.null(names_l)) {
-    stop("l_name_value in b_coding is not a named vector")
-  }
+  check_b_coding(b_coding)
 
 
   # check that there aren't any unexpected entries or attributes
@@ -532,7 +498,7 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
       # a constant drift rate
       mu <- standard_drift()
       if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-        stop("t_vec is not a vector")
+        stop("t_vec is not a numeric vector with more than one entry")
       }
       mu <- rep(mu, length(t_vec))
       return(mu)
@@ -544,7 +510,7 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
       # integral of a constant drift rate
       mu <- standard_drift()
       if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-        stop("t_vec is not a vector")
+        stop("t_vec is not a numeric vector with more than one entry")
       }
       return(mu * t_vec)
     }
@@ -559,7 +525,7 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
       # constant boundary
       b <- standard_boundary()
       if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-        stop("t_vec is not a vector")
+        stop("t_vec is not a numeric vector with more than one entry")
       }
       b <- rep(b, length(t_vec))
       return(b)
@@ -578,7 +544,7 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
         stop("non_dec_time larger than t_max or smaller than 0!")
       }
       if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-        stop("t_vec is not a vector")
+        stop("t_vec is not a numeric vector with more than one entry")
       }
       dt <- prms_solve[["dt"]]
       d_nt <- numeric(length(t_vec))
@@ -1372,14 +1338,14 @@ check_b_coding <- function(b_coding) {
   }
 
   if (length(b_coding) != 3) {
-    stop("b_coding has more entries than expected")
+    stop("each b_coding list must provide three entries")
   }
 
   exp_names <- c("column", "u_name_value", "l_name_value")
   if (!all(names(b_coding) %in% exp_names)) {
     stop(
-      "unexpected entries in b_coding. Expected column, u_name_value,",
-      " l_name_value, found ", paste(names(b_coding), collapse = ", ")
+      "unexpected entries in b_coding. Expected: column, u_name_value,",
+      " l_name_value. Found: ", paste(names(b_coding), collapse = ", ")
     )
   }
 
@@ -1411,6 +1377,10 @@ check_b_coding <- function(b_coding) {
   }
   if (!isTRUE(all.equal(class(u_name_value), class(l_name_value)))) {
     stop("u_name_value and l_name_value must be of the same type")
+  }
+  if (is_empty(u_name_value) | is_empty(l_name_value)) {
+    stop("u_name_value and l_name_value can't be empty.",
+         " Check if you have entered an empty string or an empty numeric.")
   }
 
   # pass back
@@ -2687,18 +2657,15 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
     stop("k must be numeric > 0")
   }
 
+  if (!is_numeric(sigma) | sigma < 0) {
+    stop("sigma must be a numeric >= 0")
+  }
+
   # unpack arguments for easier usage
   dt <- drift_dm_obj$prms_solve[["dt"]]
   nt <- drift_dm_obj$prms_solve[["nt"]]
   nx <- drift_dm_obj$prms_solve[["nx"]]
   t_max <- drift_dm_obj$prms_solve[["t_max"]]
-
-  if (is.null(sigma)) {
-    sigma <- drift_dm_obj$prms_solve[["sigma"]]
-  }
-  if (!is_numeric(sigma) | sigma < 0) {
-    stop("sigma must be a numeric >= 0")
-  }
 
   # get component function's values
   all_vals <- comp_vals(drift_dm_obj)
@@ -3205,21 +3172,20 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
     sds <- dots$sds
 
     if (!is.null(distr) && distr == "tnorm") {
-      # exploting the function a bit :)
-      m_s <- get_lower_upper_smart(
-        drift_dm_obj = object, lower = means,
-        upper = sds, labels = TRUE
+      m_s <- get_parameters_smart(
+        drift_dm_obj = object, input_a = means,
+        input_b = sds, labels = TRUE, is_l_u = FALSE
       )
-      means <- m_s$lower
-      sds <- m_s$upper
+      means <- m_s$vec_a
+      sds <- m_s$vec_b
     }
 
-    l_u <- get_lower_upper_smart(
-      drift_dm_obj = object, lower = lower,
-      upper = upper, labels = TRUE
+    l_u <- get_parameters_smart(
+      drift_dm_obj = object, input_a = lower,
+      input_b = upper, labels = TRUE
     )
     sim_prms <- simulate_values(
-      lower = l_u$lower, upper = l_u$upper, k = k,
+      lower = l_u$vec_a, upper = l_u$vec_b, k = k,
       cast_to_data_frame = TRUE,
       add_id_column = "numeric", distr = distr,
       means = means, sds = sds

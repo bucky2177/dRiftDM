@@ -9,6 +9,18 @@
       9   pred incomp   4  0.991
       ...
 
+# print.basic_stats works as expected
+
+    Code
+      print(basic_obj)
+    Output
+      Type of Statistic: basic_stats
+      
+        Source Cond Mean_corr Mean_err SD_corr SD_err P_corr
+      1   pred null      0.49     0.49    0.13   0.13  0.973
+      
+      (access the data.frame's columns/rows as usual)
+
 # print.cafs works as expected
 
     Code
@@ -124,6 +136,13 @@
       
       (extract the list's elements as usual, e.g., with $fit_stats)
 
+---
+
+    Code
+      print(test)
+    Output
+      named list()
+
 # summary.stats_dm works as expected
 
     Code
@@ -159,6 +178,26 @@
                                              Max.   :5   Max.   :0.992  
       
       Sources: pred 
+
+# summary.basic_stats works as expected
+
+    Code
+      print(summary_stats)
+    Output
+      Type of Statistic: basic_stats
+      
+      Dependent Variables:
+         Mean_corr       Mean_err       SD_corr         SD_err          P_corr    
+       Min.   :0.48   Min.   :0.44   Min.   :0.11   Min.   :0.094   Min.   :0.98  
+       1st Qu.:0.48   1st Qu.:0.46   1st Qu.:0.11   1st Qu.:0.105   1st Qu.:0.98  
+       Median :0.48   Median :0.47   Median :0.11   Median :0.113   Median :0.98  
+       Mean   :0.48   Mean   :0.47   Mean   :0.12   Mean   :0.113   Mean   :0.98  
+       3rd Qu.:0.49   3rd Qu.:0.48   3rd Qu.:0.12   3rd Qu.:0.121   3rd Qu.:0.98  
+       Max.   :0.49   Max.   :0.48   Max.   :0.13   Max.   :0.131   Max.   :0.98  
+      
+      N IDs: 2 
+      Sources: obs, pred 
+      Conditions: null 
 
 # summary.cafs works as expected
 

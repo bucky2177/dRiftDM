@@ -131,6 +131,27 @@ test_that("simulate_values works as expected", {
   expect_true(is.matrix(dat))
 
 
+  dat <- simulate_values(
+    lower = c(a = 1, b = 2), upper = c(a = 2, b = 5),
+    k = 2, distr = "tnorm",
+    means = c(a = 1.3, b = 3), sds = c(a = 0.4, b = 0.1),
+    cast_to_data_frame = F, add_id_column = FALSE
+  )
+  expect_equal(colnames(dat), c("a", "b"))
+  expect_true(is.matrix(dat))
+
+
+  dat <- simulate_values(
+    lower = c(a = 1, b = 2), upper = c(a = 2, b = 5),
+    k = 2, distr = "tnorm",
+    means = c(a = 1.3, b = 3), sds = c(a = 0.4, b = 0.1),
+    cast_to_data_frame = T, add_id_column = "character"
+  )
+  expect_equal(colnames(dat), c("a", "b", "ID"))
+  expect_true(is.data.frame(dat))
+  expect_true(is.character(dat[,"ID"]))
+
+
   # check the seed
   withr::local_preserve_seed()
   set.seed(1)
@@ -239,4 +260,70 @@ test_that("input checks for simulate_values", {
     ),
     "values in lower are not always smaller"
   )
+
+
+  expect_error(
+    simulate_values(
+      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+      k = 2, distr = "tnorm"
+    ),
+    "no means argument"
+  )
+
+  expect_error(
+    simulate_values(
+      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+      k = 2, distr = "tnorm", means = 1.5,
+    ),
+    "no sds argument"
+  )
+
+  expect_error(
+    simulate_values(
+      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+      k = 2, distr = "tnorm", means = 1.5, sds = 0.4
+    ),
+    "means is not a valid numeric vector with length equal to lower/upper"
+  )
+
+  expect_error(
+    simulate_values(
+      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+      k = 2, distr = "tnorm", means = "1.5", sds = 0.4
+    ),
+    "means is not a valid numeric vector with length equal to lower/upper"
+  )
+
+  expect_error(
+    simulate_values(
+      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+      k = 2, distr = "tnorm", means = c(1.5, 1.5), sds = 0.4
+    ),
+    "sds is not a valid numeric vector with length equal to lower/upper"
+  )
+
+  expect_error(
+    simulate_values(
+      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+      k = 2, distr = "tnorm", means = c(1.5, 1.5), sds = "0.4"
+    ),
+    "sds is not a valid numeric vector with length equal to lower/upper"
+  )
+
+  expect_error(
+    simulate_values(
+      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+      k = 2, distr = "tnorm", means = c(a = 1.5, 1.5), sds = c(0.4, 0.4)
+    ),
+    "labels provided in means and sds don't match"
+  )
+
+  expect_error(
+    simulate_values(
+      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
+      k = 2, distr = "tnorm", means = c(c = 1.5, 1.5), sds = c(c = 0.4, 0.4)
+    ),
+    "labels provided in means/sds don't match with lower/upper"
+  )
+
 })

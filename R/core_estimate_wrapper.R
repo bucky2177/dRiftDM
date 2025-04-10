@@ -630,10 +630,10 @@ validate_fits_ids <- function(fits_ids, progress) {
   if (!is_numeric(fit_info$upper) & !is.list(fit_info$upper)) {
     stop("upper does not provide valid numeric values or is not a list")
   }
-  exp_l_u <- get_lower_upper_smart(
+  exp_l_u <- get_parameters_smart(
     drift_dm_obj = fit_info$drift_dm_obj,
-    lower = fit_info$lower,
-    upper = fit_info$upper
+    input_a = fit_info$lower,
+    input_b = fit_info$upper
   )
   seed <- fit_info$seed
   if (!is.null(seed) & (!is_numeric(seed) | length(seed) != 1)) {
@@ -665,8 +665,8 @@ validate_fits_ids <- function(fits_ids, progress) {
 
   # then check each model
   exp_model <- fit_info$drift_dm_obj
-  exp_lower <- exp_l_u$lower - drift_dm_approx_error()
-  exp_upper <- exp_l_u$upper + drift_dm_approx_error()
+  exp_lower <- exp_l_u$vec_a - drift_dm_approx_error()
+  exp_upper <- exp_l_u$vec_b + drift_dm_approx_error()
 
 
   # check the model itself (not the data; see below)

@@ -39,25 +39,25 @@ int cpp_imzero(NumericVector& pdf_u,
                const NumericVector& t_vec) {
 
   if (pdf_u.size() != nt+1){
-    Rcerr << "pdf-upper has wrong size!" << std::endl; return -1;
+    stop("pdf-upper has wrong size!");
   }
   if (pdf_l.size() != nt+1) {
-    Rcerr << "pdf-lower has wrong size!" << std::endl; return -1;
+    stop("pdf-lower has wrong size!");
   }
   if (b_vals.size() != nt+1) {
-    Rcerr << "b_vals has wrong size!" << std::endl; return -1;
+    stop("b_vals has wrong size!");
   }
   if (mu_vals.size() != nt+1) {
-    Rcerr << "mu_vals has wrong size!" << std::endl; return -1;
+    stop("mu_vals has wrong size!");
   }
   if (mu_int_vals.size() != nt+1) {
-    Rcerr << "mu_vals has wrong size!" << std::endl; return -1;
+    stop("mu_int_vals has wrong size!");
   }
   if (dt_b_vals.size() != nt+1) {
-    Rcerr << "dt_b_vals has wrong size!" << std::endl; return -1;
+    stop("dt_b_vals has wrong size!");
   }
   if (t_vec.size() != nt+1) {
-    Rcerr << "x_vec has wrong size!" << std::endl; return -1;
+    stop("t_vec has wrong size!");
   }
   NumericVector sqrt_sigma_vals(nt+1);
   for (int n=0;n<=nt;++n)

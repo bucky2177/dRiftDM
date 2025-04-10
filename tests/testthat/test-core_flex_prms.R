@@ -198,6 +198,21 @@ test_that("modify_flex_prms -> all instructions work as expected", {
     a_flex_prms_obj$cust_prms$values$e,
     c(foo = -0.32, bar = -0.26, uff = 0.49)
   )
+
+  # address all parameters
+  a_flex_prms_obj <- flex_prms(c(a = 2, b = 3, c = 5),
+                               conds = c("foo", "bar"),
+                               instr = "<!> bar"
+  )
+
+  expect_equal(a_flex_prms_obj$linear_internal_list$a,
+               list(foo = 1, bar = 0))
+
+  expect_equal(a_flex_prms_obj$linear_internal_list$b,
+               list(foo = 2, bar = 0))
+  expect_equal(a_flex_prms_obj$linear_internal_list$c,
+               list(foo = 3, bar = 0))
+
 })
 
 
@@ -374,10 +389,16 @@ test_that("messages and warnings", {
   )
 
 
+
   expect_error(
     modify_flex_prms(a_flex_prms_obj, "a ~
                      a ~ foo + bar => 0.3 + 0.4 + 0.5"),
     "don't match"
+  )
+
+  expect_error(
+    modify_flex_prms(a_flex_prms_obj, "a ~ foo =>=> 0.4"),
+    "Only a single"
   )
 
 
@@ -410,6 +431,11 @@ test_that("messages and warnings", {
     "overwritten"
   )
 
+  expect_error(
+    modify_flex_prms(a_flex_prms_obj, "a ~!~! bar + foo"),
+    "Only a single"
+  )
+
   expect_warning(
     modify_flex_prms(a_flex_prms_obj, "a ~ bar == -(a ~ foo)
                                        a ~"),
@@ -438,6 +464,11 @@ test_that("messages and warnings", {
     "Recursive"
   )
 
+  expect_error(
+    modify_flex_prms(a_flex_prms_obj, "a ~~ bar == -(a ~ bar)"),
+    "there were more than one '~"
+  )
+
 
   expect_error(
     modify_flex_prms(a_flex_prms_obj, "e?e := a"),
@@ -448,6 +479,40 @@ test_that("messages and warnings", {
   expect_error(
     modify_flex_prms(a_flex_prms_obj, "e := "),
     "empty"
+  )
+
+  expect_error(
+    modify_flex_prms(a_flex_prms_obj, "e := a + d "),
+    "parameters that are not part of the model"
+  )
+
+  expect_message(
+    modify_flex_prms(a_flex_prms_obj, "e := a + c
+                                       e := a + b"),
+    "parameter e already exists. Replacing old one"
+  )
+
+  expect_error(
+    modify_flex_prms(a_flex_prms_obj, instr = 5),
+    "'instr' must be character"
+  )
+  expect_error(
+    modify_flex_prms(a_flex_prms_obj, instr = "a ~ ", messaging = "foo"),
+    "messaging must be a single logical"
+  )
+  expect_error(
+    modify_flex_prms(a_flex_prms_obj, instr = "a !! "),
+    "couldn't interprete instruction: a !!"
+  )
+
+  expect_error(
+    modify_flex_prms(a_flex_prms_obj, instr = "a <!> foo <!> to"),
+    "Only a single"
+  )
+
+  expect_error(
+    modify_flex_prms(a_flex_prms_obj, instr = "a ~ foo == == b ~ bar"),
+    "Only a single"
   )
 })
 

@@ -60,12 +60,22 @@ calc_pdfs.ratcliff_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
   }
 
   # and check if constant drift rate was not modified
-  if (!all.equal(drift_dm_obj$comp_funs$mu_fun, mu_constant)) {
+  if (!isTRUE(all.equal(drift_dm_obj$comp_funs$mu_fun, mu_constant))) {
     stop(
       "Ratcliff DDM with variable drift rate requires dRiftDM's",
       " mu_constant function"
     )
   }
+
+  if (drift_dm_obj$solver == "im_zero" &&
+      !isTRUE(all.equal(drift_dm_obj$comp_funs$mu_int_fun, mu_int_constant))) {
+    stop(
+      "Ratcliff DDM with variable drift rate requires dRiftDM's",
+      " mu_int_constant function"
+    )
+  }
+
+
 
 
   # do the quadrature
@@ -195,14 +205,14 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
 #' @keywords internal
 add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
   if (length(pdf_nt) != length(pdf_u)) {
-    stop("pdf_u and pdf_nt don't have the same dimension!")
+    stop("pdf_u and pdf_nt don't have the same length!")
   }
   if (length(pdf_nt) != length(pdf_l)) {
-    stop("pdf_l and pdf_nt don't have the same dimension!")
+    stop("pdf_l and pdf_nt don't have the same length!")
   }
 
   if (abs(sum(pdf_nt) * dt - (sum(pdf_l) * dt + sum(pdf_u) * dt)) >
-    drift_dm_medium_approx_error()) {
+      drift_dm_medium_approx_error()) {
     warning(
       "pdf of the non-dec-time and pdf_l/pdf_u don't integrate to the",
       " same value"
@@ -273,7 +283,8 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
 #' log_like_values can not be calculated
 #'
 #'
-#' @returns a single value of the log-likelihood
+#' @returns a single value of the log-likelihood. If no data is provided,
+#'   `NULL` is returned. If the calculation fails, `-Inf` is returned.
 #'
 #' @keywords internal
 calc_log_like <- function(pdfs, t_vec, obs_data, conds) {
