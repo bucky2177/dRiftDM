@@ -60,7 +60,9 @@ This function should be called whenever modifying a ddm object!</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>the unmodified ddm object, after it passed all checks</p>
+    <p>the ddm object, after it passed all checks. Usually, it will be unmodified.
+The only exception is when the observed RTs are larger than <code>t_max</code>. Then,
+the returned ddm object has a new <code>t_max</code>that covers the largest RTs.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
