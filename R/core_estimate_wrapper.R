@@ -133,14 +133,18 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
   drift_dm_obj <- validate_drift_dm(drift_dm_obj)
 
 
-  if (!is.data.frame(obs_data_ids)) {
-    stop("obs_data_ids is not a data.frame")
-  }
+  # check if data makes sense
+  b_coding <- attr(drift_dm_obj, "b_coding")
+  obs_data_ids <- check_raw_data(obs_data_ids,
+    b_coding_column = b_coding$column,
+    u_value = b_coding$u_name_value,
+    l_value = b_coding$l_name_value
+  )
+
   if (!("ID" %in% colnames(obs_data_ids))) {
     stop("no ID column found in obs_data_ids")
   }
 
-  # check if data makes sense
   model_conds <- conds(drift_dm_obj)
   data_cond <- conds(obs_data_ids)
   if (!all(data_cond %in% model_conds)) {
@@ -151,20 +155,12 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
     obs_data_ids <- obs_data_ids[obs_data_ids$Cond %in% model_conds, ]
   }
 
-  b_coding <- attr(drift_dm_obj, "b_coding")
-  obs_data_ids <- check_raw_data(obs_data_ids,
-    b_coding_column = b_coding$column,
-    u_value = b_coding$u_name_value,
-    l_value = b_coding$l_name_value
-  )
   if (drift_dm_obj$prms_solve[["t_max"]] < max(obs_data_ids$RT)) {
     stop(
       "t_max in drift_dm_obj is smaller than maximum RT. ",
       "Please adjust before calling estimate_model_ids"
     )
   }
-
-
 
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1) {

@@ -233,10 +233,8 @@ simulate_values <- function(lower, upper, k, distr = NULL,
     }
 
     prms <- lapply(1:n_prms, function(i) {
-      cdf_val_l <- stats::pnorm(q = lower[i], mean = means[i], sd = sds[i])
-      cdf_val_u <- stats::pnorm(q = upper[i], mean = means[i], sd = sds[i])
-      cdf_vals <- stats::runif(n = k, min = cdf_val_l, max = cdf_val_u)
-      stats::qnorm(p = cdf_vals, mean = means[i], sd = sds[i])
+      rtnorm(n = k, mean = means[i], sd = sds[i], lower = lower[i],
+             upper = upper[i])
     })
   }
   prms <- do.call("cbind", prms)

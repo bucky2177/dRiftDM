@@ -1111,16 +1111,17 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL, verbose = 0,
     b_coding <- drift_dm_default_b_coding()
   }
 
+  obs_data <- check_raw_data(
+    obs_data = obs_data,
+    b_coding_column = b_coding$column,
+    u_value = b_coding$u_name_value,
+    l_value = b_coding$l_name_value
+  )
+
   #  split by ID, but check if it actually exists
   if (split_by_ID & ("ID" %in% colnames(obs_data))) {
-    obs_data <- check_raw_data(
-      obs_data = obs_data,
-      b_coding_column = b_coding$column,
-      u_value = b_coding$u_name_value,
-      l_value = b_coding$l_name_value
-    )
-    list_obs_data <- split(x = obs_data, f = obs_data$ID)
 
+    list_obs_data <- split(x = obs_data, f = obs_data$ID)
 
     # create a progress bar
     if (verbose == 1) {

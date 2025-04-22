@@ -19,7 +19,8 @@ back when the default_values are not labeled (see details)}
 a matrix indicating either the upper or lower end of a parameter
 space. There will be as many rows as \code{conds} implies. The number of columns
 depend on \code{input} (matching its length if it is a vector, or matching the
-length of the entry "default_values" if it is a list).
+length of the entry "default_values" if it is a list). If \code{input} is
+\code{NULL}, then \code{NULL} is returned.
 }
 \description{
 Outsourced, deep inside the package function to avoid large nesting

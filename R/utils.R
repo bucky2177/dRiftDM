@@ -242,12 +242,14 @@ prm_cond_combo_2_labels <- function(prms_cond_combo, sep = ".") {
 #' @returns a matrix indicating either the upper or lower end of a parameter
 #' space. There will be as many rows as `conds` implies. The number of columns
 #' depend on `input` (matching its length if it is a vector, or matching the
-#' length of the entry "default_values" if it is a list).
+#' length of the entry "default_values" if it is a list). If `input` is
+#' `NULL`, then `NULL` is returned.
 #'
 #' @seealso [dRiftDM::simulate_data()], [dRiftDM::simulate_values()]
 #'
 #' @keywords internal
 create_matrix_smart <- function(input, conds, prm_labels = NULL) {
+  if (is.null(input)) return(NULL)
   if (!is.character(conds) | length(conds) == 0) {
     stop("conds must be a character vector")
   }
@@ -275,7 +277,7 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
   } else if (is_numeric(input)) {
     def_values <- input
   } else {
-    stop("illegal data type for (values in) l_u")
+    stop("illegal data type for (values in) input")
   }
 
 
@@ -289,7 +291,7 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
     if (length(def_values) != length(prm_labels)) {
       stop(
         "number of parameter names (prm_labels) must match the number of ",
-        "default parameters. Check your lower/upper and the model parameters"
+        "default parameters. Check your input and the model parameters"
       )
     }
     names(def_values) <- prm_labels
@@ -302,21 +304,20 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
   ))
   rownames(result) <- conds
 
-  # if there is a remaining list, then fill in the specific lower/upper
-  # values
+  # if there is a remaining list, then fill in the specific input values
   if (is.list(input) & length(input) > 0) {
     rem_prms_conds <- lapply(input, names)
 
     if (!all(unlist(rem_prms_conds) %in% colnames(result))) {
       stop(
-        "specific lower/upper value specified for a parameter ",
+        "specific input value specified for a parameter ",
         "that is not part of the default values"
       )
     }
 
     if (!all(names(rem_prms_conds) %in% conds)) {
       stop(
-        "specific lower/upper values specified for a condition ",
+        "specific input values specified for a condition ",
         "that is not part of the provided conditions"
       )
     }
@@ -327,7 +328,7 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
       prm_vals <- input[[i]]
 
       if (is.null(prm_vals)) {
-        stop("specific lower/upper values must provide parameter names")
+        stop("specific input values must provide parameter names")
       }
       prm_names <- names(prm_vals)
       result[one_cond, prm_names] <- input[[one_cond]]
@@ -345,9 +346,10 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
 #' Turn default/special parameter specifications to vectors
 #'
 #' The function is used in the depths to map parameter inputs to the parameters
-#' of a model. Most of the time, it is used to get the search space as
-#' a vector, matching with the free parameters of a model.
-#' Only relevant when users use the "default parameters" approach where they
+#' of a model. One application is to get the search space as a vector, matching
+#' with the free parameters of a model. Other applications map, for example,
+#' mean values to the free parameters of a model.
+#' Relevant when users use the "default parameters" approach where they
 #' only specify the parameter labels and assume the package figures out
 #' how each parameter relates across conditions (see [dRiftDM::simulate_data]).
 #' This comes in handy, when freeing a parameter across conditions, while the
@@ -362,6 +364,9 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
 #' @param is_l_u optional logical, if `TRUE`, a warning is thrown when
 #' `input_a` leads to larger values than `input_b`. Useful when `input_a` and
 #' `input_b` span a (search) space.
+#' @param fill_up_with optional values used to fill up the returned vectors
+#' for all parameters that are not specified in `input_a` or `input_b` (requires
+#' at least one parameter to specified).
 #'
 #' @details
 #' The function first gets all unique parameters across conditions using
@@ -372,13 +377,15 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
 #' vectors are then passed back.
 #'
 #'
-#' @returns a list with two vectors named `vec_a/vec_b`. Usually, those will be
-#' the search space or simulation space. The length and names (if requested)
-#' matches with coef(model, select_unique = TRUE).
+#' @returns a list with two entries named `vec_a/vec_b`. The length and names
+#' (if requested) matches with coef(model, select_unique = TRUE). When
+#' `input_a` and/or `input_b` is `NULL`, the respective entry for
+#' `vec_a`/`vec_b` will be `NULL` as well.
 #'
 #' @keywords internal
-get_parameters_smart <- function(drift_dm_obj, input_a, input_b,
-                                 labels = TRUE, is_l_u = TRUE) {
+get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
+                                 labels = TRUE, is_l_u = TRUE,
+                                 fill_up_with = NULL) {
   # input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -404,7 +411,7 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b,
   conds <- conds(drift_dm_obj)
   prm_labels <- unique(prm_cond_combo[1, ])
 
-  # get the upper and lower matrices
+  # get the upper and lower matrices (might return NULL if input is NULL)
   matrix_a <- create_matrix_smart(
     input = input_a, conds = conds,
     prm_labels = prm_labels
@@ -414,33 +421,65 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b,
     prm_labels = prm_labels
   )
 
-  if (!all(colnames(matrix_a) %in% prm_labels) ||
-    !all(colnames(matrix_b) %in% prm_labels)) {
+
+  # fill up with default parameter settings
+  fill_up = function(matrix_x) {
+    if (is.null(matrix_x)) return(NULL) # no matrix provided
+    if (is.null(fill_up_with)) return(matrix_x) # no fill_up requested
+
+    # create a matrix with default values for parameters that were not
+    # specified in input_x (if there are no missing parameters, then this will
+    # return matrix_x unmodified)
+    missing_prms = prm_labels[!(prm_labels %in% colnames(matrix_x))]
+    missing_mat = matrix(data = fill_up_with, nrow = nrow(matrix_x),
+                         ncol = length(missing_prms))
+    colnames(missing_mat) <- missing_prms
+    return(cbind(matrix_x, missing_mat))
+  }
+
+  matrix_a = fill_up(matrix_a)
+  matrix_b = fill_up(matrix_b)
+
+
+  # check if all parameters are there
+  if (!is.null(matrix_a) && !all(colnames(matrix_a) %in% prm_labels)) {
     stop(
-      "parameter labels in the created lower/upper matrices for the upper ",
+      "parameter labels in the created matrix for input_a ",
+      "don't match with the model parameters that are considered free"
+    )
+  }
+  if (!is.null(matrix_b) && !all(colnames(matrix_b) %in% prm_labels)) {
+    stop(
+      "parameter labels in the created matrix for input_b ",
       "don't match with the model parameters that are considered free"
     )
   }
 
-  # get the upper and lower vectors (which works with unsorted matrices)
-  vec_a <- sapply(1:ncol(prm_cond_combo), function(idx) {
-    prm <- prm_cond_combo[1, idx]
-    cond <- prm_cond_combo[2, idx]
-    matrix_a[cond, prm]
-  })
-
-  vec_b <- sapply(1:ncol(prm_cond_combo), function(idx) {
-    prm <- prm_cond_combo[1, idx]
-    cond <- prm_cond_combo[2, idx]
-    matrix_b[cond, prm]
-  })
-
-  if (labels) {
-    names_prms <- prm_cond_combo_2_labels(prm_cond_combo)
-    names(vec_a) <- names_prms
-    names(vec_b) <- names_prms
+  # turn the matrix to a vector (which works with unsorted matrices)
+  map_to_vec = function(matrix_x) {
+    if (is.null(matrix_x)) return(NULL)
+    sapply(1:ncol(prm_cond_combo), function(idx) {
+      prm <- prm_cond_combo[1, idx]
+      cond <- prm_cond_combo[2, idx]
+      tryCatch(
+        matrix_x[cond, prm],
+        error = function(e) {
+          stop("Couldn't map the input to the model parameters.",
+          " Did you forget to list all the model parameters that are 'free'?")
+        })
+    })
   }
 
+  vec_a <- map_to_vec(matrix_a)
+  vec_b <- map_to_vec(matrix_b)
+
+  # label (of requested)
+  names_prms <- prm_cond_combo_2_labels(prm_cond_combo)
+  if (!is.null(vec_a) && labels) names(vec_a) <- names_prms
+  if (!is.null(vec_b) && labels) names(vec_b) <- names_prms
+
+
+  # will not be thrown when vec_a or vec_b are NULL
   if (is_l_u && any(vec_a > vec_b)) {
     warning(
       "values in the created vec_a (e.g., lower) vector are sometimes larger",

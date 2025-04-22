@@ -193,8 +193,7 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
 
   # objective function to minimize
   goal_wrapper <- function(new_model_prms, drift_dm_obj, verbose) {
-    # set (must re_evaluate! Did not use set_x_2_flex_prms to circumpass
-    # validate_drift_dm)
+    # set (must re_evaluate!)
     drift_dm_obj$flex_prms_obj <- x2prms_vals(
       x = new_model_prms,
       flex_prms_obj = drift_dm_obj$flex_prms_obj

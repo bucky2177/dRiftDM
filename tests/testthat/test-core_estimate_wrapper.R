@@ -65,7 +65,7 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
       fit_dir = "temp_fits",
       fit_procedure_name = "test"
     ),
-    "obs_data_ids is not a data.frame"
+    "obs_data argument is not a data frame"
   )
 
   expect_error(

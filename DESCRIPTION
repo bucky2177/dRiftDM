@@ -27,6 +27,7 @@ Roxygen: list(markdown = TRUE)
 Imports: 
     withr,
     parallel,
+    purrr,
     DEoptim,
     dfoptim,
     Rcpp,
