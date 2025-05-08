@@ -896,11 +896,19 @@ test_that("conds <- works as expected", {
 
 test_that("pdfs -> works as expected", {
   a_model <- readRDS(file = test_path("fixtures", "dmc.rds"))
-  expect_identical(pdfs(a_model), a_model$pdfs)
+  pdfs_t <- pdfs(a_model)
+  expect_identical(pdfs_t$pdfs, a_model$pdfs)
+  t_vec <- seq(0, prms_solve(a_model)["t_max"], prms_solve(a_model)["dt"])
+  expect_identical(pdfs_t$t_vec, t_vec)
 
   # does it re_evaluate?
   prms_solve(a_model)[c("dx", "dt")] = .01
-  expect_identical(pdfs(a_model), re_evaluate_model(a_model)$pdfs)
+  expect_identical(pdfs(a_model)$pdfs, re_evaluate_model(a_model)$pdfs)
+
+  # check the structure
+  expect_type(pdfs_t, "list")
+  expect_named(pdfs_t, c("pdfs", "t_vec"))
+
 })
 
 test_that("ddm_opts -> extractor and replacement function work as expected", {
@@ -1282,6 +1290,9 @@ test_that("simulate_data.drift_dm -> single data set works as expected", {
   )
   expect_true(all(abs(sim_quantiles_b - exp_quantiles$Quant_b) <= 0.015))
 
+  # check the rounding
+  test_rts = simulate_data(a_model, n = 2, seed = 2, round_to = 2)
+  expect_true(all(nchar(test_rts$RT) == 4))
 })
 
 test_that("simulate_data.drift_dm -> multiple data sets works as expected", {
@@ -1384,6 +1395,16 @@ test_that("simulate_data.drift_dm -> multiple data sets works as expected", {
                              sds = c(muc = 0.01, b = 0.01, non_dec = 0.01),
                              add_id_column = "numeric")
   expect_identical(exp_prms[c("ID", names(coef(a_model)))], prms)
+
+
+  # check the rounding
+  test_rts <- simulate_data(a_model,
+                            n = 2,
+                            lower = c(b = 0.4, muc = 2, non_dec = 0.2),
+                            upper = c(b = 1, muc = 6, non_dec = 0.5),
+                            k = 2, seed = 1, round_to = 4
+  )
+  expect_true(all(nchar(test_rts$synth_data$RT) >= 5))
 
 })
 

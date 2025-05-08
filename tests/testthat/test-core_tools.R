@@ -28,7 +28,7 @@ test_that("draw_from_pdf works as expected", {
 
   # rounding
   test = draw_from_pdf(a_pdf = pdf, x_def = x_def, k = 50000,
-                method = "linear", round_result = 1)
+                method = "linear", round_to = 1)
   expect_equal(min(diff(sort(unique(test)))), 0.1)
 })
 

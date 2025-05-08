@@ -18,6 +18,8 @@ using the argument `round_to`.
 - `nt_constant()` now uses `round()` instead of `as.integer()` to get the 
 index for the dirac delta. This reduces the bias in non-decision time estimates.
 
+- `pdfs()` now also returns a vector of the time domain
+
 # dRiftDM 0.2.2
 
 

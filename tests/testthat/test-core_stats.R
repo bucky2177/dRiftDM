@@ -54,7 +54,7 @@ test_that("calc_basic_stats -> works as expected", {
 
   # expectations based on the pdfs
   t_vec = seq(0, 2, 0.005)
-  pdfs_pred = pdfs(model)
+  pdfs_pred = pdfs(model)$pdfs
   exps_pred_comp = calc_basic_stats_pred(pdf_u = pdfs_pred$comp$pdf_u,
                                          pdf_l = pdfs_pred$comp$pdf_l,
                                          one_cond = "comp", t_vec = t_vec,

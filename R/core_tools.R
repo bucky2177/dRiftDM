@@ -78,10 +78,13 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL,
   }
 
   # create the cdf
-  cdf <- cumsum(a_pdf) # 'integrate' the cdf from the pdf
-  # if linear interpolation is requested, ensure it starts from 0
-  if (method == "linear")
-    cdf <- cdf - min(cdf)
+  if (method == "discr") {
+    cdf <- cumsum(a_pdf)
+  } else {
+    dx <- diff(x_def)
+    mid_heights <- (a_pdf[-1] + a_pdf[-length(a_pdf)]) / 2
+    cdf <- c(0, cumsum(mid_heights * dx))
+  }
   cdf <- cdf / max(cdf) # normalize
 
 
