@@ -195,7 +195,7 @@ print.stats_dm_list <- function(x, ...) {
 #'
 #' @examples
 #' # get a model with data for demonstration purpose
-#' a_model <- dmc_dm(dx = .0025, dt = .0025, t_max = 2)
+#' a_model <- dmc_dm(t_max = 2.0, dx = .01, dt = .005)
 #' obs_data(a_model) <- dmc_synth_data
 #'
 #' # now get some statistics and call the summary functions

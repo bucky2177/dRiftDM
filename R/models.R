@@ -414,14 +414,9 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' # the model with default settings
 #' my_model <- dmc_dm()
 #'
-#' # the model with no variability in the starting point and with a more coarse
+#' # the model with no variability in the starting point and a more coarse
 #' # discretization
-#' my_model <- dmc_dm(
-#'   var_start = FALSE,
-#'   t_max = 1.5,
-#'   dx = .0025,
-#'   dt = .0025
-#' )
+#' my_model <- dmc_dm(var_start = FALSE, t_max = 1.5,  dx = .01, dt = .005)
 #'
 #' @references
 #' \insertRef{Ulrichetal.2015}{dRiftDM}

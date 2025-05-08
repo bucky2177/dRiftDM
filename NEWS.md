@@ -6,6 +6,12 @@
 allows you to request means, standard deviations, and a ratio of response 
 choices.
 
+- `simulate_data()` does no longer return RTs exactly matching with the
+time domain (i.e., they are no longer limited by step size `dt`). Now, the model
+PDFs are first linearly interpolated before conducting inverse transform 
+sampling. Users can control the number of decimal places of the simulated RTs
+using the argument `round_to`.
+
 
 ## Minor: 
 

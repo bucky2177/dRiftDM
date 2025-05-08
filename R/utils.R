@@ -659,7 +659,7 @@ get_example_fits_ids <- function() {
   some_data <- subset_ulrich_flanker # stored in sysdata.rda
 
   # get DMC
-  some_model <- dmc_dm(t_max = 1.5, dt = .002, dx = .01)
+  some_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 
   # set the data and some parameter values; I chose those based on fits done
   # in the tutorial (timestamp: 15.12.2024)

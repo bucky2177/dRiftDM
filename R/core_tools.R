@@ -15,18 +15,25 @@
 #' @param k a single integer specifying the number of samples to generate.
 #' @param seed an optional single integer value used to set the seed for random
 #' number generation, allowing for reproducibility of results.
+#' @param round_to an optional integer, indicating the number of digits to
+#' which the result should be rounded.
+#' @param method a single character string. If "discr", then simulated values
+#' match `x_def`. If "linear", `x_def` and `a_pdf` are linearly interpolated,
+#' so that the simulated values can lay in between the discrete values of
+#' `x_def`.
 #'
 #' @details
 #' This function implements inverse transform sampling by first constructing a
-#' cumulative distribution function (CDF) from the given PDF. A uniform random
-#' variable is then sampled for each of the `k` samples, and the corresponding
-#' value in `x_def` is selected by locating the appropriate interval in the CDF.
+#' cumulative distribution function (CDF) from the given PDF. Then `k` values
+#' between zero and one are sampled from a uniform distribution, and
+#' the corresponding values are mapped to `x_def` using linear interpolation.
 #'
 #' @returns A numeric vector of length `k` containing the sampled values from
 #' the specified PDF. If `k` is 0, an empty numeric vector is returned.
 #'
 #' @keywords internal
-draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
+draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL,
+                          round_to = NULL, method = "discr") {
   if (!is_numeric(a_pdf) | length(a_pdf) < 1) {
     stop("a_pdf must provide a valid numeric vector of length > 0")
   }
@@ -54,6 +61,14 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
     set.seed(seed)
   }
 
+  if (!is.null(round_to)) {
+    if (!is_numeric(round_to) | length(round_to) != 1) {
+      stop("round_to must be a single valid numeric")
+    }
+  }
+
+
+  method = match.arg(method, choices = c("discr", "linear"))
 
   if (min(a_pdf) < 0) {
     warning(
@@ -62,12 +77,27 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
     )
   }
 
+  # create the cdf
   cdf <- cumsum(a_pdf) # 'integrate' the cdf from the pdf
+  # if linear interpolation is requested, ensure it starts from 0
+  if (method == "linear")
+    cdf <- cdf - min(cdf)
   cdf <- cdf / max(cdf) # normalize
 
+
+  # draw values between zero and one and then map it to the cdf
   u <- stats::runif(k)
-  indices <- sapply(u, function(one_u) which.max((cdf - one_u) > 0))
-  samples <- x_def[indices]
+  if (method == "discr") {
+    indices <- sapply(u, function(one_u) which.max((cdf - one_u) > 0))
+    samples <- x_def[indices]
+  } else {
+    samples <- stats::approx(x = cdf, y = x_def, xout = u)$y
+  }
+
+  # round if requested
+  if (!is.null(round_to))
+    samples <- round(samples, digits = round_to)
+
 
   return(samples)
 }

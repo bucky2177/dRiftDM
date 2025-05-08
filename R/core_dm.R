@@ -2119,7 +2119,8 @@ ddm_opts.drift_dm <- function(object, ...) {
 #' Access the Probability Density Functions of a Model
 #'
 #' Functions to obtain the probability density functions (PDFs) of a model.
-#' These PDFs represent the first-passage-time.
+#' These PDFs represent the convolution of the first-passage-time (decision
+#' time) with the non-decision time.
 #'
 #' @param object an object of type [dRiftDM::drift_dm].
 #'
@@ -2132,15 +2133,18 @@ ddm_opts.drift_dm <- function(object, ...) {
 #' called before returning the PDFs.
 #'
 #' @returns
-#' A list with named elements corresponding to the conditions of a model (see
-#' [dRiftDM::conds()]). Each of these elements is another list, containing the
-#' entries `pdf_u` and `pdf_l`, which are numeric vectors for the PDFs of the
-#' upper and lower boundary, respectively.
+#' A list with the entries:
+#' - `pdfs`, contains another named list with entries corresponding to the
+#'   conditions of the model (see [dRiftDM::conds()]). Each of these elements
+#'   is another named list, containing the entries `pdf_u` and `pdf_l`, which
+#'   are numeric vectors for the PDFs of the upper and lower boundary,
+#'   respectively.
+#' - `t_vec`, containing a numeric vector of the time domain.
 #'
 #'
 #' @examples
 #' # get a pre-built model for demonstration purpose
-#' a_model <- dmc_dm(dx = .0025, dt = .0025)
+#' a_model <- dmc_dm(dx = .01, dt = .005)
 #' str(pdfs(a_model))
 #'
 #' @seealso [dRiftDM::drift_dm()], [dRiftDM::re_evaluate_model()],
@@ -2160,7 +2164,13 @@ pdfs.drift_dm <- function(object, ...) {
   if (is.null(object$pdfs)) {
     object <- re_evaluate_model(object)
   }
-  return(object$pdfs)
+  slvr <- prms_solve(object)
+  t_vec <- seq(0, slvr["t_max"], length.out = slvr[["nt"]] + 1)
+  returned_list <- list(
+    pdfs = object$pdfs,
+    t_vec = t_vec
+  )
+  return(returned_list)
 }
 
 
@@ -2936,19 +2946,21 @@ unpack_traces.traces_dm_list <- function(object, ..., unpack = TRUE,
 #' sampling.
 #'
 #' @param object an object inheriting from [dRiftDM::drift_dm].
-#' @param ... further arguments passed on to other functions, including the
-#' function [dRiftDM::simulate_values]. If users want to use a different
-#' distribution than uniform for [dRiftDM::simulate_values], they must provide
-#' the additional arguments (e.g., `means` and `sds`) in a format like
-#' `lower/upper`.
+#' @param ... further arguments passed on to other functions, i.e.,
+#' [dRiftDM::simulate_values()] and [dRiftDM::simulate_one_data_set()]. This
+#' allows users to control the distribution from which original parameter
+#' values are drawn (if `k` > 0) and the number of decimal places that the
+#' simulated RTs should have. If users want to use a different distribution than
+#' uniform for
+#' [dRiftDM::simulate_values()], they must provide the additional arguments
+#' (e.g., `means` and `sds`) in a format like `lower/upper`.
 #'
 #' @param n numeric, the number of trials per condition to draw. If a single
 #' numeric, then each condition will have `n` trials. Can be a (named) numeric
 #' vector with the same length as there are conditions to allow a different
 #' number of trials per condition.
 #' @param k numeric larger than 0, indicating how many data sets shall
-#' be simulated. If > 1, then it is only effective when specifying
-#' `lower/upper`.
+#' be simulated. If > 1, users must specify `lower/upper`.
 #' @param lower,upper vectors or a list, specifying the simulation space for
 #' each parameter of the model (see Details). Only relevant for `k > 1`
 #' @param df_prms an optional data.frame providing the parameters
@@ -3060,7 +3072,7 @@ unpack_traces.traces_dm_list <- function(object, ..., unpack = TRUE,
 #' # Example 2 ----------------------------------------------------------------
 #' # more flexibility when defining lists for lower and upper
 #' # get a pre-built model, and allow muc to vary across conditions
-#' a_model <- dmc_dm(t_max = 1.5, dx = .005, dt = .005, instr = "muc ~ ")
+#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005, instr = "muc ~ ")
 #'
 #' # define a lower and upper simulation space
 #' # let muc vary between 2 and 6, but in incomp conditions, let it vary
@@ -3102,6 +3114,10 @@ simulate_data <- function(object, ...) {
 simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
                                    upper = NULL, df_prms = NULL, seed = NULL,
                                    verbose = 1) {
+
+  dots <- list(...)
+
+
   # general input checks
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1) {
@@ -3126,7 +3142,11 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
   # if only one data set is required and no lower/upper or df_prms,
   # then call simulate_one_data_set directly
   if (k == 1 & !case_sim & !case_use) {
-    return(simulate_one_data_set(drift_dm_obj = object, n = n))
+    return(simulate_one_data_set(
+      drift_dm_obj = object,
+      n = n,
+      round_to = dots$round_to
+    ))
   }
 
   # otherwise conduct checks on what to do
@@ -3166,7 +3186,6 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
 
   # otherwise draw parameter values
   if (case_sim) {
-    dots <- list(...)
     distr <- dots$distr
     means <- dots$means
     sds <- dots$sds
@@ -3217,7 +3236,8 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
     coef(object, eval_model = TRUE) <- as.numeric(new_prm_values)
 
     # then simulate
-    one_sim_dat <- simulate_one_data_set(drift_dm_obj = object, n = n)
+    one_sim_dat <- simulate_one_data_set(drift_dm_obj = object, n = n,
+                                         round_to = dots$round_to)
     one_sim_dat$ID <- one_prm_set$ID # use any cond to set ID
     if (verbose == 1) pb$tick()
     return(one_sim_dat)
@@ -3235,15 +3255,17 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
 # in the model object)
 #'
 #' @param drift_dm_obj a [dRiftDM::drift_dm] object
-#' @param n numeric, specifying the number of trials per condition. Can be
+#' @param n numeric, specifying the number of trials per condition. Can be a
 #' single numeric, or a (named) numeric vector with the same length as
 #' conds(drift_dm_obj)
+#' @param round_to integer, specifying the number of decimal places that the
+#' simulated RTs should have. Default is `3L`.
 #'
 #' @returns A data.frame with the columns "RT", "<b_column>", and "Cond"; and
 #' with n rows.
 #'
 #' @keywords internal
-simulate_one_data_set <- function(drift_dm_obj, n) {
+simulate_one_data_set <- function(drift_dm_obj, n, round_to = NULL) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -3269,6 +3291,10 @@ simulate_one_data_set <- function(drift_dm_obj, n) {
 
   if (!is_numeric(n) || any(n <= 0)) {
     stop("n must be numeric > 0")
+  }
+
+  if (is.null(round_to)) {
+    round_to = 3L
   }
 
   # get the time space for draw_from_pdf
@@ -3301,8 +3327,10 @@ simulate_one_data_set <- function(drift_dm_obj, n) {
     n_u <- stats::rbinom(1, one_n, p_u)
 
     # sample upper pdf and lower pdf
-    samp_u <- draw_from_pdf(a_pdf = pdf_u, x_def = t_vec, k = n_u)
-    samp_l <- draw_from_pdf(a_pdf = pdf_l, x_def = t_vec, k = one_n - n_u)
+    samp_u <- draw_from_pdf(a_pdf = pdf_u, x_def = t_vec, k = n_u,
+                            method = "linear", round_to = round_to)
+    samp_l <- draw_from_pdf(a_pdf = pdf_l, x_def = t_vec, k = one_n - n_u,
+                            method = "linear", round_to = round_to)
 
     cond_data <- data.frame(RT = c(samp_u, samp_l))
     cond_data[[b_coding$column]] <-

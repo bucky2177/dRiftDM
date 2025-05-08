@@ -1580,7 +1580,6 @@ estimate_model_bayesian = function(drift_dm_obj, mean = NULL,
            " approach doesn't make sense in this case.")
     }
 
-
     model_conds <- conds(drift_dm_obj)
     data_cond <- conds(obs_data_ids)
     if (!all(data_cond %in% model_conds)) {

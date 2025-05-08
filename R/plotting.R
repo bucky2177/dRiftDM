@@ -259,7 +259,7 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 #' @examples
 #' # Example 1: Only model predictions ---------------------------------------
 #' # get a cafs data.frame for demonstration purpose
-#' a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 #' cafs <- calc_stats(a_model, type = "cafs")
 #'
 #' # call the plot function with default values
@@ -421,7 +421,7 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #' @examples
 #' # Example 1: Only model predictions ---------------------------------------
 #' # get a quantiles data.frame for demonstration purpose
-#' a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 #' quantiles <- calc_stats(a_model, type = "quantiles")
 #'
 #' # call the plot function with default values
@@ -579,7 +579,7 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
 #' @examples
 #' # Example 1: Only model predictions ---------------------------------------
 #' # get a delta function data.frame for demonstration purpose
-#' a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 #' deltas <- calc_stats(
 #'   a_model,
 #'   type = "delta_funs",

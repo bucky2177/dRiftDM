@@ -1,17 +1,38 @@
 test_that("draw_from_pdf works as expected", {
-  quants <- qnorm(seq(0.1, 0.9, 0.1))
 
-  x_def <- seq(-4, 4, 0.005)
+  quants <- qnorm(seq(0.1, 0.9, 0.1))
+  x_def <- seq(-4, 4, 0.01)
   pdf <- dnorm(x_def)
+
+  # discrete
   samp_quants <- quantile(
     draw_from_pdf(
       a_pdf = pdf, x_def = x_def,
-      k = 50000, seed = 1
+      k = 50000, seed = 1, method = "discr"
     ),
     probs = seq(0.1, 0.9, 0.1)
   )
   expect_true(all(abs(quants - samp_quants) < .01))
+
+
+  # linear
+  samp_quants <- quantile(
+    draw_from_pdf(
+      a_pdf = pdf, x_def = x_def,
+      k = 50000, seed = 1, method = "linear"
+    ),
+    probs = seq(0.1, 0.9, 0.1)
+  )
+  expect_true(all(abs(quants - samp_quants) < .01))
+
+
+  # rounding
+  test = draw_from_pdf(a_pdf = pdf, x_def = x_def, k = 50000,
+                method = "linear", round_result = 1)
+  expect_equal(min(diff(sort(unique(test)))), 0.1)
 })
+
+
 
 test_that("input checks for draw_from_pdf", {
   x_def <- seq(-4, 4, 0.01)
