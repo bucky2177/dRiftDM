@@ -22,11 +22,14 @@ simulate_data(object, ...)
 \arguments{
 \item{object}{an object inheriting from \link{drift_dm}.}
 
-\item{...}{further arguments passed on to other functions, including the
-function \link{simulate_values}. If users want to use a different
-distribution than uniform for \link{simulate_values}, they must provide
-the additional arguments (e.g., \code{means} and \code{sds}) in a format like
-\code{lower/upper}.}
+\item{...}{further arguments passed on to other functions, i.e.,
+\code{\link[=simulate_values]{simulate_values()}} and \code{\link[=simulate_one_data_set]{simulate_one_data_set()}}. This
+allows users to control the distribution from which original parameter
+values are drawn (if \code{k} > 0) and the number of decimal places that the
+simulated RTs should have. If users want to use a different distribution than
+uniform for
+\code{\link[=simulate_values]{simulate_values()}}, they must provide the additional arguments
+(e.g., \code{means} and \code{sds}) in a format like \code{lower/upper}.}
 
 \item{n}{numeric, the number of trials per condition to draw. If a single
 numeric, then each condition will have \code{n} trials. Can be a (named) numeric
@@ -34,8 +37,7 @@ vector with the same length as there are conditions to allow a different
 number of trials per condition.}
 
 \item{k}{numeric larger than 0, indicating how many data sets shall
-be simulated. If > 1, then it is only effective when specifying
-\code{lower/upper}.}
+be simulated. If > 1, users must specify \code{lower/upper}.}
 
 \item{lower, upper}{vectors or a list, specifying the simulation space for
 each parameter of the model (see Details). Only relevant for \code{k > 1}}
@@ -158,7 +160,7 @@ head(data_prms$prms)
 # Example 2 ----------------------------------------------------------------
 # more flexibility when defining lists for lower and upper
 # get a pre-built model, and allow muc to vary across conditions
-a_model <- dmc_dm(t_max = 1.5, dx = .005, dt = .005, instr = "muc ~ ")
+a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005, instr = "muc ~ ")
 
 # define a lower and upper simulation space
 # let muc vary between 2 and 6, but in incomp conditions, let it vary

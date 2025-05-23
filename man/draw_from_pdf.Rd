@@ -4,7 +4,7 @@
 \alias{draw_from_pdf}
 \title{Draw Samples Using Inverse Transform Sampling}
 \usage{
-draw_from_pdf(a_pdf, x_def, k, seed = NULL)
+draw_from_pdf(a_pdf, x_def, k, seed = NULL, round_to = NULL, method = "discr")
 }
 \arguments{
 \item{a_pdf}{a numeric vector representing the PDF values.}
@@ -17,6 +17,14 @@ order.}
 
 \item{seed}{an optional single integer value used to set the seed for random
 number generation, allowing for reproducibility of results.}
+
+\item{round_to}{an optional integer, indicating the number of digits to
+which the result should be rounded.}
+
+\item{method}{a single character string. If "discr", then simulated values
+match \code{x_def}. If "linear", \code{x_def} and \code{a_pdf} are linearly interpolated,
+so that the simulated values can lay in between the discrete values of
+\code{x_def}.}
 }
 \value{
 A numeric vector of length \code{k} containing the sampled values from
@@ -30,8 +38,8 @@ of samples.
 }
 \details{
 This function implements inverse transform sampling by first constructing a
-cumulative distribution function (CDF) from the given PDF. A uniform random
-variable is then sampled for each of the \code{k} samples, and the corresponding
-value in \code{x_def} is selected by locating the appropriate interval in the CDF.
+cumulative distribution function (CDF) from the given PDF. Then \code{k} values
+between zero and one are sampled from a uniform distribution, and
+the corresponding values are mapped to \code{x_def} using linear interpolation.
 }
 \keyword{internal}

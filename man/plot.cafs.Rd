@@ -68,7 +68,7 @@ IDs, CAFs are aggregated across IDs before plotting.
 \examples{
 # Example 1: Only model predictions ---------------------------------------
 # get a cafs data.frame for demonstration purpose
-a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 cafs <- calc_stats(a_model, type = "cafs")
 
 # call the plot function with default values

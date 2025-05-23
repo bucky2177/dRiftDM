@@ -81,9 +81,7 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL,
   if (method == "discr") {
     cdf <- cumsum(a_pdf)
   } else {
-    dx <- diff(x_def)
-    mid_heights <- (a_pdf[-1] + a_pdf[-length(a_pdf)]) / 2
-    cdf <- c(0, cumsum(mid_heights * dx))
+    cdf <- cumtrapz(x = x_def, y = a_pdf)
   }
   cdf <- cdf / max(cdf) # normalize
 
@@ -106,6 +104,12 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL,
 }
 
 
+cumtrapz <- function(x, y) {
+  dx <- diff(x)
+  mid_heights <- (head(y, -1) + tail(y, -1)) / 2
+  y_int <- c(0, cumsum(dx * mid_heights))
+  return(y_int)
+}
 
 # FUNCTIONS FOR SIMULATING PRMS --------------------------------------------
 

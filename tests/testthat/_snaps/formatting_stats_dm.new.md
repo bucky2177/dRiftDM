@@ -50,16 +50,16 @@
       Type of Statistic: quantiles
       
          Source   Cond Prob Quant_corr Quant_err
-      1    pred   comp  0.1      0.323     0.318
-      2    pred   comp  0.2      0.343     0.340
-      3    pred   comp  0.3      0.362     0.358
-      4    pred   comp  0.4      0.382     0.376
-      5    pred   comp  0.5      0.405     0.395
-      6    pred   comp  0.6      0.431     0.415
-      7    pred   comp  0.7      0.464     0.439
-      8    pred   comp  0.8      0.506     0.472
-      9    pred   comp  0.9      0.574     0.528
-      10   pred incomp  0.1      0.350     0.298
+      1    pred   comp  0.1      0.325     0.321
+      2    pred   comp  0.2      0.346     0.342
+      3    pred   comp  0.3      0.364     0.361
+      4    pred   comp  0.4      0.384     0.379
+      5    pred   comp  0.5      0.407     0.397
+      6    pred   comp  0.6      0.434     0.418
+      7    pred   comp  0.7      0.466     0.442
+      8    pred   comp  0.8      0.509     0.475
+      9    pred   comp  0.9      0.576     0.530
+      10   pred incomp  0.1      0.352     0.301
       ...
       
       (access the data.frame's columns/rows as usual)
@@ -72,25 +72,25 @@
       Type of Statistic: delta_funs
       
         Source Prob Quant_corr_comp Quant_corr_incomp Delta_incomp_comp
-      1   pred  0.1           0.323             0.350             0.027
-      2   pred  0.2           0.343             0.373             0.030
-      3   pred  0.3           0.362             0.392             0.030
-      4   pred  0.4           0.382             0.410             0.028
-      5   pred  0.5           0.405             0.429             0.024
-      6   pred  0.6           0.431             0.450             0.019
-      7   pred  0.7           0.464             0.477             0.013
-      8   pred  0.8           0.506             0.512             0.006
-      9   pred  0.9           0.574             0.573            -0.001
+      1   pred  0.1           0.325             0.352             0.027
+      2   pred  0.2           0.346             0.375             0.030
+      3   pred  0.3           0.364             0.394             0.030
+      4   pred  0.4           0.384             0.412             0.028
+      5   pred  0.5           0.407             0.431             0.024
+      6   pred  0.6           0.434             0.453             0.019
+      7   pred  0.7           0.466             0.479             0.013
+      8   pred  0.8           0.509             0.515             0.006
+      9   pred  0.9           0.576             0.575            -0.001
         Avg_incomp_comp
-      1           0.336
-      2           0.358
-      3           0.377
-      4           0.396
-      5           0.417
-      6           0.441
-      7           0.470
-      8           0.509
-      9           0.573
+      1           0.339
+      2           0.360
+      3           0.379
+      4           0.398
+      5           0.419
+      6           0.443
+      7           0.473
+      8           0.512
+      9           0.576
       
       (access the data.frame's columns/rows as usual)
 
@@ -131,7 +131,7 @@
       7   1    obs null  0.7      0.501     0.510
       8   1    obs null  0.8      0.550     0.510
       9   1    obs null  0.9      0.637     0.600
-      10  1   pred null  0.1      0.367     0.367
+      10  1   pred null  0.1      0.371     0.371
       ...
       
       (extract the list's elements as usual, e.g., with $fit_stats)
@@ -250,13 +250,13 @@
       Type of Statistic: delta_funs
       
       Dependent Variables:
-       Quant_corr_comp Quant_corr_incomp Delta_incomp_comp  Avg_incomp_comp
-       Min.   :0.323   Min.   :0.350     Min.   :-0.00072   Min.   :0.336  
-       1st Qu.:0.362   1st Qu.:0.392     1st Qu.: 0.01310   1st Qu.:0.377  
-       Median :0.404   Median :0.429     Median : 0.02442   Median :0.417  
-       Mean   :0.421   Mean   :0.441     Mean   : 0.01966   Mean   :0.431  
-       3rd Qu.:0.463   3rd Qu.:0.477     3rd Qu.: 0.02813   3rd Qu.:0.470  
-       Max.   :0.574   Max.   :0.573     Max.   : 0.02999   Max.   :0.573  
+       Quant_corr_comp Quant_corr_incomp Delta_incomp_comp   Avg_incomp_comp
+       Min.   :0.325   Min.   :0.352     Min.   :-0.000737   Min.   :0.339  
+       1st Qu.:0.364   1st Qu.:0.394     1st Qu.: 0.013103   1st Qu.:0.379  
+       Median :0.407   Median :0.431     Median : 0.024406   Median :0.419  
+       Mean   :0.423   Mean   :0.443     Mean   : 0.019649   Mean   :0.433  
+       3rd Qu.:0.466   3rd Qu.:0.479     3rd Qu.: 0.028130   3rd Qu.:0.473  
+       Max.   :0.576   Max.   :0.575     Max.   : 0.029972   Max.   :0.576  
       
       Sources: pred 
       Probs: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 
@@ -288,12 +288,12 @@
       
       Dependent Variables:
          Quant_corr      Quant_err    
-       Min.   :0.323   Min.   :0.298  
-       1st Qu.:0.375   1st Qu.:0.331  
-       Median :0.419   Median :0.360  
-       Mean   :0.431   Mean   :0.375  
-       3rd Qu.:0.473   3rd Qu.:0.410  
-       Max.   :0.574   Max.   :0.528  
+       Min.   :0.325   Min.   :0.301  
+       1st Qu.:0.377   1st Qu.:0.334  
+       Median :0.422   Median :0.363  
+       Mean   :0.433   Mean   :0.378  
+       3rd Qu.:0.476   3rd Qu.:0.413  
+       Max.   :0.576   Max.   :0.531  
       
       Sources: pred 
       Conditions: comp, incomp 

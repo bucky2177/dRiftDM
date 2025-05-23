@@ -84,18 +84,21 @@ The model assumes the amplitude \code{A} to be negative for
 incompatible trials. Also, the model contains the custom parameter
 \code{peak_l}, containing the peak latency (\code{(a-2)*tau}).
 }
+\note{
+The scaling of the parameters in \code{dRiftDM} is different to
+\insertCite{Ulrichetal.2015;textual}{dRiftDM}. This is because \code{dRiftDM}
+works in seconds and with a diffusion constant of 1, while the original
+DMC parameterization is in milliseconds and with a diffusion constant of 4.
+We describe how to convert the parameters back in forth on our
+\href{https://bucky2177.github.io/dRiftDM/articles/convert_dmc_parameters.html}{website}.
+}
 \examples{
 # the model with default settings
 my_model <- dmc_dm()
 
-# the model with no variability in the starting point and with a more coarse
+# the model with no variability in the starting point and a more coarse
 # discretization
-my_model <- dmc_dm(
-  var_start = FALSE,
-  t_max = 1.5,
-  dx = .0025,
-  dt = .0025
-)
+my_model <- dmc_dm(var_start = FALSE, t_max = 1.5,  dx = .01, dt = .005)
 
 }
 \references{

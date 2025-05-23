@@ -12,6 +12,9 @@ PDFs are first linearly interpolated before conducting inverse transform
 sampling. Users can control the number of decimal places of the simulated RTs
 using the argument `round_to`.
 
+- `ssp_dm()` gains the arguments `var_non_dec` and `var_start`. This allows 
+users to toggle on and off variability in the non-decision time and starting
+point.
 
 ## Minor: 
 
@@ -19,6 +22,10 @@ using the argument `round_to`.
 index for the dirac delta. This reduces the bias in non-decision time estimates.
 
 - `pdfs()` now also returns a vector of the time domain
+
+## Bug and Code Fixes
+
+- `calc_stats()` is now more precise due to proper numerical integration
 
 # dRiftDM 0.2.2
 

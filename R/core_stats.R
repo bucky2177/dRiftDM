@@ -443,8 +443,7 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs, dt,
 
   quants <-
     apply(cbind(pdf_u, pdf_l), MARGIN = 2, function(a_pdf, t_vec, probs) {
-      cdf <- cumsum(a_pdf)
-      cdf <- cdf - min(cdf)
+      cdf <- cumtrapz(x = t_vec, y = a_pdf)
       cdf <- cdf / max(cdf)
       return(stats::approx(x = cdf, y = t_vec, xout = probs, ties = "mean")$y)
     }, t_vec = t_vec, probs = probs)

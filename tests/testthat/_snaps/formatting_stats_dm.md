@@ -152,12 +152,12 @@
       
       Dependent Variables:
              ID         Log_Like        AIC            BIC      
-       Min.   :1.0   Min.   :382   Min.   :-926   Min.   :-900  
-       1st Qu.:1.5   1st Qu.:396   1st Qu.:-865   1st Qu.:-839  
+       Min.   :1.0   Min.   :383   Min.   :-927   Min.   :-900  
+       1st Qu.:1.5   1st Qu.:396   1st Qu.:-866   1st Qu.:-839  
        Median :2.0   Median :409   Median :-804   Median :-778  
-       Mean   :2.0   Mean   :421   Mean   :-827   Mean   :-800  
-       3rd Qu.:2.5   3rd Qu.:440   3rd Qu.:-777   3rd Qu.:-751  
-       Max.   :3.0   Max.   :470   Max.   :-750   Max.   :-724  
+       Mean   :2.0   Mean   :421   Mean   :-827   Mean   :-801  
+       3rd Qu.:2.5   3rd Qu.:440   3rd Qu.:-778   3rd Qu.:-751  
+       Max.   :3.0   Max.   :470   Max.   :-751   Max.   :-724  
       
       N IDs: 3 
 

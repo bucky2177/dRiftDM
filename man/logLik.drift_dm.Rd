@@ -25,7 +25,7 @@ data is available and evaluating the model if necessary.
 \examples{
 # get a pre-built model and a data set for demonstration purpose
 # (when creating the model, set the discretization to reasonable values)
-a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 obs_data(a_model) <- dmc_synth_data
 
 # calculate the log-likelihood

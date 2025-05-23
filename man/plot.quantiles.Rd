@@ -75,7 +75,7 @@ multiple IDs, quantiles are aggregated across IDs before plotting.
 \examples{
 # Example 1: Only model predictions ---------------------------------------
 # get a quantiles data.frame for demonstration purpose
-a_model <- dmc_dm(t_max = 1.5, dt = .0025, dx = .0025)
+a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 quantiles <- calc_stats(a_model, type = "quantiles")
 
 # call the plot function with default values

@@ -410,6 +410,15 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' An object of type `drift_dm` (parent class) and `dmc_dm` (child class),
 #' created by the function [dRiftDM::drift_dm()].
 #'
+#' @note
+#'
+#' The scaling of the parameters in `dRiftDM` is different to
+#' \insertCite{Ulrichetal.2015;textual}{dRiftDM}. This is because `dRiftDM`
+#' works in seconds and with a diffusion constant of 1, while the original
+#' DMC parameterization is in milliseconds and with a diffusion constant of 4.
+#' We describe how to convert the parameters on our
+#' [website](https://bucky2177.github.io/dRiftDM/articles/convert_dmc_parameters.html).
+#'
 #' @examples
 #' # the model with default settings
 #' my_model <- dmc_dm()
@@ -709,6 +718,20 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #' An object of type `drift_dm` (parent class) and `ssp_dm` (child class),
 #' created by the function [dRiftDM::drift_dm()].
 #'
+#' @note
+#'
+#' The parameters of SSP in `dRiftDM` differ in their size from the original
+#' publication of \insertCite{Whiteetal.2011;textual}{dRiftDM}. `dRiftDM`
+#' uses symmetrical boundaries around zero and a diffusion constant of 1.
+#' In the original publication, SSP was parameterized with boundaries ranging
+#' from zero to `a` and a diffusion constant of 0.1.
+#'
+#' Thus, in `dRiftDM`, the boundary `b` corresponds to \eqn{b = a/2 \cdot 10}.
+#' Additionally, `p` in `dRiftDM` is 10 times larger than `p` in the original
+#' publication. Finally, `r` is expressed in seconds, and thus `r` is 1000 times
+#' larger in `dRiftDM` than in the original publication.
+#'
+#'
 #' @examples
 #' # the model with default settings
 #' my_model <- ssp_dm()
@@ -725,8 +748,9 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #'
 #'
 #' @export
-ssp_dm <- function(instr = NULL, obs_data = NULL, sigma = 1, t_max = 3,
-                   dt = .001, dx = .001, b_coding = NULL) {
+ssp_dm <- function(var_non_dec = TRUE, var_start = FALSE, instr = NULL,
+                   obs_data = NULL, sigma = 1, t_max = 3, dt = .001, dx = .001,
+                   b_coding = NULL) {
   # sign ~ ensures that sign is free, and thus avoids a message from
   # modify_flex_prms
   default_instr <- "interf_t := sd_0 / r
@@ -741,21 +765,36 @@ ssp_dm <- function(instr = NULL, obs_data = NULL, sigma = 1, t_max = 3,
     instr <- paste(default_instr, instr, sep = "\n")
   }
 
-
+  # get all parameters, and maybe throw away those that are not needed
   prms_model <- c(
     b = .6, non_dec = .3, sd_non_dec = .005, p = 3.3, sd_0 = 1.2,
-    r = 10, sign = 1
+    r = 10, range_start = .5, sign = 1
   )
+
+  if (!var_non_dec) {
+    prms_model <- prms_model[!(names(prms_model) == "sd_non_dec")]
+  }
+  if (!var_start) {
+    prms_model <- prms_model[!(names(prms_model) == "range_start")]
+  }
   conds <- c("comp", "incomp")
 
   ssp_dm <- drift_dm(
     prms_model = prms_model, conds = conds, subclass = "ssp_dm", instr = instr,
     obs_data = obs_data, sigma = sigma,
     t_max = t_max, dt = dt, dx = dx, mu_fun = mu_ssp,
-    mu_int_fun = dummy_t, x_fun = x_dirac_0, b_fun = b_constant,
+    mu_int_fun = dummy_t, x_fun = x_uniform, b_fun = b_constant,
     dt_b_fun = dt_b_constant, nt_fun = nt_truncated_normal,
     b_coding = b_coding
   )
+
+  # replace component functions, if desired
+  if (!var_non_dec) {
+    comp_funs(ssp_dm)[["nt_fun"]] <- nt_constant
+  }
+  if (!var_start) {
+    comp_funs(ssp_dm)[["x_fun"]] <- x_dirac_0
+  }
 
 
   return(ssp_dm)

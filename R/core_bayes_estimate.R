@@ -304,7 +304,9 @@ crossover = function(which, ...){
 #' Internally, [stats::dnorm] and [stats::pnorm] are used.
 #'
 #' If `x` is a matrix, the result retains the same dimensions. All other
-#' arguments are recycled as needed.
+#' arguments are recycled as needed. For example, if x has two rows
+#' and 5 columns, then mean might provide 2 values, so that the first/second row
+#' is evaluated under the first/second mean value.
 #'
 #' @keywords internal
 dtnorm <- function(x, mean = 0, sd = 1, lower = -Inf, upper = Inf,
@@ -314,10 +316,11 @@ dtnorm <- function(x, mean = 0, sd = 1, lower = -Inf, upper = Inf,
   x_vec <- as.vector(x)
 
   # init return vector
-  y_vec <- if (log) rep(-Inf, length(x_vec)) else rep(0, length(x_vec))
+  d_vec <- if (log) rep(-Inf, length(x_vec)) else rep(0, length(x_vec))
 
   # out-of-bounds mask
-  out <- x_vec > upper | x_vec < lower
+  nas <- is.na(x_vec)
+  out <- nas | x_vec > upper | x_vec < lower
 
   # numerator and denominator
   suppressWarnings({
@@ -329,19 +332,22 @@ dtnorm <- function(x, mean = 0, sd = 1, lower = -Inf, upper = Inf,
 
   # apply truncation adjustment
   if (log) {
-    y_vec[!out] <- num - log(denom)
+    d_vec[!out] <- num - log(denom)
   } else {
-    y_vec[!out] <- num / denom
+    d_vec[!out] <- num / denom
   }
+
+  # return NA for NA
+  d_vec[nas] <- x_vec[nas]
 
   # restore dimensions (if any)
   if (!is.null(x_dim)) {
-    y_vals <- matrix(y_vec, nrow = x_dim[1], ncol = x_dim[2])
+    d_vals <- matrix(d_vec, nrow = x_dim[1], ncol = x_dim[2])
   } else {
-    y_vals <- y_vec
+    d_vals <- d_vec
   }
 
-  return(y_vals)
+  return(d_vals)
 }
 
 
@@ -385,7 +391,7 @@ drift_dm_supr_warn <- function(expr, suppress_warnings = TRUE) {
 #'  are conditioned on the group-level parameters.
 #'
 #' @param phi_j_mat a numeric matrix of current group-level parameters
-#'  for one individual-level parameter. It must be 2xN and provide the
+#'  for one individual-level parameter. It must be 2 x n_chains and provide the
 #'  mean and standard deviation; in that order.
 #' @param theta_j_mat a numeric matrix of individual-level parameter
 #'  values across all individuals and chains for one model parameter. Must
@@ -565,11 +571,11 @@ log_posterior_lower <- function(thetas_one_subj_mat, all_phis_mat,
 #'  `x[2,]` as the group standard deviation(s).
 #' @param n number of samples to generate.
 #' @param mean,sd mean and standard deviation of the truncated normal
-#' distribution for the group-level mean.
+#' distribution for the group-level mean. (recycled if necessary)
 #' @param lower,upper lower and upper bounds for the truncated normal
-#' distribution.
+#' distribution. (recycled if necessary)
 #' @param shape,rate shape and rate parameters of the gamma distribution
-#' for the group-level standard deviation.
+#' for the group-level standard deviation. (recycled if necessary)
 #' @param log logical; if `TRUE`, the log-density is returned.
 #'
 #' @return For `d_default_prior_hyper`, a numeric vector representing the
@@ -581,14 +587,22 @@ log_posterior_lower <- function(thetas_one_subj_mat, all_phis_mat,
 #' standard deviations. Samples are drawn independently. If `n` is 1, then
 #' a named numeric vector is returned.
 #'
+#' @details
+#' the arguments `mean`, `sd`, `lower`, `upper`, `shape`, and `rate` are
+#' recycled if necessary with respect to the columns of `x`. For example,
+#' if `x` has two columns, then `mean` might provide two values.
+#'
+#'
 #' @keywords internal
 d_default_prior_hyper <- function(x, mean, sd, lower, upper, shape, rate,
                                   log) {
 
   if (is.matrix(x)) {
+    stopifnot(nrow(x) == 2)
     hyper_means = x[1,]
     hyper_sds = x[2,]
   } else {
+    stopifnot(length(x) == 2)
     hyper_means = x[1]
     hyper_sds = x[2]
   }
@@ -610,6 +624,7 @@ d_default_prior_hyper <- function(x, mean, sd, lower, upper, shape, rate,
 
 #' @rdname d_default_prior_hyper
 r_default_prior_hyper <- function(n, mean, sd, lower, upper, shape, rate) {
+  stopifnot(n >= 1)
   r_m <- rtnorm(n = n, mean = mean, sd = sd, lower = lower, upper = upper)
   r_sd <- stats::rgamma(n = n, shape = shape, rate = rate)
 
@@ -634,7 +649,8 @@ r_default_prior_hyper <- function(n, mean, sd, lower, upper, shape, rate) {
 #' of: `"hyper"` (group-level priors), `"lower"` (individual-level priors
 #' given group-level parameters), or `"none"` (non-hierarchical setting).
 #' @param mean a named numeric vector or list, specifying the prior means for
-#' each parameter.
+#' each parameter. Missing values will be filled up from the first matching
+#' parameter in `drift_dm_obj`
 #' @param sd a named numeric vector or list of standard deviations. Missing or
 #' `NULL` values will be replaced by corresponding values from `mean`.
 #' @param lower,upper optional numeric vectors or lists specifying the lower
@@ -664,16 +680,27 @@ r_default_prior_hyper <- function(n, mean, sd, lower, upper, shape, rate) {
 #' [dRiftDM::rtnorm()], [dRiftDM::d_default_prior_hyper()],
 #' [dRiftDM::r_default_prior_hyper()]
 #' @keywords internal
-get_default_prior_settings <- function(drift_dm_obj, level, mean, sd = NULL,
-                                       lower = NULL, upper = NULL, shape = NULL,
-                                       rate = NULL) {
+get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
+                                       sd = NULL, lower = NULL, upper = NULL,
+                                       shape = NULL, rate = NULL) {
   ####
   # input handling and default settings
-  # first, get the mean values
-  if (!is_numeric(mean)) {
-    stop("mean must be numeric vector without NAs or Infs")
+  # if mean is NULL, use the parameters of the model
+
+  # enlarge to model parameters
+  mean <- get_parameters_smart(
+    drift_dm_obj = drift_dm_obj,
+    input_a = mean,
+    fill_up_with = NA
+  )$vec_a
+
+  # if mean is NULL, set it equal to the model parameters, otherwise
+  # replace missing values with the model parameters
+  if (is.null(mean)) {
+    mean = coef(drift_dm_obj)
+  } else {
+    mean[is.na(mean)] = coef(drift_dm_obj)[is.na(mean)]
   }
-  mean <- get_parameters_smart(drift_dm_obj = drift_dm_obj, input_a = mean)$vec_a
   all_coefs <- names(mean)
 
   # then, get the sds
@@ -767,9 +794,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean, sd = NULL,
 
 
   ###
-  # now get the functions for drawing random variables (not required for
-  # lower-level parameters in a hierarchical setting; in this case, I'll draw
-  # random variables condition on the mean group-level parameters)
+  # now get the functions for drawing random variables
 
   # hyper-level
   if (level == "hyper") {
@@ -783,6 +808,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean, sd = NULL,
     )
   }
 
+  # lower-level
   if (level == "lower") {
     r_priors <- create_partial_funs(
       prms = all_coefs,
@@ -791,7 +817,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean, sd = NULL,
     )
   }
 
-  # non-hierarchical setting ("lower-level")
+  # non-hierarchical setting
   if (level == "none") {
     r_priors <- create_partial_funs(
       prms = all_coefs,
