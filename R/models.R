@@ -7,9 +7,9 @@
 #' basic Ratcliff Diffusion Model
 #'
 #' @param var_non_dec,var_start,var_drift logical, indicating whether the model
-#'   should have a (uniform) variable non-decision time, starting point, or
-#'   (normally-distributed) variable drift rate.
-#'   (see also `nt_uniform` and `x_uniform` in [dRiftDM::component_shelf])
+#'  should have a variable non-decision time , starting point (uniform), or
+#'  drift rate (normally-distributed).  (see also `nt_uniform` and `x_uniform`
+#'  in [dRiftDM::component_shelf])
 #' @param instr optional string with "instructions", see
 #'   [dRiftDM::modify_flex_prms()].
 #' @param obs_data data.frame, an optional data.frame with the observed data.
@@ -675,7 +675,9 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #' This function creates a [dRiftDM::drift_dm] object that corresponds to a
 #' simple version of the shrinking spotlight model by
 #' \insertCite{Whiteetal.2011;textual}{dRiftDM}.
-#'
+#' @param var_non_dec,var_start logical, indicating whether the model
+#'   should have a variable non-decision time or starting point
+#'   (see also `nt_uniform` and `x_uniform` in [dRiftDM::component_shelf]
 #' @param instr optional string with additional "instructions", see
 #'   [dRiftDM::modify_flex_prms()] and the Details below.
 #' @param obs_data data.frame, an optional data.frame with the observed data.
@@ -767,12 +769,12 @@ ssp_dm <- function(var_non_dec = TRUE, var_start = FALSE, instr = NULL,
 
   # get all parameters, and maybe throw away those that are not needed
   prms_model <- c(
-    b = .6, non_dec = .3, sd_non_dec = .005, p = 3.3, sd_0 = 1.2,
+    b = .6, non_dec = .3, range_non_dec = .05, p = 3.3, sd_0 = 1.2,
     r = 10, range_start = .5, sign = 1
   )
 
   if (!var_non_dec) {
-    prms_model <- prms_model[!(names(prms_model) == "sd_non_dec")]
+    prms_model <- prms_model[!(names(prms_model) == "range_non_dec")]
   }
   if (!var_start) {
     prms_model <- prms_model[!(names(prms_model) == "range_start")]
@@ -784,7 +786,7 @@ ssp_dm <- function(var_non_dec = TRUE, var_start = FALSE, instr = NULL,
     obs_data = obs_data, sigma = sigma,
     t_max = t_max, dt = dt, dx = dx, mu_fun = mu_ssp,
     mu_int_fun = dummy_t, x_fun = x_uniform, b_fun = b_constant,
-    dt_b_fun = dt_b_constant, nt_fun = nt_truncated_normal,
+    dt_b_fun = dt_b_constant, nt_fun = nt_uniform,
     b_coding = b_coding
   )
 

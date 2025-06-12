@@ -72,28 +72,36 @@ calc_basic_stats_pred <- function(pdf_u, pdf_l, one_cond, t_vec, dt,
   if (is.null(skip_if_contr_low))
     skip_if_contr_low <- drift_dm_skip_if_contr_low()
 
-  # first, calculate the ratio of the probability mass
-  sum_pdf_u <- sum(pdf_u)
-  sum_pdf_l <- sum(pdf_l)
+  n_steps <- length(pdf_u)
 
-  ratio = sum(pdf_u) / (sum(pdf_u) + sum(pdf_l))
+  # first, integrate to cdfs
+  cdf_u <- cumtrapz(x = t_vec, y = pdf_u)
+  cdf_l <- cumtrapz(x = t_vec, y = pdf_l)
+
+  # to calculate the ratio of the probability mass
+  sum_pdf_u <- cdf_u[n_steps]
+  sum_pdf_l <- cdf_l[n_steps]
+  ratio = sum_pdf_u / (sum_pdf_l + sum_pdf_u)
 
   # determine if the contribution is relevant
-  if (sum_pdf_u*dt < skip_if_contr_low) pdf_u <- rep(NA, length(pdf_u))
-  if (sum_pdf_l*dt < skip_if_contr_low) pdf_l <- rep(NA, length(pdf_l))
+  if (sum_pdf_u < skip_if_contr_low) pdf_u <- rep(NA, length(pdf_u))
+  if (sum_pdf_l < skip_if_contr_low) pdf_l <- rep(NA, length(pdf_l))
 
-
-  # scale the pdfs so that they integrate to one
-  pdf_u <- pdf_u / (sum(pdf_u) * dt)
-  pdf_l <- pdf_l / (sum(pdf_l) * dt)
+  # then scale each pdf
+  pdf_u = pdf_u / sum_pdf_u
+  pdf_l = pdf_l / sum_pdf_l
 
   # then calculate the mean
-  mean_u = sum(t_vec * pdf_u) * dt
-  mean_l = sum(t_vec * pdf_l) * dt
+  tmp_u = cumtrapz(x = t_vec, y = t_vec*pdf_u)
+  mean_u = tmp_u[n_steps]
+  tmp_l = cumtrapz(x = t_vec, y = t_vec*pdf_l)
+  mean_l = tmp_l[n_steps]
 
   # and the standard deviation (V(X) = E(X^2) - E(X)^2)
-  sd_u = sqrt(sum(t_vec^2 * pdf_u) * dt - mean_u^2)
-  sd_l = sqrt(sum(t_vec^2 * pdf_l) * dt - mean_l^2)
+  tmp_u = cumtrapz(x = t_vec, y = t_vec^2*pdf_u)
+  sd_u = sqrt(tmp_u[n_steps] - mean_u^2)
+  tmp_l = cumtrapz(x = t_vec, y = t_vec^2*pdf_l)
+  sd_l = sqrt(tmp_l[n_steps] - mean_l^2)
 
   # pass back
   basic_stats <- data.frame(
@@ -216,6 +224,7 @@ calc_basic_stats <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL,
 #'
 #' @param rts_u,rts_l vectors of RTs for the upper and lower boundary
 #' @param pdf_u,pdf_l density values for the upper and lower boundary
+#' @param t_vec the time space (required for the pdfs)
 #' @param one_cond character label
 #' @param n_bins number of bins to use for the CAFs
 #'
@@ -257,13 +266,12 @@ calc_cafs_obs <- function(rts_u, rts_l, one_cond, n_bins) {
 }
 
 #' @rdname calc_cafs_obs
-calc_cafs_pred <- function(pdf_u, pdf_l, one_cond, n_bins) {
+calc_cafs_pred <- function(pdf_u, pdf_l, t_vec, one_cond, n_bins) {
   stopifnot(length(pdf_u) == length(pdf_l))
+  stopifnot(length(pdf_u) == length(t_vec))
 
-  # make a cdf and scale it to a value between 0 and 1
-  cdf <- pdf_u + pdf_l
-  cdf <- cumsum(cdf)
-  cdf <- cdf - min(cdf)
+  # make a cdf
+  cdf <- cumtrapz(x = t_vec, y = pdf_u + pdf_l)
   cdf <- cdf / max(cdf)
 
   # get the quantiles that determine the bins
@@ -301,10 +309,7 @@ calc_cafs_pred <- function(pdf_u, pdf_l, one_cond, n_bins) {
 #' [dRiftDM::calc_cafs_obs] and [dRiftDM::calc_cafs_pred]. Does input checks
 #' and the data wrangling
 #'
-#' @param pdf_u,pdf_l either NULL or density vectors
-#' @param rts_u,rts_l either NULL or RT vectors
-#' @param one_cond a label for the data.frame
-#' @param n_bins the number of bins, default is 5
+#' @inheritParams calc_cafs_obs
 #' @param b_coding used for accessing the upper boundary label, determines
 #' the corresponding column of the returned data.frame (e.g., P_`corr`).
 #'
@@ -321,8 +326,9 @@ calc_cafs_pred <- function(pdf_u, pdf_l, one_cond, n_bins) {
 #' @seealso [dRiftDM::new_stats_dm()]
 #'
 #' @keywords internal
-calc_cafs <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL, rts_l = NULL,
-                      one_cond, n_bins = NULL, b_coding) {
+calc_cafs <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL,
+                      rts_u = NULL, rts_l = NULL, one_cond, n_bins = NULL,
+                      b_coding) {
   # default settings and parameter extraction
   if (is.null(n_bins)) {
     n_bins <- 5
@@ -353,7 +359,7 @@ calc_cafs <- function(pdf_u = NULL, pdf_l = NULL, rts_u = NULL, rts_l = NULL,
   result_pred <- NULL
   if (!is.null(pdf_u)) {
     result_pred <- calc_cafs_pred(
-      pdf_u = pdf_u, pdf_l = pdf_l,
+      pdf_u = pdf_u, pdf_l = pdf_l, t_vec = t_vec,
       one_cond = one_cond, n_bins = n_bins
     )
     result_pred <- cbind(Source = "pred", result_pred)
@@ -884,7 +890,7 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...) {
         rts_l <- dotdot$all_rts_l[[one_cond]]
 
         calc_cafs(
-          pdf_u = pdf_u, pdf_l = pdf_l, rts_u = rts_u,
+          pdf_u = pdf_u, pdf_l = pdf_l, t_vec = dotdot$t_vec, rts_u = rts_u,
           rts_l = rts_l, one_cond = one_cond,
           n_bins = dotdot$n_bins, b_coding = b_coding
         )

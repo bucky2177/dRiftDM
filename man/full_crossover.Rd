@@ -25,26 +25,25 @@ current log-posterior values for each chain.}
 current log-likelihood values for each chain.}
 
 \item{gamma}{a single numeric tuning parameter, that scales the difference
-between parameters.}
+between parameters. If \code{NULL}, defaults to \code{2.38 / sqrt(2 * n_prms)}}
 
 \item{b}{a small numeric value used to perturb the proposal parameters to
-avoid degenerecy.}
+avoid degeneracy.}
 
 \item{...}{additional arguments passed to \code{\link[=call_log_posterior_m]{call_log_posterior_m()}}.}
 }
 \value{
 A list with the following components:
 \itemize{
-\item \code{new_prms_across_chains}: An updated matrix of parameter values across all
-chains.
-\item \code{new_pis_across_chains}: An updated vector of log-posterior values.
-\item \code{new_log_likes_across_chains} An updated vector of log-likelihood values.
+\item \code{new_prms_across_chains}: The updated parameter matrix of shape \verb{p × n}.
+\item \code{new_pis_across_chains}: The updated vector of log-posterior values.
+\item \code{new_log_likes_across_chains}: The updated vector of log-likelihood values.
 }
 }
 \description{
 This function updates each chain's parameters by proposing new values using a
 differential evolution strategy. For each chain \code{k}, two other chains
-\code{m} and \code{n} are selected, and a proposal is generated via:
+\code{m} and \code{n} are randomly selected, and a proposal is generated via:
 \code{prms_k + gamma * (prms_m - prms_n) + noise},
 where \code{gamma = 2.38 / sqrt(2 * n_prms)}
 and \code{noise} is uniform perturbation controlled by \code{b}. The proposal is

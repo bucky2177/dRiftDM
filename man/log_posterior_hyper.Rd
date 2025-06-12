@@ -25,7 +25,7 @@ log_posterior_lower(
 }
 \arguments{
 \item{phi_j_mat}{a numeric matrix of current group-level parameters
-for one individual-level parameter. It must be 2xN and provide the
+for one individual-level parameter. It must be 2 x n_chains and provide the
 mean and standard deviation; in that order.}
 
 \item{theta_j_mat}{a numeric matrix of individual-level parameter

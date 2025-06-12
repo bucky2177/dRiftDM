@@ -34,7 +34,8 @@ Imports:
     Rdpack,
     progress,
     stats,
-    lifecycle
+    lifecycle, 
+    coda
 LinkingTo: Rcpp
 Depends: 
     R (>= 4.1.0)

@@ -228,6 +228,10 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 #'
 #' @param x a [data.frame], containing CAFs, typically resulting from a call
 #'  to [dRiftDM::calc_stats].
+#' @param id numeric or character, specifying the id of a single participant to
+#'  plot. If `length(id) > 1`, `plot.cafs()` is called recursively,
+#'  iterating over each entry in `id`. Each `id` must match with an `ID` in the
+#'  `ID` column of the provided cafs data set `x`.
 #' @param conds character vector, specifying the conditions to plot.
 #'  Defaults to all unique conditions.
 #' @param col Character vector, specifying colors for each condition. If a
@@ -248,7 +252,7 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 #'
 #'
 #' @details
-#' The `plot.cafs` function allows for a quick investigation of CAFs, including
+#' The `plot.cafs()` function allows for a quick investigation of CAFs, including
 #' options for color, symbols, and line types for different data sources
 #' (observed vs. predicted). When the supplied [data.frame] includes multiple
 #' IDs, CAFs are aggregated across IDs before plotting.
@@ -284,17 +288,39 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 #' plot(cafs)
 #'
 #' @export
-plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
+plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
                       ylim = c(0, 1), xlab = "Bins", ylab = NULL, pch = 21,
                       lty = 1, type = "l", legend = NULL,
                       legend_pos = "bottomright") {
   cafs <- x
   caf_name <- grep("^P_", colnames(cafs), value = TRUE)
 
+  # get the data to plot
+  if (!is.null(cafs$ID) && length(unique(cafs$ID)) > 1) {
 
-  if ("ID" %in% colnames(cafs) && length(unique(cafs$ID)) > 1) {
-    message("Aggregating across ID")
-    cafs <- aggregate_stats(stat_df = cafs)
+    if (!is.null(id)) {
+
+      if (!all(id %in% unique(cafs$ID))) {
+        mis_ids <- setdiff(id, unique(cafs$ID))
+        stop(
+          "The following IDs were not found: ", paste(mis_ids, collapse = ", ")
+        )
+      }
+
+      if (length(id) == 1) {
+        cafs <- cafs[cafs$ID == id, ]
+      } else {
+        lapply(id, \(one_id){
+          plot(x, ..., conds = conds, id = one_id, col = col, xlim = xlim,
+               ylim = ylim, xlab = xlab, ylab = ylab, pch = pch, lty = lty,
+               type = type, legend = legend, legend_pos = legend_pos)
+        })
+        return(invisible())
+      }
+    } else {
+      message("Aggregating across ID")
+      cafs <- aggregate_stats(stat_df = cafs)
+    }
   }
 
   # set default arguments
@@ -389,6 +415,10 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #'
 #' @param x a [data.frame], containing quantiles, typically resulting from a
 #' call to [dRiftDM::calc_stats].
+#' @param id numeric or character, specifying the id of a single participant to
+#'  plot. If `length(id) > 1`, `plot.quantiles()` is called recursively,
+#'  iterating over each entry in `id`. Each `id` must match with an `ID` in the
+#'  `ID` column of the provided quantiles data set `x`.
 #' @param conds character vector, specifying the conditions to plot. Defaults to
 #' all unique conditions.
 #' @param dv character, specifying the quantiles to plot. Defaults to
@@ -410,7 +440,7 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #'  to an error due to a clash of arguments.
 #'
 #' @details
-#' The `plot.quantiles` function allows for a quick investigation of quantiles,
+#' The `plot.quantiles()` function allows for a quick investigation of quantiles,
 #' including options for color, symbols, and line types for different data
 #' sources (observed vs. predicted). When the supplied [data.frame] includes
 #' multiple IDs, quantiles are aggregated across IDs before plotting.
@@ -448,18 +478,41 @@ plot.cafs <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #' plot(quantiles)
 #'
 #' @export
-plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
-                           xlim = NULL, ylim = c(0, 1), xlab = "RT [s]",
-                           ylab = "F(RT)", pch = 21, lty = 1, type = "l",
-                           legend = NULL, legend_pos = "bottomright") {
+plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
+                           col = NULL, xlim = NULL, ylim = c(0, 1),
+                           xlab = "RT [s]", ylab = "F(RT)", pch = 21, lty = 1,
+                           type = "l", legend = NULL,
+                           legend_pos = "bottomright") {
   quantiles <- x
 
+  # aggregate or select the relevant data frame
+  if (!is.null(quantiles$ID) && length(unique(quantiles$ID)) > 1) {
 
-  # aggregate
-  if ("ID" %in% colnames(quantiles) && length(unique(quantiles$ID)) > 1) {
-    message("Aggregating across ID")
-    quantiles <- aggregate_stats(stat_df = quantiles)
+    if (!is.null(id)) {
+
+      if (!all(id %in% unique(quantiles$ID))) {
+        mis_ids <- setdiff(id, unique(quantiles$ID))
+        stop(
+          "The following IDs were not found: ", paste(mis_ids, collapse = ", ")
+        )
+      }
+
+      if (length(id) == 1) {
+        quantiles <- quantiles[quantiles$ID == id, ]
+      } else {
+        lapply(id, \(one_id){
+          plot(x, ..., conds = conds, id = one_id, col = col, xlim = xlim,
+               ylim = ylim, xlab = xlab, ylab = ylab, pch = pch, lty = lty,
+               type = type, legend = legend, legend_pos = legend_pos)
+        })
+        return(invisible())
+      }
+    } else {
+      message("Aggregating across ID")
+      quantiles <- aggregate_stats(stat_df = quantiles)
+    }
   }
+
 
 
   # set default plot arguments
@@ -546,6 +599,10 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
 #'
 #' @param x a [data.frame], containing delta functions, typically resulting from
 #'  a call to [dRiftDM::calc_stats].
+#' @param id numeric or character, specifying the id of a single participant to
+#'  plot. If `length(id) > 1`, `plot.delta_funs()` is called recursively,
+#'  iterating over each entry in `id`. Each `id` must match with an `ID` in the
+#'  `ID` column of the provided data set of delta functions `x`.
 #' @param dv character vector, specifying the delta functions to plot. Defaults
 #'  to all columns beginning with "Delta_" in `x`.
 #' @param col character vector, specifying colors for each delta function. If a
@@ -565,7 +622,7 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
 #'  to an error due to a clash of arguments.
 #'
 #' @details
-#' The `plot.delta_funs` function provides an easy way to investigate delta
+#' The `plot.delta_funs()` function provides an easy way to investigate delta
 #' functions, allowing for customization in color, symbols, and line types for
 #' different data sources (observed vs. predicted). If multiple IDs are present
 #' in the data, delta functions are aggregated across IDs before plotting.
@@ -620,17 +677,39 @@ plot.quantiles <- function(x, ..., conds = NULL, dv = NULL, col = NULL,
 #' plot(deltas)
 #'
 #' @export
-plot.delta_funs <- function(x, ..., dv = NULL, col = NULL, xlim = NULL,
-                            ylim = NULL, xlab = "RT [s]",
+plot.delta_funs <- function(x, ..., id = NULL, dv = NULL, col = NULL,
+                            xlim = NULL, ylim = NULL, xlab = "RT [s]",
                             ylab = expression(Delta), pch = 21, lty = 1,
                             type = "l", legend = NULL,
                             legend_pos = "topright") {
   delta_fun <- x
 
-  # aggregate
-  if ("ID" %in% colnames(delta_fun) && length(unique(delta_fun$ID)) > 1) {
-    message("Aggregating across ID")
-    delta_fun <- aggregate_stats(stat_df = delta_fun)
+  # aggregate or select the relevant data frame
+  if (!is.null(delta_fun$ID) && length(unique(delta_fun$ID)) > 1) {
+
+    if (!is.null(id)) {
+
+      if (!all(id %in% unique(delta_fun$ID))) {
+        mis_ids <- setdiff(id, unique(delta_fun$ID))
+        stop(
+          "The following IDs were not found: ", paste(mis_ids, collapse = ", ")
+        )
+      }
+
+      if (length(id) == 1) {
+        delta_fun <- delta_fun[delta_fun$ID == id, ]
+      } else {
+        lapply(id, \(one_id){
+          plot(x, ..., conds = conds, id = one_id, col = col, xlim = xlim,
+               ylim = ylim, xlab = xlab, ylab = ylab, pch = pch, lty = lty,
+               type = type, legend = legend, legend_pos = legend_pos)
+        })
+        return(invisible())
+      }
+    } else {
+      message("Aggregating across ID")
+      delta_fun <- aggregate_stats(stat_df = delta_fun)
+    }
   }
 
 
@@ -1134,6 +1213,369 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   graphics::legend(x = legend_pos, legend = legend, col = col, lty = 1, ...)
   invisible()
 }
+
+
+
+
+# PLOT MCMC RESULTS  --------------------------------------------
+
+#' Plot MCMC Results and Diagnostics `mcmc_dm` Objects
+#'
+#' Visualize MCMC results and diagnostics for `mcmc_dm` objects.
+#' The function `plot.mcmc()` is typically called when users supply an
+#' objects returned by [dRiftDM::estimate_model_bayesian()] to the generic
+#' [base::plot()] function.
+#'
+#' @param x an object of class `mcmc_dm`, as returned by
+#' [dRiftDM::estimate_model_bayesian()].
+#' @param ... optional arguments passed on to the underlying plotting functions
+#'   [dRiftDM::plot_mcmc_trace()], [dRiftDM::plot_mcmc_marginal()], and
+#'   [dRiftDM::plot_mcmc_auto()]. See the respective documentations for a list
+#'   of optional arguments and the examples below. Probably the most relevant
+#'   optional argument is `which_prms` that allows users to select a specific
+#'   subset of parameters.
+#' @param id optional character vector, specifying the id(s) of participants to
+#'  plot. If `length(id) > 1`, `plot.mcmc_dm()` is called recursively,
+#'  iterating over each entry in `id`. Each `id` must match with the relevant
+#'  dimension names of the used chains array stored in `x`.
+#' @param what a character string indicating the type of plot to produce. Must
+#'   be either `"trace"`, `"density"`, or `"auto"`. See the Details below.
+#'   Default is `"trace"`.
+#' @param mfrow an optional numeric vector of length two, passed to
+#'   `par(mfrow = ...)` to arrange multiple plots on the same device.
+#'
+#' @details
+#' This function provides diagnostic and summary visualizations of MCMC samples.
+#' It handles results from both hierarchical and non-hierarchical MCMC runs:
+#'
+#'  * If `id` is provided, the plot refers to the requested participant, with
+#'    MCMC results extracted at the individual level.
+#'  * If `id` is omitted, plots refer to group-level parameters (i.e., the
+#'    hyperparameters)
+#'
+#' The following plot types are supported:
+#'
+#' * Trace plots (`what = "trace"`): These plots show sampled parameter values
+#' across MCMC iterations for each
+#' chain. They are primarily used to inspect convergence and mixing behavior.
+#' Ideally, all chains should appear well-mixed (i.e., they should overlap and
+#' sample in a similar range). Lack of convergence is indicated by chains that
+#' remain in separate regions or exhibit trends over time.
+#'
+#' * Density plots (`what = "density"`):  These plots display smoothed marginal
+#' posterior distributions for each
+#' parameter, collapsed over chains and iterations. They are useful for
+#' understanding the central tendency, variance, and shape of the posterior
+#' distributions.
+#'
+#' * Autocorrelation plots (`what = "auto"`):  These plots display the
+#' autocorrelation at different lags, averaged across chains.
+#' They are useful to judge how quickly the chains produced independent samples.
+#'
+#'
+#' TODO examples
+#'
+#' @return Returns `NULL` invisibly.
+#'
+#'
+#' @seealso [dRiftDM::plot_mcmc_trace()], [dRiftDM::plot_mcmc_marginal()],
+#' [dRiftDM::plot_mcmc_auto()]
+#' @export
+plot.mcmc_dm <- function(x, ..., id = NULL, what = "trace", mfrow = NULL) {
+
+  chains_obj <- x
+
+  # input checks
+
+  # ids only make sense in the hierarchical case
+  hierarchical <- attr(chains_obj, "hierarchical")
+  if (!hierarchical & !is.null(id)) id = NULL
+  what = match.arg(what, choices = c("trace", "density", "auto"))
+
+
+  # optional: use local mfrow argument
+  if (!is.null(mfrow)) {
+    stopifnot(is_numeric(mfrow))
+    stopifnot(length(mfrow) == 2)
+    withr::local_par(mfrow = mfrow)
+  }
+
+  # optional/additional arguments
+  dots = list(...)
+
+  # call recursively the plot function if id has multiple entries
+  if (length(id) > 1) {
+    lapply(id, \(one_id){
+      dots$id = one_id
+      do.call(plot.mcmc_dm, c(list(x = x, what = what), dots))
+    })
+    return(invisible())
+  }
+
+  # get the chains to plot
+  chains <- get_subset_chains(chains_obj, id = id)
+
+  # now dispatch to the specific function
+  if (what == "trace") {
+    plot_mcmc_trace(chains = chains, ...)
+  }
+  if (what == "density") {
+    plot_mcmc_marginal(chains = chains, ...)
+  }
+  if (what == "auto") {
+    plot_mcmc_auto(chains = chains, ...)
+  }
+
+  invisible()
+}
+
+
+
+
+#' Plot MCMC Chains for Drift Diffusion Model Parameters
+#'
+#' The functions provide visualizations of MCMC results obtained for
+#' [dRiftDM::drift_dm()] objects. Users won't call the functions directly.
+#' Instead, they are called via [dRiftDM::plot.mcmc_dm()], and the
+#' following documentation helps to define optional arguments that can be
+#' passed on via  `...`.
+#'
+#'
+#' @param chains an array of MCMC samples with three dimensions
+#'   (parameters × chains × iterations; see also [dRiftDM::plot.mcmc_dm()]).
+#'   This argument is not optional and will be provided by
+#'   [dRiftDM::plot.mcmc_dm()].
+#' @param col_palette a function to generate a color palette for chains
+#'   (default is [grDevices::rainbow]).
+#' @param col_chains a character vector, defining colors(s) to override
+#'   `col_palette` for chain lines. Can be a single value or a vector matching
+#'   the number of chains. Recycled if necessary to match the number of chains.
+#' @param col_line a character vector, defining color(s) for the line outlines
+#'   in the density plots. Can be a single value or a vector matching the number
+#'   of parameters to plot. Recycled if necessary to match the number of
+#'   parameters being plotted.
+#' @param col_shade a character vector, defining color(s) for the shaded
+#'   areas in the density plots. Can be a single value or a vector matching
+#'   the number of parameters to plot. Recycled if necessary to match the number
+#'   of parameters being plotted.
+#' @param which_prms a regular expression (string), used to select a subset
+#'   of parameters to plot. For example, `"^v"` would match all parameters
+#'   starting with `v`. See also the examples in [dRiftDM::plot.mcmc_dm()].
+#' @param xlab,ylab character vector(s), specifying axis labels for each panel.
+#'   Recycled if necessary to match the number of plots being generated.
+#' @param xlim,ylim list(s), containing length-2 numeric vectors specifying
+#'   x- and y-axis limits, respectively. Recycled if necessary to match the
+#'   number of plots being generated.
+#' @param lags a numeric vector, giving the lags at which to calculate
+#'  autocorrelation (see also [coda::autocorr.diag()] and [coda::autocorr()]).
+#' @param type a character, specifying how autocorrelations shall be displayed.
+#' Defaults to "h" (see the `type` argument of [base::plot()]). Recycled if
+#' necessary to match the number of parameters being plotted.
+#' @param main character vector, specifying the labels above each
+#' autocorrelation plot. Defaults to parameter labels. Recycled if
+#' necessary to match the number of parameters being plotted.
+#'
+#' @return These functions are called for their side effects (producing plots).
+#'   They return `NULL` invisibly.
+#'
+#' @details
+#' - `plot_mcmc_trace()` plots one panel per parameter, with lines for each
+#'   chain showing how values evolve over iterations. This is useful for
+#'   diagnosing convergence and mixing.
+#' - `plot_mcmc_marginal()` plots smoothed marginal posterior densities
+#'   collapsed over chains and iterations for each parameter, useful for
+#'   inspecting posterior distributions.
+#'
+#'
+#' @seealso [dRiftDM::plot.mcmc_dm()]
+#' @keywords internal
+plot_mcmc_trace = function(chains, col_palette = grDevices::rainbow,
+                           col_chains = NULL, which_prms = NULL, xlab = NULL,
+                           ylab = NULL, xlim = NULL, ylim = NULL) {
+
+  stopifnot(length(dim(chains)) == 3)
+
+  # get the dimension and prm labels
+  n_chains <- dim(chains)[2]
+  iterations <- as.numeric(dimnames(chains)[[3]])
+
+  all_prm_names <- dimnames(chains)[[1]]
+  prms_to_plot <- all_prm_names
+  if (!is.null(which_prms)) {
+    prms_to_plot <- grep(pattern = which_prms, x = prms_to_plot, value = TRUE)
+  }
+
+  # get the colors for the plot
+  all_colors = col_palette(n_chains)
+  if (!is.null(col_chains)) {
+    stopifnot(is.character(col_chains))
+    all_colors = rep(col_chains, length.out = n_chains)
+  }
+
+  # get default values for xlab etc.
+  n_plot <- length(prms_to_plot)
+  xlab <- rep(if (is.null(xlab)) "Iterations" else xlab, length.out = n_plot)
+  ylab <- rep(if (is.null(ylab)) prms_to_plot else ylab, length.out = n_plot)
+  xlim <- rep(if (is.null(xlim)) list(NA) else xlim, length.out = n_plot)
+  ylim <- rep(if (is.null(ylim)) list(NA) else ylim, length.out = n_plot)
+
+  # now iterate over every parameter and plot the traces
+  for (i in seq_along(prms_to_plot)) {
+    one_prm <- prms_to_plot[i]
+    # which idx in the chains array
+    prm_idx = which(one_prm == all_prm_names)
+    sub_chains <- chains[prm_idx, , ]
+
+    # prepare x and y limits
+    ylim_one_prm = ylim[[i]]
+    if (is.na(ylim_one_prm)) {
+      range_sub <- range(sub_chains)
+      padding <- 0.05 * diff(range_sub)  # scale by 5%
+      ylim_one_prm <- c(range_sub[1] - padding, range_sub[2] + padding)
+    }
+    xlim_one_prm = xlim[[i]]
+    if (is.na(xlim_one_prm)) {
+      xlim_one_prm = range(iterations)
+    }
+
+    # now the raw plot outline
+    plot(
+      NA, ylim = ylim_one_prm, xlab = xlab[i], ylab = ylab[i],
+      xlim = xlim_one_prm
+    )
+    for (j in seq_len(n_chains)) {
+      col <- all_colors[j]
+      graphics::points(sub_chains[j, ] ~ iterations, ty = "l", col = col)
+    }
+
+    invisible()
+  }
+}
+
+
+#' @rdname plot_mcmc_trace
+plot_mcmc_marginal <- function(chains, col_line = NULL, col_shade = NULL,
+                               which_prms = NULL, xlab = NULL, ylab = NULL,
+                               xlim = NULL, ylim = NULL) {
+
+  stopifnot(length(dim(chains)) == 3)
+
+  # get the prm labels
+  all_prm_names <- dimnames(chains)[[1]]
+  prms_to_plot <- all_prm_names
+  if (!is.null(which_prms)) {
+    prms_to_plot <- grep(pattern = which_prms, x = prms_to_plot, value = TRUE)
+  }
+
+
+  # get default values for xlab etc.
+  n_plot <- length(prms_to_plot)
+  col_line <- rep(
+    if (is.null(col_line)) "black" else col_line, length.out = n_plot
+  )
+  col_shade <- rep(
+    if (is.null(col_shade)) grDevices::rgb(0, 0, 0.5, 0.5) else col_shade,
+    length.out = n_plot
+  )
+  xlab <- rep(if (is.null(xlab)) prms_to_plot else xlab, length.out = n_plot)
+  ylab <- rep(if (is.null(ylab)) "Density" else ylab, length.out = n_plot)
+  xlim <- rep(if (is.null(xlim)) list(NA) else xlim, length.out = n_plot)
+  ylim <- rep(if (is.null(ylim)) list(NA) else ylim, length.out = n_plot)
+
+
+
+
+  # iterate over each parameter and plot the posterior density
+  for (i in seq_along(prms_to_plot)) {
+    one_prm <- prms_to_plot[i]
+    prm_idx <- which(one_prm == all_prm_names)
+    sub_chains <- chains[prm_idx, , ]
+    dens_one_prm <- stats::density(as.numeric(sub_chains))
+
+    # prepare x and y limits
+    xlim_one_prm = xlim[[i]]
+    if (is.na(xlim_one_prm)) {
+      range_sub <- range(sub_chains)
+      padding <- 0.05 * diff(range_sub)  # scale by 5%
+      xlim_one_prm <- c(range_sub[1] - padding, range_sub[2] + padding)
+    }
+    ylim_one_prm = ylim[[i]]
+    if (is.na(ylim_one_prm)) {
+      max_sub <- max(dens_one_prm$y)
+      ylim_one_prm <- c(0, 1.05 * max_sub)  # scale max by 5%
+    }
+
+
+    plot(
+      NA, ylim = ylim_one_prm, xlab = xlab[i], ylab = ylab[i],
+      xlim = xlim_one_prm
+    )
+    graphics::polygon(
+      x = c(dens_one_prm$x, rev(dens_one_prm$x)),
+      y = c(dens_one_prm$y, rep(0, length(dens_one_prm$y))),
+      col = col_shade[i], border = col_line[i]
+    )
+  }
+  invisible()
+}
+
+
+#' @rdname plot_mcmc_trace
+#' @keywords internal
+plot_mcmc_auto <- function(chains, lags = 1:30, col_line = NULL,
+                           which_prms = NULL, xlab = NULL, ylab = NULL,
+                           xlim = NULL, ylim = NULL, type = NULL, main = NULL) {
+
+  stopifnot(length(dim(chains)) == 3)
+
+  # get the prm labels
+  all_prm_names <- dimnames(chains)[[1]]
+  prms_to_plot <- all_prm_names
+  if (!is.null(which_prms)) {
+    prms_to_plot <- grep(pattern = which_prms, x = prms_to_plot, value = TRUE)
+  }
+
+
+  # transform to coda mcmc_list and get the autocorrelation values
+  mcmc_list = mcmc_dm_to_coda_mcmc(chains)
+  auto_cors = coda::autocorr.diag(mcmc_list, lags = lags)
+
+  # get default values for xlab etc.
+  n_plot <- length(prms_to_plot)
+  col_line <- rep(
+    if (is.null(col_line)) "black" else col_line, length.out = n_plot
+  )
+  xlab <- rep(if (is.null(xlab)) "Lag" else xlab, length.out = n_plot)
+  ylab <- rep(if (is.null(ylab)) "Autocorrelation" else ylab, length.out = n_plot)
+  xlim <- rep(if (is.null(xlim)) list(range(lags)) else xlim, length.out = n_plot)
+  ylim <- rep(if (is.null(ylim)) list(c(-1,1)) else ylim, length.out = n_plot)
+  type <- rep(if (is.null(type)) "h" else type, length.out = n_plot)
+  main <- rep(if (is.null(main)) prms_to_plot else main, length.out = n_plot)
+
+
+
+
+  # iterate over each parameter and plot the posterior density
+  for (i in seq_along(prms_to_plot)) {
+    one_prm <- prms_to_plot[i]
+    prm_idx <- which(one_prm == all_prm_names)
+    subset_auto_corrs = auto_cors[,one_prm]
+
+    # prepare x and y limits
+    xlim_one_prm = xlim[[i]]
+    ylim_one_prm = ylim[[i]]
+
+    plot(
+      subset_auto_corrs ~ lags, ylim = ylim_one_prm, xlab = xlab[i],
+      ylab = ylab[i], xlim = xlim_one_prm, ty = type[i], col = col_line[i],
+      main = main[i]
+    )
+
+  }
+  invisible()
+}
+
+
 
 
 

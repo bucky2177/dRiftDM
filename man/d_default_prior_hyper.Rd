@@ -15,13 +15,13 @@ Here, \code{x[1]} or \code{x[1,]} are interpreted as the group mean(s) and \code
 \code{x[2,]} as the group standard deviation(s).}
 
 \item{mean, sd}{mean and standard deviation of the truncated normal
-distribution for the group-level mean.}
+distribution for the group-level mean. (recycled if necessary)}
 
 \item{lower, upper}{lower and upper bounds for the truncated normal
-distribution.}
+distribution. (recycled if necessary)}
 
 \item{shape, rate}{shape and rate parameters of the gamma distribution
-for the group-level standard deviation.}
+for the group-level standard deviation. (recycled if necessary)}
 
 \item{log}{logical; if \code{TRUE}, the log-density is returned.}
 
@@ -48,5 +48,9 @@ deviation (i.e., \code{phi_j}). The mean is modeled with a truncated
 normal distribution, and the standard deviation with a gamma distribution.
 
 \code{r_default_prior_hyper} samples hyperparameter values from this prior.
+
+the arguments \code{mean}, \code{sd}, \code{lower}, \code{upper}, \code{shape}, and \code{rate} are
+recycled if necessary with respect to the columns of \code{x}. For example,
+if \code{x} has two columns, then \code{mean} might provide two values.
 }
 \keyword{internal}

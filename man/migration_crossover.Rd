@@ -24,7 +24,7 @@ current log-posterior values for each chain.}
 current log-likelihood values for each chain.}
 
 \item{b}{a small numeric value used to perturb the proposal parameters to
-avoid degenerecy.}
+avoid degeneracy.}
 
 \item{...}{additional arguments passed to \code{\link[=call_log_posterior_m]{call_log_posterior_m()}}.}
 }

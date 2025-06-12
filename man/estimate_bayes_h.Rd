@@ -7,7 +7,7 @@
 \usage{
 estimate_bayes_h(
   drift_dm_obj,
-  mean,
+  mean = NULL,
   obs_data_ids,
   algorithm = "de_mcmc",
   n_chains = 40,
@@ -23,7 +23,7 @@ estimate_bayes_h(
 
 estimate_bayes_one_subj(
   drift_dm_obj,
-  mean,
+  mean = NULL,
   algorithm = "de_mcmc",
   n_chains = 40,
   burn_in = 500,
@@ -39,7 +39,8 @@ estimate_bayes_one_subj(
 \item{drift_dm_obj}{an object of type \link{drift_dm}.}
 
 \item{mean}{numeric vector or a list, specifying the expected mean of each
-parameter to be optimized (see the Details below).}
+parameter to be optimized (see the Details below). If \code{NULL}, then the
+currently set model parameters are used for \code{mean}.}
 
 \item{obs_data_ids}{data.frame for the hierarchical case. An additional
 column ID is necessary that codes the individuals (see also

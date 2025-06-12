@@ -43,6 +43,8 @@ bounds are assigned a density of 0 (or \code{-Inf} on the log scale).
 Internally, \link[stats:Normal]{stats::dnorm} and \link[stats:Normal]{stats::pnorm} are used.
 
 If \code{x} is a matrix, the result retains the same dimensions. All other
-arguments are recycled as needed.
+arguments are recycled as needed. For example, if x has two rows
+and 5 columns, then mean might provide 2 values, so that the first/second row
+is evaluated under the first/second mean value.
 }
 \keyword{internal}

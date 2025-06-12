@@ -7,6 +7,7 @@
 \method{plot}{delta_funs}(
   x,
   ...,
+  id = NULL,
   dv = NULL,
   col = NULL,
   xlim = NULL,
@@ -27,6 +28,11 @@ a call to \link{calc_stats}.}
 \item{...}{additional arguments passed to the \link{plot}, \link[graphics:points]{graphics::points},
 and \link[graphics:legend]{graphics::legend} functions. Oftentimes, this will (unfortunately) lead
 to an error due to a clash of arguments.}
+
+\item{id}{numeric or character, specifying the id of a single participant to
+plot. If \code{length(id) > 1}, \code{plot.delta_funs()} is called recursively,
+iterating over each entry in \code{id}. Each \code{id} must match with an \code{ID} in the
+\code{ID} column of the provided data set of delta functions \code{x}.}
 
 \item{dv}{character vector, specifying the delta functions to plot. Defaults
 to all columns beginning with "Delta_" in \code{x}.}
@@ -63,7 +69,7 @@ If the data contains multiple IDs, delta functions are aggregated across IDs
 before plotting.
 }
 \details{
-The \code{plot.delta_funs} function provides an easy way to investigate delta
+The \code{plot.delta_funs()} function provides an easy way to investigate delta
 functions, allowing for customization in color, symbols, and line types for
 different data sources (observed vs. predicted). If multiple IDs are present
 in the data, delta functions are aggregated across IDs before plotting.

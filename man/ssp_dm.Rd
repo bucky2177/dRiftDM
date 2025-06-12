@@ -5,6 +5,8 @@
 \title{Create the Shrinking Spotlight Model}
 \usage{
 ssp_dm(
+  var_non_dec = TRUE,
+  var_start = FALSE,
   instr = NULL,
   obs_data = NULL,
   sigma = 1,
@@ -15,6 +17,10 @@ ssp_dm(
 )
 }
 \arguments{
+\item{var_non_dec, var_start}{logical, indicating whether the model
+should have a variable non-decision time or starting point
+(see also \code{nt_uniform} and \code{x_uniform} in \link{component_shelf}}
+
 \item{instr}{optional string with additional "instructions", see
 \code{\link[=modify_flex_prms]{modify_flex_prms()}} and the Details below.}
 
@@ -65,6 +71,18 @@ a parameter and should not be estimated!
 Per default, the parameter \code{r} is assumed to be fixed (i.e., is not estimated
 freely). The model also contains the custom parameter \code{interf_t}, quantifying
 the interference time (\code{sd_0 / r}).
+}
+\note{
+The parameters of SSP in \code{dRiftDM} differ in their size from the original
+publication of \insertCite{Whiteetal.2011;textual}{dRiftDM}. \code{dRiftDM}
+uses symmetrical boundaries around zero and a diffusion constant of 1.
+In the original publication, SSP was parameterized with boundaries ranging
+from zero to \code{a} and a diffusion constant of 0.1.
+
+Thus, in \code{dRiftDM}, the boundary \code{b} corresponds to \eqn{b = a/2 \cdot 10}.
+Additionally, \code{p} in \code{dRiftDM} is 10 times larger than \code{p} in the original
+publication. Finally, \code{r} is expressed in seconds, and thus \code{r} is 1000 times
+larger in \code{dRiftDM} than in the original publication.
 }
 \examples{
 # the model with default settings

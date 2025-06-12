@@ -278,6 +278,57 @@ coef.fits_ids_dm <- function(object, ...) {
 
 
 
+
+
+# FOR MCMC_DM OBJECTS -----------------------------------------------------
+
+#' @export
+coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
+
+  # input checks and handling of the ids argument
+  if (!is.function(mean)) {
+    stop(".f argument must be a function")
+  }
+
+  hierarchical = attr(object, "hierarchical")
+  if (!is.null(id) & hierarchical) {
+    if (is.na(id)) {
+      id = dimnames(object[["theta"]])[[3]] # third dimension are the ids
+    }
+  }
+
+  # call coef recursively with multiple ids are requested
+  if (length(id) > 1) {
+    results = lapply(
+      id, \(one_id) coef.mcmc_dm(object, ..., .f = .f, id = one_id)
+    )
+    results <- lapply(seq_along(id), \(id_idx){
+      x = results[[id_idx]]
+      if (is.matrix(x)) x = cbind(fun_out = rownames(x), x)
+      if (is.vector(x)) x = t(as.matrix(x))
+      x = as.data.frame(x)
+      x = cbind(ID = id[id_idx], x)
+      return(x)
+    })
+    results = do.call(rbind, results)
+    results$ID = try_cast_integer(results$ID)
+    results <- results[order(results$ID), ]
+    rownames(results) <- NULL
+    return(results)
+  }
+
+  # get the relevant chains (result is either a vector or )
+  chains = get_subset_chains(chains_obj = object, id = id)
+  result = apply(chains, 1, FUN = .f, simplify = TRUE)
+  if (!(is.vector(result) | is.matrix(result))) {
+    stop("Function supplied as argument .f did not return either a single ",
+         "value or a vector of always the same length")
+  }
+  return(result)
+}
+
+
+
 # HELPER FUNCTION ---------------------------------------------------------
 
 #' Convert Character Digits to Numeric Digits

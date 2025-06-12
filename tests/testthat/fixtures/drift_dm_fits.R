@@ -1,3 +1,5 @@
+# save a couple of fits using estimate_model_ids for faster testing
+
 a_model <- ratcliff_dm(t_max = 1, dt = 0.01, dx = 0.01)
 subject_1 <- simulate_data(a_model, n = 300, seed = 1)
 subject_1$ID <- 1

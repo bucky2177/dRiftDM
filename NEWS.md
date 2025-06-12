@@ -1,6 +1,10 @@
 # dRiftDM (development version)
 
-## New features: 
+## Major and New features: 
+
+- Bayesian parameter estimation is now possible with 
+`estimate_model_bayesian()`! However, this function will be already removed 
+soon for a more general all-purpose estimation function.
 
 - `calc_stats()` gains the option `basic_stats` for the `type` argument. This 
 allows you to request means, standard deviations, and a ratio of response 
@@ -16,6 +20,9 @@ using the argument `round_to`.
 users to toggle on and off variability in the non-decision time and starting
 point.
 
+- `ssp_dm()` uses a uniform variability in the non-decision time, aligning more 
+closely with the original publication.
+
 ## Minor: 
 
 - `nt_constant()` now uses `round()` instead of `as.integer()` to get the 
@@ -23,9 +30,14 @@ index for the dirac delta. This reduces the bias in non-decision time estimates.
 
 - `pdfs()` now also returns a vector of the time domain
 
+- the `coef()` method now supports bayesian returns
+
 ## Bug and Code Fixes
 
 - `calc_stats()` is now more precise due to proper numerical integration
+
+
+
 
 # dRiftDM 0.2.2
 

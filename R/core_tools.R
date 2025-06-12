@@ -106,7 +106,7 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL,
 
 cumtrapz <- function(x, y) {
   dx <- diff(x)
-  mid_heights <- (head(y, -1) + tail(y, -1)) / 2
+  mid_heights <- (utils::head(y, -1) + utils::tail(y, -1)) / 2
   y_int <- c(0, cumsum(dx * mid_heights))
   return(y_int)
 }

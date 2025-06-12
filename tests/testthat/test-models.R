@@ -436,7 +436,7 @@ test_that("SSP model provides reasonable values", {
   a_model <- ssp_dm(dt = .005, dx = .005, instr = "
                    b ~ => 0.6
                    non_dec ~ => 0.3
-                   sd_non_dec ~ => 0.01
+                   range_non_dec ~ => 0.01
                    p ~ => 3.3
                    sd_0 ~ => 1.2
                    r ~ => 10")
@@ -448,6 +448,16 @@ test_that("SSP model provides reasonable values", {
   prms_model <- a_model$flex_prms_obj$prms_matrix[1, ]
   conds <- a_model$conds
   prms_solve <- a_model$prms_solve
+
+  # check coefficients
+  expect_equal(
+    colnames(a_model$flex_prms_obj$prms_matrix),
+    c("b", "non_dec", "range_non_dec", "p", "sd_0","r", "sign")
+  )
+  expect_equal(
+    names(coef(a_model)),
+    c("b", "non_dec", "range_non_dec", "p", "sd_0")
+  )
 
   # b_fun
   expect_equal(
@@ -539,7 +549,8 @@ test_that("SSP model provides reasonable values", {
   )
 
   # nt_fun
-  exp_nt <- truncnorm::dtruncnorm(t_vec, a = 0, mean = 0.3, sd = 0.01)
+  exp_nt <- dunif(t_vec, min = 0.3-0.01/2, max = 0.3+0.01/2)
+  exp_nt <- exp_nt / (sum(exp_nt) * .005)
   expect_equal(
     a_model$comp_funs$nt_fun(
       prms_model = prms_model, prms_solve = prms_solve, t_vec = t_vec,
@@ -548,6 +559,139 @@ test_that("SSP model provides reasonable values", {
     exp_nt
   )
 })
+
+
+test_that("SSP with var. in non-dec or start point works", {
+  a_model <- ssp_dm(
+    dt = .005, dx = .005, var_non_dec = FALSE, var_start = TRUE,
+    instr = "b ~ => 0.6
+             non_dec ~ => 0.3
+             range_start ~ => 0.2
+             p ~ => 3.3
+             sd_0 ~ => 1.2
+             r ~ => 10")
+
+
+  # check coefficients
+  expect_equal(
+    colnames(a_model$flex_prms_obj$prms_matrix),
+    c("b", "non_dec", "p", "sd_0","r", "range_start", "sign")
+  )
+  expect_equal(
+    names(coef(a_model)),
+    c("b", "non_dec", "p", "sd_0", "range_start")
+  )
+
+  # check the component functions
+  x_vec <- seq(-1, 1, .005)
+  t_vec <- seq(0, a_model$prms_solve[["t_max"]], .005)
+
+
+  prms_model <- a_model$flex_prms_obj$prms_matrix[1, ]
+  conds <- a_model$conds
+  prms_solve <- a_model$prms_solve
+
+  # b_fun
+  expect_equal(
+    a_model$comp_funs$b_fun(prms_model, prms_solve, t_vec,
+                            one_cond = NA,
+                            ddm_opts = NULL
+    ),
+    rep(0.6, length(t_vec))
+  )
+
+  expect_equal(
+    a_model$comp_funs$b_fun(prms_model, prms_solve, t_vec,
+                            one_cond = NA,
+                            ddm_opts = NULL
+    ),
+    rep(0.6, length(t_vec))
+  )
+
+  # dt_b_fun
+  expect_equal(
+    a_model$comp_funs$dt_b_fun(prms_model, prms_solve, t_vec,
+                               one_cond = NA,
+                               ddm_opts = NULL
+    ),
+    rep(0, length(t_vec))
+  )
+
+  expect_equal(
+    a_model$comp_funs$dt_b_fun(prms_model, prms_solve, t_vec,
+                               one_cond = NA,
+                               ddm_opts = NULL
+    ),
+    rep(0, length(t_vec))
+  )
+
+  # x_fun
+  exp_x <- dunif(x_vec, min = -0.2/2, max = 0.2/2)
+  exp_x <- exp_x / (sum(exp_x) * .005)
+  expect_equal(
+    a_model$comp_funs$x_fun(prms_model, prms_solve, x_vec,
+                            one_cond = NA,
+                            ddm_opts = NULL
+    ),
+    exp_x
+  )
+
+  expect_equal(
+    a_model$comp_funs$x_fun(prms_model, prms_solve, x_vec,
+                            one_cond = NA,
+                            ddm_opts = NULL
+    ),
+    exp_x
+  )
+
+
+  # mu_fun
+  sd_t <- 1.2 - 10 * t_vec
+  sd_t <- pmax(sd_t, .001)
+  a_tar <- pnorm(q = 0.5, mean = 0, sd = sd_t) - pnorm(q = -0.5, mean = 0, sd = sd_t)
+  a_fl <- 1 - a_tar
+  prms_model <- a_model$flex_prms_obj$prms_matrix[1, ]
+  expect_equal(
+    a_model$comp_funs$mu_fun(prms_model, prms_solve, t_vec,
+                             one_cond = NA, ddm_opts = NULL
+    ),
+    3.3 * a_tar + 3.3 * a_fl
+  )
+  prms_model <- a_model$flex_prms_obj$prms_matrix[2, ]
+  expect_equal(
+    a_model$comp_funs$mu_fun(prms_model, prms_solve, t_vec,
+                             one_cond = NA, ddm_opts = NULL
+    ),
+    3.3 * a_tar - 3.3 * a_fl
+  )
+
+  # mu_int_fun
+  expect_error(
+    a_model$comp_funs$mu_int_fun(prms_model, prms_solve, t_vec,
+                                 one_cond = NA, ddm_opts = NULL
+    ),
+    "this should not be called"
+  )
+
+  expect_error(
+    a_model$comp_funs$mu_int_fun(prms_model, prms_solve, t_vec,
+                                 one_cond = NA, ddm_opts = NULL
+    ),
+    "this should not be called"
+  )
+
+  # nt_fun
+  exp_nt <- rep(0, length(t_vec))
+  exp_nt[ 0.3 / 0.005 + 1] = 1 / .005
+  expect_equal(
+    a_model$comp_funs$nt_fun(
+      prms_model = prms_model, prms_solve = prms_solve, t_vec = t_vec,
+      one_cond = NA, ddm_opts = NULL
+    ),
+    exp_nt
+  )
+})
+
 
 
 

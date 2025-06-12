@@ -1,4 +1,4 @@
-# Create and Save Models to Avoid Createing "a_model" all the TIme --------
+# Create and Save Models to Avoid Creating "a_model" all the Time --------
 
 ssp_dm <- ssp_dm()
 ssp_dm <- re_evaluate_model(ssp_dm)

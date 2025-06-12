@@ -7,6 +7,7 @@
 \method{plot}{quantiles}(
   x,
   ...,
+  id = NULL,
   conds = NULL,
   dv = NULL,
   col = NULL,
@@ -28,6 +29,11 @@ call to \link{calc_stats}.}
 \item{...}{additional arguments passed to the \link{plot}, \link[graphics:points]{graphics::points},
 and \link[graphics:legend]{graphics::legend} functions. Oftentimes, this will (unfortunately) lead
 to an error due to a clash of arguments.}
+
+\item{id}{numeric or character, specifying the id of a single participant to
+plot. If \code{length(id) > 1}, \code{plot.quantiles()} is called recursively,
+iterating over each entry in \code{id}. Each \code{id} must match with an \code{ID} in the
+\code{ID} column of the provided quantiles data set \code{x}.}
 
 \item{conds}{character vector, specifying the conditions to plot. Defaults to
 all unique conditions.}
@@ -67,7 +73,7 @@ If the data contains multiple IDs, quantiles are aggregated across IDs
 before plotting.
 }
 \details{
-The \code{plot.quantiles} function allows for a quick investigation of quantiles,
+The \code{plot.quantiles()} function allows for a quick investigation of quantiles,
 including options for color, symbols, and line types for different data
 sources (observed vs. predicted). When the supplied \link{data.frame} includes
 multiple IDs, quantiles are aggregated across IDs before plotting.

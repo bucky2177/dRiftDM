@@ -7,7 +7,7 @@
 get_default_prior_settings(
   drift_dm_obj,
   level,
-  mean,
+  mean = NULL,
   sd = NULL,
   lower = NULL,
   upper = NULL,
@@ -23,7 +23,8 @@ of: \code{"hyper"} (group-level priors), \code{"lower"} (individual-level priors
 given group-level parameters), or \code{"none"} (non-hierarchical setting).}
 
 \item{mean}{a named numeric vector or list, specifying the prior means for
-each parameter.}
+each parameter. Missing values will be filled up from the first matching
+parameter in \code{drift_dm_obj}}
 
 \item{sd}{a named numeric vector or list of standard deviations. Missing or
 \code{NULL} values will be replaced by corresponding values from \code{mean}.}

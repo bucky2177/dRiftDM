@@ -89,7 +89,7 @@ The scaling of the parameters in \code{dRiftDM} is different to
 \insertCite{Ulrichetal.2015;textual}{dRiftDM}. This is because \code{dRiftDM}
 works in seconds and with a diffusion constant of 1, while the original
 DMC parameterization is in milliseconds and with a diffusion constant of 4.
-We describe how to convert the parameters back in forth on our
+We describe how to convert the parameters on our
 \href{https://bucky2177.github.io/dRiftDM/articles/convert_dmc_parameters.html}{website}.
 }
 \examples{

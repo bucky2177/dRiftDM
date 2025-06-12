@@ -29,13 +29,13 @@ chain.}
 
 \item{level}{a character string specifying the sampling level, either
 \code{"lower"}, \code{"hyper"}, or \code{"none"}. Determines whether to call
-\code{log_posterior_lower()} or \code{log_posterior_hyper()}.}
+\code{\link[=log_posterior_lower]{log_posterior_lower()}} or \code{\link[=log_posterior_hyper]{log_posterior_hyper()}}.}
 
 \item{re_eval}{logical. If \code{TRUE}, the log-posterior and log-likelihood for
 the current parameters are re-evaluated.}
 
-\item{...}{Additional arguments passed to \code{log_posterior_lower()} or
-\code{log_posterior_hyper()}, depending on the \code{level}.}
+\item{...}{Additional arguments passed to \code{\link[=log_posterior_lower]{log_posterior_lower()}} or
+\code{\link[=log_posterior_hyper]{log_posterior_hyper()}}, depending on the \code{level}.}
 }
 \value{
 A list with three elements:
@@ -55,8 +55,8 @@ values, as well as a logical vector indicating accepted proposals.
 \details{
 This function implements a vectorized Metropolis acceptance step for
 multiple MCMC chains simultaneously. The posterior is calculated using
-either \code{log_posterior_lower()} for subject-level parameters or
-\code{log_posterior_hyper()} for group-level parameters.
+either \code{\link[=log_posterior_lower]{log_posterior_lower()}} for subject-level parameters or
+\code{\link[=log_posterior_hyper]{log_posterior_hyper()}} for group-level parameters.
 
 Log-posterior and log-likelihood values are only updated where proposals
 were accepted. In cases where proposals yield invalid posteriors (i.e.,

@@ -7,6 +7,7 @@
 \method{plot}{cafs}(
   x,
   ...,
+  id = NULL,
   conds = NULL,
   col = NULL,
   xlim = NULL,
@@ -27,6 +28,11 @@ to \link{calc_stats}.}
 \item{...}{additional arguments passed to the \link{plot}, \link[graphics:points]{graphics::points},
 and \link[graphics:legend]{graphics::legend} functions. Oftentimes, this will (unfortunately) lead
 to an error due to a clash of arguments.}
+
+\item{id}{numeric or character, specifying the id of a single participant to
+plot. If \code{length(id) > 1}, \code{plot.cafs()} is called recursively,
+iterating over each entry in \code{id}. Each \code{id} must match with an \code{ID} in the
+\code{ID} column of the provided cafs data set \code{x}.}
 
 \item{conds}{character vector, specifying the conditions to plot.
 Defaults to all unique conditions.}
@@ -60,7 +66,7 @@ can display observed and predicted values, making it useful for assessing
 model fit or exploring observed data.
 }
 \details{
-The \code{plot.cafs} function allows for a quick investigation of CAFs, including
+The \code{plot.cafs()} function allows for a quick investigation of CAFs, including
 options for color, symbols, and line types for different data sources
 (observed vs. predicted). When the supplied \link{data.frame} includes multiple
 IDs, CAFs are aggregated across IDs before plotting.
