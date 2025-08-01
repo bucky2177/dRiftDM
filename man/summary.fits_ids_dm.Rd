@@ -5,7 +5,7 @@
 \alias{summary.fits_ids_dm}
 \title{Summary and Printing for fits_ids_dm Objects}
 \usage{
-\method{print}{summary.fits_ids_dm}(x, ..., round_digits = drift_dm_default_rounding())
+\method{print}{summary.fits_ids_dm}(x, ..., just_header = FALSE, round_digits = drift_dm_default_rounding())
 
 \method{summary}{fits_ids_dm}(object, ...)
 }
@@ -32,10 +32,24 @@ Methods for summarizing and printing objects of the class \code{fits_ids_dm},
 which contain multiple fits across individuals.
 }
 \details{
-The \code{summary.fits_ids_dm} function creates a summary object containing:
+The \code{summary.fits_ids_dm} function creates a summary object. The contents of
+this summary object depends on whether the user supplies a \code{fits_ids_dm}
+object that was created with \code{\link[=estimate_dm]{estimate_dm()}} or the deprecated
+function \code{\link[=load_fits_ids]{load_fits_ids()}}.
 \itemize{
-\item \strong{fit_procedure_name}: The name of the fit procedure used.
-\item \strong{time_call}: Timestamp of the last fit procedure call.
+\item In the first case, the object contains:
+\item \strong{summary_drift_dm_obj}: A list with information about the underlying
+drift diffusion model (as returned by \code{\link[=summary.drift_dm]{summary.drift_dm()}}).
+\item \strong{prms}: All parameter values across all conditions (essentially a call
+to coef() with the argument select_unique = FALSE).
+\item \strong{stats}: A named list of matrices for each condition, including mean and
+standard error for each parameter.
+\item \strong{obs_data}: A list providing the number of individual participants and
+the average number of trials per condition across participants.
+\item \strong{optimizer}: A string of the optimizer that was used
+\item \strong{conv_info}: A list providing a summary of the messages and the IDs for
+which convergence was not (!) achieved.
+\item In the second case, the object contains:
 \item \strong{lower} and \strong{upper}: Lower and upper bounds of the search space.
 \item \strong{model_type}: Description of the model type, based on class information.
 \item \strong{prms}: All parameter values across all conditions (essentially a call

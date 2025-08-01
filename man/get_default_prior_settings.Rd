@@ -7,12 +7,12 @@
 get_default_prior_settings(
   drift_dm_obj,
   level,
-  mean = NULL,
-  sd = NULL,
+  means = NULL,
+  sds = NULL,
   lower = NULL,
   upper = NULL,
-  shape = NULL,
-  rate = NULL
+  shapes = NULL,
+  rates = NULL
 )
 }
 \arguments{
@@ -22,18 +22,18 @@ get_default_prior_settings(
 of: \code{"hyper"} (group-level priors), \code{"lower"} (individual-level priors
 given group-level parameters), or \code{"none"} (non-hierarchical setting).}
 
-\item{mean}{a named numeric vector or list, specifying the prior means for
+\item{means}{a named numeric vector or list, specifying the prior means for
 each parameter. Missing values will be filled up from the first matching
 parameter in \code{drift_dm_obj}}
 
-\item{sd}{a named numeric vector or list of standard deviations. Missing or
+\item{sds}{a named numeric vector or list of standard deviations. Missing or
 \code{NULL} values will be replaced by corresponding values from \code{mean}.}
 
 \item{lower, upper}{optional numeric vectors or lists specifying the lower
 and upper truncation bounds for each prior distribution. Defaults to \code{-Inf}
 and \code{Inf}, respectively.}
 
-\item{shape, rate}{optional numeric vectors or lists specifying the shape and
+\item{shapes, rates}{optional numeric vectors or lists specifying the shape and
 rate parameter for group-level standard deviations (used at the hyper-level).
 Defaults to \code{1}.}
 }
@@ -59,8 +59,8 @@ At the hyper-level, the functions \code{\link[=d_default_prior_hyper]{d_default_
 \code{\link[=r_default_prior_hyper]{r_default_prior_hyper()}} are used. At the lower-level, the
 functions \code{\link[=dtnorm]{dtnorm()}} and \code{\link[=rtnorm]{rtnorm()}} are used.
 
-The input arguments \code{mean}, \code{sd}, \code{lower}, \code{upper}, \code{shape}, and \code{rate} are
-handled by the function \code{\link[=get_parameters_smart]{get_parameters_smart()}}.
+The input arguments \code{means}, \code{sds}, \code{lowers}, \code{uppers}, \code{shapes}, and \code{rates}
+are handled by the function \code{\link[=get_parameters_smart]{get_parameters_smart()}}.
 }
 \seealso{
 \code{\link[=get_parameters_smart]{get_parameters_smart()}}, \code{\link[=dtnorm]{dtnorm()}},

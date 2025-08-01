@@ -48,7 +48,7 @@ chain, used when applying tempered inference (e.g., in TIDE).}
 
 \item{suppress_warnings}{logical, if TRUE, warnings created from
 \code{log_prior_hyper_fun} and \code{log_prior_lower_fun(s)} are suppressed. The
-default is true, because in the beginning of an MCMC algorithm implausible
+default is true, because in the beginning of an MCMC sampler implausible
 proposals are provided which can yield missing values and warnings.}
 
 \item{thetas_one_subj_mat}{a named matrix of lower-level parameters for a

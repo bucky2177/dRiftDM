@@ -25,7 +25,8 @@ attriubtes of the input data.
 \details{
 \code{internal_aggregate} identifies DV columns as those not in \code{group_cols} or
 \code{"ID"}. It then calculates the mean of these DV columns, grouped by the
-specified columns.
+specified columns. Columns specified in \code{group_cols} that are not part of
+\code{data} are ignored silently.
 }
 \seealso{
 \code{\link[=aggregate_stats]{aggregate_stats()}}, \code{\link[=calc_stats]{calc_stats()}},

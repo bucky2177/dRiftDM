@@ -4,17 +4,17 @@
 \alias{create_temperatures}
 \title{Create "Temperatures" for TIDE}
 \usage{
-create_temperatures(n_chains, algorithm)
+create_temperatures(n_chains, sampler)
 }
 \arguments{
 \item{n_chains}{numeric}
 
-\item{algorithm}{"tide" or anything else}
+\item{sampler}{"TIDE" or anything else}
 }
 \value{
 a numeric vector of length equal to \code{n_chains}. The returned values
 correspond to quantiles of a Beta(0.3, 1) distribution for
-\code{algorithm == "tide"}. Otherwise a numeric vector of \code{1}s is returned.
+\code{sampler == "TIDE"}. Otherwise a numeric vector of \code{1}s is returned.
 }
 \description{
 Create "Temperatures" for TIDE

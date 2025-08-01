@@ -9,6 +9,7 @@ new_drift_dm(
   prms_solve,
   solver,
   comp_funs,
+  cost_function,
   subclass,
   b_coding = NULL,
   obs_data = NULL

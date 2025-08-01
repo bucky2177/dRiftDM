@@ -1,3 +1,155 @@
+
+# DEPRECATED ESTMATION FUNCTIONS ... WILL BE REMOVED ----------------------
+
+
+
+# FUNCTIONS FOR ESTIMATING THE PARAMETERS OF A MODEL -----------------------
+
+#' Estimate the Parameters of a drift_dm Model
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")` This function was deprecated in
+#' dRiftDM version v.0.3.0, please use the more general [dRiftDM::estimate_dm()]
+#' function.
+#'
+#' Old documentation:
+#' Find the 'best' parameter settings by fitting a [dRiftDM::drift_dm] models'
+#' predicted probability density functions (PDFs) to the observed data
+#' stored within the respective object. The fitting procedure is done by
+#' minimizing the negative log-likelihood of the model.
+#'
+#' Users have three options:
+#' * Estimate the parameters via Differential Evolution (Default)
+#' * Estimate the parameters via (bounded) Nelder-Mead
+#' * Use Differential Evolution followed by Nelder-Mead.
+#'
+#' See also \code{vignette("dRiftDM", "dRiftDM")}
+#'
+#'
+#' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm]
+#'
+#' @param lower,upper numeric vectors or lists, specifying the lower and upper
+#'  bounds on each parameter to be optimized (see Details).
+#' @param verbose numeric, indicating the amount of information displayed.
+#'  If 0, no information is displayed (default). If 1, basic information about
+#'  the start of Differential Evolution or Nelder-Mead and the final
+#'  estimation result is given. If 2, each evaluation of the log-likelihood
+#'  function is shown. Note that `verbose` is independent of the information
+#'  displayed by [DEoptim::DEoptim].
+#' @param use_de_optim logical, indicating whether Differential Evolution via
+#'  [DEoptim::DEoptim] should be used. Default is `TRUE`
+#' @param use_nmkb logical, indicating whether Nelder-Mead via
+#'  [dfoptim::nmkb] should be used. Default is `FALSE`.
+#' @param seed a single numeric, providing a seed for the Differential Evolution
+#'  algorithm
+#' @param de_n_cores a single numeric, indicating the number of cores to use.
+#'  Run [parallel::detectCores()] to see how many cores are available on your
+#'  machine. Note that it is generally not recommended to use all of your cores
+#'  as this will drastically slow down your machine for any additional task.
+#' @param de_control,nmkb_control lists of additional control parameters passed
+#'  to [DEoptim::DEoptim] and [dfoptim::nmkb].
+#'
+#' @returns the updated `drift_dm_obj` (with the estimated parameter values,
+#'  log-likelihood, and probability density functions of the first passage time)
+#'
+#' @details
+#'
+#' ## Specifying lower/upper
+#'
+#' the function `estimate_model` provides a flexible way of specifying the
+#' search space; identical to specifying the parameter simulation space in
+#' [dRiftDM::simulate_data.drift_dm].
+#'
+#' Users have three options to specify the simulation space:
+#'
+#' * Plain numeric vectors (not very much recommended). In this case,
+#' `lower/upper` must be sorted in accordance with the parameters in the
+#' `flex_prms_obj` object that vary for at least one condition
+#' (call `print(drift_dm_obj)` and have a look at the `Unique Parameters`
+#' output)
+#'
+#' * Named numeric vectors. In this case `lower/upper` have to provide labels
+#' in accordance with the parameters that are considered "free" at least once
+#' across conditions.
+#'
+#' * The most flexible way is when `lower/upper` are lists. In this case, the
+#' list requires an entry called "default_values" which specifies the named or
+#' plain numeric vectors as above. If the list only contains this entry, then
+#' the behavior is as if `lower/upper` were already numeric vectors. However,
+#' the `lower/upper` lists can also provide entries labeled as specific
+#' conditions, which contain named (!) numeric vectors with parameter labels.
+#' This will modify the value for the upper/lower parameter space with respect
+#' to the specified parameters in the respective condition.
+#'
+#' ## Details on Nelder-Mead and Differential Evolution
+#'
+#' If both `use_de_optim` and `use_nmkb` are `TRUE`, then Nelder-Mead follows
+#' Differential Evolution. Note that Nelder-Mead requires a set of starting
+#' parameters for which either the parameter values of `drift_dm_obj` or the
+#' estimated parameter values by Differential Evolution are used.
+#'
+#' Default settings will lead [DEoptim::DEoptim] to stop if the algorithm is
+#' unable to reduce the negative log-likelihood by a factor of
+#' `reltol * (abs(val) + reltol)`after `steptol = 50` steps, with
+#' `reltol = 1e-8` (or if the default itermax of 200 steps is reached).
+#' Similarly, [dfoptim::nmkb] will stop if the absolute difference of the
+#' log-likelihood between successive iterations is below `tol = 1e-6`.See
+#' [DEoptim::DEoptim.control] and the details of [dfoptim::nmkb] for
+#' further information.
+#'
+#'
+#' @seealso [dRiftDM::estimate_model_ids]
+#'
+#' @export
+estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
+                           use_de_optim = TRUE, use_nmkb = FALSE, seed = NULL,
+                           de_n_cores = 1,
+                           de_control = list(
+                             reltol = 1e-8, steptol = 50,
+                             itermax = 200, trace = FALSE
+                           ),
+                           nmkb_control = list(tol = 1e-6)) {
+
+  lifecycle::deprecate_warn("0.3.0", "estimate_model()", "estimate_dm()")
+
+  if (!is.null(seed)) {
+    if (!is.numeric(seed) | length(seed) != 1)
+      stop ("seed must be a single numeric")
+    withr::local_preserve_seed()
+    set.seed(seed)
+  }
+
+
+  if (use_de_optim) {
+    drift_dm_obj <- estimate_classical(
+      drift_dm_obj = drift_dm_obj, optimizer = "DEoptim", lower = lower,
+      upper = upper, verbose = verbose, de_n_cores = de_n_cores,
+      control = de_control
+    )
+  }
+
+
+  # check if nmkb is requested, but the parameter space is univariate
+  if (use_nmkb & length(coef(drift_dm_obj)) == 1) {
+    warning(
+      "Nelder-Mead is not applicable for univariate optimization.",
+      " Skipping Nelder-Mead."
+    )
+    use_nmkb <- FALSE
+  }
+
+  # run nmkb
+  if (use_nmkb) {
+    drift_dm_obj <- estimate_classical(
+      drift_dm_obj = drift_dm_obj, optimizer = "nmkb", lower = lower,
+      upper = upper, verbose = verbose, control = nmkb_control
+    )
+  }
+
+  return(drift_dm_obj)
+}
+
+
 # FUNCTION FOR FITTING MULTIPLE SUBJECTS ----------------------------------
 
 
@@ -5,6 +157,16 @@
 #' Fit Multiple Individuals and Save Results
 #'
 #' @description
+#'
+#' `r lifecycle::badge("deprecated")` This function was deprecated in
+#' dRiftDM version 0.3.0. Please use the more general [dRiftDM::estimate_dm()]
+#' instead. NOTE: dRiftDM now supports multiple ways of estimating a model.
+#' To ensure a more consistent function interface, individual fits are no longer
+#' saved to disk when fitting multiple participants. Instead,
+#' [dRiftDM::estimate_dm()] directly returns an object of type `fits_ids_dm`,
+#' which users can save manually if desired.
+#'
+#' Old documentation:
 #' Provides a wrapper around [dRiftDM::estimate_model] to fit multiple
 #' individuals. Each individual will be stored in a folder. This folder will
 #' also contain a file `drift_dm_fit_info.rds`, containing the main arguments
@@ -73,45 +235,6 @@
 #'  `drift_dm_object`.
 #'
 #'
-#' @examples
-#' # We'll provide a somewhat unrealistic example, trimmed for speed.
-#' # In practice, users likely employ more complex models and more individuals.
-#' # However, a more realistic example would take minutes (and maybe even hours)
-#' # and is therefore not suitable for an example.
-#'
-#' # Fit the Ratcliff model to synthetic data --------------------------------
-#' # get the model (pre-built by dRiftDM)
-#' model <- ratcliff_dm(t_max = 2.0, dx = .005, dt = .005)
-#'
-#' # define an upper and lower boundary for the parameter space
-#' lower <- c(muc = 1, b = 0.2, non_dec = 0.1)
-#' upper <- c(muc = 7, b = 1.0, non_dec = 0.6)
-#'
-#' # simulate synthetic data for demonstration purpose
-#' synth_data_prms <- simulate_data(
-#'   model,
-#'   n = 100, k = 2, lower = lower, upper = upper, seed = 1
-#' )
-#' synth_data <- synth_data_prms$synth_data
-#'
-#' # finally, call the fit procedure. To increase speed, we'll use the
-#' # Nelder-Mead minimization routine. Note: We'll save the fits in tempdir()
-#' # to avoid writing to a user's file directory without explicit permission.
-#' estimate_model_ids(
-#'   drift_dm_obj = model, # which model (the Ratcliff model)
-#'   obs_data_ids = synth_data, # which data (the synthetic data set)
-#'   lower = lower, # the lower and upper parameter/search space
-#'   upper = upper,
-#'   fit_procedure_name = "example", # a label for the fit procedure
-#'   fit_path = tempdir(), # temporary directory (replace, e.g., with getwd())
-#'   use_nmkb = TRUE, # use Nelder-Mead (fast, but less robust)
-#'   use_de_optim = FALSE # and not differential evolution
-#' )
-#'
-#' \dontshow{
-#' unlink(file.path(tempdir(), "drift_dm_fits"), recursive = TRUE)
-#' }
-#'
 #' @seealso [dRiftDM::load_fits_ids]
 #'
 #' @export
@@ -123,6 +246,10 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
                                force_refit = FALSE,
                                progress = 2,
                                start_vals = NULL, ...) {
+
+  lifecycle::deprecate_warn("0.3.0", "estimate_model()", "estimate_dm()")
+
+
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
@@ -135,10 +262,10 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 
   # check if data makes sense
   b_coding <- attr(drift_dm_obj, "b_coding")
-  obs_data_ids <- check_raw_data(obs_data_ids,
-    b_coding_column = b_coding$column,
-    u_value = b_coding$u_name_value,
-    l_value = b_coding$l_name_value
+  obs_data_ids <- check_reduce_raw_data(obs_data_ids,
+                                        b_coding_column = b_coding$column,
+                                        u_value = b_coding$u_name_value,
+                                        l_value = b_coding$l_name_value
   )
 
   if (!("ID" %in% colnames(obs_data_ids))) {
@@ -371,6 +498,13 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 
 #' Load Estimates of a Fit Procedure
 #'
+#' `r lifecycle::badge("deprecated")` This function was deprecated in
+#' dRiftDM version 0.3.0, because dRiftDM no longer saves model fits to disk
+#' when fitting multiple participants. When estimating multiple individuals
+#' with the new function [dRiftDM::estimate_dm()], an object of type
+#' `fits_ids_dm` is returned directly.
+#'
+#' Old documentation:
 #' This function loads the results of a fit procedure where a model was fitted
 #' to multiple individuals (see [dRiftDM::estimate_model_ids]). It is also the
 #' function that creates an object of type `fits_ids_dm`.
@@ -432,24 +566,6 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 #' For `print.fits_ids_dm()`, the supplied `fit_ids_dm` object `x` (invisible
 #' return).
 #'
-#' @examples
-#' # -------------------------------------------------------------------------
-#' # We stored a fit procedure (matching with the example for
-#' # estimate_model_ids()) within the package to easily access it here.
-#' # -------------------------------------------------------------------------
-#'
-#' # get the path to the fit procedures' location
-#' # -> if a user saved fit procedures in their working directory,
-#' #    path_to would just be "drift_dm_fits" (see the default value of path)
-#' path_to <- file.path(
-#'   system.file(package = "dRiftDM"), "drift_dm_fits"
-#' )
-#'
-#' # then load all the fits of a fit procedure
-#' all_fits <- load_fits_ids(path = path_to, fit_procedure_name = "example")
-#' print(all_fits)
-#' summary(all_fits)
-#'
 #' @seealso [dRiftDM::estimate_model_ids()]
 #'
 #' @export
@@ -458,6 +574,11 @@ load_fits_ids <- function(path = "drift_dm_fits",
                           detailed_info = FALSE,
                           check_data = TRUE,
                           progress = 2) {
+
+
+  lifecycle::deprecate_warn("0.3.0", "load_fits_ids()")
+
+
   if (!is.character(path) | length(path) != 1) {
     stop("path is not a character vector of length 1")
   }
@@ -609,7 +730,7 @@ validate_fits_ids <- function(fits_ids, progress) {
   )
 
   if (!all(names(fit_info)[!(names(fit_info) %in%
-    c("seed", "start_vals"))] %in% names_to_check)) {
+                             c("seed", "start_vals"))] %in% names_to_check)) {
     stop("fit_info contains unexpected info entries")
   }
   if (!all(names_to_check %in% names(fit_info))) {
@@ -643,7 +764,7 @@ validate_fits_ids <- function(fits_ids, progress) {
     stop("obs_data_ids has no column ID")
   }
   if (!is.character(fit_info$fit_procedure_name) |
-    length(fit_info$fit_procedure_name) != 1) {
+      length(fit_info$fit_procedure_name) != 1) {
     stop("fit_procedure_name is not of type character with length 1")
   }
 
@@ -883,3 +1004,6 @@ summarize_drift_dm_info <- function(full_name_to_file, detailed_info) {
   }
   return(string)
 }
+
+
+

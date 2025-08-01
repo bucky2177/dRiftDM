@@ -2,41 +2,26 @@
 % Please edit documentation in R/core_stats.R
 \name{aggregate_stats}
 \alias{aggregate_stats}
-\alias{aggregate_stats.basic_stats}
-\alias{aggregate_stats.cafs}
-\alias{aggregate_stats.quantiles}
-\alias{aggregate_stats.delta_funs}
-\alias{aggregate_stats.fit_stats}
 \title{Aggregate Statistics Across ID}
 \usage{
 aggregate_stats(stat_df)
-
-\method{aggregate_stats}{basic_stats}(stat_df)
-
-\method{aggregate_stats}{cafs}(stat_df)
-
-\method{aggregate_stats}{quantiles}(stat_df)
-
-\method{aggregate_stats}{delta_funs}(stat_df)
-
-\method{aggregate_stats}{fit_stats}(stat_df)
 }
 \arguments{
-\item{stat_df}{A \code{data.frame} of class \code{stats_dm}}
+\item{stat_df}{A \code{data.frame} of class \code{stats_dm} (see
+\code{\link[=new_stats_dm]{new_stats_dm()}})}
 }
 \value{
-If no \code{"ID"} column exists in \code{stat_df} returns \code{stat_df} as-is.
-If an \code{"ID"} column exists, then statistics are aggregated across it.
+Returns the statistics aggregated across the relevant cols.
 }
 \description{
-\code{aggregate_stats} is a (not exported) generic function to aggregate
+\code{aggregate_stats} is a (not exported) function to aggregate
 \code{stats_dm} objects across \code{ID}s. Since the column names may vary by the
 statistic type, the behavior of aggregate depends on the subclass of
-\code{stats_dm} (\code{cafs}, \code{quantiles}, \code{delta_funs}, or \code{fit_stats}).
+\code{stats_dm}.
 }
 \details{
-For each supported subclass, \code{aggregate_stats} calls
-\code{\link[=internal_aggregate]{internal_aggregate()}} with the relevant arguments
+\code{aggregate_stats} calls the \code{\link[=internal_aggregate]{internal_aggregate()}} with the
+relevant arguments
 }
 \seealso{
 \link{new_stats_dm}, \link{calc_stats},

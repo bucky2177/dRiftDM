@@ -5,7 +5,9 @@
 \alias{coef<-}
 \alias{coef<-.drift_dm}
 \alias{coef.drift_dm}
+\alias{coef.fits_agg_dm}
 \alias{coef.fits_ids_dm}
+\alias{coef.mcmc_dm}
 \alias{print.coefs_dm}
 \title{Access Coefficients of a Model}
 \usage{
@@ -15,7 +17,11 @@ coef(object, ...) <- value
 
 \method{coef}{drift_dm}(object, ..., select_unique = TRUE, select_custom_prms = TRUE)
 
+\method{coef}{fits_agg_dm}(object, ...)
+
 \method{coef}{fits_ids_dm}(object, ...)
+
+\method{coef}{mcmc_dm}(object, ..., .f = mean, id = NULL)
 
 \method{print}{coefs_dm}(
   x,
@@ -28,10 +34,11 @@ coef(object, ...) <- value
 )
 }
 \arguments{
-\item{object}{an object of type \link{drift_dm} or \code{fits_ids_dm}
-(see \link{load_fits_ids}).}
+\item{object}{an object of type \link{drift_dm}, \code{fits_agg_dm},
+\code{fits_ids_dm} (see also \code{\link[=estimate_dm]{estimate_dm()}}), or \code{mcmc_dm}.}
 
-\item{...}{additional arguments passed to the respective method.}
+\item{...}{additional arguments passed forward (to \code{coef.drift_dm()} for
+objects of type \code{fits_agg_dm}; to \code{.f} for objects of type \code{mcmc_dm}.}
 
 \item{value}{numerical, a vector with valid values to update the model's
 parameters. Must match with the number of (unique and free) parameters.}
@@ -44,10 +51,22 @@ Default is \code{FALSE}.}
 returned that are considered unique (e.g., when a parameter is set to be
 identical across three conditions, then the parameter is only returned once).
 Default is \code{TRUE}. This will also return only those parameters that are
-estimated.}
+estimated. The argument is currently not supported for objects of type
+\code{mcmc_dm}.}
 
 \item{select_custom_prms}{logical, indicating if custom parameters shall be
-returned as well. Only has an effect if \code{select_unique = FALSE}.}
+returned as well. Only has an effect if \code{select_unique = FALSE}.
+The argument is currently not supported for objects of type
+\code{mcmc_dm}.}
+
+\item{.f}{the function to be applied to each parameter of a chain. Must
+either return a single value or a vector (with always the same length).
+Default is \code{mean} (i.e., the mean function).}
+
+\item{id}{an optional numeric or character vector specifying the IDs of
+participants from whom to summarize samples. Only applicable when the model was
+estimated hierarchically. Use \code{id = NA} as a shorthand to summarize samples
+for all individuals in the chain object.}
 
 \item{x}{an object of type \code{coefs_dm}, as returned by the function
 \code{coef()} when supplied with a \code{fits_ids_dm} object.}
@@ -80,21 +99,37 @@ will be the parameters as listed in the columns of \code{prms_matrix} (see
 columns for the custom parameters. The returned \link{data.frame} has the class
 label \code{coefs_dm} to easily plot histograms for each parameter
 (see \link{hist.coefs_dm}).
+
+For objects of type \code{fits_agg_dm}, returns the same as \code{coef.drift_dm()}
+(i.e., as if calling \code{coef()} with an object of type \code{drift_dm})
+
+For objects of type \code{mcmc_dm}, the return type depends on the model structure
+and the \code{.f} output:
+\itemize{
+\item If the model is non-hierarchical or \code{id} is a single value (not \code{NA}),
+the function returns either a \code{vector} or a \code{matrix}, depending on whether
+\code{.f} returns a single value or a vector.
+\item In the hierarchical case, when \code{id} is a vector or \code{NA}, the function
+returns a \code{data.frame}. If \code{.f} returns a single value, the \code{data.frame}
+will contain one row per participant (with an \code{ID} column and one column
+per parameter). If \code{.f} returns a vector, the \code{data.frame} will include
+an additional column \code{.f_out}, coding the output of \code{.f} in long
+format.
+}
 }
 \description{
-Extract or set the coefficients/parameters of \link{drift_dm} or
-\code{fits_ids_dm} objects
+Extract or set the coefficients/parameters objects supported by \link{dRiftDM}.
 }
 \details{
-\code{coef()} are methods for the generic \code{coef} function; \verb{coefs<-()} is a
-generic replacement function, currently supporting objects of type
+\verb{coef.*()} are methods for the generic \code{\link[stats:coef]{stats::coef()}} function; \verb{coefs<-()}
+is a generic replacement function, currently supporting objects of type
 \link{drift_dm}.
 
 The argument \code{value} supplied to the \verb{coefs<-()} function must match with
 the vector returned from \verb{coef(<object>)}. It is possible to
 update just part of the (unique) parameters.
 
-Whenever the argument \code{select_unique = TRUE}, dRiftDM tries to provide
+Whenever the argument \code{select_unique} is \code{TRUE}, \code{dRiftDM} tries to provide
 unique parameter labels.
 }
 \examples{

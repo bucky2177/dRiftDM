@@ -7,47 +7,40 @@
 \usage{
 estimate_bayes_h(
   drift_dm_obj,
-  mean = NULL,
   obs_data_ids,
-  algorithm = "de_mcmc",
-  n_chains = 40,
-  burn_in = 500,
-  samples = 2000,
-  n_cores = 1,
-  prob_migration = 0.1,
-  prob_re_eval = 0.1,
-  progress = 2,
+  sampler,
+  n_chains,
+  burn_in,
+  samples,
+  n_cores,
+  prob_migration,
+  prob_re_eval,
+  progress,
   seed = NULL,
   ...
 )
 
 estimate_bayes_one_subj(
   drift_dm_obj,
-  mean = NULL,
-  algorithm = "de_mcmc",
-  n_chains = 40,
-  burn_in = 500,
-  samples = 2000,
-  prob_migration = 0.1,
-  prob_re_eval = 0.1,
-  progress = 2,
-  seed = NULL,
+  sampler,
+  n_chains,
+  burn_in,
+  samples,
+  prob_migration,
+  prob_re_eval,
+  progress,
   ...
 )
 }
 \arguments{
 \item{drift_dm_obj}{an object of type \link{drift_dm}.}
 
-\item{mean}{numeric vector or a list, specifying the expected mean of each
-parameter to be optimized (see the Details below). If \code{NULL}, then the
-currently set model parameters are used for \code{mean}.}
-
 \item{obs_data_ids}{data.frame for the hierarchical case. An additional
 column ID is necessary that codes the individuals (see also
 \link{obs_data}).}
 
-\item{algorithm}{character string, indicating the sampling algorithm to use.
-Must be either \code{"de_mcmc"} (default) or \code{"tide"}.}
+\item{sampler}{character string, indicating the sampler to use.
+Must be either \code{"DE-MCMC"} (default) or \code{"TIDE"}.}
 
 \item{n_chains}{numeric, number of chains for the MCMC-sampler.
 Default is \code{40}.}
@@ -75,6 +68,10 @@ burn-in. Default is \code{0.1} (i.e., 10\%).}
 
 \item{...}{additional arguments passed to
 \link{get_default_prior_settings} to customize prior settings.}
+
+\item{mean}{numeric vector or a list, specifying the expected mean of each
+parameter to be optimized (see the Details below). If \code{NULL}, then the
+currently set model parameters are used for \code{mean}.}
 }
 \value{
 A named ist containing posterior samples for
@@ -96,7 +93,7 @@ hierarchical Bayesian approach using Differential Evolution MCMC (DE-MCMC)
 \insertCite{Turneretal.2013;textual}{dRiftDM}.
 An approximation of the marginal likelihood to calculate Bayes Factors can
 be obtained with the Thermodynamic Integration via Differential Evolution
-(TIDE) algorithm \insertCite{EvansAnnis2019;textual}{dRiftDM}.
+(TIDE) sampler \insertCite{EvansAnnis2019;textual}{dRiftDM}.
 }
 \details{
 The function \code{estimate_bayes_h()} handles the hierarchical case. The function
@@ -105,7 +102,7 @@ individual. The reason for writing two functions is that the hierarchical
 case has some unique tweaks to it that need to be considered ... and writing
 one function would be quite the mess.
 
-Prior Settings: See the wrapper \code{\link[=estimate_model_bayesian]{estimate_model_bayesian()}} and
+Prior Settings: See the wrapper \code{\link[=estimate_bayesian]{estimate_bayesian()}} and
 also \code{\link[=get_default_prior_settings]{get_default_prior_settings()}}
 }
 \references{

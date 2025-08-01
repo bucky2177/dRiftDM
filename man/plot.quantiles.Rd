@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotting.R
 \name{plot.quantiles}
 \alias{plot.quantiles}
-\title{Plot Quantiles}
+\title{Plot Response Time Quantiles}
 \usage{
 \method{plot}{quantiles}(
   x,
@@ -15,96 +15,78 @@
   ylim = c(0, 1),
   xlab = "RT [s]",
   ylab = "F(RT)",
-  pch = 21,
-  lty = 1,
-  type = "l",
-  legend = NULL,
-  legend_pos = "bottomright"
+  interval_obs = TRUE,
+  interval_pred = TRUE
 )
 }
 \arguments{
-\item{x}{a \link{data.frame}, containing quantiles, typically resulting from a
-call to \link{calc_stats}.}
+\item{x}{an object of \code{type = "quantiles"}, typically returned by
+\link{calc_stats(..., type = "quantiles")}.}
 
-\item{...}{additional arguments passed to the \link{plot}, \link[graphics:points]{graphics::points},
-and \link[graphics:legend]{graphics::legend} functions. Oftentimes, this will (unfortunately) lead
-to an error due to a clash of arguments.}
+\item{...}{additional graphical arguments passed to plotting functions.
+Typical examples include \code{pch}, \code{lty}, \code{lwd}, or \code{legend.pos}. See
+\code{\link[=set_default_arguments]{set_default_arguments()}} for the full list of supported options.}
 
-\item{id}{numeric or character, specifying the id of a single participant to
-plot. If \code{length(id) > 1}, \code{plot.quantiles()} is called recursively,
-iterating over each entry in \code{id}. Each \code{id} must match with an \code{ID} in the
-\code{ID} column of the provided quantiles data set \code{x}.}
+\item{id}{a numeric or character, specifying the ID of a single participant
+to plot. If \code{length(id) > 1}, \code{plot.cafs()} is called recursively for
+each entry. Each \code{id} must match an entry in the \code{ID} column of \code{x}.}
 
-\item{conds}{character vector, specifying the conditions to plot. Defaults to
-all unique conditions.}
+\item{conds}{a character vector specifying the conditions to plot.
+Defaults to all available conditions.}
 
-\item{dv}{character, specifying the quantiles to plot. Defaults to
-quantiles derived from the upper boundary.}
+\item{dv}{a character string indicating the dependent variable to plot.
+Defaults to the quantiles for the upper boundary.}
 
-\item{col}{character vector, specifying colors for each condition. If a
-single color is provided, it will be repeated for each condition.}
+\item{col}{a character vector specifying colors for each condition. If a
+single color is provided, it is repeated for all conditions.}
 
-\item{xlim, ylim}{numeric vectors of length 2, specifying the x and y axis
+\item{xlim, ylim}{a numeric vectors of length 2, specifying the x- and y-axis
 limits.}
 
-\item{xlab, ylab}{character, labels for the x and y axes.}
+\item{xlab, ylab}{a character strings for the x- and y-axis labels.}
 
-\item{pch}{integer, specifying the plotting symbol for observed data points.}
-
-\item{lty}{integer, line type for the predicted quantiles.}
-
-\item{type}{character, type of plot for the predicted quantiles.}
-
-\item{legend}{character vector, specifying legend labels corresponding to
-the conditions in the quantiles. Defaults to the condition names.}
-
-\item{legend_pos}{character, specifying the position of the legend on the
-plot.}
+\item{interval_obs, interval_pred}{logicals; if \code{TRUE} and \code{x} contains a
+column named \code{Estimate}, error bars for observed data and shaded contours
+for predicted data are drawn, respectively.}
 }
 \value{
-Nothing (\code{NULL}; invisibly)
+Returns \code{NULL} invisibly. The function is called for its side effect of
+generating a plot.
 }
 \description{
-This function generates a plot of quantiles. It can display observed and
-predicted values, making it useful for assessing model fit or exploring
-observed data distributions.
-
-If the data contains multiple IDs, quantiles are aggregated across IDs
-before plotting.
+Visualizes response time quantiles for observed and/or predicted data across
+experimental conditions. This is useful for assessing model fit or exploring
+response patterns across conditions or participants.
 }
 \details{
-The \code{plot.quantiles()} function allows for a quick investigation of quantiles,
-including options for color, symbols, and line types for different data
-sources (observed vs. predicted). When the supplied \link{data.frame} includes
-multiple IDs, quantiles are aggregated across IDs before plotting.
+If \code{x} contains multiple \code{ID}s and no specific \code{id} is provided, the
+function aggregates across participants before plotting.
+
+Observed quantiles are shown as points, and predicted quantiles as lines.
+When \code{interval = TRUE} and the input includes interval estimates (i.e., the
+column \code{Estimate} exists), the plot includes error bars for observed data
+and shaded contours for model predictions.
+
+Colors, symbols, and line styles can be customized via \code{...}.
 }
 \examples{
-# Example 1: Only model predictions ---------------------------------------
-# get a quantiles data.frame for demonstration purpose
+# Example 1: Model predictions only ---------------------------------------
 a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 quantiles <- calc_stats(a_model, type = "quantiles")
-
-# call the plot function with default values
 plot(quantiles)
+plot(quantiles, col = c("green", "red"), xlim = c(0.2, 0.6))
 
-# make the plot a little bit more pretty
-plot(quantiles,
-  col = c("green", "red"),
-  xlim = c(0.2, 0.6),
-  ylab = "Quantile Level",
-  xlab = "Response Times [s]"
-)
-
-# Example 2: Model predictions and observed data --------------------------
+# Example 2: Observed and predicted data ----------------------------------
 obs_data(a_model) <- dmc_synth_data
 quantiles <- calc_stats(a_model, type = "quantiles")
 plot(quantiles)
-# Note: The model was not fitted to the data set, thus observed data and
-# model predictions don't match
 
-
-# Example 3: Only observed data -------------------------------------------
+# Example 3: Observed data only -------------------------------------------
 quantiles <- calc_stats(dmc_synth_data, type = "quantiles")
 plot(quantiles)
+
+# Example 4: Observed data with interval ----------------------------------
+cafs <- calc_stats(dmc_synth_data, type = "quantiles", resample = TRUE)
+plot(cafs)
 
 }

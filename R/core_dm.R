@@ -18,7 +18,7 @@
 #'  values within `conds` will be used when addressing the data and when
 #'  deriving the model's predictions.
 #' @param subclass a character string, with a name for the newly created
-#'  diffusion model (e.g., `dmc_dm`). This will be the child class.
+#'  diffusion model (e.g., `my_dmc_dm`). This will be the child class.
 #' @param instr an optional character string, providing "instructions" for the
 #'  underlying [dRiftDM::flex_prms] object.
 #' @param obs_data an optional data.frame, providing a data set (see
@@ -30,8 +30,13 @@
 #'  Note that these values are set conservatively per default. In many cases,
 #'  users can increase the discretization.
 #' @param solver a character string, specifying which approach to use for
-#'  deriving the first passage time. Default is `kfe`, which provides access to
-#'  the numerical discretization of the Kolmogorov Forward Equation.
+#'  deriving the first passage time. Options are `kfe` or `im_zero`. Default is
+#'  `kfe`, which provides access to the numerical discretization of the
+#'  Kolmogorov Forward Equation.
+#' @param cost_function a character string, specifying the cost function used
+#'  during estimation. Options are `neg_log_like` (negative log-likelihood),
+#'  `rmse` (root-mean-squared error). Default is
+#'  `neg_log_like`.
 #' @param mu_fun,mu_int_fun,x_fun,b_fun,dt_b_fun,nt_fun Optional custom
 #'  functions defining the components of a diffusion model. See
 #'  [dRiftDM::comp_funs()]. If an argument is `NULL`, dRiftDM falls
@@ -56,8 +61,10 @@
 #'  (`t_max`), the evidence and space discretization (`dt` and `dx`,
 #'  respectively), and the resulting number of steps for the time and evidence
 #'  space discretization (`nt` and `nx`, respectively).
-#' * A character string `solver`, indicating the method for deriving the model
+#' * A character string [dRiftDM::solver], indicating the method for deriving the model
 #'   predictions.
+#' * A character string [dRiftDM::cost_function], indicating the cost function
+#'   used for model estimation.
 #' * A list of functions called [dRiftDM::comp_funs], providing the components
 #'   of the diffusion model (i.e., `mu_fun`, `mu_int_fun`, `x_fun`, `b_fun`,
 #'  `dt_b_fun`, `nt_fun`). These functions are called in the depths of the
@@ -66,17 +73,25 @@
 #'  If (optional) observed data were passed via [dRiftDM::obs_data()],
 #'  the list will contain an entry `obs_data`. This is a (nested) list with
 #'  stored response times for the upper and lower boundary and with respect to
-#'  each condition.
+#'  each condition. If the cost function is a summary statistic requiring
+#'  quantiles, CAFs, etc., the model also contains the entries `stats_agg` and
+#'  `stats_agg_info`. The former is a (nested) list with descriptive statistics.
+#'  The latter contains information about the descriptive statistics (e.g., the
+#'  quantile levels).
 #'
 #'  If the model has been evaluated (see [dRiftDM::re_evaluate_model()]), the
 #'  list will contain...
 #'
-#'  * ... the log likelihood; can be addressed via [dRiftDM::logLik.drift_dm()].
+#'  * ... the cost value; can be addressed via [dRiftDM::cost_value()].
 #'  * ... the PDFs of the first passage time; can be addressed via
 #'  [dRiftDM::pdfs()].
 #'
-#'  Finally, if arbitrary R objects were passed via [dRiftDM::ddm_opts()], to
-#'  access these objects when evaluating the component functions, the list will
+#'  If the model was estimated (which includes its evaluation), the list
+#'  will contain `estimate_info`. This entry contains a convergence flag
+#'  (`conv_flag`, logical) and the `optimizer` (a string).
+#'
+#'  Finally, if arbitrary R objects were passed via [dRiftDM::ddm_opts()] (to
+#'  access these objects when evaluating the component functions) the list will
 #'  contain an entry `ddm_opts`.
 #'
 #'  Every model also has the attribute [dRiftDM::b_coding], which summarizes how
@@ -105,14 +120,35 @@
 #'
 #' @seealso [dRiftDM::conds()], [dRiftDM::flex_prms()], [dRiftDM::prms_solve()],
 #' [dRiftDM::solver()], [dRiftDM::obs_data()], [dRiftDM::comp_funs()],
-#' [dRiftDM::b_coding()], [dRiftDM::coef()], [dRiftDM::pdfs()]
+#' [dRiftDM::b_coding()], [dRiftDM::coef()], [dRiftDM::pdfs()], [dRiftDM::]
 #'
 #' @export
 drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
                      sigma = 1, t_max = 3, dt = .001, dx = .001, solver = "kfe",
+                     cost_function = "neg_log_like",
                      mu_fun = NULL, mu_int_fun = NULL, x_fun = NULL,
                      b_fun = NULL, dt_b_fun = NULL, nt_fun = NULL,
                      b_coding = NULL) {
+
+  # check the subclass label
+  if(!is.character(subclass) | length(subclass) != 1) {
+    stop("subclass is not a single character string")
+  }
+  #.. don't allow users to create models with labels identical to the
+  # pre-built models
+  #  -> get the calling function's environment
+  caller_env_name <- environmentName(environment(sys.function(-1)))
+  ext_call = caller_env_name != "dRiftDM"
+
+  if (subclass %in% drift_dm_pre_built_models() & ext_call) {
+    stop("The model name ", subclass, " (provided by the subclass argument) ",
+         "clashes with the name of a pre-built model of dRiftDM. ",
+         "From dRiftDM version 0.3.x onward, this is no longer allowed. Fix ",
+         "this error by using a different name... maybe '",
+         paste("my", subclass, sep = "_"), "'?")
+  }
+
+
   # create the flex_prms object
   flex_prms_obj <- flex_prms(object = prms_model, conds = conds, instr = instr)
 
@@ -125,6 +161,12 @@ drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
   )
   prms_solve["nx"] <- as.integer(2 / prms_solve["dx"] + 1.e-8)
 
+
+  # match solver
+  solver = match.arg(solver, c("kfe", "im_zero"))
+
+  # match cost_function
+  cost_function = match.arg(cost_function, drift_dm_cost_functions())
 
   # get default functions, if necessary
   comp_funs <- get_default_functions(
@@ -139,6 +181,7 @@ drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
     prms_solve = prms_solve,
     solver = solver,
     comp_funs = comp_funs,
+    cost_function = cost_function,
     subclass = subclass,
     b_coding = b_coding,
     obs_data = obs_data
@@ -181,11 +224,12 @@ drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
 #' @keywords internal
 #'
 new_drift_dm <- function(flex_prms_obj, prms_solve, solver, comp_funs,
-                         subclass, b_coding = NULL, obs_data = NULL) {
+                         cost_function, subclass, b_coding = NULL,
+                         obs_data = NULL) {
   # add everything
   drift_dm_obj <- list(
     flex_prms_obj = flex_prms_obj, prms_solve = prms_solve, solver = solver,
-    comp_funs = comp_funs
+    comp_funs = comp_funs, cost_function = cost_function
   )
   class(drift_dm_obj) <- c(subclass, "drift_dm")
 
@@ -213,7 +257,7 @@ new_drift_dm <- function(flex_prms_obj, prms_solve, solver, comp_funs,
 #'
 #' Checks:
 #'
-#'  * the flex_prms_object via [dRiftDM::validate_flex_prms()]
+#'  * The flex_prms_object via [dRiftDM::validate_flex_prms()]
 #'  * The prms_solve (that it is a named numeric vector
 #'    [dRiftDM::check_if_named_numeric_vector()] with the expected entries) and
 #'    that nt, nx make sense. This may adjust t_max if t_max is smaller than
@@ -221,12 +265,16 @@ new_drift_dm <- function(flex_prms_obj, prms_solve, solver, comp_funs,
 #'  * The solver string (only a single string and that it refers to something
 #'    that is actually implemented). If im_zero, then check if dirac delta
 #'    on 0.
-#'  * checks that the list comp_funs only contains functions and that each
+#'  * The cost_function string (only a single string and that it refers to
+#'    something that is actually implemented).
+#'  * If cost_function is a summary statistic, that the objects stats_agg
+#'    exists and has the correct structure.
+#'  * That the list comp_funs only contains functions and that each
 #'    function provides the expected arguments
-#'  * If PDFs exist, checks the names, lengths and data type
-#'  * Checks that log_like_val (if it exists) is a single numeric.
-#'  * Checks the data type name structure of obs_data
-#'  * Checks the b_coding (column, u_name_value and l_name_value).
+#'  * If PDFs exist, the names, lengths and data type
+#'  * If cost_val exists, if it is a single numeric
+#'  * If obs_data exists, the data type, names, and structure
+#'  * The b_coding (column, u_name_value and l_name_value).
 #'
 #' @return
 #'
@@ -326,7 +374,7 @@ validate_drift_dm <- function(drift_dm_obj) {
     stop("solver in drift_dm_obj is not a single character/string")
   }
 
-  if (!drift_dm_obj$solver %in% c("kfe", "im_zero")) {
+  if (!(drift_dm_obj$solver %in% c("kfe", "im_zero"))) {
     stop("solver should be either kfe or im_zero")
   }
 
@@ -383,6 +431,109 @@ validate_drift_dm <- function(drift_dm_obj) {
     }
   }
 
+  # check the cost value and function string
+  cost_function = drift_dm_obj$cost_function
+  if (!is.character(cost_function) | length(cost_function) != 1) {
+    stop("cost_function in drift_dm_obj is not a single character/string")
+  }
+
+  pos_cost_functions = drift_dm_cost_functions()
+  if (!(cost_function %in% pos_cost_functions)) {
+    stop(
+      "cost_function should be one of ",
+      paste(pos_cost_functions[-length(pos_cost_functions)], collapse = ", "),
+      ", or ",
+      pos_cost_functions[length(pos_cost_functions)]
+    )
+  }
+
+  # check if users have accuracy coding with when cost_function is "rmse"
+  if (cost_function == "rmse") {
+    if (!isTRUE(all.equal(b_coding(drift_dm_obj), drift_dm_default_b_coding()))) {
+      warning(
+        "The cost function is set to 'rmse', but the boundaries are not ",
+        "accuracy-coded (or differ from dRiftDM's default coding). The RMSE ",
+        "statistic uses quantiles of the upper boundary and CAFs (which are ",
+        "ratios of the PDF mass at the upper vs. lower boundary). Please check ",
+        "whether this is appropriate for your case."
+      )
+    }
+  }
+
+
+  # check cost_value
+  cost_value = drift_dm_obj$cost_value
+  if (!is.null(cost_value)) {
+    if (!is_numeric(cost_value) | length(cost_value) != 1) {
+      stop("cost_value in drift_dm_obj is not a single numeric")
+    }
+  }
+
+
+  # check if the stats_agg entry is present and has the expected properties
+  # if the cost_function is a summary function.. here I also check if
+  # the stats_agg_info entry is reasonable
+  stats_agg = drift_dm_obj$stats_agg
+  if (cost_function != "neg_log_like" & !is.null(stats_agg)) {
+
+    # check names and data types
+    if (!identical(names(stats_agg), conds(drift_dm_obj))) {
+      stop("the stats_agg entry of drift_dm_obj is not labeled like the ",
+           "conditions")
+    }
+
+    if (cost_function == "rmse") {
+      exp_names = c("quantiles_corr", "cafs")
+    }
+
+
+    check <- sapply(stats_agg, function(x, exp_names) {
+      names_check <- identical(names(x), exp_names)
+      numeric_check <- all(sapply(x, is_numeric))
+      return(c(names_check, numeric_check))
+    }, exp_names = exp_names)
+
+    if (!all(check[1, ])) {
+      stop("the entries of one condition in stats_agg are not named ",
+           paste(exp_names, collapse = " and "))
+    }
+    if (!all(check[2, ])) {
+      stop("the entries of one condition in stats_agg are not of type numeric")
+    }
+
+    # check if stats_agg_info is present (if cost function is a summary statistic)
+    stats_agg_info = drift_dm_obj$stats_agg_info
+    if (is.null(stats_agg_info)) {
+      stop("cost_function is ", cost_function, ", but there is no",
+           " stats_agg_info entry in drift_dm_obj")
+    }
+    if (!identical(names(stats_agg_info), conds(drift_dm_obj))) {
+      stop("the stats_agg_info entry of drift_dm_obj is not labeled like the ",
+           "conditions")
+    }
+
+    # check if the stats_agg_info file is structured correctly
+    if (cost_function == "rmse") {
+      check_bins = sapply(stats_agg_info, \(x) !is.null(x$n_bins))
+      stopifnot(all(check_bins))
+      check_probs = sapply(stats_agg_info, \(x) !is.null(x$probs_corr))
+      stopifnot(all(check_probs))
+    }
+
+    # check if the stats_agg_info file matches with the vectors stored in
+    # stats_agg
+    if (cost_function == "rmse") {
+      lens_quantiles = sapply(stats_agg, \(x) length(x$quantiles_corr))
+      n_quantiles = sapply(stats_agg_info, \(x) length(x$probs_corr))
+      stopifnot(all(lens_quantiles == n_quantiles))
+
+      lens_cafs = sapply(stats_agg, \(x) length(x$cafs))
+      n_bins = sapply(stats_agg_info, \(x) x$n_bins)
+      stopifnot(all(lens_cafs == n_bins))
+    }
+  }
+
+
   # check pdfs
   if (!is.null(drift_dm_obj$pdfs)) {
     if (!identical(names(drift_dm_obj$pdfs), conds(drift_dm_obj))) {
@@ -408,24 +559,31 @@ validate_drift_dm <- function(drift_dm_obj) {
     }
   }
 
-  # check log_like
-  if (!is.null(drift_dm_obj$log_like_val)) {
-    if (!is_numeric(drift_dm_obj$log_like_val) |
-      length(drift_dm_obj$log_like_val) != 1) {
-      stop("log_like val in drift_dm_obj is not a single numeric")
-    }
-  }
-
-
   # check boundary encoding
   b_coding <- attr(drift_dm_obj, "b_coding")
   check_b_coding(b_coding)
 
+  # check estimate_info
+  estimate_info = drift_dm_obj$estimate_info
+  if (!is.null(estimate_info)) {
+    if (!identical(names(estimate_info), c("conv_flag", "optimizer"))) {
+      stop("estimate_info has unexpected entries")
+    }
+    conv_flag = estimate_info$conv_flag
+    if (!is.logical(conv_flag) || length(conv_flag) != 1) {
+      stop("conv_flag must be a single logical value")
+    }
+    optimizer = estimate_info$optimizer
+    if (!is.character(optimizer) || length(optimizer) != 1) {
+      stop("optimizer must be a single string")
+    }
+  }
 
   # check that there aren't any unexpected entries or attributes
   expected_names <- c(
     "flex_prms_obj", "prms_solve", "solver", "comp_funs",
-    "pdfs", "log_like_val", "obs_data", "ddm_opts"
+    "pdfs", "obs_data", "cost_function", "cost_value", "stats_agg",
+    "stats_agg_info",  "ddm_opts", "estimate_info"
   )
   if (!all(names(drift_dm_obj) %in% expected_names)) {
     stop("the model contains unexpected entries")
@@ -566,25 +724,26 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
 
 # FUNCTION FOR ENSURING EVERYTHING IS UP-TO-DATE --------------------------
 
-
 #' Re-evaluate the model
 #'
-#' Updates the PDFs of a model. If [dRiftDM::obs_data] are set to the model, the
-#' log-likelihood is also updated.
+#' Updates the PDFs of a model. If observed data is available (e.g., via the
+#' [dRiftDM::obs_data] entry or the `stats_agg` entry; depending on the
+#' [dRiftDM::cost_function], see also [dRiftDM::drift_dm()]), the
+#' [dRiftDM::cost_value] is also updated.
 #'
 #' @param drift_dm_obj an object of type [dRiftDM::drift_dm]
 #' @param eval_model logical, indicating if the model should be evaluated or not.
-#'  If `FALSE`, PDFs and the log-likelihood value are deleted from the model.
-#'  Default is `True`.
+#'  If `FALSE`, PDFs and the value of the cost function are deleted from the
+#'  model. Default is `True`.
 #'
 #' @returns Returns the passed `drift_dm_obj` object, after (re-)calculating
-#' the PDFs and (if observed data is set) the log-likelihood.
+#' the PDFs and (if observed data is set) the cost_value.
 #'
 #' * the PDFs an be addressed via `drift_dm_obj$pdfs`
-#' * the log-likelihood can be addressed via `drift_dm_obj$log_like_val`
+#' * the cost_value can be addressed via `drift_dm_obj$cost_value`
 #'
 #' Note that if `re_evaluate` model is called before observed data was set,
-#' the function silently updates the `pdfs`, but not `log_like_val`.
+#' the function silently updates the `pdfs`, but not `cost_value`.
 #'
 #' @details
 #' More in-depth information about the mathematical details for
@@ -600,12 +759,12 @@ get_default_functions <- function(mu_fun = NULL, mu_int_fun = NULL,
 #' my_model <- re_evaluate_model(my_model)
 #' str(my_model$pdfs) # show the structure of the attached pdfs
 #'
-#' # if you want the log_likelihood, make sure some data is attached to the
+#' # if you want the cost_function, make sure some data is attached to the
 #' # model (see also the documentation of obs_data())
 #' obs_data(my_model) <- ratcliff_synth_data # this data set comes with dRiftDM
 #' my_model <- re_evaluate_model(my_model)
 #' str(my_model$pdfs)
-#' print(my_model$log_like_val)
+#' print(my_model$cost_value)
 #'
 #' @seealso [dRiftDM::drift_dm()]
 #'
@@ -619,15 +778,22 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   # pass back if no evaluation is requested
   if (!eval_model) {
     # set all fit indices and the pdfs to NULL
-    drift_dm_obj$log_like_val <- NULL
+    drift_dm_obj$cost_value <- NULL
     drift_dm_obj$pdfs <- NULL
     return(drift_dm_obj)
   }
 
   # unpack values and create time and evidence vector
   prms_solve <- drift_dm_obj$prms_solve
-  x_vec <- seq(-1, 1, length.out = prms_solve[["nx"]] + 1)
-  t_vec <- seq(0, prms_solve[["t_max"]], length.out = prms_solve[["nt"]] + 1)
+  nt <- prms_solve[["nt"]]
+  nx <- prms_solve[["nx"]]
+  dt <- prms_solve[["dt"]]
+  dx <- prms_solve[["dx"]]
+  t_max <- prms_solve[["t_max"]]
+  stopifnot(nt == t_max / dt)
+  stopifnot(nx == 2 / dx)
+  x_vec <- seq(-1, 1, length.out = nx + 1)
+  t_vec <- seq(0, t_max, length.out = nt + 1)
 
   # get the PDFs
   pdfs <- calc_pdfs(
@@ -635,15 +801,45 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
     prms_solve = prms_solve
   )
 
-  # update log_like_val and pass back
-  log_like_val <- calc_log_like(
-    pdfs = pdfs, t_vec = t_vec,
-    obs_data = drift_dm_obj$obs_data,
-    conds = names(pdfs)
-  )
+  # get the requested cost_value
+  if (drift_dm_obj$cost_function == "neg_log_like") {
+    cost_value <- calc_log_like(
+      pdfs = pdfs, t_vec = t_vec,
+      obs_data = drift_dm_obj$obs_data
+    )
+    # if NULL leave as is (otherwise -1.0 * NULL yields numeric())
+    if (!is.null(cost_value)) {
+      cost_value <- -1.0 * cost_value
+    }
+  }
 
-  drift_dm_obj$log_like_val <- log_like_val
+  if (drift_dm_obj$cost_function == "rmse") {
+    cost_value <- calc_rmse(
+      pdfs = pdfs, t_vec = t_vec, dt = dt,
+      stats_agg = drift_dm_obj$stats_agg,
+      stats_agg_info = drift_dm_obj$stats_agg_info
+    )
+  }
+
+  drift_dm_obj$cost_value <- cost_value
   drift_dm_obj$pdfs <- pdfs
+  return(drift_dm_obj)
+}
+
+
+
+#' Remove flags added when calling estimate_classical
+#'
+#' This is a small internal function that ensures that the flags added
+#' after estimating a model via [dRiftDM::estimate_classical()] are removed. It
+#' is used when replacing settings of a model after it has been estimated.
+#'
+#' @param drift_dm_obj a [dRiftDM::drift_dm] object
+#'
+#' @returns the model without the list entry `estimate_info`
+#' @keywords internal
+remove_estimate_info = function(drift_dm_obj) {
+  drift_dm_obj$estimate_info = NULL
   return(drift_dm_obj)
 }
 
@@ -665,10 +861,8 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   object$flex_prms_obj <- value # object is the drift_dm object
 
   # ensure that everything is up-to-date
-  object <- re_evaluate_model(
-    drift_dm_obj = object,
-    eval_model = eval_model
-  )
+  object <- remove_estimate_info(object)
+  object <- re_evaluate_model(drift_dm_obj = object, eval_model = eval_model)
 
   # ensure that nothing went wrong
   object <- validate_drift_dm(object)
@@ -706,11 +900,9 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   new_flex_prms <- flex_prms(object = first_row_vals, conds = value, ...)
   flex_prms(object) <- new_flex_prms
 
-  # ensure that everything is up-to-date with respect to the PDFs/log_likelihood
-  object <- re_evaluate_model(
-    drift_dm_obj = object,
-    eval_model = eval_model
-  )
+  # ensure that everything is up-to-date
+  object <- remove_estimate_info(object)
+  object <- re_evaluate_model(drift_dm_obj = object, eval_model = eval_model)
 
   # ensure that nothing went wrong
   object <- validate_drift_dm(object)
@@ -756,10 +948,8 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   }
 
   # ensure that everything is up-to-date
-  object <- re_evaluate_model(
-    drift_dm_obj = object,
-    eval_model = eval_model
-  )
+  object <- remove_estimate_info(object)
+  object <- re_evaluate_model(drift_dm_obj = object, eval_model = eval_model)
 
   # ensure that nothing went wrong
   object <- validate_drift_dm(object)
@@ -787,6 +977,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   )
 
   # ensure that everything is up-to-date
+  object <- remove_estimate_info(object)
   object <- re_evaluate_model(
     drift_dm_obj = object,
     eval_model = eval_model
@@ -810,7 +1001,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
 #' @rdname obs_data
 #' @export
 `obs_data<-.drift_dm` <- function(object, ..., eval_model = FALSE, value) {
-  stopifnot(is.data.frame(value) || is.null(value))
+  stopifnot(is.data.frame(value) | is.null(value))
 
   # object is the model object, value the data.frame
   if (is.null(value)) {
@@ -852,7 +1043,13 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
     object$obs_data <- obs_data_rt_list
   }
 
+  # create/update stats_agg
+  object <- update_stats_agg(
+    drift_dm_obj = object, which_cost_function = cost_function(object), ...
+  )
+
   # ensure that everything is up-to-date
+  object <- remove_estimate_info(object)
   object <- re_evaluate_model(drift_dm_obj = object, eval_model = eval_model)
 
   # ensure that nothing went wrong
@@ -899,6 +1096,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
 
 
   # ensure that everything is up-to-date
+  object <- remove_estimate_info(object)
   object <- re_evaluate_model(drift_dm_obj = object, eval_model = eval_model)
 
 
@@ -929,7 +1127,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   attr(object, "b_coding") <- check_b_coding(value)
 
   # ensure that everything is up-to-date not necessary, as b_encoding
-  # is irrelevant for deriving PDFs and log_likelihood
+  # is irrelevant for deriving PDFs
 
   # validate
   object <- validate_drift_dm(object)
@@ -979,6 +1177,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   )
 
   # ensure that everything is up-to-date
+  object <- remove_estimate_info(object)
   object <- re_evaluate_model(drift_dm_obj = object, eval_model = eval_model)
 
   # ensure that nothing went wrong
@@ -1004,6 +1203,41 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   object$ddm_opts <- value
 
   # ensure that everything is up-to-date
+  object <- remove_estimate_info(object)
+  object <- re_evaluate_model(drift_dm_obj = object, eval_model = eval_model)
+
+  # ensure that nothing went wrong
+  object <- validate_drift_dm(object)
+
+  return(object)
+}
+
+
+## replace cost_function #####
+
+#' @rdname cost_function
+#' @export
+`cost_function<-` <- function(object, ..., value) {
+  UseMethod("cost_function<-")
+}
+
+#' @rdname cost_function
+#' @export
+`cost_function<-.drift_dm` <- function(object, ..., eval_model = FALSE, value) {
+
+
+  value <- match.arg(value, drift_dm_cost_functions())
+
+  # attach it to the model
+  object$cost_function <- value
+
+  # create/update stats_agg
+  object <- update_stats_agg(
+    drift_dm_obj = object, which_cost_function = value, ...
+  )
+
+  # ensure that everything is up-to-date
+  object <- remove_estimate_info(object)
   object <- re_evaluate_model(drift_dm_obj = object, eval_model = eval_model)
 
   # ensure that nothing went wrong
@@ -1097,13 +1331,135 @@ set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
 }
 
 
+# TODO
+update_stats_agg <- function(drift_dm_obj, which_cost_function,
+                             probs = NULL, n_bins = NULL) {
+
+  # perform input checks
+  which_cost_function = match.arg(
+    which_cost_function, drift_dm_cost_functions()
+  )
+
+  # functions to check the probs and n_bins arguments (for easier reuse)
+  check_probs <- function(probs) {
+    if (!is.numeric(probs) | length(probs) < 2) {
+      stop("probs must a valid numeric vector of length > 1")
+    }
+    if (min(probs) <= 0 | max(probs) >= 1) {
+      stop("argument probs must be in the range ]0, 1[")
+    }
+    return(probs)
+  }
+
+  check_n_bins <- function(n_bins) {
+    if (!is_numeric(n_bins) | length(n_bins) != 1) {
+      stop("n_bins must a valid numeric")
+    }
+    if (n_bins <= 1) {
+      stop("n_bins nust be larger than 1")
+    }
+    return(n_bins)
+  }
+
+  # if negative log_like -> remove stats_agg (because ML uses raw rts,
+  # not some summary stats)
+  if (which_cost_function == "neg_log_like") {
+    drift_dm_obj$stats_agg_info <- NULL
+    drift_dm_obj$stats_agg <- NULL
+    return(drift_dm_obj)
+  }
+
+  # if no data is set to the model, remove stats_agg and stats_agg_info and
+  # return the model
+  if (is.null(drift_dm_obj$obs_data)) {
+    drift_dm_obj$stats_agg_info <- NULL
+    drift_dm_obj$stats_agg <- NULL
+    return(drift_dm_obj)
+  }
+
+
+  all_conds <- conds(drift_dm_obj)
+
+  # create or update the stats_agg_info entry
+  if (which_cost_function == "rmse") {
+
+    # if it doesn't exist, create it
+    if (is.null(drift_dm_obj$stats_agg_info)) {
+
+      if (is.null(probs)) {
+        probs <- drift_dm_default_probs()
+      }
+      probs <- check_probs(probs)
+
+      if (is.null(n_bins)) {
+        n_bins <- drift_dm_default_n_bins()
+      }
+      n_bins <- check_n_bins(n_bins)
+
+      stats_agg_info <- sapply(all_conds, \(one_cond){
+        return(list(n_bins = n_bins, probs_corr = probs))
+      }, simplify = FALSE, USE.NAMES = TRUE)
+      drift_dm_obj$stats_agg_info = stats_agg_info
+    }
+
+    # if it exists, update it
+    # update n_bins when provided
+    if (!is.null(n_bins)) {
+      n_bins <- check_n_bins(n_bins)
+      for (one_cond in all_conds) {
+        drift_dm_obj$stats_agg_info[[one_cond]]$n_bins = n_bins
+      }
+    }
+
+    # update probs when provided
+    if (!is.null(probs)) {
+      probs <- check_probs(probs)
+      for (one_cond in all_conds) {
+        drift_dm_obj$stats_agg_info[[one_cond]]$probs_corr = probs
+      }
+    }
+  }
+
+  # (re-)create the stats_agg_info entry
+  if (which_cost_function == "rmse") {
+    stats_agg <- sapply(all_conds, \(one_cond){
+
+      rts_u = drift_dm_obj$obs_data$rts_u[[one_cond]]
+      rts_l = drift_dm_obj$obs_data$rts_l[[one_cond]]
+      # it is not reasonable to have almost no RTs at the upper boundary
+      stopifnot(length(rts_u) > 1)
+
+      quantiles = calc_quantiles_obs(
+        rts_u = rts_u,
+        rts_l = rts_l,
+        one_cond = one_cond,
+        probs = drift_dm_obj$stats_agg_info[[one_cond]]$probs
+      )[["Quant_U"]]
+
+      cafs = calc_cafs_obs(
+        rts_u = rts_u,
+        rts_l = rts_l,
+        one_cond = one_cond,
+        n_bins = drift_dm_obj$stats_agg_info[[one_cond]]$n_bins
+      )[["P_U"]]
+
+      return(list(quantiles_corr = quantiles, cafs = cafs))
+    }, simplify = FALSE, USE.NAMES = TRUE)
+    drift_dm_obj$stats_agg = stats_agg
+  }
+
+  # return the model
+  return(drift_dm_obj)
+}
+
 # ===== FUNCTIONS THAT WERE PRIMARILY WRITTEN FOR SET FUNCTIONS ================
 
 
-#' Check the Observed Data
+#' Check and Reduce the Observed Data
 #'
 #' Checks a data set that is considered an "observed data set". Used in the
-#' internals of dRiftDM.
+#' internals of dRiftDM. When calling this function, unncessary column names
+#' are stripped away.
 #'
 #' @param obs_data a [data.frame]
 #' @param b_coding_column a single string, indicating which column of `obs_data`
@@ -1116,20 +1472,35 @@ set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
 #' @details
 #'  Checks:
 #'   * if `obs_data` is a data.frame
-#'   * For missing Values, and drops rows with missing values
 #'   * if "RT", `b_coding_column`, and "Cond" column are present
+#'   * when IDs are present, if each ID has values on each condition. At the same
+#'   time unused factor levels are dropped [dRiftDM::drop_levels_ID_column]
+#'   * If all columns are there, the data set is reduced to the relevant ones
+#'   * for missing Values, and drops rows with missing values
 #'   * if "Cond" is of type character, and if not casts it to character
 #'   * if RT is of type numeric, and of not casts it to numeric
 #'   * RTs are >= 0
 #'   * that the values in `b_coding_column` match with u_value and l_value
 #'     (casts the column if necessary)
 #'   * if `b_coding_column` has only 1 or 2 unique values
-#'   * When IDs are present, if each ID has values on each condition. At the same
-#'   time unused factor levels are dropped [dRiftDM::drop_levels_ID_column]
 #'
 #' @keywords internal
-check_raw_data <- function(obs_data, b_coding_column, u_value, l_value) {
+check_reduce_raw_data <- function(obs_data, b_coding_column, u_value, l_value) {
   if (!is.data.frame(obs_data)) stop("obs_data argument is not a data frame")
+
+  # check if the provided data.frame provides all necessary things
+  if (!("RT" %in% colnames(obs_data))) stop("no RT column in data frame")
+  if (!(b_coding_column %in% colnames(obs_data))) {
+    stop("no ", b_coding_column, " column in data frame")
+  }
+  if (!("Cond" %in% colnames(obs_data))) stop("no Cond column in data frame")
+
+
+  # check if there is an ID column
+  id_present <- "ID" %in% colnames(obs_data)
+
+  # reduce to relevant cols
+  obs_data <- obs_data[c(if (id_present) "ID", "RT", b_coding_column, "Cond")]
 
   # check for missing values and drop them
   n_prev <- nrow(obs_data)
@@ -1138,12 +1509,24 @@ check_raw_data <- function(obs_data, b_coding_column, u_value, l_value) {
     warning("Found missing values, removed automatically.")
   }
 
-  # check if the provided data.frame provides all necessary things
-  if (!("RT" %in% colnames(obs_data))) stop("no RT column in data frame")
-  if (!(b_coding_column %in% colnames(obs_data))) {
-    stop("no ", b_coding_column, " column in data frame")
+  # check if each subject provides observations for all conditions
+  if (id_present) {
+    obs_data <- drop_levels_ID_column(obs_data) # drops unused factor levels
+    id_cond_table <- table(obs_data$ID, obs_data$Cond)
+    idx_0 <- which(id_cond_table == 0, arr.ind = TRUE)
+
+    if (nrow(idx_0) > 0) {
+      ids <- rownames(id_cond_table)[idx_0[, 1]]
+      n_ids <- length(ids)
+      add <- ""
+      if (n_ids > drift_dm_n_id_trunc_warn()) {
+        n_ids = drift_dm_n_id_trunc_warn()
+        add = ", (and more)"
+      }
+      which_ids <- paste(paste(ids[1:n_ids], collapse = ", "), add)
+      stop("ID(s) ", which_ids, "do not provide RTs for all conditions")
+    }
   }
-  if (!("Cond" %in% colnames(obs_data))) stop("no Cond column in data frame")
 
 
   # check if Cond and RT are character and numeric >= 0, respectively.
@@ -1201,19 +1584,6 @@ check_raw_data <- function(obs_data, b_coding_column, u_value, l_value) {
       u_value, " or ", l_value
     )
   }
-
-  # check if there is an ID column and if each subject provides observations
-  # for all conditions
-  if ("ID" %in% colnames(obs_data)) {
-    obs_data <- drop_levels_ID_column(obs_data) # drops unused factor levels
-    id_cond_table <- table(obs_data$ID, obs_data$Cond)
-    idx_0 <- which(id_cond_table == 0, arr.ind = TRUE)
-
-    if (nrow(idx_0) > 0) {
-      which_ids <- paste(rownames(id_cond_table)[idx_0[, 1]], collapse = ", ")
-      stop("ID(s) ", which_ids, " do not provide RTs for all conditions")
-    }
-  }
   return(obs_data)
 }
 
@@ -1263,8 +1633,9 @@ drop_levels_ID_column <- function(some_data) {
 #' @param b_coding a boundary coding list (see [dRiftDM::b_coding])
 #'
 #' @details
-#' performs checks on `b_coding` ([dRiftDM::check_b_coding]) and
-#' `obs_data` ([dRiftDM::check_raw_data]) before disassembling the data set.
+#' performs checks on `b_coding` ([dRiftDM::check_b_coding]) and checks/reduces
+#' `obs_data` ([dRiftDM::check_reduce_raw_data]) before disassembling the data
+#' set.
 #'
 #' @returns
 #' a list of rts with entries
@@ -1282,13 +1653,13 @@ obs_data_to_rt_lists <- function(obs_data, b_coding = NULL) {
   }
 
   # check if everything is ok
-  b_coding <- check_b_coding(b_coding)
+  # b_coding <- check_b_coding(b_coding)
   b_column <- b_coding$column
   u_name_value <- b_coding$u_name_value
   l_name_value <- b_coding$l_name_value
 
-  # check the data to ensure everything is there
-  obs_data <- check_raw_data(
+  # check the data to ensure everything is there and reduce to relevant cols
+  obs_data <- check_reduce_raw_data(
     obs_data,
     b_coding_column = b_column,
     u_value = u_name_value,
@@ -1412,8 +1783,8 @@ check_b_coding <- function(b_coding) {
 #' @details
 #' `conds()` is a generic accessor function and `conds<-()` is a
 #' generic replacement function. The replacement method currently only supports
-#' [dRiftDM::drift_dm] objects. The default methods get and set the conditions of an
-#' object.
+#' [dRiftDM::drift_dm] objects. The default methods get and set the conditions
+#' of an object.
 #'
 #' When replacing the conditions of a [dRiftDM::drift_dm] object, a
 #' new [dRiftDM::flex_prms] object is created and then set to the model,
@@ -1469,6 +1840,12 @@ conds.fits_ids_dm <- function(object, ...) {
   conds(object$drift_dm_fit_info$drift_dm_obj)
 }
 
+#' @rdname conds
+#' @export
+conds.fits_agg_dm <- function(object, ...) {
+  return(conds(object$drift_dm_obj))
+}
+
 
 #' @rdname conds
 #' @export
@@ -1483,6 +1860,8 @@ conds.traces_dm_list <- function(object, ...) {
 }
 
 
+
+
 ### prms_solve ####
 
 
@@ -1491,8 +1870,8 @@ conds.traces_dm_list <- function(object, ...) {
 #' Functions to get or set the "solver settings" of an object. This includes the
 #' diffusion constant and the discretization of the time and evidence space.
 #'
-#' @param object an object of type [dRiftDM::drift_dm] or `fits_ids_dm`
-#'  (see [dRiftDM::load_fits_ids]).
+#' @param object an object of type [dRiftDM::drift_dm], `fits_ids_dm`, or
+#' `fits_agg_dm` (see [dRiftDM::estimate_dm()]).
 #'
 #' @param ... additional arguments (i.e., `eval_model`).
 #'
@@ -1520,7 +1899,7 @@ conds.traces_dm_list <- function(object, ...) {
 #'
 #' @note
 #' There is only a replacement function for [dRiftDM::drift_dm] objects. This is
-#' because replacing the solver settings after the model has been fitted (i.e.,
+#' because replacing the solver settings after the model has been fitted (e.g.,
 #' for a `fits_ids_dm` object) doesn't make sense.
 #'
 #' @examples
@@ -1557,6 +1936,11 @@ prms_solve.fits_ids_dm <- function(object, ...) {
   prms_solve(object$drift_dm_fit_info$drift_dm_obj)
 }
 
+#' @rdname prms_solve
+#' @export
+prms_solve.fits_agg_dm <- function(object, ...) {
+  prms_solve(object$drift_dm_obj)
+}
 
 ### solver ####
 
@@ -1567,8 +1951,8 @@ prms_solve.fits_ids_dm <- function(object, ...) {
 #' the method for deriving the model's first passage time (i.e., its predicted
 #' PDFs).
 #'
-#' @param object an object of type [dRiftDM::drift_dm] or `fits_ids_dm`
-#'  (see [dRiftDM::load_fits_ids]).
+#' @param object an object of type [dRiftDM::drift_dm], `fits_ids_dm`, or
+#' `fits_agg_dm` (see [dRiftDM::estimate_dm()]).
 #'
 #' @param ... additional arguments (i.e., `eval_model`).
 #'
@@ -1633,6 +2017,13 @@ solver.fits_ids_dm <- function(object, ...) {
   solver(object$drift_dm_fit_info$drift_dm_obj)
 }
 
+#' @rdname solver
+#' @export
+solver.fits_agg_dm <- function(object, ...) {
+  solver(object$drift_dm_obj)
+}
+
+
 
 ### obs_data ####
 
@@ -1640,8 +2031,8 @@ solver.fits_ids_dm <- function(object, ...) {
 #'
 #' Functions to get or set the "observed data" of an object.
 #'
-#' @param object an object of type [dRiftDM::drift_dm] or `fits_ids_dm`
-#'  (see [dRiftDM::load_fits_ids]).
+#' @param object an object of type [dRiftDM::drift_dm], `fits_ids_dm`, or
+#' `fits_agg_dm` (see [dRiftDM::estimate_dm()]).
 #'
 #' @param ... additional arguments passed down to the specific method.
 #'
@@ -1685,9 +2076,9 @@ solver.fits_ids_dm <- function(object, ...) {
 #' that the returned [data.frame] may be sorted differently than expected.
 #'
 #' @returns
-#' For `obs_data()` a (re-assembled) [data.frame] of the observed data. A
-#' message is displayed to remind the user that the returned [data.frame] may
-#' be sorted differently than expected.
+#' For `obs_data()` a [data.frame] of the observed data. The method
+#'  `obs_data.drift_dm()` per default displays a message to remind the user that
+#' the returned [data.frame] is likely sorted differently than expected.
 #'
 #' For `obs_data<-()` the updated [dRiftDM::drift_dm] object.
 #'
@@ -1774,6 +2165,14 @@ obs_data.fits_ids_dm <- function(object, ...) {
   return(object$drift_dm_fit_info$obs_data_ids)
 }
 
+# extracts saved observed data file
+#' @rdname obs_data
+#' @export
+obs_data.fits_agg_dm <- function(object, ...) {
+  return(object$obs_data_ids)
+}
+
+
 
 
 ## comp_funs ######
@@ -1785,8 +2184,8 @@ obs_data.fits_ids_dm <- function(object, ...) {
 #' starting point distribution, and non-decision time distribution They are at
 #' the heart of the package and shape the model's behavior.
 #'
-#' @param object an object of type [dRiftDM::drift_dm] or `fits_ids_dm`
-#'  (see [dRiftDM::load_fits_ids]).
+#' @param object an object of type [dRiftDM::drift_dm], `fits_ids_dm`, or
+#' `fits_agg_dm` (see [dRiftDM::estimate_dm()]).
 #'
 #' @param ... additional arguments passed down to the specific method.
 #'
@@ -1962,6 +2361,13 @@ comp_funs.fits_ids_dm <- function(object, ...) {
   return(comp_funs(object$drift_dm_fit_info$drift_dm_obj))
 }
 
+# extracts saved observed data file
+#' @rdname comp_funs
+#' @export
+comp_funs.fits_agg_dm <- function(object, ...) {
+  return(comp_funs(object$drift_dm_obj))
+}
+
 
 ## b_coding ######
 
@@ -1969,8 +2375,8 @@ comp_funs.fits_ids_dm <- function(object, ...) {
 #'
 #' Functions to get or set the "boundary coding" of an object.
 #'
-#' @param object an object of type [dRiftDM::drift_dm] or `fits_ids_dm`
-#'  (see [dRiftDM::load_fits_ids]).
+#' @param object an object of type [dRiftDM::drift_dm], `fits_ids_dm`, or
+#' `fits_agg_dm` (see [dRiftDM::estimate_dm()]).
 #'
 #' @param value a named list, specifying how boundaries are coded (see Details).
 #' @param ... additional arguments.
@@ -2051,6 +2457,13 @@ b_coding.fits_ids_dm <- function(object, ...) {
 }
 
 
+#' @rdname b_coding
+#' @export
+b_coding.fits_agg_dm <- function(object, ...) {
+  return(b_coding(object$drift_dm_obj))
+}
+
+
 
 ## ddm_opts ######
 
@@ -2059,7 +2472,8 @@ b_coding.fits_ids_dm <- function(object, ...) {
 #' Functions to get or set the optional, user-defined R objects attached
 #' to a model object.
 #'
-#' @param object an object of type [dRiftDM::drift_dm].
+#' @param object an object of type [dRiftDM::drift_dm] or
+#' `fits_agg_dm` (see [dRiftDM::estimate_dm()]).
 #'
 #' @param ... additional arguments passed down to the specific method.
 #'
@@ -2113,6 +2527,13 @@ ddm_opts.drift_dm <- function(object, ...) {
 }
 
 
+#' @rdname ddm_opts
+#' @export
+ddm_opts.fits_agg_dm <- function(object, ...) {
+  ddm_opts(object$drift_dm_obj)
+}
+
+
 
 ## pdfs ######
 
@@ -2122,7 +2543,8 @@ ddm_opts.drift_dm <- function(object, ...) {
 #' These PDFs represent the convolution of the first-passage-time (decision
 #' time) with the non-decision time.
 #'
-#' @param object an object of type [dRiftDM::drift_dm].
+#' @param object an object of type [dRiftDM::drift_dm] or
+#' `fits_agg_dm` (see [dRiftDM::estimate_dm()]).
 #'
 #' @param ... additional arguments passed down to the specific method.
 #'
@@ -2173,6 +2595,115 @@ pdfs.drift_dm <- function(object, ...) {
   return(returned_list)
 }
 
+#' @rdname pdfs
+#' @export
+pdfs.fits_agg_dm <- function(object, ...) {
+ pdfs(object$drift_dm_obj)
+}
+
+
+## cost_function and cost value #####
+
+#' Access/Replace the Cost Function Label and Access the Cost Function Value
+#'
+#' Functions to access/replace the cost function label of a `dRiftDM object` and
+#' to access the current cost function value.
+#' The cost function label codes which cost function is used during estimation
+#' (e.g., the negative log-likelihood). The cost function value indicates the
+#' current value of the cost function given the current set of parameters and
+#' the data.
+#'
+#' @param object an object of type [dRiftDM::drift_dm], `fits_ids_dm`, or
+#' `fits_agg_dm` (see [dRiftDM::estimate_dm()]).
+#'
+#' @param ... additional arguments passed down to [dRiftDM::update_stats_agg()]
+#' when setting the cost function label.
+#'
+#'
+#' @returns
+#' - `cost_function()` returns a single character string, specifying the used
+#'  cost function
+#'
+#' - `cost_function<-()` returns the model object with the updated cost
+#'   function.
+#'
+#' - `cost_value()` returns a single numeric if `object` is of type `drift_dm`
+#'   or `fits_agg_dm`. If there is no data attached to an object of type
+#'   `drift_dm`, the function returns `NULL`. If `object` is of type
+#'   `fits_ids_dm`, the function returns a [data.frame] with all cost values
+#'   across participants.
+#'
+#'
+#' @examples
+#' # get a pre-built model for demonstration purpose
+#' a_model <- ratcliff_dm(dx = .01, dt = .01, obs_data = ratcliff_synth_data)
+#' cost_function(a_model)
+#' cost_value(a_model)
+#'
+#' @seealso [dRiftDM::drift_dm()], [dRiftDM::re_evaluate_model()]
+#'
+#'
+#' @export
+cost_function <- function(object, ...) {
+  UseMethod("cost_function")
+}
+
+#' @rdname cost_function
+#' @export
+cost_function.drift_dm <- function(object, ...) {
+  return(object$cost_function)
+}
+
+#' @rdname cost_function
+#' @export
+cost_function.fits_ids_dm <- function(object, ...) {
+  return(cost_function(object$drift_dm_fit_info$drift_dm_obj))
+}
+
+#' @rdname cost_function
+#' @export
+cost_function.fits_agg_dm <- function(object, ...) {
+  return(cost_function(object$drift_dm_obj))
+}
+
+
+
+
+
+#' @rdname cost_function
+#' @export
+cost_value <- function(object, ...) {
+  UseMethod("cost_value")
+}
+
+#' @rdname cost_function
+#' @export
+cost_value.drift_dm <- function(object, ...) {
+  if (is.null(object$cost_value) &&
+      (!is.null(object$obs_data) || !is.null(object$stats_agg))) {
+    object <- re_evaluate_model(object)
+  }
+  return(object$cost_value)
+}
+
+#' @rdname cost_function
+#' @export
+cost_value.fits_ids_dm <- function(object, ...) {
+
+  all_vals = sapply(object$all_fits, \(x) x$cost_value)
+  res <- data.frame(ID = names(object$all_fits), Cost_Value = all_vals)
+  res$ID <- try_cast_integer(res$ID)
+  res <- res[order(res$ID), ]
+  rownames(res) <- NULL
+
+  return(res)
+}
+
+#' @rdname cost_function
+#' @export
+cost_value.fits_agg_dm <- function(object, ...) {
+  cost_value(object$drift_dm_obj)
+}
 
 
 ## coef, AIC, BIC, logLik #####
@@ -2389,8 +2920,8 @@ prms_cond_combo <- function(drift_dm_obj) {
 #' Might come in handy when exploring the model's behavior or when
 #' creating figures (see also [dRiftDM::plot.traces_dm_list])
 #'
-#' @param object an object of type [dRiftDM::drift_dm] or `fits_ids_dm` (see
-#'  [dRiftDM::load_fits_ids]).
+#' @param object an object of type [dRiftDM::drift_dm], `fits_ids_dm`, or
+#' `fits_agg_dm` (see [dRiftDM::estimate_dm()]).
 #' @param ... additional arguments passed forward to the respective method.
 #'
 #' @param k numeric, the number of traces to simulate per condition. Can be a
@@ -2613,6 +3144,13 @@ simulate_traces.fits_ids_dm <- function(object, k, ...) {
   return(traces_obj)
 }
 
+
+#' @rdname simulate_traces
+#' @export
+simulate_traces.fits_agg_dm <- function(object, k, ...) {
+  traces_obj <- simulate_traces(object$drift_dm_obj, k = k, ...)
+  return(traces_obj)
+}
 
 
 # internal, to avoid large nesting
@@ -2959,6 +3497,8 @@ unpack_traces.traces_dm_list <- function(object, ..., unpack = TRUE,
 #' numeric, then each condition will have `n` trials. Can be a (named) numeric
 #' vector with the same length as there are conditions to allow a different
 #' number of trials per condition.
+#' @param conds character vector, specifying the conditions to sample from.
+#' Default `NULL` is equivalent to `conds(object)`.
 #' @param k numeric larger than 0, indicating how many data sets shall
 #' be simulated. If > 1, users must specify `lower/upper`.
 #' @param lower,upper vectors or a list, specifying the simulation space for
@@ -3111,9 +3651,9 @@ simulate_data <- function(object, ...) {
 
 #' @export
 #' @rdname simulate_data
-simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
-                                   upper = NULL, df_prms = NULL, seed = NULL,
-                                   verbose = 1) {
+simulate_data.drift_dm <- function(object, ..., n, conds = NULL, k = 1,
+                                   lower = NULL, upper = NULL, df_prms = NULL,
+                                   seed = NULL, verbose = 1) {
 
   dots <- list(...)
 
@@ -3145,6 +3685,7 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
     return(simulate_one_data_set(
       drift_dm_obj = object,
       n = n,
+      conds = conds,
       round_to = dots$round_to
     ))
   }
@@ -3237,6 +3778,7 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
 
     # then simulate
     one_sim_dat <- simulate_one_data_set(drift_dm_obj = object, n = n,
+                                         conds = conds,
                                          round_to = dots$round_to)
     one_sim_dat$ID <- one_prm_set$ID # use any cond to set ID
     if (verbose == 1) pb$tick()
@@ -3257,7 +3799,9 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
 #' @param drift_dm_obj a [dRiftDM::drift_dm] object
 #' @param n numeric, specifying the number of trials per condition. Can be a
 #' single numeric, or a (named) numeric vector with the same length as
-#' conds(drift_dm_obj)
+#' conds
+#' @param conds character vector, specifying the conditions to sample from.
+#' Default `NULL` is equivalent to conds(drift_dm_obj)
 #' @param round_to integer, specifying the number of decimal places that the
 #' simulated RTs should have. Default is `3L`.
 #'
@@ -3265,27 +3809,33 @@ simulate_data.drift_dm <- function(object, ..., n, k = 1, lower = NULL,
 #' with n rows.
 #'
 #' @keywords internal
-simulate_one_data_set <- function(drift_dm_obj, n, round_to = NULL) {
+simulate_one_data_set <- function(drift_dm_obj, n, conds = NULL,
+                                  round_to = NULL) {
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
   }
 
-  # get all ns
-  all_conds <- conds(drift_dm_obj)
-
-  if (length(n) == 1) {
-    n <- rep(n, length(all_conds))
+  # get all conds an n
+  model_conds = conds(drift_dm_obj)
+  if (is.null(conds)) {
+    conds <- model_conds
+  } else {
+    conds <- match.arg(conds, model_conds, several.ok = TRUE)
   }
 
-  if (length(n) != length(all_conds)) {
-    stop("n must have as many entries as there are conditions")
+  if (length(n) == 1) {
+    n <- rep(n, length(conds))
+  }
+
+  if (length(n) != length(conds)) {
+    stop("n must have as many entries as there are requested conditions")
   }
 
   if (is.null(names(n))) {
-    names(n) <- all_conds
+    names(n) <- conds
   }
 
-  if (!all(all_conds %in% names(n))) {
+  if (!all(conds %in% names(n))) {
     stop("n doesn't specify names for each condition")
   }
 
@@ -3315,7 +3865,7 @@ simulate_one_data_set <- function(drift_dm_obj, n, round_to = NULL) {
   b_coding <- attr(drift_dm_obj, "b_coding")
 
   # simulate the data across conditions
-  sim_data <- lapply(all_conds, function(one_cond) {
+  sim_data <- lapply(conds, function(one_cond) {
     # get the n for cond
     one_n <- n[[one_cond]]
 
@@ -3343,7 +3893,7 @@ simulate_one_data_set <- function(drift_dm_obj, n, round_to = NULL) {
 
   # bind everything, check and pass back
   sim_data <- do.call(rbind, sim_data)
-  sim_data <- check_raw_data(sim_data,
+  sim_data <- check_reduce_raw_data(sim_data,
     b_coding_column = b_coding$column,
     u_value = b_coding$u_name_value,
     l_value = b_coding$l_name_value

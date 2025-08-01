@@ -10,23 +10,25 @@ re_evaluate_model(drift_dm_obj, eval_model = TRUE)
 \item{drift_dm_obj}{an object of type \link{drift_dm}}
 
 \item{eval_model}{logical, indicating if the model should be evaluated or not.
-If \code{FALSE}, PDFs and the log-likelihood value are deleted from the model.
-Default is \code{True}.}
+If \code{FALSE}, PDFs and the value of the cost function are deleted from the
+model. Default is \code{True}.}
 }
 \value{
 Returns the passed \code{drift_dm_obj} object, after (re-)calculating
-the PDFs and (if observed data is set) the log-likelihood.
+the PDFs and (if observed data is set) the cost_value.
 \itemize{
 \item the PDFs an be addressed via \code{drift_dm_obj$pdfs}
-\item the log-likelihood can be addressed via \code{drift_dm_obj$log_like_val}
+\item the cost_value can be addressed via \code{drift_dm_obj$cost_value}
 }
 
 Note that if \code{re_evaluate} model is called before observed data was set,
-the function silently updates the \code{pdfs}, but not \code{log_like_val}.
+the function silently updates the \code{pdfs}, but not \code{cost_value}.
 }
 \description{
-Updates the PDFs of a model. If \link{obs_data} are set to the model, the
-log-likelihood is also updated.
+Updates the PDFs of a model. If observed data is available (e.g., via the
+\link{obs_data} entry or the \code{stats_agg} entry; depending on the
+\link{cost_function}, see also \code{\link[=drift_dm]{drift_dm()}}), the
+\link{cost_value} is also updated.
 }
 \details{
 More in-depth information about the mathematical details for
@@ -42,12 +44,12 @@ my_model <- ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
 my_model <- re_evaluate_model(my_model)
 str(my_model$pdfs) # show the structure of the attached pdfs
 
-# if you want the log_likelihood, make sure some data is attached to the
+# if you want the cost_function, make sure some data is attached to the
 # model (see also the documentation of obs_data())
 obs_data(my_model) <- ratcliff_synth_data # this data set comes with dRiftDM
 my_model <- re_evaluate_model(my_model)
 str(my_model$pdfs)
-print(my_model$log_like_val)
+print(my_model$cost_value)
 
 }
 \seealso{

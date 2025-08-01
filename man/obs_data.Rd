@@ -6,6 +6,7 @@
 \alias{obs_data}
 \alias{obs_data.drift_dm}
 \alias{obs_data.fits_ids_dm}
+\alias{obs_data.fits_agg_dm}
 \title{The Observed Data}
 \usage{
 obs_data(object, ...) <- value
@@ -17,10 +18,12 @@ obs_data(object, ...)
 \method{obs_data}{drift_dm}(object, ..., messaging = TRUE)
 
 \method{obs_data}{fits_ids_dm}(object, ...)
+
+\method{obs_data}{fits_agg_dm}(object, ...)
 }
 \arguments{
-\item{object}{an object of type \link{drift_dm} or \code{fits_ids_dm}
-(see \link{load_fits_ids}).}
+\item{object}{an object of type \link{drift_dm}, \code{fits_ids_dm}, or
+\code{fits_agg_dm} (see \code{\link[=estimate_dm]{estimate_dm()}}).}
 
 \item{...}{additional arguments passed down to the specific method.}
 
@@ -35,9 +38,9 @@ Default is \code{FALSE}.}
 \item{messaging}{logical, indicating if messages shall be displayed or not.}
 }
 \value{
-For \code{obs_data()} a (re-assembled) \link{data.frame} of the observed data. A
-message is displayed to remind the user that the returned \link{data.frame} may
-be sorted differently than expected.
+For \code{obs_data()} a \link{data.frame} of the observed data. The method
+\code{obs_data.drift_dm()} per default displays a message to remind the user that
+the returned \link{data.frame} is likely sorted differently than expected.
 
 For \verb{obs_data<-()} the updated \link{drift_dm} object.
 }

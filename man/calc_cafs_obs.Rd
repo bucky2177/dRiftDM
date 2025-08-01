@@ -18,7 +18,7 @@ calc_cafs_pred(pdf_u, pdf_l, t_vec, one_cond, n_bins)
 
 \item{pdf_u, pdf_l}{density values for the upper and lower boundary}
 
-\item{t_vec}{the time space (required for the pdfs)}
+\item{t_vec}{the time space}
 }
 \value{
 a data.frame with the "Cond" label, the "Bin"s and "P_U" for

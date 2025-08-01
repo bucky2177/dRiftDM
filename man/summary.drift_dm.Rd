@@ -43,8 +43,7 @@ model (see \link{summary.flex_prms}).
 \item \strong{obs_data}: A summary table of observed response time data, if available,
 by response type (upper/lower boundary responses). Includes sample size,
 mean, and quantiles.
-\item \strong{fit_stats}: Fit statistics, if available, including log-likelihood,
-AIC, and BIC values.
+\item \strong{fit_stats}: Fit statistics, if available
 }
 
 The \code{print.summary.drift_dm()} function displays this summary in a formatted

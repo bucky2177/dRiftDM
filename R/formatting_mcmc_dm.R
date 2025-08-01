@@ -1,13 +1,13 @@
 
 
-#' @rdname estimate_model_bayesian
+#' @rdname estimate_dm
 #' @export
 print.mcmc_dm <- function(x, ...,
                           round_digits = drift_dm_default_rounding()) {
 
   chains_obj <- x
 
-  sampler = attr(chains_obj, "algorithm")
+  sampler = attr(chains_obj, "sampler")
   hierarchical = attr(chains_obj, "hierarchical")
   subset = get_subset_chains(chains_obj)
   n_prms = dim(subset)[1]
@@ -32,13 +32,13 @@ print.mcmc_dm <- function(x, ...,
 #' TODO examples
 #'
 #' Summary and corresponding print methods for objects of the class `mcmc_dm`,
-#' resulting from a call to [dRiftDM::estimate_model_bayesian()]. `mcmc_dm`
+#' resulting from a call to [dRiftDM::estimate_bayesian()]. `mcmc_dm`
 #' objects contain MCMC samples for Bayesian parameter estimation of
 #' [dRiftDM::drift_dm()] objects. The summary includes basic parameter
 #' statistics, quantiles, Gelman-Rubin diagnostics, and effective sample sizes.
 #'
 #' @param object an object of class `mcmc_dm`, as returned by
-#' [dRiftDM::estimate_model_bayesian()]
+#' [dRiftDM::estimate_bayesian()]
 #' @param x an object of class `summary.mcmc_dm`, as returned by
 #'   `summary.mcmc_dm()`.
 #' @param id optional single numeric or character, specifying one or more
@@ -89,7 +89,7 @@ summary.mcmc_dm <- function(object, ..., id = NULL) {
   # get general Information
   general = list()
   general$id = id
-  general$algorithm = attr(chains_obj, "algorithm")
+  general$sampler = attr(chains_obj, "sampler")
   general$hierarchical = attr(chains_obj, "hierarchical")
   general$n_param = dim(chains)[1]
   general$n_chains = dim(chains)[2]
@@ -133,7 +133,7 @@ print.summary.mcmc_dm <- function(x, ...,
   if (!is.null(id)) {
     cat("Showing Results for ID:", id, "\n")
   }
-  cat("Sampler:", general$algorithm, "\n")
+  cat("Sampler:", general$sampler, "\n")
   cat("Hierarchical:", general$hierarchical, "\n")
   if (general$hierarchical & is.null(id)) {
     cat("No. Group-Level Parameters:", general$n_param, "\n")

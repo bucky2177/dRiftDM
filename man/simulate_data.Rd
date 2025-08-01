@@ -11,6 +11,7 @@ simulate_data(object, ...)
   object,
   ...,
   n,
+  conds = NULL,
   k = 1,
   lower = NULL,
   upper = NULL,
@@ -35,6 +36,9 @@ uniform for
 numeric, then each condition will have \code{n} trials. Can be a (named) numeric
 vector with the same length as there are conditions to allow a different
 number of trials per condition.}
+
+\item{conds}{character vector, specifying the conditions to sample from.
+Default \code{NULL} is equivalent to \code{conds(object)}.}
 
 \item{k}{numeric larger than 0, indicating how many data sets shall
 be simulated. If > 1, users must specify \code{lower/upper}.}

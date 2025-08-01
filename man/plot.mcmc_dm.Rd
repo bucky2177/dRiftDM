@@ -8,7 +8,7 @@
 }
 \arguments{
 \item{x}{an object of class \code{mcmc_dm}, as returned by
-\code{\link[=estimate_model_bayesian]{estimate_model_bayesian()}}.}
+\code{\link[=estimate_bayesian]{estimate_bayesian()}}.}
 
 \item{...}{optional arguments passed on to the underlying plotting functions
 \code{\link[=plot_mcmc_trace]{plot_mcmc_trace()}}, \code{\link[=plot_mcmc_marginal]{plot_mcmc_marginal()}}, and
@@ -35,7 +35,7 @@ Returns \code{NULL} invisibly.
 \description{
 Visualize MCMC results and diagnostics for \code{mcmc_dm} objects.
 The function \code{plot.mcmc()} is typically called when users supply an
-objects returned by \code{\link[=estimate_model_bayesian]{estimate_model_bayesian()}} to the generic
+objects returned by \code{\link[=estimate_bayesian]{estimate_bayesian()}} to the generic
 \code{\link[base:plot]{base::plot()}} function.
 }
 \details{

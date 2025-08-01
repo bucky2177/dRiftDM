@@ -21,7 +21,7 @@ This function should be called whenever modifying a ddm object!
 \details{
 Checks:
 \itemize{
-\item the flex_prms_object via \code{\link[=validate_flex_prms]{validate_flex_prms()}}
+\item The flex_prms_object via \code{\link[=validate_flex_prms]{validate_flex_prms()}}
 \item The prms_solve (that it is a named numeric vector
 \code{\link[=check_if_named_numeric_vector]{check_if_named_numeric_vector()}} with the expected entries) and
 that nt, nx make sense. This may adjust t_max if t_max is smaller than
@@ -29,12 +29,16 @@ max(RT) of the observed data
 \item The solver string (only a single string and that it refers to something
 that is actually implemented). If im_zero, then check if dirac delta
 on 0.
-\item checks that the list comp_funs only contains functions and that each
+\item The cost_function string (only a single string and that it refers to
+something that is actually implemented).
+\item If cost_function is a summary statistic, that the objects stats_agg
+exists and has the correct structure.
+\item That the list comp_funs only contains functions and that each
 function provides the expected arguments
-\item If PDFs exist, checks the names, lengths and data type
-\item Checks that log_like_val (if it exists) is a single numeric.
-\item Checks the data type name structure of obs_data
-\item Checks the b_coding (column, u_name_value and l_name_value).
+\item If PDFs exist, the names, lengths and data type
+\item If cost_val exists, if it is a single numeric
+\item If obs_data exists, the data type, names, and structure
+\item The b_coding (column, u_name_value and l_name_value).
 }
 }
 \keyword{internal}

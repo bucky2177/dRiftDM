@@ -75,7 +75,9 @@ calc_pdfs.ratcliff_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
     )
   }
 
-
+  if (any(prms_matrix[, "sd_muc"]) <= 0) {
+    stop("sd_muc values <= 0 are not allowed")
+  }
 
 
   # do the quadrature
@@ -248,93 +250,3 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
 
 
 
-# Functions for calculating the log_likelihood ----------------------------
-
-
-#' Calculate the Log-Likelihood
-#'
-#' Wrapper function around `log_like_heart`
-#'
-#' @param pdfs a list of pdfs (see details)
-#' @param t_vec time space
-#' @param obs_data a list of obs_data
-#' @param conds all conditions of a model
-#' @param pdf_u,pdf_l numeric vectors of the pdfs (unpacked)
-#' @param rts_u,rts_l numeric vectors of the observed RTs (unpacked)
-#'
-#' @details
-#'
-#' ## calc_log_like
-#'
-#' Iterates over all conditions, and passes forward the (unpacked) arguments
-#' to `log_like_heart`, adding each log-likelihood of a condition.
-#'
-#' `pdfs` must be a list with entries named as the conditions, and then
-#' each condition being a list of the two PDFs (named pdf_u and pdf_l)
-#'
-#' `obs_data` must be a list with entries "rts_u" and "rts_l", and then
-#' each rts_* entry being a named list with the RT values for each condition
-#'
-#' ## log_like_heart
-#'
-#' Gets the density values for RTs in rts_u/rts_l via [stats::approx()],
-#' takes the log of that, and then sums across both.
-#' Wraps up the calculation in a tryCatch statement, throwing warnings when
-#' log_like_values can not be calculated
-#'
-#'
-#' @returns a single value of the log-likelihood. If no data is provided,
-#'   `NULL` is returned. If the calculation fails, `-Inf` is returned.
-#'
-#' @keywords internal
-calc_log_like <- function(pdfs, t_vec, obs_data, conds) {
-  if (is.null(obs_data)) {
-    return(NULL)
-  }
-
-  log_like <- 0
-
-  for (one_cond in conds) {
-    log_like <- log_like + log_like_heart(
-      pdf_u = pdfs[[one_cond]]$pdf_u,
-      pdf_l = pdfs[[one_cond]]$pdf_l,
-      t_vec = t_vec,
-      rts_u = obs_data$rts_u[[one_cond]],
-      rts_l = obs_data$rts_l[[one_cond]]
-    )
-  }
-
-  return(log_like)
-}
-
-#' @rdname calc_log_like
-log_like_heart <- function(pdf_u, pdf_l, t_vec, rts_u, rts_l) {
-  tryCatch(
-    expr = {
-      app_like_u <- stats::approx(
-        x = t_vec, y = pdf_u,
-        xout = rts_u
-      )$y
-      app_like_l <- stats::approx(
-        x = t_vec, y = pdf_l,
-        xout = rts_l
-      )$y
-
-      log_like <- sum(log(app_like_u)) + sum(log(app_like_l))
-      if (is.nan(log_like)) { # log(0) gives -Inf
-        if (min(app_like_u) < 0 | min(app_like_l) < 0) {
-          warning(
-            "negative density values encountered",
-            " when calculating the log-likelihood"
-          )
-        }
-        return(-Inf)
-      }
-      return(log_like)
-    },
-    error = function(e) {
-      warning("we encountered an untreated error!", e)
-      return(-Inf)
-    }
-  )
-}

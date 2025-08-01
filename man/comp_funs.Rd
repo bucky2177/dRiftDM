@@ -6,6 +6,7 @@
 \alias{comp_funs}
 \alias{comp_funs.drift_dm}
 \alias{comp_funs.fits_ids_dm}
+\alias{comp_funs.fits_agg_dm}
 \title{The Component Functions of A Model}
 \usage{
 comp_funs(object, ...) <- value
@@ -17,10 +18,12 @@ comp_funs(object, ...)
 \method{comp_funs}{drift_dm}(object, ...)
 
 \method{comp_funs}{fits_ids_dm}(object, ...)
+
+\method{comp_funs}{fits_agg_dm}(object, ...)
 }
 \arguments{
-\item{object}{an object of type \link{drift_dm} or \code{fits_ids_dm}
-(see \link{load_fits_ids}).}
+\item{object}{an object of type \link{drift_dm}, \code{fits_ids_dm}, or
+\code{fits_agg_dm} (see \code{\link[=estimate_dm]{estimate_dm()}}).}
 
 \item{...}{additional arguments passed down to the specific method.}
 

@@ -221,77 +221,68 @@ plot.traces_dm <- function(x, ..., col = NULL, col_b = NULL, xlim = NULL,
 #' Plot Conditional Accuracy Functions (CAFs)
 #'
 #' @description
-#' This function generates a plot of Conditional Accuracy Functions (CAFs). It
-#' can display observed and predicted values, making it useful for assessing
-#' model fit or exploring observed data.
+#' Visualizes conditional accuracy functions (CAFs) for observed and/or
+#' predicted data. This is useful for assessing model fit or exploring
+#' response patterns across conditions or participants.
 #'
-#'
-#' @param x a [data.frame], containing CAFs, typically resulting from a call
-#'  to [dRiftDM::calc_stats].
-#' @param id numeric or character, specifying the id of a single participant to
-#'  plot. If `length(id) > 1`, `plot.cafs()` is called recursively,
-#'  iterating over each entry in `id`. Each `id` must match with an `ID` in the
-#'  `ID` column of the provided cafs data set `x`.
-#' @param conds character vector, specifying the conditions to plot.
-#'  Defaults to all unique conditions.
-#' @param col Character vector, specifying colors for each condition. If a
-#'  single color is provided, it will be repeated for each condition.
-#' @param xlim,ylim numeric vectors of length 2, specifying the x and y axis
-#'  limits.
-#' @param xlab,ylab character, labels for the x and y axes.
-#' @param pch integer, specifying the plotting symbol for observed data points.
-#' @param lty integer, line type for the predicted CAFs.
-#' @param type character, type of plot for the predicted CAFs.
-#' @param legend character vector, specifying legend labels corresponding to
-#' the conditions in the CAFs. Defaults to the condition names.
-#' @param legend_pos character, specifying the position of the legend on the
-#' plot.
-#' @param ... additional arguments passed to the [plot], [graphics::points],
-#'  and [graphics::legend] functions. Oftentimes, this will (unfortunately) lead
-#'  to an error due to a clash of arguments.
-#'
+#' @param x an object of `type = "cafs"`, typically returned by
+#'   [dRiftDM::calc_stats(..., type = "cafs")].
+#' @param id a numeric or character, specifying the ID of a single participant
+#'   to plot. If `length(id) > 1`, `plot.cafs()` is called recursively for
+#'   each entry. Each `id` must match an entry in the `ID` column of `x`.
+#' @param conds a character vector specifying the conditions to plot.
+#'   Defaults to all available conditions.
+#' @param col a character vector specifying colors for each condition. If a
+#'   single color is provided, it is repeated for all conditions.
+#' @param xlim,ylim a numeric vectors of length 2, specifying the x- and y-axis
+#'   limits.
+#' @param xlab,ylab a character strings for the x- and y-axis labels.
+#' @param interval_obs,interval_pred logicals; if `TRUE` and `x` contains a
+#' column named `Estimate`, error bars for observed data and shaded contours
+#' for predicted data are drawn, respectively.
+#' @param ... additional graphical arguments passed to plotting functions.
+#'   Typical examples include `pch`, `lty`, `lwd`, or `legend.pos`. See
+#'   [dRiftDM::set_default_arguments()] for the full list of supported options.
 #'
 #' @details
-#' The `plot.cafs()` function allows for a quick investigation of CAFs, including
-#' options for color, symbols, and line types for different data sources
-#' (observed vs. predicted). When the supplied [data.frame] includes multiple
-#' IDs, CAFs are aggregated across IDs before plotting.
+#' If `x` contains multiple `ID`s and no specific `id` is provided, the
+#' function aggregates across participants before plotting.
+#'
+#' Observed CAFs are shown as points, and predicted CAFs as lines. When
+#' `interval = TRUE` and the input includes interval estimates (i.e., the
+#' column `Estimate` exists), the plot includes error bars for observed data
+#' and shaded contours for model predictions.
+#'
+#' Colors, symbols, and line styles can be customized via `...`.
 #'
 #' @returns
-#' Nothing (`NULL`; invisibly)
+#' Returns `NULL` invisibly. The function is called for its side effect of
+#' generating a plot.
 #'
 #' @examples
-#' # Example 1: Only model predictions ---------------------------------------
-#' # get a cafs data.frame for demonstration purpose
+#' # Example 1: Model predictions only ---------------------------------------
 #' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 #' cafs <- calc_stats(a_model, type = "cafs")
-#'
-#' # call the plot function with default values
 #' plot(cafs)
+#' plot(cafs, col = c("green", "red"), ylim = c(0.5, 1))
 #'
-#' # make the plot a little bit more pretty
-#' plot(cafs,
-#'   col = c("green", "red"),
-#'   ylim = c(0.5, 1)
-#' )
-#'
-#' # Example 2: Model predictions and observed data --------------------------
+#' # Example 2: Observed and predicted data ----------------------------------
 #' obs_data(a_model) <- dmc_synth_data
 #' cafs <- calc_stats(a_model, type = "cafs")
 #' plot(cafs)
-#' # Note: The model was not fitted to the data set, thus observed data and
-#' # model predictions don't match
 #'
-#'
-#' # Example 3: Only observed data -------------------------------------------
+#' # Example 3: Observed data only -------------------------------------------
 #' cafs <- calc_stats(dmc_synth_data, type = "cafs")
+#' plot(cafs)
+#'
+#' # Example 4: Observed data with interval ----------------------------------
+#' cafs <- calc_stats(dmc_synth_data, type = "cafs", resample = TRUE)
 #' plot(cafs)
 #'
 #' @export
 plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
-                      ylim = c(0, 1), xlab = "Bins", ylab = NULL, pch = 21,
-                      lty = 1, type = "l", legend = NULL,
-                      legend_pos = "bottomright") {
+                      ylim = c(0, 1), xlab = "Bins", ylab = NULL,
+                      interval_obs = TRUE, interval_pred = TRUE) {
   cafs <- x
   caf_name <- grep("^P_", colnames(cafs), value = TRUE)
 
@@ -299,7 +290,6 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
   if (!is.null(cafs$ID) && length(unique(cafs$ID)) > 1) {
 
     if (!is.null(id)) {
-
       if (!all(id %in% unique(cafs$ID))) {
         mis_ids <- setdiff(id, unique(cafs$ID))
         stop(
@@ -310,10 +300,12 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
       if (length(id) == 1) {
         cafs <- cafs[cafs$ID == id, ]
       } else {
-        lapply(id, \(one_id){
-          plot(x, ..., conds = conds, id = one_id, col = col, xlim = xlim,
-               ylim = ylim, xlab = xlab, ylab = ylab, pch = pch, lty = lty,
-               type = type, legend = legend, legend_pos = legend_pos)
+        lapply(id, function(one_id) {
+          plot.cafs(
+            x = x, ..., id = one_id, conds = conds, col = col, xlim = xlim,
+            ylim = ylim, xlab = xlab, ylab = ylab, interval_obs = interval_obs,
+            interval_pred = interval_pred
+          )
         })
         return(invisible())
       }
@@ -324,16 +316,14 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
   }
 
   # set default arguments
+  all_conds <- unique(cafs$Cond)
   if (is.null(conds)) {
-    conds <- unique(cafs$Cond)
+    conds <- all_conds
   }
-  conds <- match.arg(
-    arg = conds, choices = unique(cafs$Cond),
-    several.ok = TRUE
-  )
+  conds <- match.arg(arg = conds, choices = all_conds, several.ok = TRUE)
 
   if (is.null(ylab)) {
-    # f(upper_boundery_name)
+    # f(upper_boundary_name)
     u_name <- substr(caf_name, 3, nchar(caf_name))
     ylab <- paste("f(", u_name, ")", sep = "")
   }
@@ -341,60 +331,116 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
     lim = xlim, default_lim = c(min(cafs$Bin), max(cafs$Bin))
   )
 
-  col <- set_default_colors(
-    colors = col, unique_conds = conds,
-    default_colors = grDevices::rainbow(n = length(conds))
+  # Set colors
+  col <- set_default_colors(colors = col, n = length(all_conds))
+  col <- col[which(all_conds %in% conds)]
+
+  # further optional arguments related to plot, points, and legend
+  dots = list(...)
+  dots = set_default_arguments(dots, conds, id)
+  dots$err.col <- set_default_colors(
+    colors = dots$err.col, n = length(all_conds)
   )
-
-  if (is.null(legend)) {
-    legend <- conds
-  }
-
+  dots$err.col <- dots$err.col[which(all_conds %in% conds)]
 
   # prepare plot
-  plot(c(1, 2) ~ c(1, 1),
-    col = "white", xlab = xlab, ylab = ylab, xlim = xlim,
-    ylim = ylim, ...
+  withr::local_par(family = dots$family)
+  plot(
+    c(1, 2) ~ c(1, 1), col = "white", xlab = xlab, ylab = ylab, xlim = xlim,
+    ylim = ylim, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
+    cex.main = dots$cex.main, main = dots$main
   )
 
-  # iterate over all conditions and plot everything
+  # figure out if an Estimate column exists
+  if ("Estimate" %in% names(cafs)) {
+    orig = cafs[cafs$Estimate == "orig",]
+    l_u = cafs[cafs$Estimate != "orig",]
+  } else {
+    orig = cafs
+    l_u = NULL
+  }
+
+
+  # first plot the observed data
   for (idx in seq_along(conds)) {
-    sub_dat <- cafs[cafs$Cond == conds[idx], ]
-    sub_dat_obs <- sub_dat[sub_dat$Source == "obs", ]
-    if (nrow(sub_dat_obs) > 0) {
-      graphics::points(
-        sub_dat_obs[[caf_name]] ~ sub_dat_obs$Bin,
-        col = col[idx],
-        type = "p",
-        pch = pch,
-        ...
+    sub_dat_l_u <- l_u[l_u$Cond == conds[idx] & l_u$Source == "obs", ]
+    sub_dat_orig <- orig[orig$Cond == conds[idx] & orig$Source == "obs", ]
+
+    if (nrow(sub_dat_orig) == 0) {
+      next # if there is no observed data skip this part
+    }
+
+    if ((!is.null(sub_dat_l_u) && nrow(sub_dat_l_u) > 0) && interval_obs) {
+      borders <- sort(unique(sub_dat_l_u$Estimate))
+      stopifnot(length(borders) == 2)
+      df_lower <- sub_dat_l_u[sub_dat_l_u$Estimate == borders[1], ]
+      df_upper <- sub_dat_l_u[sub_dat_l_u$Estimate == borders[2], ]
+
+      err_y0 <- df_lower[[caf_name]]
+      err_y1 <- df_upper[[caf_name]]
+      err_x  <- sub_dat_orig$Bin
+      keep <- abs(err_y1 - err_y0) > ylim[2] * dots$err.eps
+
+      graphics::arrows(
+        x0 = err_x[keep], y0 = err_y0[keep], x1 = err_x[keep], y1 = err_y1[keep],
+        angle = 90, code = 3, length = dots$err.width, col = dots$err.col[idx]
       )
     }
 
-    sub_dat_pred <- sub_dat[sub_dat$Source == "pred", ]
-    if (nrow(sub_dat_pred) > 0) {
-      graphics::points(
-        sub_dat_pred[[caf_name]] ~ sub_dat_pred$Bin,
-        col = col[idx],
-        type = type,
-        lty = lty,
-        ...
-      )
-    }
+    graphics::points(
+      sub_dat_orig[[caf_name]] ~ sub_dat_orig$Bin, col = col[idx], type = "p",
+      pch = dots$obs.pch, bg = dots$obs.pt.bg, cex = dots$cex.pt,
+    )
   }
+
+
+  # then plot the predicted data
+  for (idx in seq_along(conds)) {
+    sub_dat_l_u <- l_u[l_u$Cond == conds[idx] & l_u$Source == "pred", ]
+    sub_dat_orig <- orig[orig$Cond == conds[idx] & orig$Source == "pred", ]
+
+    if (nrow(sub_dat_orig) == 0) {
+      next # if there is no observed data skip this part
+    }
+
+    if ((!is.null(sub_dat_l_u) && nrow(sub_dat_l_u) > 0) && interval_pred) {
+      borders <- sort(unique(sub_dat_l_u$Estimate))
+      stopifnot(length(borders) == 2)
+      df_lower <- sub_dat_l_u[sub_dat_l_u$Estimate == borders[1], ]
+      df_upper <- sub_dat_l_u[sub_dat_l_u$Estimate == borders[2], ]
+
+      x_poly <- c(df_lower$Bin, rev(df_upper$Bin))
+      y_poly <- c(df_lower[[caf_name]], rev(df_upper[[caf_name]]))
+
+      polygon(x = x_poly, y = y_poly,
+              col = grDevices::adjustcolor(col[idx], alpha.f = dots$shade.alpha),
+              border = NA)
+    }
+
+    graphics::points(
+      sub_dat_orig[[caf_name]] ~ sub_dat_orig$Bin, col = col[idx],
+      type = "l", lty = dots$pred.lty, lwd = dots$pred.lwd
+    )
+  }
+
 
   # plot the legend
-  if (!any(cafs$Source == "pred")) {
-    lty <- -1
+  dots$pred.lty <- if (!any(cafs$Source == "pred")) NULL else dots$pred.lty
+  dots$obs.pch <- if (!any(cafs$Source == "obs")) NULL else dots$obs.pch
+  if (is.character(dots$legend.pos)) {
+    x_leg <- dots$legend.pos
+    y_leg <- NULL
+  } else {
+    x_leg <- dots$legend.pos[1]
+    y_leg <- dots$legend.pos[2]
   }
-  if (!any(cafs$Source == "obs")) {
-    pch <- NA
-  }
-  if (length(legend) > 1) {
+
+  if (all(!is.na(dots$legend)) && length(dots$legend) >= 1) {
     graphics::legend(
-      x = legend_pos,
-      legend = legend,
-      col = col, lty = lty, pch = pch, ...
+      x = x_leg, y = y_leg, legend = dots$legend, col = col, lwd = dots$pred.lwd,
+      lty = dots$pred.lty, pch = dots$obs.pch, pt.bg = dots$obs.pt.bg, pt.cex = dots$cex.pt,
+      bg = dots$legend.bg, bty = dots$bty, box.lwd = dots$box.lwd,
+      box.col = dots$box.col, cex = dots$cex.legend, box.lty = dots$box.lty
     )
   }
   invisible()
@@ -403,93 +449,64 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
 
 
 
-#' Plot Quantiles
+#' Plot Response Time Quantiles
 #'
 #' @description
-#' This function generates a plot of quantiles. It can display observed and
-#' predicted values, making it useful for assessing model fit or exploring
-#' observed data distributions.
+#' Visualizes response time quantiles for observed and/or predicted data across
+#' experimental conditions. This is useful for assessing model fit or exploring
+#' response patterns across conditions or participants.
 #'
-#' If the data contains multiple IDs, quantiles are aggregated across IDs
-#' before plotting.
-#'
-#' @param x a [data.frame], containing quantiles, typically resulting from a
-#' call to [dRiftDM::calc_stats].
-#' @param id numeric or character, specifying the id of a single participant to
-#'  plot. If `length(id) > 1`, `plot.quantiles()` is called recursively,
-#'  iterating over each entry in `id`. Each `id` must match with an `ID` in the
-#'  `ID` column of the provided quantiles data set `x`.
-#' @param conds character vector, specifying the conditions to plot. Defaults to
-#' all unique conditions.
-#' @param dv character, specifying the quantiles to plot. Defaults to
-#'  quantiles derived from the upper boundary.
-#' @param col character vector, specifying colors for each condition. If a
-#'  single color is provided, it will be repeated for each condition.
-#' @param xlim,ylim numeric vectors of length 2, specifying the x and y axis
-#'  limits.
-#' @param xlab,ylab character, labels for the x and y axes.
-#' @param pch integer, specifying the plotting symbol for observed data points.
-#' @param lty integer, line type for the predicted quantiles.
-#' @param type character, type of plot for the predicted quantiles.
-#' @param legend character vector, specifying legend labels corresponding to
-#'  the conditions in the quantiles. Defaults to the condition names.
-#' @param legend_pos character, specifying the position of the legend on the
-#'  plot.
-#' @param ... additional arguments passed to the [plot], [graphics::points],
-#'  and [graphics::legend] functions. Oftentimes, this will (unfortunately) lead
-#'  to an error due to a clash of arguments.
+#' @param x an object of `type = "quantiles"`, typically returned by
+#'   [dRiftDM::calc_stats(..., type = "quantiles")].
+#' @inheritParams plot.cafs
+#' @param dv a character string indicating the dependent variable to plot.
+#'   Defaults to the quantiles for the upper boundary.
 #'
 #' @details
-#' The `plot.quantiles()` function allows for a quick investigation of quantiles,
-#' including options for color, symbols, and line types for different data
-#' sources (observed vs. predicted). When the supplied [data.frame] includes
-#' multiple IDs, quantiles are aggregated across IDs before plotting.
+#' If `x` contains multiple `ID`s and no specific `id` is provided, the
+#' function aggregates across participants before plotting.
+#'
+#' Observed quantiles are shown as points, and predicted quantiles as lines.
+#' When `interval = TRUE` and the input includes interval estimates (i.e., the
+#' column `Estimate` exists), the plot includes error bars for observed data
+#' and shaded contours for model predictions.
+#'
+#' Colors, symbols, and line styles can be customized via `...`.
 #'
 #' @returns
-#' Nothing (`NULL`; invisibly)
+#' Returns `NULL` invisibly. The function is called for its side effect of
+#' generating a plot.
 #'
 #' @examples
-#' # Example 1: Only model predictions ---------------------------------------
-#' # get a quantiles data.frame for demonstration purpose
+#' # Example 1: Model predictions only ---------------------------------------
 #' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 #' quantiles <- calc_stats(a_model, type = "quantiles")
-#'
-#' # call the plot function with default values
 #' plot(quantiles)
+#' plot(quantiles, col = c("green", "red"), xlim = c(0.2, 0.6))
 #'
-#' # make the plot a little bit more pretty
-#' plot(quantiles,
-#'   col = c("green", "red"),
-#'   xlim = c(0.2, 0.6),
-#'   ylab = "Quantile Level",
-#'   xlab = "Response Times [s]"
-#' )
-#'
-#' # Example 2: Model predictions and observed data --------------------------
+#' # Example 2: Observed and predicted data ----------------------------------
 #' obs_data(a_model) <- dmc_synth_data
 #' quantiles <- calc_stats(a_model, type = "quantiles")
 #' plot(quantiles)
-#' # Note: The model was not fitted to the data set, thus observed data and
-#' # model predictions don't match
 #'
-#'
-#' # Example 3: Only observed data -------------------------------------------
+#' # Example 3: Observed data only -------------------------------------------
 #' quantiles <- calc_stats(dmc_synth_data, type = "quantiles")
 #' plot(quantiles)
+#'
+#' # Example 4: Observed data with interval ----------------------------------
+#' cafs <- calc_stats(dmc_synth_data, type = "quantiles", resample = TRUE)
+#' plot(cafs)
 #'
 #' @export
 plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
                            col = NULL, xlim = NULL, ylim = c(0, 1),
-                           xlab = "RT [s]", ylab = "F(RT)", pch = 21, lty = 1,
-                           type = "l", legend = NULL,
-                           legend_pos = "bottomright") {
+                           xlab = "RT [s]", ylab = "F(RT)",
+                           interval_obs = TRUE, interval_pred = TRUE) {
   quantiles <- x
 
-  # aggregate or select the relevant data frame
+  # Handle multiple IDs
   if (!is.null(quantiles$ID) && length(unique(quantiles$ID)) > 1) {
-
     if (!is.null(id)) {
-
       if (!all(id %in% unique(quantiles$ID))) {
         mis_ids <- setdiff(id, unique(quantiles$ID))
         stop(
@@ -500,10 +517,12 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       if (length(id) == 1) {
         quantiles <- quantiles[quantiles$ID == id, ]
       } else {
-        lapply(id, \(one_id){
-          plot(x, ..., conds = conds, id = one_id, col = col, xlim = xlim,
-               ylim = ylim, xlab = xlab, ylab = ylab, pch = pch, lty = lty,
-               type = type, legend = legend, legend_pos = legend_pos)
+        lapply(id, function(one_id) {
+          plot.quantiles(
+            x = x, ..., id = one_id, conds = conds, dv = dv, col = col,
+            xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
+            interval_obs = interval_obs, interval_pred = interval_pred
+          )
         })
         return(invisible())
       }
@@ -513,129 +532,177 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
     }
   }
 
-
-
-  # set default plot arguments
+  # Determine conditions
+  all_conds <- unique(quantiles$Cond)
   if (is.null(conds)) {
-    conds <- unique(quantiles$Cond)
+    conds <- all_conds
   }
-  conds <- match.arg(
-    arg = conds, choices = unique(quantiles$Cond),
-    several.ok = TRUE
-  )
+  conds <- match.arg(arg = conds, choices = all_conds, several.ok = TRUE)
 
-  u_name <- names(attr(quantiles, "b_coding")$u_name_value)
+  # Determine dependent variable
+  quant_columns <- grep("^Quant_", names(quantiles), value = TRUE)
   if (is.null(dv)) {
+    u_name <- names(attr(quantiles, "b_coding")$u_name_value)
     dv <- paste("Quant", u_name, sep = "_")
   }
+  dv <- match.arg(dv, quant_columns)
 
+  # Set axis limits
   xlim <- set_plot_limits(
     lim = xlim,
     default_lim = c(min(quantiles[[dv]]) * 0.75, max(quantiles[[dv]]) * 1.25)
   )
 
-  col <- set_default_colors(
-    colors = col, unique_conds = conds,
-    default_colors = grDevices::rainbow(n = length(conds))
-  )
+  # Set colors
+  col <- set_default_colors(colors = col, n = length(all_conds))
+  col <- col[which(all_conds %in% conds)]
 
-  if (is.null(legend)) {
-    legend <- conds
-  }
-
-
-  # prepare plot
-  plot(c(1, 2) ~ c(1, 1),
-    col = "white", xlab = xlab, ylab = ylab,
-    xlim = xlim, ylim = ylim, ...
-  )
-
-
-  # iterate over all conditions
-  for (idx in seq_along(conds)) {
-    sub_dat <- quantiles[quantiles$Cond == conds[idx], ]
-    sub_dat_obs <- sub_dat[sub_dat$Source == "obs", ]
-    if (nrow(sub_dat_obs) > 0) {
-      graphics::points(sub_dat_obs$Prob ~ sub_dat_obs[[dv]],
-        col = col[idx], pch = pch, ...
-      )
-    }
-    sub_dat_pred <- sub_dat[sub_dat$Source == "pred", ]
-    if (nrow(sub_dat_pred) > 0) {
-      graphics::points(sub_dat_pred$Prob ~ sub_dat_pred[[dv]],
-        type = type, lty = lty, col = col[idx], ...
-      )
-    }
-  }
-
-  # plot the legend
+  # Collect additional plotting options
   dots <- list(...)
-  if (!any(quantiles$Source == "pred")) {
-    lty <- -1
+  dots <- set_default_arguments(dots, conds, id)
+  dots$err.col <- set_default_colors(
+    colors = dots$err.col, n = length(all_conds)
+  )
+  dots$err.col <- dots$err.col[which(all_conds %in% conds)]
+
+  # Initialize plot
+  withr::local_par(family = dots$family)
+  plot(
+    c(1, 2) ~ c(1, 1),
+    type = "n", xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
+    cex.axis = dots$cex.axis, cex.lab = dots$cex.lab, cex.main = dots$cex.main,
+    main = dots$main
+  )
+
+  # figure out if an Estimate column exists
+  if ("Estimate" %in% names(quantiles)) {
+    orig = quantiles[quantiles$Estimate == "orig",]
+    l_u = quantiles[quantiles$Estimate != "orig",]
+  } else {
+    orig = quantiles
+    l_u = NULL
   }
-  if (!any(quantiles$Source == "obs")) {
-    pch <- NA
-  }
-  if (length(legend) > 1) {
-    graphics::legend(
-      x = legend_pos,
-      legend = legend,
-      col = col, lty = lty, pch = pch, ...
+
+  # first plot the observed data
+  for (idx in seq_along(conds)) {
+    sub_dat_l_u <- l_u[l_u$Cond == conds[idx] & l_u$Source == "obs", ]
+    sub_dat_orig <- orig[orig$Cond == conds[idx] & orig$Source == "obs", ]
+
+    if (nrow(sub_dat_orig) == 0) {
+      next # if there is no observed data skip this part
+    }
+
+    if ((!is.null(sub_dat_l_u) && nrow(sub_dat_l_u) > 0) && interval_obs) {
+      borders <- sort(unique(sub_dat_l_u$Estimate))
+      stopifnot(length(borders) == 2)
+      df_lower <- sub_dat_l_u[sub_dat_l_u$Estimate == borders[1], ]
+      df_upper <- sub_dat_l_u[sub_dat_l_u$Estimate == borders[2], ]
+
+      err_x0 <- df_lower[[dv]]
+      err_x1 <- df_upper[[dv]]
+      err_y  <- sub_dat_orig$Prob
+      keep <- abs(err_x1 - err_x0) > ylim[2] * dots$err.eps
+
+      graphics::arrows(
+        y0 = err_y[keep], x0 = err_x0[keep], y1 = err_y[keep], x1 = err_x1[keep],
+        angle = 90, code = 3, length = dots$err.width, col = dots$err.col[idx]
+      )
+    }
+
+    graphics::points(
+      sub_dat_orig$Prob ~ sub_dat_orig[[dv]], col = col[idx], type = "p",
+      pch = dots$obs.pch, bg = dots$obs.pt.bg, cex = dots$cex.pt,
     )
   }
-  invisible(NULL)
+
+
+  # then plot the predicted data
+  for (idx in seq_along(conds)) {
+    sub_dat_l_u <- l_u[l_u$Cond == conds[idx] & l_u$Source == "pred", ]
+    sub_dat_orig <- orig[orig$Cond == conds[idx] & orig$Source == "pred", ]
+
+    if (nrow(sub_dat_orig) == 0) {
+      next # if there is no observed data skip this part
+    }
+
+    if ((!is.null(sub_dat_l_u) && nrow(sub_dat_l_u) > 0) && interval_pred) {
+      borders <- sort(unique(sub_dat_l_u$Estimate))
+      stopifnot(length(borders) == 2)
+      df_lower <- sub_dat_l_u[sub_dat_l_u$Estimate == borders[1], ]
+      df_upper <- sub_dat_l_u[sub_dat_l_u$Estimate == borders[2], ]
+
+
+      y_poly <- c(df_lower$Prob, rev(df_upper$Prob))
+      x_poly <- c(df_lower[[dv]], rev(df_upper[[dv]]))
+
+      polygon(x = x_poly, y = y_poly,
+              col = grDevices::adjustcolor(col[idx], alpha.f = dots$shade.alpha),
+              border = NA)
+    }
+
+    graphics::points(
+      sub_dat_orig$Prob ~ sub_dat_orig[[dv]], col = col[idx], type = "l",
+      lty = dots$pred.lty, lwd = dots$pred.lwd
+    )
+  }
+
+
+  # Legend setup
+  dots$pred.lty <- if (!any(quantiles$Source == "pred")) NULL else dots$pred.lty
+  dots$obs.pch <- if (!any(quantiles$Source == "obs")) NULL else dots$obs.pch
+
+  if (is.character(dots$legend.pos)) {
+    x_leg <- dots$legend.pos
+    y_leg <- NULL
+  } else {
+    x_leg <- dots$legend.pos[1]
+    y_leg <- dots$legend.pos[2]
+  }
+
+  if (all(!is.na(dots$legend)) && length(dots$legend) >= 1) {
+    graphics::legend(
+      x = x_leg, y = y_leg, legend = dots$legend, col = col, lwd = dots$pred.lwd,
+      lty = dots$pred.lty, pch = dots$obs.pch, pt.bg = dots$obs.pt.bg, pt.cex = dots$cex.pt,
+      bg = dots$legend.bg, bty = dots$bty, box.lwd = dots$box.lwd,
+      box.col = dots$box.col, cex = dots$cex.legend, box.lty = dots$box.lty
+    )
+  }
+
+  invisible()
 }
+
 
 
 #' Plot Delta Functions
 #'
 #' @description
-#' This function generates a plot of delta functions, displaying observed and
-#' predicted values, which can be useful for evaluating model fit or exploring
-#' data characteristics.
+#' Visualizes delta functions for observed and/or predicted data. This is useful
+#' for assessing model fit or exploring the model behavior
 #'
-#' If the data contains multiple IDs, delta functions are aggregated across IDs
-#' before plotting.
-#'
-#' @param x a [data.frame], containing delta functions, typically resulting from
-#'  a call to [dRiftDM::calc_stats].
-#' @param id numeric or character, specifying the id of a single participant to
-#'  plot. If `length(id) > 1`, `plot.delta_funs()` is called recursively,
-#'  iterating over each entry in `id`. Each `id` must match with an `ID` in the
-#'  `ID` column of the provided data set of delta functions `x`.
-#' @param dv character vector, specifying the delta functions to plot. Defaults
-#'  to all columns beginning with "Delta_" in `x`.
-#' @param col character vector, specifying colors for each delta function. If a
-#'  single color is provided, it will be repeated for each function.
-#' @param xlim,ylim numeric vectors of length 2, specifying the x and y axis
-#'  limits.
-#' @param xlab,ylab character, labels for the x and y axes.
-#' @param pch integer, specifying the plotting symbol for observed data points.
-#' @param lty integer, line type for the predicted delta functions.
-#' @param type character, type of plot for the predicted delta functions.
-#' @param legend character vector, specifying legend labels corresponding to
-#'  the delta functions. Defaults to the way functions were derived.
-#' @param legend_pos character, specifying the position of the legend on the
-#'  plot.
-#' @param ... additional arguments passed to the [plot], [graphics::points],
-#'  and [graphics::legend] functions. Oftentimes, this will (unfortunately) lead
-#'  to an error due to a clash of arguments.
+#' @param x an object of `type = "delta_funs"`, typically returned by
+#'   [dRiftDM::calc_stats(..., type = "delta_funs")].
+#' @inheritParams plot.cafs
+#' @param dv a character vector indicating the delta function(s) to plot.
+#'   Defaults to all columns in `x` that begin with `"Delta_"`.
 #'
 #' @details
-#' The `plot.delta_funs()` function provides an easy way to investigate delta
-#' functions, allowing for customization in color, symbols, and line types for
-#' different data sources (observed vs. predicted). If multiple IDs are present
-#' in the data, delta functions are aggregated across IDs before plotting.
-#' By default, `ylim` is set to twice the range of the delta values to provide
-#' more context.
+#' If `x` contains multiple `ID`s and no specific `id` is provided, the
+#' function aggregates across participants before plotting.
 #'
+#' Observed delta functions are shown as points, and predicted delta functions
+#' as lines. When `interval_obs = TRUE` or `interval_pred = TRUE` and the input
+#' includes interval estimates (i.e., the column `Estimate` exists), the plot
+#' includes error bars for observed data and shaded contours for model
+#' predictions.
+#'
+#' Colors, symbols, and line styles can be customized via `...`.
 #'
 #' @returns
-#' Nothing (`NULL`; invisibly)
+#' Returns `NULL` invisibly. The function is called for its side effect of
+#' generating a plot.
 #'
 #' @examples
-#' # Example 1: Only model predictions ---------------------------------------
-#' # get a delta function data.frame for demonstration purpose
+#' # Example 1: Model predictions only ---------------------------------------
 #' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 #' deltas <- calc_stats(
 #'   a_model,
@@ -643,18 +710,10 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 #'   minuends = "incomp",
 #'   subtrahends = "comp"
 #' )
-#'
-#' # call the plot function with default values
 #' plot(deltas)
+#' plot(deltas, col = "black", lty = 2, xlim = c(0.2, 0.65))
 #'
-#' # modify the plot
-#' plot(deltas,
-#'   col = c("black"),
-#'   lty = 2,
-#'   xlim = c(0.2, 0.65)
-#' )
-#'
-#' # Example 2: Model predictions and observed data --------------------------
+#' # Example 2: Observed and predicted data ----------------------------------
 #' obs_data(a_model) <- dmc_synth_data
 #' deltas <- calc_stats(
 #'   a_model,
@@ -663,11 +722,8 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 #'   subtrahends = "comp"
 #' )
 #' plot(deltas)
-#' # Note: The model was not fitted to the data set, thus observed data and
-#' # model predictions don't match
 #'
-#'
-#' # Example 3: Only observed data -------------------------------------------
+#' # Example 3: Observed data only -------------------------------------------
 #' deltas <- calc_stats(
 #'   dmc_synth_data,
 #'   type = "delta_funs",
@@ -676,33 +732,40 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 #' )
 #' plot(deltas)
 #'
+#' # Example 4: Observed data with intervals ---------------------------------
+#' deltas <- calc_stats(
+#'   dmc_synth_data,
+#'   type = "delta_funs",
+#'   minuends = "incomp",
+#'   subtrahends = "comp",
+#'   resample = TRUE
+#' )
+#' plot(deltas)
+#'
 #' @export
-plot.delta_funs <- function(x, ..., id = NULL, dv = NULL, col = NULL,
-                            xlim = NULL, ylim = NULL, xlab = "RT [s]",
-                            ylab = expression(Delta), pch = 21, lty = 1,
-                            type = "l", legend = NULL,
-                            legend_pos = "topright") {
+plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
+                            col = NULL, xlim = NULL, ylim = NULL,
+                            xlab = "RT [s]", ylab = expression(Delta),
+                            interval_obs = TRUE, interval_pred = TRUE) {
   delta_fun <- x
 
-  # aggregate or select the relevant data frame
+  # Handle multiple IDs
   if (!is.null(delta_fun$ID) && length(unique(delta_fun$ID)) > 1) {
-
     if (!is.null(id)) {
-
       if (!all(id %in% unique(delta_fun$ID))) {
         mis_ids <- setdiff(id, unique(delta_fun$ID))
-        stop(
-          "The following IDs were not found: ", paste(mis_ids, collapse = ", ")
-        )
+        stop("The following IDs were not found: ", paste(mis_ids, collapse = ", "))
       }
 
       if (length(id) == 1) {
         delta_fun <- delta_fun[delta_fun$ID == id, ]
       } else {
-        lapply(id, \(one_id){
-          plot(x, ..., conds = conds, id = one_id, col = col, xlim = xlim,
-               ylim = ylim, xlab = xlab, ylab = ylab, pch = pch, lty = lty,
-               type = type, legend = legend, legend_pos = legend_pos)
+        lapply(id, function(one_id) {
+          plot.delta_funs(
+            x = x, ..., id = one_id, conds = conds, dv = dv, col = col,
+            xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
+            interval_obs = interval_obs, interval_pred = interval_pred
+          )
         })
         return(invisible())
       }
@@ -712,87 +775,471 @@ plot.delta_funs <- function(x, ..., id = NULL, dv = NULL, col = NULL,
     }
   }
 
-
-  # get the columns to plot
-  delta_columns <- grep("^Delta_", colnames(delta_fun), value = TRUE)
+  # Get the delta columns to plot
+  all_delta_columns <- grep("^Delta_", names(delta_fun), value = TRUE)
   if (is.null(dv)) {
-    dv <- delta_columns
+    dv <- all_delta_columns
   }
-  dv <- match.arg(arg = dv, choices = delta_columns, several.ok = TRUE)
+  dv <- match.arg(dv, choices = all_delta_columns, several.ok = TRUE)
 
-  uv <- gsub(pattern = "^Delta_", replacement = "", x = dv)
-  uv <- paste("Avg_", uv, sep = "")
-  stopifnot(length(uv) == length(dv))
+  # Determine x-variable names
+  uv <- gsub("^Delta_", "Avg_", dv)
 
-  # set default plot arguments
+  # Set axis limits
   all_y_vals <- unlist(delta_fun[dv])
   y_r <- range(all_y_vals)
-  y_r <- c(y_r[1] - (y_r[2] - y_r[1]) / 2, y_r[2] + (y_r[2] - y_r[1]) / 2)
-  ylim <- set_plot_limits(
-    lim = ylim,
-    default_lim = y_r
-  )
+  y_r <- c(y_r[1] - diff(y_r) / 2, y_r[2] + diff(y_r) / 2)
+  ylim <- set_plot_limits(ylim, default_lim = y_r)
 
   all_x_vals <- unlist(delta_fun[uv])
   xlim <- set_plot_limits(
-    lim = xlim,
-    default_lim = c(min(all_x_vals) * 0.75, max(all_x_vals) * 1.25)
+    xlim, default_lim = c(min(all_x_vals) * 0.75, max(all_x_vals) * 1.25)
   )
 
-  if (length(dv) == 1) {
-    def_colors <- "black"
+  # Set colors
+  if (length(all_delta_columns) == 1){
+    col <- "black"
   } else {
-    def_colors <- grDevices::rainbow(n = length(dv))
+    col <- set_default_colors(colors = col, n = length(all_delta_columns))
+    col <- col[which(all_delta_columns %in% dv)]
   }
 
-  col <- set_default_colors(
-    colors = col, unique_conds = dv, # dv; doesn't matter because length counts
-    default_colors = def_colors
-  )
-
-  # prepare plot
-  plot(c(1, 2) ~ c(1, 1),
-    col = "white", xlab = xlab, ylab = ylab,
-    xlim = xlim, ylim = ylim, ...
-  )
-
-
-  # iterate over all dv(s)
-  for (idx in seq_along(dv)) {
-    sub_dat_obs <- delta_fun[delta_fun$Source == "obs", ]
-    sub_dat_obs <- sub_dat_obs[c(dv[idx], uv[idx])]
-    if (nrow(sub_dat_obs) > 0) {
-      graphics::points(sub_dat_obs[[1]] ~ sub_dat_obs[[2]],
-        col = col[idx], pch = pch, ...
-      )
-    }
-    sub_dat_pred <- delta_fun[delta_fun$Source == "pred", ]
-    sub_dat_pred <- sub_dat_pred[c(dv[idx], uv[idx])]
-    if (nrow(sub_dat_pred) > 0) {
-      graphics::points(sub_dat_pred[[1]] ~ sub_dat_pred[[2]],
-        type = type, col = col[idx], lty = lty, ...
-      )
-    }
-  }
-
-
-  # plot the legend
+  # Collect graphical options
   dots <- list(...)
-  lwd <- dots$lwd
-  if (!any(delta_fun$Source == "pred")) {
-    lty <- -1
+  dots <- set_default_arguments(dots, dv, id)
+  if (is.null(dots$err.col)){
+    dots$err.col <- "gray"
   }
-  if (!any(delta_fun$Source == "obs")) {
-    pch <- NA
+  dots$err.col <- set_default_colors(
+    colors = dots$err.col, n = length(all_delta_columns)
+  )
+  dots$err.col <- dots$err.col[which(all_delta_columns %in% dv)]
+
+
+  # Prepare plot
+  withr::local_par(family = dots$family)
+  plot(
+    c(1, 2) ~ c(1, 1), type = "n", xlab = xlab, ylab = ylab, xlim = xlim,
+    ylim = ylim, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
+    cex.main = dots$cex.main, main = dots$main
+  )
+
+  # Determine original vs interval data
+  if ("Estimate" %in% names(delta_fun)) {
+    orig <- delta_fun[delta_fun$Estimate == "orig", ]
+    l_u  <- delta_fun[delta_fun$Estimate != "orig", ]
+  } else {
+    orig <- delta_fun
+    l_u  <- NULL
   }
-  legend <- gsub(pattern = "Delta_", replacement = "", x = dv)
-  if (length(legend) > 1) {
+
+  # Plot observed
+  for (idx in seq_along(dv)) {
+    sub_obs_orig <- orig[orig$Source == "obs", c(dv[idx], uv[idx])]
+    sub_obs_lu   <- l_u[l_u$Source == "obs", ]
+
+    if (nrow(sub_obs_orig) == 0) {
+      next # if there is no observed data skip this part
+    }
+
+    if (!is.null(sub_obs_lu) && nrow(sub_obs_lu) > 0 && interval_obs) {
+      borders <- sort(unique(sub_obs_lu$Estimate))
+      stopifnot(length(borders) == 2)
+      df_lower <-
+        sub_obs_lu[sub_obs_lu$Estimate == borders[1], c(dv[idx], uv[idx])]
+      df_upper <-
+        sub_obs_lu[sub_obs_lu$Estimate == borders[2], c(dv[idx], uv[idx])]
+
+      err_x0 <- df_lower[[uv[idx]]]
+      err_x1 <- df_upper[[uv[idx]]]
+      err_y  <- sub_obs_orig[[dv[idx]]]
+      keep <- abs(err_x1 - err_x0) > ylim[2] * dots$err.eps
+
+      graphics::arrows(
+        y0 = err_y[keep], x0 = err_x0[keep], y1 = err_y[keep], x1 = err_x1[keep],
+        angle = 90, code = 3, length = dots$err.width, col = dots$err.col[idx]
+      )
+
+      err_y0 <- df_lower[[dv[idx]]]
+      err_y1 <- df_upper[[dv[idx]]]
+      err_x  <- sub_obs_orig[[uv[idx]]]
+      keep <- abs(err_y1 - err_y0) > ylim[2] * dots$err.eps
+
+
+      graphics::arrows(
+        y0 = err_y0[keep], x0 = err_x[keep], y1 = err_y1[keep], x1 = err_x[keep],
+        angle = 90, code = 3, length = dots$err.width, col = dots$err.col[idx]
+      )
+    }
+    graphics::points(sub_obs_orig[[1]] ~ sub_obs_orig[[2]],
+                     col = col[idx], pch = dots$obs.pch,
+                     bg = dots$obs.pt.bg, cex = dots$cex.pt)
+  }
+
+  # Plot predicted
+  for (idx in seq_along(dv)) {
+    sub_pred_orig <- orig[orig$Source == "pred", c(dv[idx], uv[idx])]
+    sub_pred_lu   <- l_u[l_u$Source == "pred", ]
+
+    if (nrow(sub_pred_orig) == 0) {
+      next # if there is no observed data skip this part
+    }
+
+    if (!is.null(sub_pred_lu) && nrow(sub_pred_lu) > 0 && interval_pred) {
+      borders <- sort(unique(sub_pred_lu$Estimate))
+      stopifnot(length(borders) == 2)
+      df_lower <-
+        sub_pred_lu[sub_pred_lu$Estimate == borders[1], c(dv[idx], uv[idx])]
+      df_upper <-
+        sub_pred_lu[sub_pred_lu$Estimate == borders[2], c(dv[idx], uv[idx])]
+
+      uv_lower = df_lower[[uv[idx]]]
+      dv_lower = df_lower[[dv[idx]]]
+      uv_upper = df_upper[[uv[idx]]]
+      dv_upper = df_upper[[dv[idx]]]
+      uv_orig  = sub_pred_orig[[uv[idx]]]
+      dv_orig  = sub_pred_orig[[dv[idx]]]
+      n = length(uv_lower)
+
+      x_poly <- c(uv_lower[1], uv_orig, uv_upper[n], rev(uv_orig))
+      y_poly <- c(dv_orig[1], dv_lower, dv_orig[n], rev(dv_upper))
+
+      polygon(x = x_poly, y = y_poly,
+              col = grDevices::adjustcolor(col[idx], alpha.f = dots$shade.alpha),
+              border = NA)
+    }
+
+
+    graphics::points(sub_pred_orig[[1]] ~ sub_pred_orig[[2]],
+                     type = "l", col = col[idx],
+                     lty = dots$pred.lty, lwd = dots$pred.lwd)
+
+  }
+
+  # Legend
+  dots$pred.lty <- if (!any(delta_fun$Source == "pred")) NULL else dots$pred.lty
+  dots$obs.pch <- if (!any(delta_fun$Source == "obs")) NULL else dots$obs.pch
+
+  if (is.character(dots$legend.pos)) {
+    x_leg <- dots$legend.pos
+    y_leg <- NULL
+  } else {
+    x_leg <- dots$legend.pos[1]
+    y_leg <- dots$legend.pos[2]
+  }
+
+  legend_labels <- gsub("^Delta_", "", dots$legend)
+  if (all(!is.na(legend_labels)) && length(legend_labels) >= 1) {
     graphics::legend(
-      x = legend_pos,
-      legend = legend,
-      col = col, lty = lty, pch = pch, ...
+      x = x_leg, y = y_leg, legend = legend_labels,
+      col = col, lwd = dots$pred.lwd, lty = dots$pred.lty, pch = dots$obs.pch,
+      pt.bg = dots$obs.pt.bg, pt.cex = dots$cex.pt,
+      bg = dots$legend.bg, bty = dots$bty, box.lwd = dots$box.lwd,
+      box.col = dots$box.col, box.lty = dots$box.lty,
+      cex = dots$cex.legend
     )
   }
+
+  invisible()
+}
+
+
+
+#' Plot Distributions of Predicted and Observed Data
+#'
+#' Visualizes observed and/or predicted response time distributions. Useful for
+#' assessing model fit or exploring model behavior.
+#'
+#' @param x an object of `type = "densities"`, typically returned by
+#'   [dRiftDM::calc_stats(..., type = "densities")].
+#' @inheritParams plot.cafs
+#' @param obs_stats a character vector specifying which observed statistics to
+#'   plot. Options include `"hist"` for histograms and `"kde"` for kernel
+#'   density estimates. Defaults to `"hist"`.
+#'
+#' @details
+#' If `x` contains multiple `ID`s and no specific `id` is provided, the function
+#' aggregates across participants before plotting. You can provide a vector of
+#' `id`s to produce separate plots for each participant.
+#'
+#' Observed densities are shown as histograms (default: gray shaded areas), or
+#' KDE lines (default: black, dotted). Predicted densities are shown as lines
+#' (default: colorized).
+#'
+#' Axis limits, colors, and styling options can be customized via `...`. If
+#' interval information is provided (i.e., the column `Estimate` exists in `x`),
+#' error bars or shading will be added, depending on the type of
+#' statistic.
+#'
+#' @returns
+#' Returns `NULL` invisibly. The function is called for its side effect of
+#' generating a plot.
+#'
+#' @examples
+#' # Example 1: Predicted densities only -------------------------------------
+#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+#' dens <- calc_stats(a_model, type = "densities")
+#' plot(dens)
+#'
+#' # Example 2: Observed and predicted densities -----------------------------
+#' obs_data(a_model) <- dmc_synth_data
+#' dens <- calc_stats(a_model, type = "densities")
+#' plot(dens)
+#'
+#' # Example 3: Observed densities only --------------------------------------
+#' dens <- calc_stats(dmc_synth_data, type = "densities")
+#' plot(dens)
+#'
+#' # Example 4: With interval estimates --------------------------------------
+#' dens <- calc_stats(dmc_synth_data, type = "densities", resample = TRUE)
+#' plot(dens, interval_obs = TRUE)
+#'
+#' @export
+plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
+                           xlim = NULL, ylim = NULL, xlab = "RT [s]",
+                           ylab = "Density", obs_stats = "hist",
+                           interval_obs = FALSE, interval_pred = TRUE) {
+  densities <- x
+
+  # Handle multiple IDs
+  if (!is.null(densities$ID) && length(unique(densities$ID)) > 1) {
+    if (!is.null(id)) {
+      if (!all(id %in% unique(densities$ID))) {
+        mis_ids <- setdiff(id, unique(densities$ID))
+        stop(
+          "The following IDs were not found: ",
+          paste(mis_ids, collapse = ", ")
+        )
+      }
+
+      if (length(id) == 1) {
+        densities <- densities[densities$ID == id, ]
+      } else {
+        lapply(id, function(one_id) {
+          plot.densities(
+            x = x, id = one_id, conds = conds, col = col, xlim = xlim,
+            ylim = ylim, xlab = xlab, ylab = ylab, interval_obs = interval_obs,
+            interval_pred = interval_pred
+          )
+        })
+        return(invisible())
+      }
+    } else {
+      message("Aggregating across ID")
+      densities <- aggregate_stats(stat_df = densities)
+    }
+  }
+
+  # Determine conditions
+  all_conds = unique(densities$Cond)
+  if (is.null(conds)) {
+    conds <- all_conds
+  }
+  conds <- match.arg(arg = conds, choices = all_conds, several.ok = TRUE)
+
+  # Get the columns to plot
+  dv <- grep("^Dens_", names(densities), value = TRUE)
+  stopifnot(length(dv) == 2)
+
+  # Set axis limits
+  max_dens <- sort(sapply(densities[dv], max, na.rm = TRUE))
+  y_r <- c(-max_dens[1] - diff(max_dens) / 5, max_dens[2] + diff(max_dens) / 5)
+  ylim <- set_plot_limits(ylim, default_lim = y_r)
+
+  xlim <- set_plot_limits(
+    xlim, default_lim = range(densities$Time) / 3
+  )
+
+  # Set colors
+  col <- set_default_colors(colors = col, n = length(all_conds))
+  col <- col[which(all_conds %in% conds)]
+
+  # Collect graphical options
+  dots <- list(...)
+  dots <- set_default_arguments(dots, conds, id)
+
+
+  # collect additional default coloring
+  if (is.null(dots$err.col)) {
+    dots$err.col <- "black"
+  }
+  dots$err.col <- set_default_colors(
+    colors = dots$err.col, n = length(all_conds)
+  )
+  dots$err.col <- dots$err.col[which(all_conds %in% conds)]
+
+  dots$obs.hist.col <- set_default_colors(
+    colors = dots$obs.hist.col, n = length(all_conds)
+  )
+  dots$obs.hist.col <- dots$obs.hist.col[which(all_conds %in% conds)]
+  dots$obs.kde.col <- set_default_colors(
+    colors = dots$obs.kde.col, n = length(all_conds)
+  )
+  dots$obs.kde.col <- dots$obs.kde.col[which(all_conds %in% conds)]
+
+
+
+  # Prepare plot
+  withr::local_par(family = dots$family)
+  plot(
+    c(1, 2) ~ c(1, 1), type = "n", xlab = xlab, ylab = ylab, xlim = xlim,
+    ylim = ylim, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
+    cex.main = dots$cex.main, main = dots$main
+  )
+  abline(h = 0, col = dots$horiz.col)
+
+  # Determine original vs interval data
+  if ("Estimate" %in% names(densities)) {
+    orig <- densities[densities$Estimate == "orig", ]
+    l_u  <- densities[densities$Estimate != "orig", ]
+  } else {
+    orig <- densities
+    l_u  <- NULL
+  }
+
+  # Plot observed
+  for (idx in seq_along(conds)) {
+    sub_obs_orig <- orig[orig$Source == "obs" & orig$Cond == conds[idx],]
+    sub_obs_lu  <- l_u[l_u$Source == "obs" & l_u$Cond == conds[idx],]
+
+    if (nrow(sub_obs_orig) == 0) {
+      next # if there is no observed data skip this part
+    }
+
+    for (one_stat in obs_stats) {
+
+      for (i in seq_along(dv)) {
+        sign = if (i == 1) 1 else -1
+
+        if (!is.null(sub_obs_lu) && nrow(sub_obs_lu) > 0 && interval_obs) {
+
+          borders <- sort(unique(sub_obs_lu$Estimate))
+          stopifnot(length(borders) == 2)
+
+          df_lower <- sub_obs_lu[sub_obs_lu$Estimate == borders[1] &
+                                   sub_obs_lu$Stat == one_stat, ]
+          df_upper <- sub_obs_lu[sub_obs_lu$Estimate == borders[2] &
+                                   sub_obs_lu$Stat == one_stat, ]
+
+          err_y0 <- sign*df_lower[[dv[i]]]
+          err_y1 <- sign*df_upper[[dv[i]]]
+          err_x  <- df_lower[["Time"]]
+          keep <- abs(err_y1 - err_y0) > ylim[2] * dots$err.eps
+
+          graphics::arrows(
+            y0 = err_y0[keep], x0 = err_x[keep], y1 = err_y1[keep],
+            x1 = err_x[keep], angle = 90, code = 3, length = dots$err.width,
+            col = dots$err.col[idx]
+          )
+        }
+
+        df_orig  <- sub_obs_orig[sub_obs_orig$Stat == one_stat, ]
+        y_orig = sign * df_orig[[dv[i]]]
+        x_orig = df_orig[["Time"]]
+        if (one_stat == "hist") {
+          x_poly <- c(x_orig, rev(x_orig))
+          y_poly <- c(y_orig, numeric(nrow(df_orig)))
+
+          polygon(x = x_poly, y = y_poly,
+                  col = grDevices::adjustcolor(dots$obs.hist.col[idx],
+                                               alpha.f = dots$shade.alpha),
+                  border = NA)
+        } else if (one_stat == "kde") {
+          graphics::points(y_orig ~ x_orig,
+                           col = dots$obs.kde.col[idx], type = "l",
+                           lty = dots$obs.kde.lty, lwd = dots$obs.kde.lwd)
+        }
+      }
+    }
+  }
+
+
+  # Plot predicted
+  for (idx in seq_along(conds)) {
+    sub_pred_orig <- orig[orig$Source == "pred" & orig$Cond == conds[idx],]
+    sub_pred_lu  <- l_u[l_u$Source == "pred" & l_u$Cond == conds[idx],]
+
+    if (nrow(sub_pred_orig) == 0) {
+      next # if there is no observed data skip this part
+    }
+
+
+    borders <- sort(unique(sub_pred_lu$Estimate))
+    stopifnot(length(borders) == 2)
+
+
+    df_lower <- sub_pred_lu[sub_pred_lu$Estimate == borders[1] &
+                              sub_pred_lu$Stat == "kde", ]
+    df_upper <- sub_pred_lu[sub_pred_lu$Estimate == borders[2] &
+                              sub_pred_lu$Stat == "kde", ]
+    df_orig  <- sub_pred_orig[sub_pred_orig$Stat == "pdf", ]
+    for (i in seq_along(dv)) {
+      sign = if (i == 1) 1 else -1
+      if (!is.null(sub_pred_lu) && nrow(sub_pred_lu) > 0 && interval_pred) {
+
+        err_y0 <- sign*df_lower[[dv[i]]]
+        err_y1 <- sign*df_upper[[dv[i]]]
+        err_x  <- df_lower[["Time"]]
+
+        x_poly <- c(err_x, rev(err_x))
+        y_poly <- c(err_y0, rev(err_y1))
+
+        polygon(x = x_poly, y = y_poly,
+                col = grDevices::adjustcolor(col[idx], alpha.f = dots$shade.alpha),
+                border = NA)
+      }
+      y_orig = sign * df_orig[[dv[i]]]
+      x_orig = df_orig[["Time"]]
+      graphics::points(y_orig ~ x_orig,
+                       col = col[idx], type = "l",
+                       lty = dots$pred.lty, lwd = dots$pred.lwd)
+    }
+  }
+
+
+
+  # Legend (condition)
+  dots$pred.lty <- if (!any(densities$Source == "pred")) NULL else dots$pred.lty
+  dots$obs.pch <- if (!any(densities$Source == "obs")) NULL else dots$obs.pch
+
+  if (is.character(dots$legend.pos)) {
+    x_leg <- dots$legend.pos
+    y_leg <- NULL
+  } else {
+    x_leg <- dots$legend.pos[1]
+    y_leg <- dots$legend.pos[2]
+  }
+
+  if (all(!is.na(dots$legend)) && length(dots$legend) >= 1) {
+    graphics::legend(
+      x = x_leg, y = y_leg, legend = dots$legend,
+      col = col, lwd = dots$pred.lwd, lty = dots$pred.lty,
+      bg = dots$legend.bg, bty = dots$bty, box.lwd = dots$box.lwd,
+      box.col = dots$box.col, box.lty = dots$box.lty,
+      cex = dots$cex.legend
+    )
+  }
+
+  # Legend (lines, if obs_data is represented as a line)
+  if (is.character(dots$lines.legend.pos)) {
+    x_leg <- dots$lines.legend.pos
+    y_leg <- NULL
+  } else {
+    x_leg <- dots$lines.legend.pos[1]
+    y_leg <- dots$lines.legend.pos[2]
+  }
+
+  dots[["lines.legend"]] = dots[["lines.legend"]] %||% c("pred", "obs")
+  if ("kde" %in% obs_stats && !all(is.na(dots[["lines.legend"]]))) {
+    graphics::legend(
+      x = x_leg, y = y_leg, legend = dots$lines.legend,
+      col = "black", lwd = c(dots$pred.lwd, dots$obs.kde.lwd),
+      lty = c(dots$pred.lty, dots$obs.kde.lty), bg = dots$legend.bg,
+      bty = dots$bty, box.lwd = dots$box.lwd, box.col = dots$box.col,
+      box.lty = dots$box.lty, cex = dots$cex.legend
+    )
+  }
+
   invisible()
 }
 
@@ -849,7 +1296,7 @@ plot.stats_dm_list <- function(x, ..., mfrow = NULL) {
 
   for (obj in x) {
     class_obj <- class(obj)[1]
-    if (!(class_obj %in% c("cafs", "quantiles", "delta_funs"))) {
+    if (!(class_obj %in% drift_dm_stats_types("sum_dist"))) {
       message(
         "dRiftDM doesn't provide a plot method for objects of type ",
         class_obj, ", skipping this entry."
@@ -1223,11 +1670,11 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #'
 #' Visualize MCMC results and diagnostics for `mcmc_dm` objects.
 #' The function `plot.mcmc()` is typically called when users supply an
-#' objects returned by [dRiftDM::estimate_model_bayesian()] to the generic
+#' objects returned by [dRiftDM::estimate_bayesian()] to the generic
 #' [base::plot()] function.
 #'
 #' @param x an object of class `mcmc_dm`, as returned by
-#' [dRiftDM::estimate_model_bayesian()].
+#' [dRiftDM::estimate_bayesian()].
 #' @param ... optional arguments passed on to the underlying plotting functions
 #'   [dRiftDM::plot_mcmc_trace()], [dRiftDM::plot_mcmc_marginal()], and
 #'   [dRiftDM::plot_mcmc_auto()]. See the respective documentations for a list
@@ -1587,22 +2034,29 @@ plot_mcmc_auto <- function(chains, lags = 1:30, col_line = NULL,
 #' This function assigns default colors if none are provided or adjusts the
 #' color vector to match the number of conditions.
 #'
-#' @param colors character vector, specifying colors for conditions. If NULL,
-#' `default_colors` is used.
+#' @param colors character vector, specifying colors for conditions. If `NULL`,
+#' default colors are used.
 #' @param unique_conds character vector, listing unique conditions to match
 #' color assignments (only the length counts).
-#' @param default_colors character vector, default colors to use if `colors` is
-#' not provided.
 #'
 #' @return A character vector of colors, matching the length of `unique_conds`.
 #'
 #' @keywords internal
-set_default_colors <- function(colors, unique_conds, default_colors) {
+set_default_colors <- function(colors, n) {
+
+  color_blind_palette = grDevices::palette.colors(palette = "Okabe-Ito")
+  color_blind_palette = color_blind_palette[c(4,7,1,2,3,5,6,8)] # just ordering
+  if (n <= 8) {
+    def_cols = color_blind_palette[1:n]
+  } else {
+    def_cols = c(color_blind_palette, grDevices::rainbow(n = n - 8))
+  }
+
   if (is.null(colors)) {
-    colors <- default_colors
+    colors <- def_cols
   } else if (length(colors) == 1) {
-    colors <- rep(colors, length(unique_conds))
-  } else if (length(colors) != length(unique_conds)) {
+    colors <- rep(colors, n)
+  } else if (length(colors) != n) {
     stop("The number of colors must match the number of conditions")
   }
   return(colors)
@@ -1625,3 +2079,110 @@ set_default_colors <- function(colors, unique_conds, default_colors) {
 set_plot_limits <- function(lim, default_lim) {
   if (is.null(lim)) default_lim else lim
 }
+
+
+
+#' Set default graphical parameters for plotting in dRiftDM
+#'
+#' This function sets graphical parameters (passed through `...` by
+#' [dRiftDM::plot.cafs()], [dRiftDM::plot.quantiles()],
+#' [dRiftDM::plot.delta_funs()], and [dRiftDM::plot.densities()]) to sensible
+#' defaults used in plotting. It supports arguments relevant to
+#' [graphics::plot()], [graphics::points()], and [graphics::legend()],
+#' allowing users fine-grained control over plotting while avoiding argument
+#' clashes.
+#'
+#' @param dots a named list of graphical parameters (typically created from
+#' `...` when passing additional arguments to `plot.*()` functions in `dRiftDM`).
+#'
+#' @details
+#' - `pch`: plotting symbol of points (default: `19`)
+#' - `lty`: line type of lines (default: `1`)
+#' - `pt.bg`: point background color (default: `NULL`)
+#' - `lwd`: line width of lines (default: `1`)
+#' - `cex.axis`, `cex.lab`, `cex.main`, `cex.pt`, `cex.legend`: scaling
+#'   factors for text, axes, and points (default: `1`)
+#' - `main`: plot title (default: empty string, so no title)
+#' - `family`: font family (default: empty string)
+#' - `legend.pos`: legend position (default: `"bottomright"`, could either
+#'   be a string with a position as handled by the `x` argument of
+#'   [graphics::legend()] or a numeric vector of the legend's position)
+#' - `legend`: legend labels (default: falls back to the specified `conds`)
+#' - `bg`: background color of the legend box (default: `"white"`)
+#' - `bty`: box type for the legend (default: `"o"`)
+#' - `border`: border color of the legend box (default: `"black"`)
+#' - `box.lwd`: line width of the legend box (default: `1`)
+#' - `box.col`: border color of the legend box (default: `"black"`)
+#' - `box.lty`: line type of the legend box (default: `1`)
+#' - `err.width`: the width of the caps at the end of each error bar
+#' - `err.col`: the color of the error bar (default: `NULL`, this will
+#' set the error bar color to either the point/line color of the plot or to
+#' gray50; depending on the type of plot)
+#' - `shade.alpha`: transparency of the shaded area around the model prediction
+#'   (default: `0.2`)
+#'
+#' @return A list with all updated graphical parameters
+#'
+#' @note The value of `legend` defaults to `conds`, which is internally
+#' supplied by dRiftDM. TODO: Update
+#'
+#' @keywords internal
+set_default_arguments <- function(dots, conds, id) {
+
+  # standard line types and point types
+  dots$obs.pch = if (is.null(dots$obs.pch)) 19 else dots$obs.pch
+  dots$pred.lty = if (is.null(dots$pred.lty)) 1 else dots$pred.lty
+  dots$obs.pt.bg = if (is.null(dots$obs.pt.bg)) NA else dots$obs.pt.bg
+  dots$pred.lwd = if (is.null(dots$pred.lwd)) 1 else dots$pred.lwd
+
+  # shading settings
+  dots$shade.alpha = if (is.null(dots$shade.alpha)) 0.2 else dots$shade.alpha
+
+  # general cex settings
+  dots$cex.axis = if (is.null(dots$cex.axis)) 1 else dots$cex.axis
+  dots$cex.lab = if (is.null(dots$cex.lab)) 1 else dots$cex.lab
+  dots$cex.main = if (is.null(dots$cex.main)) 1 else dots$cex.main
+  dots$cex.pt = if (is.null(dots$cex.pt)) 1 else dots$cex.pt
+  dots$cex.legend = if (is.null(dots$cex.legend)) 1 else dots$cex.legend
+
+  # main and family
+  dots$main = paste(c(dots$main, id), collapse = " - ")
+  dots$family = if (is.null(dots$family)) "" else dots$family
+
+  # the primary legend settings
+  dots[["legend"]] = if (is.null(dots[["legend"]])) conds else dots[["legend"]]
+  dots$legend.pos = if (is.null(dots$legend.pos))
+    "bottomright"
+  else
+    dots$legend.pos
+  dots$legend.bg = if (is.null(dots$legend.bg)) "white" else dots$legend.bg
+  dots$bty = if (is.null(dots$bty)) "o" else dots$bty
+  dots$box.lwd = if (is.null(dots$box.lwd)) 1 else dots$box.lwd
+  dots$box.col = if (is.null(dots$box.col)) "black" else dots$box.col
+  dots$box.lty = if (is.null(dots$box.lty)) 1 else dots$box.lty
+
+  # specific settings for the line legend
+  dots$lines.legend = if (is.null(dots$lines.legend)) NULL else dots$lines.legend
+  dots$lines.legend.pos = if (is.null(dots$lines.legend.pos))
+    "topright"
+  else
+    dots$legend.pos
+
+  # error bar settings
+  dots$err.width = if (is.null(dots$err.width)) 0.05 else dots$err.width
+  dots$err.col = if (is.null(dots$err.col)) NULL else dots$err.col
+  dots$err.eps = if (is.null(dots$err.eps)) .001 else dots$err.eps
+
+  # color and line settings of kdes and histograms
+  dots$horiz.col = if (is.null(dots$horiz.col)) "gray" else dots$horiz.col
+  dots$obs.hist.col = if (is.null(dots$obs.hist.col))
+    "gray20"
+  else
+    dots$obs.hist.col
+  dots$obs.kde.col = if (is.null(dots$obs.kde.col)) "black" else dots$obs.kde.col
+  dots$obs.kde.lty = if (is.null(dots$obs.kde.lty)) 2 else dots$obs.kde.lty
+  dots$obs.kde.lwd = if (is.null(dots$obs.kde.lwd)) 1 else dots$obs.kde.lwd
+
+  return(dots)
+}
+

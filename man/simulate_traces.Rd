@@ -4,6 +4,7 @@
 \alias{simulate_traces}
 \alias{simulate_traces.drift_dm}
 \alias{simulate_traces.fits_ids_dm}
+\alias{simulate_traces.fits_agg_dm}
 \alias{print.traces_dm_list}
 \alias{print.traces_dm}
 \title{Simulate Trajectories/Traces of a Model}
@@ -23,6 +24,8 @@ simulate_traces(object, k, ...)
 
 \method{simulate_traces}{fits_ids_dm}(object, k, ...)
 
+\method{simulate_traces}{fits_agg_dm}(object, k, ...)
+
 \method{print}{traces_dm_list}(x, ..., round_digits = drift_dm_default_rounding(), print_steps = 5)
 
 \method{print}{traces_dm}(
@@ -34,8 +37,8 @@ simulate_traces(object, k, ...)
 )
 }
 \arguments{
-\item{object}{an object of type \link{drift_dm} or \code{fits_ids_dm} (see
-\link{load_fits_ids}).}
+\item{object}{an object of type \link{drift_dm}, \code{fits_ids_dm}, or
+\code{fits_agg_dm} (see \code{\link[=estimate_dm]{estimate_dm()}}).}
 
 \item{k}{numeric, the number of traces to simulate per condition. Can be a
 named numeric vector, to specify different number of traces per condition.}

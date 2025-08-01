@@ -5,19 +5,22 @@
 print.fits_ids_dm <- function(x, ...) {
   fits_ids <- x
 
-  cat("Fit procedure name:", fits_ids$drift_dm_fit_info$fit_procedure_name)
-  cat("\n")
-  cat(
-    "Fitted model type:",
-    paste(
+
+  # ifs to ensure backward compatibility
+  if (!is.null(fits_ids$drift_dm_fit_info$fit_procedure_name)) {
+    cat("Fit procedure name:", fits_ids$drift_dm_fit_info$fit_procedure_name, "\n")
+    print_classes(
       class(fits_ids$drift_dm_fit_info$drift_dm_obj),
-      collapse = ", "
+      header = "Fitted model type:"
     )
-  )
-  cat("\n")
-  cat("Time of (last) call:", fits_ids$drift_dm_fit_info$time_call)
-  cat("\n")
-  cat("N Individuals:", length(fits_ids$all_fits), "\n")
+
+    cat("Optimizer:", fits_agg$drift_dm_obj$estimate_info$optimizer, "\n")
+    cat("Convergence:", fits_agg$drift_dm_obj$estimate_info$conv_flag, "\n")
+    cat("N Individuals:", length(fits_ids$all_fits), "\n")
+  } else {
+    sum_obj = summary(fits_ids)
+    print(sum_obj, just_header = TRUE)
+  }
 
   invisible(x)
 }
@@ -26,32 +29,74 @@ print.fits_ids_dm <- function(x, ...) {
 #' @rdname summary.fits_ids_dm
 #' @export
 print.summary.fits_ids_dm <- function(x, ...,
+                                      just_header = FALSE,
                                       round_digits = drift_dm_default_rounding()) {
   summary_obj <- x
-  cat("Fit Procedure Name:", summary_obj$fit_procedure_name)
-  cat("\n")
-  cat("N Individuals:", summary_obj$N, "\n\n")
 
-
-  for (one_cond in names(summary_obj$stats)) {
-    cat("Parameter Summary:", one_cond, "\n")
-    temp <- round(summary_obj$stats[[one_cond]], round_digits)
-    print(temp)
+  if (!is.null(summary_obj$fit_procedure_name)) {
+    cat("Fit Procedure Name:", summary_obj$fit_procedure_name)
     cat("\n")
+    cat("N Individuals:", summary_obj$N, "\n")
+  } else {
+    cat("Fit approach: separately\n")
+    print_classes(
+      header = "Fitted model type:",
+      class_vector = summary_obj$summary_drift_dm_obj$class
+    )
+    cat("Optimizer:", summary_obj$optimizer, "\n")
+    ids = summary_obj$conv_info$ids # potentially non-converged individuals
+    if (length(ids) > 0) {
+      info = paste(
+        "Failed for", length(ids),
+        paste("participant", if (length(ids) > 1) "s", sep = "")
+      )
+    } else {
+      if (summary_obj$optimizer == "DEoptim") {
+        info = "NA"
+      } else {
+        info = "TRUE"
+      }
+    }
+    cat("Convergence:", info, "\n")
+    cat("N Individuals:", summary_obj$obs_data$N, "\n")
+    print_trial_numbers(
+      trials_vector = summary_obj$obs_data$avg_trials,
+      round_digits = 0,
+      header = "Average Trial Numbers:\n"
+    )
   }
-  cat("\n")
 
-  cat("Parameter Space:\n")
-  temp <- rbind(summary_obj$lower, summary_obj$upper)
-  rownames(temp) <- c("lower", "upper")
-  colnames(temp) <- names(summary_obj$upper)
-  print(temp)
 
-  cat("\n-------\n")
-  cat("Fitted Model Type:", summary_obj$model_type)
-  cat("\n")
-  cat("Time of (Last) Call:", summary_obj$time_call)
-  cat("\n")
+  if (!just_header) {
+    cat("\n")
+    for (one_cond in names(summary_obj$stats)) {
+      cat("Parameter Summary:", one_cond, "\n")
+      temp <- round(summary_obj$stats[[one_cond]], round_digits)
+      print(temp)
+    }
+
+    if (!is.null(summary_obj$lower)) {
+      cat("\n")
+      cat("Parameter Space:\n")
+      temp <- rbind(summary_obj$lower, summary_obj$upper)
+      rownames(temp) <- c("lower", "upper")
+      colnames(temp) <- names(summary_obj$upper)
+      print(temp)
+    }
+    cat("\n-------\n")
+    if (!is.null(summary_obj$lower)) {
+      cat("Fitted Model Type:", summary_obj$model_type)
+      cat("\n")
+      cat("Time of (Last) Call:", summary_obj$time_call)
+      cat("\n")
+    } else {
+      solver = summary_obj$summary_drift_dm_obj$solver
+      prms_solve = summary_obj$summary_drift_dm_obj$prms_solve
+      print_deriving_pdfs(
+        solver = solver, prms_solve = prms_solve
+      )
+    }
+  }
   invisible(x)
 }
 
@@ -69,16 +114,32 @@ print.summary.fits_ids_dm <- function(x, ...,
 #' @param ... additional arguments
 #'
 #' @details
-#' The `summary.fits_ids_dm` function creates a summary object containing:
-#' - **fit_procedure_name**: The name of the fit procedure used.
-#' - **time_call**: Timestamp of the last fit procedure call.
-#' - **lower** and **upper**: Lower and upper bounds of the search space.
-#' - **model_type**: Description of the model type, based on class information.
-#' - **prms**: All parameter values across all conditions (essentially a call
+#' The `summary.fits_ids_dm` function creates a summary object. The contents of
+#' this summary object depends on whether the user supplies a `fits_ids_dm`
+#' object that was created with [dRiftDM::estimate_dm()] or the deprecated
+#' function [dRiftDM::load_fits_ids()].
+#'
+#' - In the first case, the object contains:
+#'  - **summary_drift_dm_obj**: A list with information about the underlying
+#'   drift diffusion model (as returned by [dRiftDM::summary.drift_dm()]).
+#'  - **prms**: All parameter values across all conditions (essentially a call
 #'   to coef() with the argument select_unique = FALSE).
-#' - **stats**: A named list of matrices for each condition, including mean and
+#'  - **stats**: A named list of matrices for each condition, including mean and
 #'   standard error for each parameter.
-#' - **N**: The number of individuals.
+#'  - **obs_data**: A list providing the number of individual participants and
+#'   the average number of trials per condition across participants.
+#'  - **optimizer**: A string of the optimizer that was used
+#'  - **conv_info**: A list providing a summary of the messages and the IDs for
+#'  which convergence was not (!) achieved.
+#'
+#' - In the second case, the object contains:
+#'  - **lower** and **upper**: Lower and upper bounds of the search space.
+#'  - **model_type**: Description of the model type, based on class information.
+#'  - **prms**: All parameter values across all conditions (essentially a call
+#'   to coef() with the argument select_unique = FALSE).
+#'  - **stats**: A named list of matrices for each condition, including mean and
+#'   standard error for each parameter.
+#'  - **N**: The number of individuals.
 #'
 #' The `print.summary.fits_ids_dm` function displays the summary object in a
 #' formatted manner.
@@ -100,20 +161,30 @@ print.summary.fits_ids_dm <- function(x, ...,
 summary.fits_ids_dm <- function(object, ...) {
   fits_ids <- object
   ans <- list()
-  ans$fit_procedure_name <- fits_ids$drift_dm_fit_info$fit_procedure_name
-  ans$time_call <- fits_ids$drift_dm_fit_info$time_call
 
-  l_u <- get_parameters_smart(
-    drift_dm_obj = fits_ids$drift_dm_fit_info$drift_dm_obj,
-    input_a = fits_ids$drift_dm_fit_info$lower,
-    input_b = fits_ids$drift_dm_fit_info$upper
-  )
-  ans$lower <- l_u$vec_a
-  ans$upper <- l_u$vec_b
-  ans$model_type <- paste(
-    class(fits_ids$drift_dm_fit_info$drift_dm_obj),
-    collapse = ", "
-  )
+  # for backward compatibility
+  if (!is.null(fits_ids$drift_dm_fit_info$fit_procedure_name)) {
+    ans$fit_procedure_name <- fits_ids$drift_dm_fit_info$fit_procedure_name
+    ans$time_call <- fits_ids$drift_dm_fit_info$time_call
+
+    l_u <- get_parameters_smart(
+      drift_dm_obj = fits_ids$drift_dm_fit_info$drift_dm_obj,
+      input_a = fits_ids$drift_dm_fit_info$lower,
+      input_b = fits_ids$drift_dm_fit_info$upper
+    )
+    ans$lower <- l_u$vec_a
+    ans$upper <- l_u$vec_b
+    ans$model_type <- paste(
+      class(fits_ids$drift_dm_fit_info$drift_dm_obj),
+      collapse = ", "
+    )
+  } else {
+    ans$summary_drift_dm_obj = unclass(
+      summary(fits_ids$drift_dm_fit_info$drift_dm_obj)
+    )
+  }
+
+  # this works for both old and new
   all_prms <- coef(fits_ids, select_unique = FALSE)
   ans$prms <- all_prms
   prm_names <- colnames(all_prms)[!(colnames(all_prms) %in% c("ID", "Cond"))]
@@ -129,8 +200,44 @@ summary.fits_ids_dm <- function(object, ...) {
     rownames(matrix) <- c("mean", "std_err")
     return(matrix)
   }, simplify = FALSE, USE.NAMES = TRUE)
-  ans$N <- length(fits_ids$all_fits)
+
+  # for backward compatibility
+  if (!is.null(ans$fit_procedure_name)) {
+    ans$N <- length(fits_ids$all_fits)
+  } else {
+    n_avg_trials = get_n_avg_trials(fits_ids$drift_dm_fit_info$obs_data_ids)
+    ans$obs_data <- n_avg_trials
+  }
+
+
+  # optimizer and convergence info
+  if (is.null(ans$fit_procedure_name)) {
+    ans$optimizer = fits_ids$drift_dm_fit_info$optimizer
+    ans$conv_info = fits_ids$drift_dm_fit_info$conv_info
+  }
 
   class(ans) <- "summary.fits_ids_dm"
+  return(ans)
+}
+
+
+
+# HELPER FUNCTION ---------------------------------------------------------
+
+get_n_avg_trials = function(obs_data_ids) {
+
+  ans = list()
+  # Infos subjects
+  obs_data_ids <- obs_data_ids
+  obs_data_ids <- split(obs_data_ids, obs_data_ids$ID)
+  ans$N <- length(obs_data_ids)
+
+  avg_trials = lapply(obs_data_ids, \(one_id) {
+    one_id = split(one_id, f = one_id$Cond)
+    sapply(one_id, \(one_id_cond) nrow(one_id_cond))
+  })
+  avg_trials = do.call("rbind", avg_trials)
+  avg_trials = colMeans(avg_trials)
+  ans$avg_trials = avg_trials
   return(ans)
 }

@@ -275,7 +275,30 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
     def_values <- input$default_values
     input <- input[which(names(input) != "default_values")]
   } else if (is_numeric(input)) {
-    def_values <- input
+    # if it is a vector and has condition specific values, wrangle them into a
+    # list.. this aligns downstream processing with directly specifying a list
+    names_input = names(input)
+    if (!is.null(names_input)) {
+      if (any(duplicated(names_input))) {
+        stop("Parameter labels must be unique! Check your input.")
+      }
+      raw_input = input
+      # ensures that condition specific values land at the end
+      raw_input = raw_input[sort(names_input)]
+      split_up = strsplit(names(raw_input), split = "\\.")
+      def_values = c()
+      input = list()
+      for (i in seq_along(split_up)) {
+        prm = split_up[[i]][1]
+        if (!(prm %in% names(def_values))) {
+          def_values[prm] = raw_input[i]
+        } else {
+          input[[split_up[[i]][2]]] = setNames(raw_input[i], prm)
+        }
+      }
+    } else {
+      def_values <- input
+    }
   } else {
     stop("illegal data type for (values in) input")
   }
@@ -392,20 +415,6 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
   }
   stopifnot(is.logical(labels) & length(labels) == 1)
 
-  # specific check that non_default values are unique!
-  if (is.list(input_a)) {
-    input_a <- check_unique_special_boundary(
-      drift_dm_obj = drift_dm_obj,
-      a_list = input_a
-    )
-  }
-  if (is.list(input_b)) {
-    input_b <- check_unique_special_boundary(
-      drift_dm_obj = drift_dm_obj,
-      a_list = input_b
-    )
-  }
-
   # get the unique parameters
   prm_cond_combo <- prms_cond_combo(drift_dm_obj = drift_dm_obj)
   conds <- conds(drift_dm_obj)
@@ -442,16 +451,18 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
 
 
   # check if all parameters are there
-  if (!is.null(matrix_a) && !all(colnames(matrix_a) %in% prm_labels)) {
+  if (!is.null(matrix_a) && !all(prm_labels %in% colnames(matrix_a))) {
     stop(
-      "parameter labels in the created matrix for input_a ",
-      "don't match with the model parameters that are considered free"
+      "Parameter labels in the created matrix for input_a ",
+      "don't match with the model parameters that are considered free. ",
+      "Did you forgot to specify a parameter?"
     )
   }
-  if (!is.null(matrix_b) && !all(colnames(matrix_b) %in% prm_labels)) {
+  if (!is.null(matrix_b) && !all(prm_labels %in%  colnames(matrix_b))) {
     stop(
-      "parameter labels in the created matrix for input_b ",
-      "don't match with the model parameters that are considered free"
+      "Parameter labels in the created matrix for input_b ",
+      "don't match with the model parameters that are considered free. ",
+      "Did you forgot to specify a parameter?"
     )
   }
 
@@ -461,6 +472,12 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
     sapply(1:ncol(prm_cond_combo), function(idx) {
       prm <- prm_cond_combo[1, idx]
       cond <- prm_cond_combo[2, idx]
+      prm_is_unique = sum(prm_cond_combo[1,] == prm) == 1
+      vals_are_unique = length(unique(matrix_x[,prm])) == 1
+      if (prm_is_unique && !vals_are_unique) {
+        stop("Condition-specific input found for parameter '", prm,
+             "', but this parameter is identical across conditions.")
+      }
       tryCatch(
         matrix_x[cond, prm],
         error = function(e) {
@@ -492,60 +509,6 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
 }
 
 
-#' Check for Unique Special Boundary Values
-#'
-#' Internal, deep in the depths of the package, function. Verifies that each
-#' specified parameter value within a condition in `a_list` is unique within
-#' the `linear_internal_list` in `drift_dm_obj`. If the same
-#' value is associated with multiple conditions, an error is raised. Used for
-#' checking the input to [dRiftDM::get_parameters_smart].
-#'
-#' @param drift_dm_obj an object of type [dRiftDM::drift_dm]
-#' @param a_list a list specifying the parameter space (e.g., the lower/upper
-#' parameter space, see [dRiftDM::simulate_data], or [dRiftDM::estimate_model]).
-#'
-#' @details For each condition in `a_list`, the function examines if the
-#' parameter value specified is unique with respect to the
-#' `linear_internal_list`. Non-unique values for a parameter-condition
-#' combination raise an error.
-#'
-#' @keywords internal
-check_unique_special_boundary <- function(drift_dm_obj, a_list) {
-  lin_list <- drift_dm_obj$flex_prms_obj$linear_internal_list
-
-  red_list <- a_list
-  red_list$default_values <- NULL
-  conds <- names(red_list)
-  check <- setdiff(conds, conds(drift_dm_obj))
-  if (length(check) > 0) {
-    stop(
-      "special value specified for conditions ", paste(check, sep = ", "),
-      ". This condition is not part of the model."
-    )
-  }
-
-  for (one_cond in conds) {
-    prms <- names(red_list[[one_cond]])
-    for (one_prm in prms) {
-      lin_list_vals <- sapply(lin_list[[one_prm]], function(x) {
-        if (is.expression(x)) {
-          return(NULL)
-        }
-        return(x)
-      })
-      lin_list_vals <- unlist(lin_list_vals)
-      value_to_check <- lin_list_vals[[one_cond]]
-      if (sum(lin_list_vals == value_to_check) > 1) {
-        stop(
-          "specified a special lower/upper value for the parameter ",
-          one_prm, ", which, however is not unique across conditions"
-        )
-      }
-    }
-  }
-  return(a_list)
-}
-
 
 # GLOBAL VARIABLES  -------------------------------------------------------
 
@@ -574,6 +537,8 @@ check_unique_special_boundary <- function(drift_dm_obj, a_list) {
 #' numerical outputs (3).
 #' - `drift_dm_default_probs()`: Returns the default sequence of probabilities
 #' for quantiles (0.1, 0.2, ..., 0.9)
+#' - `drift_dm_default_n_bins()`: Returns the default number of bins for a
+#' CAF (5)
 #' - `drift_dm_default_b_coding()`: Returns the default boundary coding
 #' (list(column = "Error", u_name_value = c("corr" = 0),
 #' l_name_value = c("err" = 1))
@@ -582,6 +547,8 @@ check_unique_special_boundary <- function(drift_dm_obj, a_list) {
 #' contribution of a PDF; most likely this will be pdf_l), then summary
 #' functions returned by [dRiftDM::calc_stats()] might contain the value NA
 #' for the respective PDF.
+#' - `drift_dm_n_id_trunc_warn()`: returns 15. If there are warnings relevant
+#' to multiple participants, the printed IDs are truncated at 15.
 #'
 #' @name defaults
 #'
@@ -621,6 +588,11 @@ drift_dm_default_probs <- function() {
 }
 
 #' @rdname defaults
+drift_dm_default_n_bins <- function() {
+  return(5)
+}
+
+#' @rdname defaults
 drift_dm_default_b_coding <- function() {
   b_coding <- list(
     column = "Error",
@@ -636,72 +608,113 @@ drift_dm_skip_if_contr_low <- function() {
 }
 
 
+#' @rdname defaults
+drift_dm_n_id_trunc_warn <- function() {
+  return(15L)
+}
+
+#' Pre-built Drift Diffusion Models
+#'
+#' Returns the names of available pre-built DDMs in dRiftDM.
+#'
+#' @returns A character vector of model names.
+#' @keywords internal
+drift_dm_pre_built_models <- function() {
+  c("dmc_dm", "ratcliff_dm", "ssp_dm")
+}
+
+
+#' Available Cost Functions for Model Estimation
+#'
+#' Returns the names of implemented cost functions.
+#'
+#' @return A character vector of cost function names.
+#' @keywords internal
+drift_dm_cost_functions <- function() {
+  c("neg_log_like", "rmse")
+}
+
+
+
+#' Available types of statistics
+#'
+#' Internal helper to return supported statistic types depending on the
+#' context (e.g., for observed data.frames or fitted model objects).
+#'
+#' @param for_what a character string, indicating the context. If
+#'   `NULL`, all available types are returned.
+#'
+#' @return a character vector of valid statistic types for the given context.
+#' @keywords internal
+drift_dm_stats_types <- function(context = NULL) {
+  sum_dist <- c("basic_stats", "cafs", "quantiles", "delta_funs", "densities")
+  all_stats <- c(sum_dist, "fit_stats")
+
+  if (is.null(context)) return(all_stats)
+
+  context <- match.arg(
+    context,
+    choices = c("data.frame", "drift_dm", "fits_ids_dm", "fits_agg_dm", "sum_dist")
+  )
+
+  if (context == "data.frame" || context == "sum_dist") {
+    return(sum_dist)
+  } else {
+    return(all_stats)
+  }
+}
 # FOR EXAMPLES ------------------------------------------------------------
 
-#' Auxiliary Function to create a fits_ids object
+#' Auxiliary Function to load a `fits_ids_dm`, `fits_agg_dm`, or `mcmc_dm`
+#' object
 #'
-#' This function is merely a helper function to create an object of type
-#' `fits_ids_dm.` It is used for example code.
+#' The function is merely helper functions to create an object of type
+#' `fits_ids_dm`, `fits_agg_dm`, or `mcmc_dm`. It is used for example code.
 #'
-#' @returns An object of type `fits_ids_dm`, mimicking a result from calling
-#' [dRiftDM::load_fits_ids()].
+#' @param class a string of either `"fits_ids_dm"`, `"fits_agg_dm"`, or
+#' `"mcmc_dm"` (can be abbreviated)
+#'
+#' @returns An object of type `fits_ids_dm`, `fits_agg_dm`, or `mcmc_dm`,
+#' mimicking a result from calling [dRiftDM::estimate_dm()].
 #'
 #' @details
-#' The returned fit object comprises DMC (see [dRiftDM::dmc_dm()]) fitted to
-#' three participants of the ulrich_flanker_data.
+#'
+#' For `"fits_ids_dm"`, the returned object comprises DMC
+#' (see [dRiftDM::dmc_dm()]) fitted to three participants of the
+#' `ulrich_flanker_data`.
+#'
+#' For `"fits_agg_dm"`, the returned object comprises the Ratcliff model
+#' (see [dRiftDM::ratcliff_dm()]) fitted to synthetic data of three participants.
+#'
+#' For `"mcmc_dm"`, the returned object comprises the Ratcliff model
+#' (see [dRiftDM::ratcliff_dm()]) fitted to synthetic data of one participant.
+#'
 #'
 #' @examples
-#' fits <- get_example_fits_ids()
+#' get_example_fits(class = "fits_agg")
 #'
 #' @export
-get_example_fits_ids <- function() {
-  # get some data (the first three subjects of the flanker Ulrich data)
-  some_data <- subset_ulrich_flanker # stored in sysdata.rda
+get_example_fits = function(class) {
+  class = match.arg(class, c("fits_ids_dm", "fits_agg_dm", "mcmc_dm"))
 
-  # get DMC
-  some_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+  if (class == "fits_ids_dm") {
+    obj <- readRDS(
+      file = file.path(system.file(package = "dRiftDM"), "example_fits_ids.rds")
+    )
+  }
 
-  # set the data and some parameter values; I chose those based on fits done
-  # in the tutorial (timestamp: 15.12.2024)
-  all_models <- lapply(1:3, \(x){
-    obs_data(some_model) <- some_data[some_data$ID == x, ]
-    if (x == 1) {
-      coef(some_model) <- c(4.7, 0.44, 0.34, 0.03, 0.04, 0.10, 7)
-    } else if (x == 2) {
-      coef(some_model) <- c(5.4, 0.40, 0.30, 0.04, 0.05, 0.09, 3)
-    } else if (x == 3) {
-      coef(some_model) <- c(5.8, 0.60, 0.32, 0.01, 0.11, 0.19, 3.7)
-    }
-    some_model <- re_evaluate_model(some_model)
-    return(some_model)
-  })
-  names(all_models) <- 1:3
+  if (class == "fits_agg_dm") {
+    obj <- readRDS(
+      file = file.path(system.file(package = "dRiftDM"), "example_fits_agg.rds")
+    )
+  }
 
-  # now assemble everything
-  time_call <- format(Sys.time(), "%Y-%B-%d_%H-%M")
-  drift_dm_fit_info <- list(
-    time_call = time_call,
-    lower = c(
-      muc = 1.00, b = 0.20, non_dec = 0.10, sd_non_dec = 0.005,
-      tau = 0.02, A = 0.02, alpha = 3.00
-    ),
-    upper = c(
-      muc = 7.00, b = 1.00, non_dec = 0.60, sd_non_dec = 0.10,
-      tau = 0.30, A = 0.30, alpha = 8.00
-    ),
-    seed = NULL,
-    drift_dm_obj = some_model,
-    obs_data_ids = some_data,
-    fit_procedure_name = "aux_example",
-    start_vals = NULL
-  )
-  all_fits <- list(
-    drift_dm_fit_info = drift_dm_fit_info,
-    all_fits = all_models
-  )
 
-  # did I create a valid fits_ids_object?
-  class(all_fits) <- "fits_ids_dm"
-  all_fits <- validate_fits_ids(fits_ids = all_fits, progress = 0)
-  return(all_fits)
+  if (class == "mcmc_dm") {
+    obj <- readRDS(
+      file = file.path(system.file(package = "dRiftDM"), "example_mcmc.rds")
+    )
+  }
+
+  return(obj)
 }

@@ -9,7 +9,7 @@ get_subset_chains(chains_obj, id = NULL)
 \arguments{
 \item{chains_obj}{an object of class\code{mcmc_dm}.}
 
-\item{id}{an optional single numeric or character, specifying the ID of a
+\item{id}{an optional single numeric or character, specifying the \code{ID} of a
 participant to extract individual-level samples from a hierarchical model.
 Ignored for non-hierarchical models.}
 }
@@ -18,7 +18,7 @@ A 3D array of MCMC samples. The first dimension indicates parameters,
 the second dimension chains, and the third dimension iterations
 }
 \description{
-When calling \code{\link[=estimate_model_bayesian]{estimate_model_bayesian()}}, the MCMC results are
+When calling \code{\link[=estimate_bayesian]{estimate_bayesian()}}, the MCMC results are
 packed up as an \code{mcmc_dm} object. This function is used in the depths of
 \code{dRiftDM} to extract the relevant array of MCMC samples,
 depending on whether the model is hierarchical and whether a participant ID

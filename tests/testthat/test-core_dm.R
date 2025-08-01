@@ -923,12 +923,12 @@ test_that("ddm_opts -> extractor and replacement function work as expected", {
 
 # HELPER FUNCTIONS --------------------------------------------------------
 
-test_that("check_raw_data specific input checks", {
+test_that("check_reduce_raw_data specific input checks", {
   def_b_coding <- drift_dm_default_b_coding()
 
   temp_data <- data.frame(ID = c(1, NA), RT = 1, Error = 0, Cond = "null")
   expect_warning(
-    check_raw_data(
+    check_reduce_raw_data(
       temp_data, def_b_coding$column, def_b_coding$u_name_value,
       def_b_coding$l_name_value
     ),
@@ -937,7 +937,7 @@ test_that("check_raw_data specific input checks", {
 
   temp_data <- data.frame(ID = 1, RT = 1, Error = 0, Cond = "null")
   expect_error(
-    check_raw_data(
+    check_reduce_raw_data(
       temp_data, def_b_coding$column, def_b_coding$u_name_value,
       as.character(def_b_coding$l_name_value)
     ),
@@ -948,7 +948,7 @@ test_that("check_raw_data specific input checks", {
   temp_data$ID <- factor(temp_data$ID, levels = c(1, 2, 3))
 
   expect_warning(
-    check_raw_data(
+    check_reduce_raw_data(
       temp_data, def_b_coding$column, def_b_coding$u_name_value,
       def_b_coding$l_name_value
     ),
@@ -1272,7 +1272,7 @@ test_that("simulate_data.drift_dm -> single data set works as expected", {
     l_name_value = c(b = -1)
   )
   sim_data <- simulate_data(a_model, n = 10000, seed = 1)
-  test <- check_raw_data(sim_data,
+  test <- check_reduce_raw_data(sim_data,
     b_coding_column = "col", u_value = 0,
     l_value = -1
   ) # only to check for unexpected errors

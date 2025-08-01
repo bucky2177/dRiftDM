@@ -5,6 +5,7 @@
 \alias{calc_stats.data.frame}
 \alias{calc_stats.drift_dm}
 \alias{calc_stats.fits_ids_dm}
+\alias{calc_stats.fits_agg_dm}
 \alias{print.stats_dm}
 \alias{print.stats_dm_list}
 \title{Calculate Statistics}
@@ -16,15 +17,42 @@ calc_stats(object, type, ...)
   type,
   ...,
   conds = NULL,
-  verbose = 0,
-  average = FALSE,
-  split_by_ID = TRUE,
+  resample = FALSE,
+  progress = 1,
+  level = "individual",
   b_coding = NULL
 )
 
-\method{calc_stats}{drift_dm}(object, type, ..., conds = NULL)
+\method{calc_stats}{drift_dm}(
+  object,
+  type,
+  ...,
+  conds = NULL,
+  resample_obs = FALSE,
+  resample_pred = FALSE
+)
 
-\method{calc_stats}{fits_ids_dm}(object, type, ..., verbose = 1, average = FALSE)
+\method{calc_stats}{fits_ids_dm}(
+  object,
+  type,
+  ...,
+  conds = NULL,
+  resample_obs = FALSE,
+  resample_pred = FALSE,
+  progress = 1,
+  level = "individual"
+)
+
+\method{calc_stats}{fits_agg_dm}(
+  object,
+  type,
+  ...,
+  conds = NULL,
+  resample_obs = FALSE,
+  resample_pred = FALSE,
+  progress = 1,
+  level = "group"
+)
 
 \method{print}{stats_dm}(
   x,
@@ -40,8 +68,9 @@ calc_stats(object, type, ...)
 }
 \arguments{
 \item{object}{an object for which statistics are calculated. This can be a
-\link{data.frame} of observed data, a \link{drift_dm} object, or a
-\code{fits_ids_dm} object (see \link{estimate_model_ids}).}
+\link{data.frame} of observed data, a \link{drift_dm} object, a
+\code{fits_ids_dm} object, or a \code{fits_agg_dm} object (see
+\code{\link[=estimate_dm]{estimate_dm()}}).}
 
 \item{type}{a character vector, specifying the statistics to calculate.
 Supported values include \code{"basic_stats"}, \code{"cafs"}, \code{"quantiles"},
@@ -53,15 +82,12 @@ underlying calculation functions (see Details for mandatory arguments).}
 \item{conds}{optional character vector specifying conditions to include.
 Conditions must match those found in the \code{object}.}
 
-\item{verbose}{integer, indicating if information about the progress
-should be displayed. 0 -> no information, 1 -> a progress bar. Default is 0.}
+\item{resample}{logical. If \code{TRUE}, then data is (re-)sampled to create
+an uncertainty estimate for the requested statistic. See Details for more
+information). Default is \code{FALSE}.}
 
-\item{average}{logical. If \code{TRUE}, averages the statistics across individuals
-where applicable. Default is \code{FALSE}.}
-
-\item{split_by_ID}{logical. If \code{TRUE}, statistics are calculated separately
-for each individual ID in \code{object} (when \code{object} is a \link{data.frame}). Default
-is \code{TRUE}.}
+\item{progress}{integer, indicating if information about the progress
+should be displayed. 0 -> no information, 1 -> a progress bar. Default is 1.}
 
 \item{b_coding}{a list for boundary coding (see \link{b_coding}). Only
 relevant when \code{object} is a \link{data.frame}. For other \code{object} types, the
@@ -82,6 +108,14 @@ statistic will be displayed.}
 
 \item{show_note}{logical. If \code{TRUE}, a footnote  is displayed indicating
 that the underlying \link{data.frame} can be accessed as usual.}
+
+\item{split_by_ID}{logical. If \code{TRUE}, statistics are calculated separately
+for each individual ID in \code{object} (when \code{object} is a \link{data.frame}). Default
+is \code{TRUE}.}
+
+\item{average}{logical. If \code{TRUE}, averages the statistics across individuals
+where applicable. Default for \code{calc_stats.data.frame} is \code{FALSE}. Default
+for \code{calc_stats.fits_agg_dm} is \code{TRUE}.}
 }
 \value{
 If \code{type} is a single character string, then a subclass of \link{data.frame} is
@@ -111,13 +145,14 @@ be aggregated across individuals.
 \code{calc_stats} is a generic function to handle the calculation of different
 statistics/metrics for the supported object types. Per default, it returns
 the requested statistics/metrics.
-\subsection{Basic Statistics}{
+\subsection{List of Supported Statistics}{
+
+\strong{Basic Statistics}
 
 With "basic statistics", we refer to a summary of the mean and standard
 deviation of response times, including a proportion of response choices.
-}
 
-\subsection{Conditional Accuracy Function (CAFs)}{
+\strong{Conditional Accuracy Function (CAFs)}
 
 CAFs are a way to quantify response accuracy against speed. To calculate
 CAFs, RTs (whether correct or incorrect) are first binned and then the
@@ -131,9 +166,8 @@ calculated.
 
 The number of bins can be controlled by passing the argument \code{n_bins}.
 The default is 5.
-}
 
-\subsection{Quantiles}{
+\strong{Quantiles}
 
 For observed response times, the function \link[stats:quantile]{stats::quantile} is used with
 default settings.
@@ -141,9 +175,8 @@ default settings.
 Which quantiles are calcuated can be controlled by providing the
 probabilites, \code{probs}, with values in \eqn{[0, 1]}. Default is
 \code{seq(0.1, 0.9, 0.1)}.
-}
 
-\subsection{Delta Functions}{
+\strong{Delta Functions}
 
 Delta functions calculate the difference between quantiles
 of two conditions against their mean:
@@ -167,13 +200,17 @@ and matching occurs pairwise. In this case, if only one
 minuend/subtrahend is specified, minuend and subtrahend are recycled to
 the necessary length.
 }
-}
 
-\subsection{Fit Statistics}{
+\strong{Fit Statistics}
 
 Calculates the Akaike and Bayesian Information Criteria (AIC and BIC). Users
 can provide a \code{k} argument to penalize the AIC statistic (see \link[stats:AIC]{stats::AIC}
 and \link{AIC.fits_ids_dm})
+}
+
+\subsection{Resampling}{
+
+When users set \code{resampling = TRUE}, the statistics TODO
 }
 }
 \note{

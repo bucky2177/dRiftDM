@@ -1,4 +1,4 @@
-# HELPER FUNCTIONS REQUIRED FOR MCMC ALGORITHMS ---------------------------
+# HELPER FUNCTIONS REQUIRED FOR MCMC SAMPLERS ---------------------------
 
 
 #' Perform a Migration Step Between Chains
@@ -222,8 +222,9 @@ call_log_posterior_m <- function(proposal_mat, prev_prms_mat, prev_pis,
   n_chains <- ncol(proposal_mat)
 
   # Re-evaluate log-posterior for previous params if needed
-  if (re_eval) {
-    if (level == "lower" | level == "none") {
+  # (only makes sense in the hierarchical case)
+  if (re_eval && level != "none") {
+    if (level == "lower") {
       prev_res <- log_posterior_lower(thetas_one_subj_mat = prev_prms_mat, ...)
     } else {
       prev_res <- log_posterior_hyper(phi_j_mat = prev_prms_mat, ...)
@@ -439,7 +440,7 @@ drift_dm_supr_warn <- function(expr, suppress_warnings = TRUE) {
 #'  chain, used when applying tempered inference (e.g., in TIDE).
 #' @param suppress_warnings logical, if TRUE, warnings created from
 #' `log_prior_hyper_fun` and `log_prior_lower_fun(s)` are suppressed. The
-#' default is true, because in the beginning of an MCMC algorithm implausible
+#' default is true, because in the beginning of an MCMC sampler implausible
 #' proposals are provided which can yield missing values and warnings.
 #'
 #' @return A list with two elements:
@@ -501,7 +502,7 @@ log_posterior_lower <- function(thetas_one_subj_mat, all_phis_mat,
     )
     tryCatch(
       drift_dm_supr_warn(
-        re_evaluate_model(model_subj)$log_like_val,
+        re_evaluate_model(model_subj)$cost_value * -1.0, # log-likelihood (not its negative)
         suppress_warnings = suppress_warnings
       ),
       error = function(e) {
@@ -667,15 +668,15 @@ r_default_prior_hyper <- function(n, mean, sd, lower, upper, shape, rate) {
 #' @param level a character string, specifying the modeling level. Must be one
 #' of: `"hyper"` (group-level priors), `"lower"` (individual-level priors
 #' given group-level parameters), or `"none"` (non-hierarchical setting).
-#' @param mean a named numeric vector or list, specifying the prior means for
+#' @param means a named numeric vector or list, specifying the prior means for
 #' each parameter. Missing values will be filled up from the first matching
 #' parameter in `drift_dm_obj`
-#' @param sd a named numeric vector or list of standard deviations. Missing or
+#' @param sds a named numeric vector or list of standard deviations. Missing or
 #' `NULL` values will be replaced by corresponding values from `mean`.
 #' @param lower,upper optional numeric vectors or lists specifying the lower
 #' and upper truncation bounds for each prior distribution. Defaults to `-Inf`
 #' and `Inf`, respectively.
-#' @param shape,rate optional numeric vectors or lists specifying the shape and
+#' @param shapes,rates optional numeric vectors or lists specifying the shape and
 #' rate parameter for group-level standard deviations (used at the hyper-level).
 #' Defaults to `1`.
 #'
@@ -692,47 +693,47 @@ r_default_prior_hyper <- function(n, mean, sd, lower, upper, shape, rate) {
 #' [dRiftDM::r_default_prior_hyper()] are used. At the lower-level, the
 #' functions [dRiftDM::dtnorm()] and [dRiftDM::rtnorm()] are used.
 #'
-#' The input arguments `mean`, `sd`, `lower`, `upper`, `shape`, and `rate` are
-#' handled by the function [dRiftDM::get_parameters_smart()].
+#' The input arguments `means`, `sds`, `lowers`, `uppers`, `shapes`, and `rates`
+#' are handled by the function [dRiftDM::get_parameters_smart()].
 #'
 #' @seealso [dRiftDM::get_parameters_smart()], [dRiftDM::dtnorm()],
 #' [dRiftDM::rtnorm()], [dRiftDM::d_default_prior_hyper()],
 #' [dRiftDM::r_default_prior_hyper()]
 #' @keywords internal
-get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
-                                       sd = NULL, lower = NULL, upper = NULL,
-                                       shape = NULL, rate = NULL) {
+get_default_prior_settings <- function(drift_dm_obj, level, means = NULL,
+                                       sds = NULL, lower = NULL, upper = NULL,
+                                       shapes = NULL, rates = NULL) {
   ####
   # input handling and default settings
   # if mean is NULL, use the parameters of the model
 
   # enlarge to model parameters
-  mean <- get_parameters_smart(
+  means <- get_parameters_smart(
     drift_dm_obj = drift_dm_obj,
-    input_a = mean,
+    input_a = means,
     fill_up_with = NA
   )$vec_a
 
   # if mean is NULL, set it equal to the model parameters, otherwise
   # replace missing values with the model parameters
-  if (is.null(mean)) {
-    mean = coef(drift_dm_obj)
+  if (is.null(means)) {
+    means = coef(drift_dm_obj)
   } else {
-    mean[is.na(mean)] = coef(drift_dm_obj)[is.na(mean)]
+    means[is.na(means)] = coef(drift_dm_obj)[is.na(means)]
   }
-  all_coefs <- names(mean)
+  all_coefs <- names(means)
 
   # then, get the sds
-  sd <- get_parameters_smart(
-    drift_dm_obj = drift_dm_obj, input_a = sd,
+  sds <- get_parameters_smart(
+    drift_dm_obj = drift_dm_obj, input_a = sds,
     fill_up_with = NA
   )$vec_a
   # if sds is NULL, set it equal to the means, otherwise replace missing values
   # with the remaining means
-  if (is.null(sd)) {
-    sd <- mean
+  if (is.null(sds)) {
+    sds <- means
   } else {
-    sd[is.na(sd)] <- mean[is.na(sd)]
+    sds[is.na(sds)] <- means[is.na(sds)]
   }
 
   # do the same with lower, upper, shape, and rate; easier this time,
@@ -751,8 +752,8 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
 
   lower <- get_default(lower, -Inf)
   upper <- get_default(upper, Inf)
-  shape <- get_default(shape, 1)
-  rate <- get_default(rate, 1)
+  shapes <- get_default(shapes, 1)
+  rates <- get_default(rates, 1)
 
 
   # level input match (three options: hyper-level priors, lower-level priors,
@@ -780,8 +781,8 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
       prms = all_coefs,
       fn = d_default_prior_hyper,
       args_list = list(
-        mean = mean, sd = sd, lower = lower, upper = upper, shape = shape,
-        rate = rate, log = log_scale
+        mean = means, sd = sds, lower = lower, upper = upper, shape = shapes,
+        rate = rates, log = log_scale
       )
     )
   }
@@ -805,7 +806,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
       prms = all_coefs,
       fn = dtnorm,
       args_list = list(
-        mean = mean, sd = sd, lower = lower, upper = upper,
+        mean = means, sd = sds, lower = lower, upper = upper,
         log = log_scale
       )
     )
@@ -821,8 +822,8 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
       prms = all_coefs,
       fn = r_default_prior_hyper,
       args_list = list(
-        mean = mean, sd = sd, lower = lower,
-        upper = upper, shape = shape, rate = rate
+        mean = means, sd = sds, lower = lower,
+        upper = upper, shape = shapes, rate = rates
       )
     )
   }
@@ -841,7 +842,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
     r_priors <- create_partial_funs(
       prms = all_coefs,
       fn = rtnorm,
-      args_list = list(mean = mean, sd = sd, lower = lower, upper = upper)
+      args_list = list(mean = means, sd = sds, lower = lower, upper = upper)
     )
   }
 
@@ -865,7 +866,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
 #' \insertCite{Turneretal.2013;textual}{dRiftDM}.
 #' An approximation of the marginal likelihood to calculate Bayes Factors can
 #' be obtained with the Thermodynamic Integration via Differential Evolution
-#' (TIDE) algorithm \insertCite{EvansAnnis2019;textual}{dRiftDM}.
+#' (TIDE) sampler \insertCite{EvansAnnis2019;textual}{dRiftDM}.
 #'
 #'
 #'
@@ -876,8 +877,8 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
 #' @param obs_data_ids data.frame for the hierarchical case. An additional
 #'  column ID is necessary that codes the individuals (see also
 #'  [dRiftDM::obs_data]).
-#' @param algorithm character string, indicating the sampling algorithm to use.
-#'  Must be either `"de_mcmc"` (default) or `"tide"`.
+#' @param sampler character string, indicating the sampler to use.
+#'  Must be either `"DE-MCMC"` (default) or `"TIDE"`.
 #' @param n_chains numeric, number of chains for the MCMC-sampler.
 #'  Default is `40`.
 #' @param burn_in numeric, number of burn-in iterations. Default is `500`.
@@ -918,7 +919,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
 #' case has some unique tweaks to it that need to be considered ... and writing
 #' one function would be quite the mess.
 #'
-#' Prior Settings: See the wrapper [dRiftDM::estimate_model_bayesian()] and
+#' Prior Settings: See the wrapper [dRiftDM::estimate_bayesian()] and
 #' also [dRiftDM::get_default_prior_settings()]
 #'
 #' @references
@@ -926,14 +927,11 @@ get_default_prior_settings <- function(drift_dm_obj, level, mean = NULL,
 #' \insertRef{EvansAnnis2019}{dRiftDM}
 #'
 #' @keywords internal
-estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
-                             algorithm = "de_mcmc", n_chains = 40,
-                             burn_in = 500, samples = 2000,
-                             n_cores = 1, prob_migration = 0.1,
-                             prob_re_eval = 0.1, progress = 2,
-                             seed = NULL, ...) {
+estimate_bayes_h <- function(drift_dm_obj, obs_data_ids, sampler, n_chains,
+                             burn_in, samples, n_cores, prob_migration,
+                             prob_re_eval, progress, seed = NULL, ...) {
 
-  algorithm = match.arg(algorithm, choices = c("de_mcmc", "tide"))
+  sampler = match.arg(sampler, choices = c("DE-MCMC", "TIDE"))
 
   # wrangle data into a list of individual models
   data_model = lapply(unique(obs_data_ids$ID), \(x){
@@ -945,8 +943,7 @@ estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
   # get the prior distributions for the hyper parameters phi
   prior_distr_hyper = get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
-    level = "hyper",
-    mean = mean, ...
+    level = "hyper", ...
   )
   log_priors_hyper = prior_distr_hyper$log_dens_priors
   r_priors_hyper = prior_distr_hyper$r_priors
@@ -954,8 +951,7 @@ estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
   # get the prior distributions for the lower parameters theta
   prior_distr_lower = get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
-    level = "lower",
-    mean = mean, ...
+    level = "lower", ...
   )
   log_priors_lower = prior_distr_lower$log_dens_priors
   r_priors_lower = prior_distr_lower$r_priors
@@ -1012,8 +1008,8 @@ estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
   )
 
 
-  # create powers (or just get ones if not tide)
-  temperatures = create_temperatures(n_chains, algorithm)
+  # create powers (or just get ones if not TIDE)
+  temperatures = create_temperatures(n_chains, sampler)
 
 
   # turn on parallel engine
@@ -1027,7 +1023,7 @@ estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
                 "drift_dm_default_rounding", "drift_dm_supr_warn",
                 "data_model", "theta_names", "n_chains",
                 "log_priors_lower", "r_priors_lower", "temperatures",
-                "algorithm"),
+                "sampler"),
     envir = environment()
   )
 
@@ -1039,7 +1035,7 @@ estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
 
   # get starting values
   if (progress >= 1) {
-    cat("Finding starting values...", "\n")
+    message("Finding starting values...")
   }
 
 
@@ -1119,8 +1115,8 @@ estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
     lls_phi[one_prm,, 1] = posterior_ll_vals$log_like_vals
   }
 
-  if (progress >= 1){
-    cat("Starting the sampling procedure", "\n")
+  if (progress >= 1) {
+    message("Starting the sampling procedure")
   }
 
   if (progress >= 2) {
@@ -1132,7 +1128,7 @@ estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
     )
   }
 
-  # now the sampling algorithm...
+  # now the sampling...
   for (i in 2:iterations) {
 
     # determine which step to do (during burn_in do migration with some prob.)
@@ -1158,9 +1154,9 @@ estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
       prev_lls_across_chains = lls_phi[one_prm, , i - 1]
 
       # get the values for one theta across lower chains and subjs
-      # if de_mcmc (i.e., not tide), break dependence
+      # if DE-MCMC (i.e., not TIDE), break dependence
       prev_thetas = theta_array[one_prm, , , i - 1]
-      if (algorithm == "de_mcmc") {
+      if (sampler == "DE-MCMC") {
         shuffle_idx = sample(seq_len(n_chains))
         prev_thetas = prev_thetas[shuffle_idx,]
       }
@@ -1213,7 +1209,7 @@ estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
 
       # shuffle the upper chains to break dependence
       cur_phis_local <- cur_phis
-      if (algorithm == "de_mcmc") {
+      if (sampler == "DE-MCMC") {
         shuffle_idx <- sample(seq_len(n_chains))
         cur_phis_local <- cur_phis_local[, shuffle_idx]
       }
@@ -1270,28 +1266,15 @@ estimate_bayes_h <- function(drift_dm_obj, mean = NULL, obs_data_ids,
 
 #' @rdname estimate_bayes_h
 #' @keywords internal
-estimate_bayes_one_subj <- function(drift_dm_obj, mean = NULL,
-                                    algorithm = "de_mcmc",
-                                    n_chains = 40, burn_in = 500,
-                                    samples = 2000,
-                                    prob_migration = 0.1,
-                                    prob_re_eval = 0.1,
-                                    progress = 2, seed = NULL, ...) {
+estimate_bayes_one_subj <- function(drift_dm_obj, sampler, n_chains,
+                                    burn_in, samples, prob_migration,
+                                    prob_re_eval, progress, ...) {
 
-
-
-  if (!is.null(seed)) {
-    if (!is.numeric(seed) | length(seed) != 1)
-      stop ("seed must be a single numeric")
-    withr::local_preserve_seed()
-    set.seed(1)
-  }
 
   # get the prior distributions for theta
   prior_distr = get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
-    level = "none",
-    mean = mean, ...
+    level = "none", ...
   )
   log_priors = prior_distr$log_dens_priors
   r_priors = prior_distr$r_priors
@@ -1324,12 +1307,12 @@ estimate_bayes_one_subj <- function(drift_dm_obj, mean = NULL,
   )
 
   # create powers (or get ones)
-  temperatures = create_temperatures(n_chains, algorithm)
+  temperatures = create_temperatures(n_chains, sampler)
 
 
   # get starting values
   if (progress >= 1) {
-    cat("Finding starting values...", "\n")
+    message("Finding starting values...")
   }
 
   # results in a matrix n_chains x prms
@@ -1353,13 +1336,13 @@ estimate_bayes_one_subj <- function(drift_dm_obj, mean = NULL,
 
   # start the sampling....
   if (progress >= 1) {
-    cat("Starting the sampling procedure", "\n")
+    message("Starting the sampling procedure")
   }
 
   if (progress >= 2) {
     pb <- progress::progress_bar$new(
       format = "  sampling [:bar] :percent remaining: :eta",
-      total = iterations-1,
+      total = iterations - 1,
       clear = FALSE,
       width = 60
     )
@@ -1417,40 +1400,31 @@ estimate_bayes_one_subj <- function(drift_dm_obj, mean = NULL,
 
 #' (Hierarchical) Bayesian Estimation
 #'
-#' This function provides a wrapper around the implemented algorithms for
+#' This function provides a wrapper around the implemented samplers for
 #' Bayesian inference in dRiftDM. For parameter estimation,
 #' Differential Evolution Markov-Chain Monte-Carlo (DE-MCMC)
 #' \insertCite{Turneretal.2013;textual}{dRiftDM} is used.
 #' An approximation of the marginal likelihood to calculate Bayes Factors can
 #' be obtained with the Thermodynamic Integration via Differential Evolution
-#' (TIDE) algorithm \insertCite{EvansAnnis2019;textual}{dRiftDM}.
+#' (TIDE) sampler \insertCite{EvansAnnis2019;textual}{dRiftDM}. However,
+#' TIDE is not yet supported fully, and is at a very experimental stage.
 #'
 #' @inheritParams estimate_bayes_h
-#' @param ... Additional parameters passed forward. Only used for
-#' `estimate_model_bayesian()`, where arguments are passed forward to
-#' [dRiftDM::estimate_bayes_h()] and [dRiftDM::estimate_bayes_one_subj()], and
-#' from there potentially to [dRiftDM::get_default_prior_settings()] to alter
-#' the prior settings.
-#' @param x a `mcmc_dm` object as returned by `estimate_model_bayesian()`.
-#' @param round_digits an integer, defining the number of digits for rounding
-#' the output.
+#' @param ... additional arguments passed forward to
+#' [dRiftDM::estimate_bayes_h()] and [dRiftDM::estimate_bayes_one_subj()].
 #'
-#'
-#' @return For `estimate_model_bayesian()`, an object of type `mcmc_dm`
-#'   containing posterior samples for
+#' @returns an object of type `mcmc_dm`  containing posterior samples for
 #'   parameters, log-posterior values, and log-likelihoods. In the hierarchical
 #'   case, the respective values are available at both the group-level and the
-#'   individual-level. The object contains two attributes: `algorithm` and
-#'   `data_model`. The former simply stores the type of algorithm that was used
+#'   individual-level. The object contains two attributes: `sampler` and
+#'   `data_model`. The former simply stores the type of sampler that was used
 #'   and codes whether estimation was done in a hierarchical fashion or not.
 #'   The latter either contains the model and the attached data (in the
 #'   non-hierarchical case) or a named list of model copies with each
 #'   individual's data attached.
 #'
-#'   For `print.mcmc_dm()`, the `mcmc_dm` object `x` (invisibly).
-#'
 #' @details
-#'
+#' TODO: MOVE TO estimate_dm
 #' When users supply a [data.frame] via the optional argument `obs_data_ids`,
 #' a hierarchical approach to parameter estimation is done. In this case,
 #' the supplied data set must provide data for multiple individuals. If users
@@ -1513,7 +1487,7 @@ estimate_bayes_one_subj <- function(drift_dm_obj, mean = NULL,
 #'
 #' ## Specifying prior settings
 #'
-#' the function `estimate_model_bayesian` passes the (optional) prior arguments
+#' the function `estimate_bayesian` passes the (optional) prior arguments
 #' like `mean`, `sd`, `lower`, `upper`, `shape`, and `rate` forward
 #' to [dRiftDM::get_default_prior_settings()] to specify prior settings. Similar
 #' to specifying the search space in [dRiftDM::estimate_model()], there are
@@ -1559,7 +1533,7 @@ estimate_bayes_one_subj <- function(drift_dm_obj, mean = NULL,
 #' # get some data (3 participants of a flanker task data set)
 #' some_data = ulrich_flanker_data[ulrich_flanker_data$ID %in% 1:3,]
 #'
-#' results <- estimate_model_bayesian(
+#' results <- estimate_bayesian(
 #'   drift_dm_obj = my_model,
 #'   mean =  c(muc = 4, b = 0.6, non_dec = 0.3, sd_non_dec = 0.02,
 #'             tau = 0.06, A = 0.1), # mean prior settings
@@ -1579,7 +1553,7 @@ estimate_bayes_one_subj <- function(drift_dm_obj, mean = NULL,
 #' # get some data (3 participants of the flanker task data set)
 #' obs_data(my_model) = ulrich_flanker_data[ulrich_flanker_data$ID == 1,]
 #'
-#' results <- estimate_model_bayesian(
+#' results <- estimate_bayesian(
 #'   drift_dm_obj = my_model,
 #'   mean =  c(muc = 4, b = 0.6, non_dec = 0.3, sd_non_dec = 0.02,
 #'             tau = 0.06, A = 0.1),  # mean prior settings
@@ -1591,91 +1565,21 @@ estimate_bayes_one_subj <- function(drift_dm_obj, mean = NULL,
 #'  )
 #'
 #'
-#' @seealso [dRiftDM::summary.mcmc_dm()]
-#' @export
-estimate_model_bayesian = function(drift_dm_obj, mean = NULL,
-                                   algorithm = "de_mcmc",
-                                   obs_data_ids = NULL, n_chains = 40,
-                                   burn_in = 500, samples = 2000,
-                                   prob_migration = 0.1, prob_re_eval = 0.1,
-                                   progress = 2, seed = NULL, ...) {
+#' @seealso [dRiftDM::summary.mcmc_dm()], [dRiftDM::estimate_bayes_h()],
+#' [dRiftDM::estimate_bayes_one_subj()]
+#' @keywords internal
+estimate_bayesian = function(drift_dm_obj, obs_data_ids = NULL,
+                                   sampler,
+                                   n_chains, burn_in, samples,
+                                   prob_migration, prob_re_eval,
+                                   progress = NULL, ...) {
 
 
-  # perform input checks and set default for mean
-  if (!inherits(drift_dm_obj, "drift_dm")) {
-    stop("drift_dm_obj is not of type drift_dm")
-  }
-  if (is.null(mean)) {
-    mean <- coef(drift_dm_obj)
-    names_dropped <- sub("\\..*", "", names(mean))
-    unique_idx <- !duplicated(names_dropped)
-    mean <- mean[unique_idx]
-    names(mean) <- names_dropped[unique_idx]
-  }
-  if (!is_numeric(mean)) {
-    stop("mean must be a valid numeric vector without Inf or NA")
-  }
 
-  algorithm = match.arg(algorithm, choices = c("de_mcmc", "tide"))
+  # input checks (no checks on drift_dm_obj and obs_data_ids,
+  # these have to be supplied with reasonable values from estimate_dm())
+  sampler = match.arg(sampler, c("DE-MCMC", "TIDE"))
 
-
-  # check the data
-  if (!is.null(obs_data_ids)) {
-
-    hierarchical = TRUE # controls if the model is estimated hierarchically
-
-    if (!is.null(drift_dm_obj$obs_data)) {
-      warning("obs_data in drift_dm_obj will be ignored and removed")
-      drift_dm_obj$obs_data <- NULL
-    }
-
-
-    # check if data makes sense
-    b_coding = attr(drift_dm_obj, "b_coding")
-    obs_data_ids = check_raw_data(
-      obs_data = obs_data_ids,
-      b_coding_column = b_coding$column,
-      u_value = b_coding$u_name_value,
-      l_value = b_coding$l_name_value
-    )
-
-    if (!("ID" %in% colnames(obs_data_ids))) {
-      stop("no ID column found in obs_data_ids")
-    }
-
-    if (length(unique(obs_data_ids$ID)) <= 1) {
-      stop("The ID column provides only one individual. A hierarchical",
-           " approach doesn't make sense in this case.")
-    }
-
-    model_conds <- conds(drift_dm_obj)
-    data_cond <- conds(obs_data_ids)
-    if (!all(data_cond %in% model_conds)) {
-      warning(
-        "The Cond column in the supplied data.frame provides a condition that is",
-        " not listed in the model's conditions. This condition will be dropped."
-      )
-      obs_data_ids <- obs_data_ids[obs_data_ids$Cond %in% model_conds, ]
-    }
-
-    if (drift_dm_obj$prms_solve[["t_max"]] < max(obs_data_ids$RT)) {
-      stop(
-        "t_max in drift_dm_obj is smaller than maximum RT. ",
-        "Please adjust before calling estimate_model_bayesian()"
-      )
-    }
-  } else {
-
-    hierarchical = FALSE
-
-    if (is.null(drift_dm_obj$obs_data)) {
-      warning("No data set in drift_dm_obj, returning NULL")
-      return(NULL)
-    }
-
-  }
-
-  # more input checks
   if (!is_numeric(n_chains) | n_chains < 3) {
     stop("n_chains must be a numeric >= 3")
   }
@@ -1693,35 +1597,41 @@ estimate_model_bayesian = function(drift_dm_obj, mean = NULL,
       !(prob_re_eval >= 0 & prob_re_eval <= 1)) {
     stop("prob_re_eval must be a numeric between 0 and 1")
   }
+  if (is.null(progress)) {
+    progress = 2
+  }
   if (!is_numeric(progress) | !(progress %in% 0:2)) {
     stop("progress must be either 0, 1, or 2")
   }
 
-  # now call the underlying functions that implement the sampling
-  if (hierarchical) {
+
+  # decide over dispatch
+  if (!is.null(obs_data_ids)) {
+    hierarchical = TRUE # controls if the model is estimated hierarchically
     results = estimate_bayes_h(
-      drift_dm_obj = drift_dm_obj, mean = mean, obs_data_ids = obs_data_ids,
-      algorithm = algorithm, n_chains = n_chains, burn_in = burn_in,
-      samples = samples, prob_migration = prob_migration,
-      prob_re_eval = prob_re_eval, progress = progress, seed = seed, ...
-    )
-  } else {
-    results = estimate_bayes_one_subj(
-      drift_dm_obj = drift_dm_obj, mean = mean, algorithm = algorithm,
+      drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data_ids,
+      sampler = sampler,
       n_chains = n_chains, burn_in = burn_in, samples = samples,
       prob_migration = prob_migration, prob_re_eval = prob_re_eval,
-      progress = progress, seed = seed, ...
+      progress = progress, ...
+    )
+  } else {
+    hierarchical = FALSE
+    results = estimate_bayes_one_subj(
+      drift_dm_obj = drift_dm_obj, sampler = sampler,
+      n_chains = n_chains, burn_in = burn_in, samples = samples,
+      prob_migration = prob_migration, prob_re_eval = prob_re_eval,
+      progress = progress, ...
     )
   }
-  # result returns a list of chains, containing parameters, posteriors, and
+  # result is a list of chains, containing parameters, posteriors, and
   # log_likelihoods, with the the attribute "data_model".
-
 
 
   # calculate the marginal distribution
   ti = NA
-  if (algorithm == "tide") {
-    temperatures = create_temperatures(n_chains, algorithm)
+  if (sampler == "TIDE") {
+    temperatures = create_temperatures(n_chains, sampler)
     lls_theta = results$lls_theta
     m_ll_theta = apply(lls_theta, MARGIN = 1, mean)
     ti = sum(diff(temperatures) /
@@ -1731,9 +1641,9 @@ estimate_model_bayesian = function(drift_dm_obj, mean = NULL,
   # add ti value to the list
   results = c(results, ti = ti)
 
-  # give it a class label and attribute containing the algorithm
+  # give it a class label and attribute containing the sampler
   class(results) <- "mcmc_dm"
-  attr(results, "algorithm") = algorithm
+  attr(results, "sampler") = sampler
   attr(results, "hierarchical") = hierarchical
 
   # and pass back
@@ -1745,21 +1655,21 @@ estimate_model_bayesian = function(drift_dm_obj, mean = NULL,
 #' Create "Temperatures" for TIDE
 #'
 #' @param n_chains numeric
-#' @param algorithm "tide" or anything else
+#' @param sampler "TIDE" or anything else
 #'
 #' @returns a numeric vector of length equal to `n_chains`. The returned values
 #' correspond to quantiles of a Beta(0.3, 1) distribution for
-#' `algorithm == "tide"`. Otherwise a numeric vector of `1`s is returned.
+#' `sampler == "TIDE"`. Otherwise a numeric vector of `1`s is returned.
 #'
 #' @keywords internal
-create_temperatures = function(n_chains, algorithm){
+create_temperatures = function(n_chains, sampler){
   stopifnot(is.integer(n_chains))
   stopifnot(length(n_chains) == 1)
 
-  algorithm = match.arg(algorithm, choices = c("tide", "de_mcmc"))
+  sampler = match.arg(sampler, choices = c("TIDE", "DE-MCMC"))
   alpha = 0.3
   temperatures = rep(1, n_chains)
-  if (algorithm == "tide") {
+  if (sampler == "TIDE") {
     temperatures = c(0:(n_chains - 1) / (n_chains - 1))^(1 / alpha)
   }
   return(temperatures)
@@ -1772,14 +1682,14 @@ create_temperatures = function(n_chains, algorithm){
 
 #' Extract a Subset of MCMC Chains
 #'
-#' When calling [dRiftDM::estimate_model_bayesian()], the MCMC results are
+#' When calling [dRiftDM::estimate_bayesian()], the MCMC results are
 #' packed up as an `mcmc_dm` object. This function is used in the depths of
 #' `dRiftDM` to extract the relevant array of MCMC samples,
 #' depending on whether the model is hierarchical and whether a participant ID
 #' is provided.
 #'
 #' @param chains_obj an object of class`mcmc_dm`.
-#' @param id an optional single numeric or character, specifying the ID of a
+#' @param id an optional single numeric or character, specifying the `ID` of a
 #' participant to extract individual-level samples from a hierarchical model.
 #' Ignored for non-hierarchical models.
 #'

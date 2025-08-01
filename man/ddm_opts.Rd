@@ -5,6 +5,7 @@
 \alias{ddm_opts<-.drift_dm}
 \alias{ddm_opts}
 \alias{ddm_opts.drift_dm}
+\alias{ddm_opts.fits_agg_dm}
 \title{Optional Arguments for the Component Functions}
 \usage{
 ddm_opts(object, ...) <- value
@@ -14,9 +15,12 @@ ddm_opts(object, ...) <- value
 ddm_opts(object, ...)
 
 \method{ddm_opts}{drift_dm}(object, ...)
+
+\method{ddm_opts}{fits_agg_dm}(object, ...)
 }
 \arguments{
-\item{object}{an object of type \link{drift_dm}.}
+\item{object}{an object of type \link{drift_dm} or
+\code{fits_agg_dm} (see \code{\link[=estimate_dm]{estimate_dm()}}).}
 
 \item{...}{additional arguments passed down to the specific method.}
 

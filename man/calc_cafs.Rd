@@ -18,7 +18,7 @@ calc_cafs(
 \arguments{
 \item{pdf_u, pdf_l}{density values for the upper and lower boundary}
 
-\item{t_vec}{the time space (required for the pdfs)}
+\item{t_vec}{the time space}
 
 \item{rts_u, rts_l}{vectors of RTs for the upper and lower boundary}
 

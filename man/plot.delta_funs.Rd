@@ -8,77 +8,69 @@
   x,
   ...,
   id = NULL,
+  conds = NULL,
   dv = NULL,
   col = NULL,
   xlim = NULL,
   ylim = NULL,
   xlab = "RT [s]",
   ylab = expression(Delta),
-  pch = 21,
-  lty = 1,
-  type = "l",
-  legend = NULL,
-  legend_pos = "topright"
+  interval_obs = TRUE,
+  interval_pred = TRUE
 )
 }
 \arguments{
-\item{x}{a \link{data.frame}, containing delta functions, typically resulting from
-a call to \link{calc_stats}.}
+\item{x}{an object of \code{type = "delta_funs"}, typically returned by
+\link{calc_stats(..., type = "delta_funs")}.}
 
-\item{...}{additional arguments passed to the \link{plot}, \link[graphics:points]{graphics::points},
-and \link[graphics:legend]{graphics::legend} functions. Oftentimes, this will (unfortunately) lead
-to an error due to a clash of arguments.}
+\item{...}{additional graphical arguments passed to plotting functions.
+Typical examples include \code{pch}, \code{lty}, \code{lwd}, or \code{legend.pos}. See
+\code{\link[=set_default_arguments]{set_default_arguments()}} for the full list of supported options.}
 
-\item{id}{numeric or character, specifying the id of a single participant to
-plot. If \code{length(id) > 1}, \code{plot.delta_funs()} is called recursively,
-iterating over each entry in \code{id}. Each \code{id} must match with an \code{ID} in the
-\code{ID} column of the provided data set of delta functions \code{x}.}
+\item{id}{a numeric or character, specifying the ID of a single participant
+to plot. If \code{length(id) > 1}, \code{plot.cafs()} is called recursively for
+each entry. Each \code{id} must match an entry in the \code{ID} column of \code{x}.}
 
-\item{dv}{character vector, specifying the delta functions to plot. Defaults
-to all columns beginning with "Delta_" in \code{x}.}
+\item{conds}{a character vector specifying the conditions to plot.
+Defaults to all available conditions.}
 
-\item{col}{character vector, specifying colors for each delta function. If a
-single color is provided, it will be repeated for each function.}
+\item{dv}{a character vector indicating the delta function(s) to plot.
+Defaults to all columns in \code{x} that begin with \code{"Delta_"}.}
 
-\item{xlim, ylim}{numeric vectors of length 2, specifying the x and y axis
+\item{col}{a character vector specifying colors for each condition. If a
+single color is provided, it is repeated for all conditions.}
+
+\item{xlim, ylim}{a numeric vectors of length 2, specifying the x- and y-axis
 limits.}
 
-\item{xlab, ylab}{character, labels for the x and y axes.}
+\item{xlab, ylab}{a character strings for the x- and y-axis labels.}
 
-\item{pch}{integer, specifying the plotting symbol for observed data points.}
-
-\item{lty}{integer, line type for the predicted delta functions.}
-
-\item{type}{character, type of plot for the predicted delta functions.}
-
-\item{legend}{character vector, specifying legend labels corresponding to
-the delta functions. Defaults to the way functions were derived.}
-
-\item{legend_pos}{character, specifying the position of the legend on the
-plot.}
+\item{interval_obs, interval_pred}{logicals; if \code{TRUE} and \code{x} contains a
+column named \code{Estimate}, error bars for observed data and shaded contours
+for predicted data are drawn, respectively.}
 }
 \value{
-Nothing (\code{NULL}; invisibly)
+Returns \code{NULL} invisibly. The function is called for its side effect of
+generating a plot.
 }
 \description{
-This function generates a plot of delta functions, displaying observed and
-predicted values, which can be useful for evaluating model fit or exploring
-data characteristics.
-
-If the data contains multiple IDs, delta functions are aggregated across IDs
-before plotting.
+Visualizes delta functions for observed and/or predicted data. This is useful
+for assessing model fit or exploring the model behavior
 }
 \details{
-The \code{plot.delta_funs()} function provides an easy way to investigate delta
-functions, allowing for customization in color, symbols, and line types for
-different data sources (observed vs. predicted). If multiple IDs are present
-in the data, delta functions are aggregated across IDs before plotting.
-By default, \code{ylim} is set to twice the range of the delta values to provide
-more context.
+If \code{x} contains multiple \code{ID}s and no specific \code{id} is provided, the
+function aggregates across participants before plotting.
+
+Observed delta functions are shown as points, and predicted delta functions
+as lines. When \code{interval_obs = TRUE} or \code{interval_pred = TRUE} and the input
+includes interval estimates (i.e., the column \code{Estimate} exists), the plot
+includes error bars for observed data and shaded contours for model
+predictions.
+
+Colors, symbols, and line styles can be customized via \code{...}.
 }
 \examples{
-# Example 1: Only model predictions ---------------------------------------
-# get a delta function data.frame for demonstration purpose
+# Example 1: Model predictions only ---------------------------------------
 a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 deltas <- calc_stats(
   a_model,
@@ -86,18 +78,10 @@ deltas <- calc_stats(
   minuends = "incomp",
   subtrahends = "comp"
 )
-
-# call the plot function with default values
 plot(deltas)
+plot(deltas, col = "black", lty = 2, xlim = c(0.2, 0.65))
 
-# modify the plot
-plot(deltas,
-  col = c("black"),
-  lty = 2,
-  xlim = c(0.2, 0.65)
-)
-
-# Example 2: Model predictions and observed data --------------------------
+# Example 2: Observed and predicted data ----------------------------------
 obs_data(a_model) <- dmc_synth_data
 deltas <- calc_stats(
   a_model,
@@ -106,16 +90,23 @@ deltas <- calc_stats(
   subtrahends = "comp"
 )
 plot(deltas)
-# Note: The model was not fitted to the data set, thus observed data and
-# model predictions don't match
 
-
-# Example 3: Only observed data -------------------------------------------
+# Example 3: Observed data only -------------------------------------------
 deltas <- calc_stats(
   dmc_synth_data,
   type = "delta_funs",
   minuends = "incomp",
   subtrahends = "comp"
+)
+plot(deltas)
+
+# Example 4: Observed data with intervals ---------------------------------
+deltas <- calc_stats(
+  dmc_synth_data,
+  type = "delta_funs",
+  minuends = "incomp",
+  subtrahends = "comp",
+  resample = TRUE
 )
 plot(deltas)
 

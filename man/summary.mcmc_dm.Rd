@@ -19,7 +19,7 @@
 }
 \arguments{
 \item{object}{an object of class \code{mcmc_dm}, as returned by
-\code{\link[=estimate_model_bayesian]{estimate_model_bayesian()}}}
+\code{\link[=estimate_bayesian]{estimate_bayesian()}}}
 
 \item{...}{additional arguments passed forward to
 \code{\link[coda:summary.mcmc]{coda::summary.mcmc.list()}}.}
@@ -66,7 +66,7 @@ TODO examples
 }
 \details{
 Summary and corresponding print methods for objects of the class \code{mcmc_dm},
-resulting from a call to \code{\link[=estimate_model_bayesian]{estimate_model_bayesian()}}. \code{mcmc_dm}
+resulting from a call to \code{\link[=estimate_bayesian]{estimate_bayesian()}}. \code{mcmc_dm}
 objects contain MCMC samples for Bayesian parameter estimation of
 \code{\link[=drift_dm]{drift_dm()}} objects. The summary includes basic parameter
 statistics, quantiles, Gelman-Rubin diagnostics, and effective sample sizes.
