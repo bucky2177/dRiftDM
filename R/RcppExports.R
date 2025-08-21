@@ -9,3 +9,7 @@ cpp_kfe <- function(pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt
     .Call(`_dRiftDM_cpp_kfe`, pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec)
 }
 
+cpp_kfe_simple <- function(pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec) {
+    .Call(`_dRiftDM_cpp_kfe_simple`, pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec)
+}
+
