@@ -8,6 +8,7 @@ ulrich_flanker_data = ulrich_flanker_data
 ulrich_flanker_data = ulrich_flanker_data[ulrich_flanker_data$ID %in% c(1,2,3),]
 fits_ids = estimate_dm(drift_dm_obj = ddm, obs_data = ulrich_flanker_data,
                        verbose = 0, progress = 1)
+# TODO: RANGE!
 
 use_directory("inst")
 saveRDS(object = fits_ids, file = file.path("inst", "example_fits_ids.rds"))

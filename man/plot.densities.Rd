@@ -24,8 +24,8 @@
 \link{calc_stats(..., type = "densities")}.}
 
 \item{...}{additional graphical arguments passed to plotting functions.
-Typical examples include \code{pch}, \code{lty}, \code{lwd}, or \code{legend.pos}. See
-\code{\link[=set_default_arguments]{set_default_arguments()}} for the full list of supported options.}
+See \code{\link[=set_default_arguments]{set_default_arguments()}} for the full list of supported
+options.}
 
 \item{id}{a numeric or character, specifying the ID of a single participant
 to plot. If \code{length(id) > 1}, \code{plot.cafs()} is called recursively for
@@ -37,10 +37,10 @@ Defaults to all available conditions.}
 \item{col}{a character vector specifying colors for each condition. If a
 single color is provided, it is repeated for all conditions.}
 
-\item{xlim, ylim}{a numeric vectors of length 2, specifying the x- and y-axis
+\item{xlim, ylim}{numeric vectors of length 2, specifying the x- and y-axis
 limits.}
 
-\item{xlab, ylab}{a character strings for the x- and y-axis labels.}
+\item{xlab, ylab}{character strings for the x- and y-axis labels.}
 
 \item{obs_stats}{a character vector specifying which observed statistics to
 plot. Options include \code{"hist"} for histograms and \code{"kde"} for kernel
@@ -65,7 +65,10 @@ aggregates across participants before plotting. You can provide a vector of
 
 Observed densities are shown as histograms (default: gray shaded areas), or
 KDE lines (default: black, dotted). Predicted densities are shown as lines
-(default: colorized).
+(default: colorized). Distributions associated with the upper boundary are
+shown with values > 0 (i.e., the upper part of the plot), distributions
+associated with the lower boundary are shown with values < 0 (i.e., the lower
+part of the plot)
 
 Axis limits, colors, and styling options can be customized via \code{...}. If
 interval information is provided (i.e., the column \code{Estimate} exists in \code{x}),

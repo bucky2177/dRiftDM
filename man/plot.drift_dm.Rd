@@ -4,40 +4,23 @@
 \alias{plot.drift_dm}
 \title{Plot Components of a Drift Diffusion Model}
 \usage{
-\method{plot}{drift_dm}(
-  x,
-  ...,
-  conds = NULL,
-  col = NULL,
-  xlim = NULL,
-  legend = NULL,
-  legend_pos = "topright",
-  mfrow = NULL
-)
+\method{plot}{drift_dm}(x, ..., conds = NULL, col = NULL, xlim = NULL, bundle_plots = FALSE)
 }
 \arguments{
 \item{x}{an object of class \link{drift_dm}}
 
-\item{...}{additional arguments passed forward.}
+\item{...}{additional graphical arguments passed to plotting functions.
+See \code{\link[=set_default_arguments]{set_default_arguments()}} for the full list of supported
+options.}
 
-\item{conds}{character vector, specifying conditions to plot. Defaults to all
-conditions in \code{x}.}
+\item{conds}{a character vector specifying the conditions to plot.
+Defaults to all available conditions.}
 
-\item{col}{character vector, specifying colors for each condition. If a
-single color is provided, it will be repeated for each condition.}
+\item{col}{a character vector specifying colors for each condition. If a
+single color is provided, it is repeated for all conditions.}
 
-\item{xlim}{numeric vector of length 2, specifying the x-axis limits for
-components related to the time space.}
-
-\item{legend}{character vector, specifying legend labels corresponding to the
-conditions.}
-
-\item{legend_pos}{character, specifying the position of the legend on the
-plot (e.g., \code{"topright"}).}
-
-\item{mfrow}{an optional numeric vector of length 2, specifying the number of
-rows and columns for arranging multiple panels in a single plot. If \code{NULL}
-(default), \code{mfrow} will be \code{c(3,2)}.}
+\item{bundle_plots}{logical, indicating whether to display separate panels
+in a single plot layout (\code{FALSE}), or to plot them separately (\code{TRUE}).}
 }
 \value{
 Nothing (\code{NULL}; invisibly)
@@ -53,18 +36,13 @@ The \code{plot.drift_dm} function provides an overview of key DDM components,
 which include:
 \itemize{
 \item \code{mu_fun}: Drift rate over time.
-\item \code{mu_int_fun}: Integrated drift rate over time.
+\item \code{mu_int_fun}: Integrated drift rate over time (if required by the
+specified \code{solver} of the model).
 \item \code{x_fun}: Starting condition as a density across evidence values.
 \item \code{b_fun}: Boundary values over time.
 \item \code{dt_b_fun}: Derivative of the boundary function over time.
 \item \code{nt_fun}: Non-decision time as a density over time.
 }
-
-For each component, if multiple conditions are specified, they will be
-plotted using different colors as specified in \code{color}.
-
-When the evaluation of a model component fails, the respective component
-will not be plotted, but no warning is thrown.
 }
 \examples{
 # plot the component functions of the Ratcliff DDM

@@ -74,8 +74,9 @@ printing out traces (default is 5).}
 printing out traces (default is 4).}
 }
 \value{
-\code{simulate_traces()} returns either a list of type \code{traces_dm_list}, or
-directly the plain traces as matrices across conditions (if \code{unpack = TRUE}).
+\code{simulate_traces()} returns either an object of type \code{traces_dm_list}, or
+directly a list of matrices across conditions, containing the traces
+(if \code{unpack = TRUE}).
 If the model has only one condition (and \code{unpack = TRUE}), then the matrix of
 traces for this one condition is directly returned.
 

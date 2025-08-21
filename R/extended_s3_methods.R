@@ -1,6 +1,5 @@
 # FOR DRIFT_DM OBJECTS ----------------------------------------------------
 
-# TODO: FITS_AGG_DM!
 
 #' Get the Number of Observations for a drift_dm Object
 #'

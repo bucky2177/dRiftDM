@@ -1407,7 +1407,7 @@ estimate_bayes_one_subj <- function(drift_dm_obj, sampler, n_chains,
 #' An approximation of the marginal likelihood to calculate Bayes Factors can
 #' be obtained with the Thermodynamic Integration via Differential Evolution
 #' (TIDE) sampler \insertCite{EvansAnnis2019;textual}{dRiftDM}. However,
-#' TIDE is not yet supported fully, and is at a very experimental stage.
+#' TIDE is not yet supported fully, and is at an experimental stage.
 #'
 #' @inheritParams estimate_bayes_h
 #' @param ... additional arguments passed forward to
@@ -1424,95 +1424,11 @@ estimate_bayes_one_subj <- function(drift_dm_obj, sampler, n_chains,
 #'   individual's data attached.
 #'
 #' @details
-#' TODO: MOVE TO estimate_dm
-#' When users supply a [data.frame] via the optional argument `obs_data_ids`,
-#' a hierarchical approach to parameter estimation is done. In this case,
-#' the supplied data set must provide data for multiple individuals. If users
-#' want to estimate the parameters for single individual (i.e., pursue the
-#' non-hierarchical approach), then the supplied model `drift_dm_obj` must
-#' have data attached to it (see [dRiftDM::obs_data()]).
-#'
-#' The hierarchical case is covered by the internal function
-#' [dRiftDM::estimate_bayes_h()]. The non-hierarchical case by the internal
-#' function [dRiftDM::estimate_bayes_one_subj()].
-#'
-#' ## (Default) Prior settings in the non-hierarchical case:
-#'
-#' Let \eqn{\theta^{(j)}} indicate parameter \eqn{j} of a model (e.g., the
-#' drift rate).
-#' The prior on \eqn{\theta^{(j)}} is a truncated normal distribution:
-#'  \deqn{
-#'  \theta^{(j)} \sim NT(\mu^{(j)}, \sigma^{(j)}, l^{(j)}, u^{(j)})
-#'  }
-#' With \eqn{\mu^{(j)}} and \eqn{\sigma^{(j)}} representing the mean and standard
-#' deviation of parameter \eqn{j}. \eqn{l^{(j)}} and \eqn{u^{(j)}} represent the
-#' lower and upper boundary. \eqn{\mu^{(j)}} is taken from the necessary `mean`
-#' argument when calling the function. \eqn{\sigma^{(j)}} is, per default, equal
-#' to \eqn{\mu^{(j)}}. This can be changed by passing an optional `sd` argument.
-#' The lower and upper boundaries of the truncated normal are `-Inf` and `Inf`
-#' per default. This can be altered by passing the optional arguments
-#' `lower` and  `upper`.
-#'
-#' ## (Default) Prior settings in the hierarchical case:
-#'
-#' Let \eqn{\theta_i^{(j)}} indicate parameter \eqn{j} for participant \eqn{i}
-#' (e.g., the  drift rate estimated for individual \eqn{i}). The prior on
-#' \eqn{\theta_i^{(j)}} is a truncated normal distribution:
-#'  \deqn{
-#'  \theta_i^{(j)} \sim NT(\mu^{(j)}, \sigma^{(j)}, l^{(j)}, u^{(j)})
-#'  }
-#' With \eqn{\mu^{(j)}} and \eqn{\sigma^{(j)}} representing the mean and standard
-#' deviation of parameter \eqn{j} at the group level. \eqn{l^{(j)}} and
-#' \eqn{u^{(j)}} represent the lower and upper boundary. The lower and upper
-#' boundaries of the truncated normal are `-Inf` and `Inf` per default.
-#' This can be altered by passing the optional arguments `lower` and  `upper`.
-#'
-#' For a group-level mean parameter, \eqn{\mu^{(j)}}, the prior is also a truncated
-#' normal distributions:
-#'  \deqn{
-#'  \mu^{(j)} \sim NT(M^{(j)}, SD^{(j)}, l^{(j)}, u^{(j)})
-#'  }
-#' With \eqn{M^{(j)}} specified by the necessary `mean` argument  when calling the
-#' function. \eqn{SD^{(j)}} is, per default, equal to \eqn{M^{(j)}}. This can be
-#' changed by passing an optional `sd` argument, specifying the `sd`s.
-#'
-#' For a group-level standard deviation parameter, \eqn{\sigma^{(j)}}, the prior
-#' is a gamma distribution:
-#'  \deqn{
-#'  \sigma^{(j)} \sim \Gamma(shape^{(j)},rate^{(j)})
-#'  }
-#' With \eqn{shape^{(j)}} and \eqn{rate^{(j)}} being `1` by default. This
-#' can be changed by passing the optional arguments `shape` and `rate`.
-#'
-#'
-#' ## Specifying prior settings
-#'
-#' the function `estimate_bayesian` passes the (optional) prior arguments
-#' like `mean`, `sd`, `lower`, `upper`, `shape`, and `rate` forward
-#' to [dRiftDM::get_default_prior_settings()] to specify prior settings. Similar
-#' to specifying the search space in [dRiftDM::estimate_model()], there are
-#' three options how to provide the optional prior arguments.
-#'
-#' * Plain numeric vectors (not very much recommended). In this case,
-#' `mean`, `sd`, `lower`, `upper`, `shape`, and `rate` must be sorted in
-#' accordance with the parameters in the `flex_prms_obj` object that vary for
-#' at least one condition (call `print(drift_dm_obj)` and have a look at the
-#' `Unique Parameters` output)
-#'
-#' * Named numeric vectors. In this case `mean`, `sd`, `lower`, `upper`,
-#' `shape`, and `rate` have to provide labels in accordance with the parameters
-#' that are considered "free" at least once across conditions.
-#'
-#' * The most flexible way is when `mean`, `sd`, `lower`, `upper`, `shape`, and
-#' `rate` are lists. In this case, each list requires an entry called
-#' "default_values" which specifies the named or plain numeric vectors as above.
-#' If the lists only contain the entry "default_values", then the behavior is
-#' as if `mean`, `sd`, `lower`, `upper`, `shape`, and `rate` were already
-#' numeric vectors.
-#' However, the lists can also provide entries labeled like specific
-#' conditions, which contain named (!) numeric vectors with parameter labels.
-#' This will modify the value for the prior settings with respect
-#' to the specified parameters in the respective conditions.
+#' When a [data.frame] is supplied, a hierarchical approach to parameter
+#' estimation is done. In this case, the supplied data set must provide data
+#' for multiple individuals. To estimate the parameters for a single individual
+#' (i.e., pursue the non-hierarchical approach), then the supplied model
+#' `drift_dm_obj` must have data attached to it (see [dRiftDM::obs_data()]).
 #'
 #'
 #' @references
@@ -1520,59 +1436,14 @@ estimate_bayes_one_subj <- function(drift_dm_obj, sampler, n_chains,
 #' \insertRef{EvansAnnis2019}{dRiftDM}
 #'
 #'
-#' @examples
-#'
-#' # This is an example that shows the function but is unrealistic to ensure it
-#' # runs in a couple of seconds.
-#'
-#' ####
-#' # Hierarchical case:
-#' # get a model for demonstration purpose
-#' my_model  = dmc_dm(dx = .01, dt = .005, t_max = 1.5, var_start = FALSE)
-#'
-#' # get some data (3 participants of a flanker task data set)
-#' some_data = ulrich_flanker_data[ulrich_flanker_data$ID %in% 1:3,]
-#'
-#' results <- estimate_bayesian(
-#'   drift_dm_obj = my_model,
-#'   mean =  c(muc = 4, b = 0.6, non_dec = 0.3, sd_non_dec = 0.02,
-#'             tau = 0.06, A = 0.1), # mean prior settings
-#'   obs_data_ids = ulrich_flanker_data,
-#'   n_chains = 20,     # just for the example
-#'   burn_in = 0,       # just for the example
-#'   samples = 1,       # just for the example
-#'   n_cores = 1,       # just for the example
-#'   lower = c(muc = 0, b = 0, non_dec = 0, sd_non_dec = 0.005,
-#'             tau = 0.005) # altered prior settings for the lower truncation
-#'  )
-#'
-#' ####
-#' # Non-Hierarchical case (estimation for just one individual)
-#' my_model  = dmc_dm(dx = .01, dt = .005, t_max = 1.5, var_start = FALSE)
-#'
-#' # get some data (3 participants of the flanker task data set)
-#' obs_data(my_model) = ulrich_flanker_data[ulrich_flanker_data$ID == 1,]
-#'
-#' results <- estimate_bayesian(
-#'   drift_dm_obj = my_model,
-#'   mean =  c(muc = 4, b = 0.6, non_dec = 0.3, sd_non_dec = 0.02,
-#'             tau = 0.06, A = 0.1),  # mean prior settings
-#'   n_chains = 20,     # just for the example
-#'   burn_in = 0,       # just for the example
-#'   samples = 1,       # just for the example
-#'   lower = c(muc = 0, b = 0, non_dec = 0, sd_non_dec = 0.005,
-#'             tau = 0.005) # altered prior settings for the lower truncation
-#'  )
-#'
 #'
 #' @seealso [dRiftDM::summary.mcmc_dm()], [dRiftDM::estimate_bayes_h()],
 #' [dRiftDM::estimate_bayes_one_subj()]
 #' @keywords internal
 estimate_bayesian = function(drift_dm_obj, obs_data_ids = NULL,
-                                   sampler,
-                                   n_chains, burn_in, samples,
-                                   prob_migration, prob_re_eval,
-                                   progress = NULL, ...) {
+                             sampler, n_chains, burn_in, samples,
+                             prob_migration, prob_re_eval,
+                             progress = NULL, ...) {
 
 
 
@@ -1639,7 +1510,7 @@ estimate_bayesian = function(drift_dm_obj, obs_data_ids = NULL,
   }
 
   # add ti value to the list
-  results = c(results, ti = ti)
+  results$ti = ti
 
   # give it a class label and attribute containing the sampler
   class(results) <- "mcmc_dm"

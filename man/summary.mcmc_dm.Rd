@@ -62,17 +62,21 @@ which is a list with the following entries:
 input object invisibly.
 }
 \description{
-TODO examples
-}
-\details{
 Summary and corresponding print methods for objects of the class \code{mcmc_dm},
 resulting from a call to \code{\link[=estimate_bayesian]{estimate_bayesian()}}. \code{mcmc_dm}
 objects contain MCMC samples for Bayesian parameter estimation of
 \code{\link[=drift_dm]{drift_dm()}} objects. The summary includes basic parameter
 statistics, quantiles, Gelman-Rubin diagnostics, and effective sample sizes.
-
+}
+\details{
 The summary and diagnostic statistics of the MCMC chains are obtained
 using the R package \code{coda}.
+}
+\examples{
+mcmc_obj <- get_example_fits("mcmc_dm")
+print(mcmc_obj)
+summary(mcmc_obj)
+
 }
 \seealso{
 \code{\link[coda:gelman.diag]{coda::gelman.diag()}}, \code{\link[coda:effectiveSize]{coda::effectiveSize()}},

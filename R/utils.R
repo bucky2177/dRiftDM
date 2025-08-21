@@ -450,7 +450,7 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
   matrix_b = fill_up(matrix_b)
 
 
-  # check if all parameters are there
+  # check if all parameters are there (or additional parameters that are )
   if (!is.null(matrix_a) && !all(prm_labels %in% colnames(matrix_a))) {
     stop(
       "Parameter labels in the created matrix for input_a ",
@@ -463,6 +463,25 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
       "Parameter labels in the created matrix for input_b ",
       "don't match with the model parameters that are considered free. ",
       "Did you forgot to specify a parameter?"
+    )
+  }
+
+  diff_a = setdiff(colnames(matrix_a), prm_labels)
+  if (!is.null(matrix_a) && length(diff_a) > 0) {
+    warning(
+      "Specifications (e.g., lower or upper boundaries, priors) were provided ",
+      "for the following parameters: ", paste(diff_a, collapse = ", "),
+      ". These parameters are not 'free' or not part of the model and will be ",
+      "ignored."
+    )
+  }
+  diff_b = setdiff(colnames(matrix_b), prm_labels)
+  if (!is.null(matrix_b) && length(diff_b) > 0) {
+    warning(
+      "Specifications (e.g., lower or upper boundaries, priors) were provided ",
+      "for the following parameters: ", paste(diff_b, collapse = ", "),
+      ". These parameters are not 'free' or not part of the model and will be ",
+      "ignored."
     )
   }
 

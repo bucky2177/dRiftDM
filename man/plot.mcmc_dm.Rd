@@ -4,7 +4,7 @@
 \alias{plot.mcmc_dm}
 \title{Plot MCMC Results and Diagnostics \code{mcmc_dm} Objects}
 \usage{
-\method{plot}{mcmc_dm}(x, ..., id = NULL, what = "trace", mfrow = NULL)
+\method{plot}{mcmc_dm}(x, ..., id = NULL, what = "trace", bundle_plots = TRUE)
 }
 \arguments{
 \item{x}{an object of class \code{mcmc_dm}, as returned by
@@ -26,8 +26,8 @@ dimension names of the used chains array stored in \code{x}.}
 be either \code{"trace"}, \code{"density"}, or \code{"auto"}. See the Details below.
 Default is \code{"trace"}.}
 
-\item{mfrow}{an optional numeric vector of length two, passed to
-\code{par(mfrow = ...)} to arrange multiple plots on the same device.}
+\item{bundle_plots}{logical, indicating whether to display separate panels
+in a single plot layout (\code{FALSE}), or to plot them separately (\code{TRUE}).}
 }
 \value{
 Returns \code{NULL} invisibly.
@@ -65,8 +65,14 @@ distributions.
 autocorrelation at different lags, averaged across chains.
 They are useful to judge how quickly the chains produced independent samples.
 }
+}
+\examples{
+# get an examplary `mcmc_dm` object
+chains_obj <- get_example_fits("mcmc")
+plot(chains_obj)
+plot(chains_obj, what = "density")
+plot(chains_obj, what = "density", which_prm = "b", bundle_plots = FALSE)
 
-TODO examples
 }
 \seealso{
 \code{\link[=plot_mcmc_trace]{plot_mcmc_trace()}}, \code{\link[=plot_mcmc_marginal]{plot_mcmc_marginal()}},

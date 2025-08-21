@@ -13,7 +13,7 @@ stats.options(...)
 Depending on usage:
 \itemize{
 \item Full list of options (if no input),
-\item A specific option value (if querying),
+\item A specific option value (if string input),
 \item Invisibly \code{NULL} (if setting or resetting options).
 }
 }
@@ -35,10 +35,11 @@ Resets (clears) the entire option list.
 }
 
 This function is intended for internal use only.
-It behaves similarly to \code{\link[=options]{options()}} but keeps all package-specific options
+It behaves similarly to \code{\link[=options]{options()}} and keeps all package-specific options
 in a single named list under \code{getOption("stats.dRiftDM")}.
 
 Setting an argument can only be done once with this function, any additional
-attempts to modify an option will not work, (unless this argument is
-explicitly set to \code{NULL})
+attempts to modify an option will not work (unless this argument is
+explicitly set to \code{NULL}).
 }
+\keyword{internal}

@@ -143,6 +143,7 @@
 #' dmc_model <- dmc_dm() # another, more complex, model; comes with dRiftDM
 #' print(flex_prms(dmc_model), round_digits = 1, cust_parameters = FALSE)
 #'
+#'
 #' @export
 flex_prms <- function(object, ...) {
   UseMethod("flex_prms")

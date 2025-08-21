@@ -4,54 +4,111 @@
 \alias{set_default_arguments}
 \title{Set default graphical parameters for plotting in dRiftDM}
 \usage{
-set_default_arguments(dots, conds)
+set_default_arguments(dots, leg, id)
 }
 \arguments{
-\item{dots}{a named list of graphical parameters (typically created from
-\code{...} when passing additional arguments to \verb{plot.*()} functions in \code{dRiftDM}).}
+\item{dots}{a named list of graphical parameters (created from
+\code{...} when passing additional arguments to \verb{plot.*()} methods of
+\code{dRiftDM}).}
+
+\item{leg}{a character vector, used to set default legend entries.}
+
+\item{id}{a character or numeric participant value.}
 }
 \value{
-A list with all updated graphical parameters
+A list with all updated graphical parameters, ready to be passed
+to plotting functions. (done internally, not by the user)
 }
 \description{
-This function sets graphical parameters (passed through \code{...} by
-\code{\link[=plot.cafs]{plot.cafs()}}, \code{\link[=plot.quantiles]{plot.quantiles()}},
-\code{\link[=plot.delta_funs]{plot.delta_funs()}}, and \code{\link[=plot.densities]{plot.densities()}}) to sensible
-defaults used in plotting. It supports arguments relevant to
-\code{\link[graphics:plot.default]{graphics::plot()}}, \code{\link[graphics:points]{graphics::points()}}, and \code{\link[graphics:legend]{graphics::legend()}},
-allowing users fine-grained control over plotting while avoiding argument
-clashes.
+This function sets/updates graphical parameters (passed through \code{...} by
+\verb{plot.*()} methods of \code{dRiftDM}) and handles default settings.
+It supports arguments relevant to
+\code{\link[graphics:plot.default]{graphics::plot()}}, \code{\link[graphics:points]{graphics::points()}}, \code{\link[graphics:legend]{graphics::legend()}}, and
+\code{\link[graphics:arrows]{graphics::arrows()}}, allowing users fine-grained control over plotting
+while avoiding argument clashes. This is an internal function, so users
+won't call it directly. However, the Details below list all optional
+arguments that users can provide when calling the \verb{plot.*} methods
 }
 \details{
+\subsection{Possible arguments and default values are:}{
+}
+}
+\section{Shades, Lines, Points}{
 \itemize{
-\item \code{pch}: plotting symbol of points (default: \code{19})
-\item \code{lty}: line type of lines (default: \code{1})
-\item \code{pt.bg}: point background color (default: \code{NULL})
-\item \code{lwd}: line width of lines (default: \code{1})
-\item \code{cex.axis}, \code{cex.lab}, \code{cex.main}, \code{cex.pt}, \code{cex.legend}: scaling
-factors for text, axes, and points (default: \code{1})
-\item \code{main}: plot title (default: empty string, so no title)
-\item \code{family}: font family (default: empty string)
-\item \code{legend.pos}: legend position (default: \code{"bottomright"}, could either
-be a string with a position as handled by the \code{x} argument of
-\code{\link[graphics:legend]{graphics::legend()}} or a numeric vector of the legend's position)
-\item \code{legend}: legend labels (default: falls back to the specified \code{conds})
-\item \code{bg}: background color of the legend box (default: \code{"white"})
-\item \code{bty}: box type for the legend (default: \code{"o"})
-\item \code{border}: border color of the legend box (default: \code{"black"})
-\item \code{box.lwd}: line width of the legend box (default: \code{1})
-\item \code{box.col}: border color of the legend box (default: \code{"black"})
-\item \code{box.lty}: line type of the legend box (default: \code{1})
-\item \code{err.width}: the width of the caps at the end of each error bar
-\item \code{err.col}: the color of the error bar (default: \code{NULL}, this will
-set the error bar color to either the point/line color of the plot or to
-gray50; depending on the type of plot)
-\item \code{shade.alpha}: transparency of the shaded area around the model prediction
+\item \code{obs.pch}: plotting symbol for points of observed data (default: \code{19})
+\item \code{obs.pt.bg}: background color for points (default: \code{NA})
+\item \code{pred.lty}: line type for lines of predicted data (default: \code{1})
+\item \code{pred.lwd}: line width for lines (default: \code{1})
+\item \code{alpha}: alpha transparency for shaded prediction intervals
 (default: \code{0.2})
 }
+
+Text and scaling options:
+\itemize{
+\item \code{cex.axis}, \code{cex.lab}, \code{cex.main}, \code{cex.pt}, \code{cex.legend}: text and point
+scaling factors (default: \code{1})
+\item \code{main}: plot title (default: empty string, with \code{id} appended if applicable)
+\item \code{family}: font family (default: empty string)
 }
-\note{
-The value of \code{legend} defaults to \code{conds}, which is internally
-supplied by dRiftDM. TODO: Update
+
+Legend settings:
+\itemize{
+\item \code{legend}: legend labels (default: \code{leg})
+\item \code{legend.pos}: position of the primary legend (default: \code{"bottomright"},
+it is also possible to specify a numeric vector for \code{legend.pos}, providing
+the exact x- and y-position)
+\item \code{legend.bg}: background color of the legend box (default: \code{"white"})
+\item \code{bty}: box type for the legend (default: \code{"o"})
+\item \code{box.lwd}: border line width of the legend box (default: \code{1})
+\item \code{box.col}: border color of the legend box (default: \code{"black"})
+\item \code{box.lty}: border line type of the legend box (default: \code{1})
+\item \code{lines.legend}: optional labels for a separate legend for line types
+(only relevant for \code{plot.densities()}, default: \code{NULL})
+\item \code{lines.legend.pos}: position of that separate legend (default:
+\code{"topright"}, passing a vector with exact x- and y-positions for
+\code{lines.legend} is possible)
+}
+
+Error bar settings:
+\itemize{
+\item \code{err.width}: width of caps on error bars (default: \code{0.05})
+\item \code{err.col}: color of error bars (default: \code{NULL}; resolved to
+line/point colors, black or gray, depending on the plot type; recycled
+across conditions)
+\item \code{err.eps}: threshold under which an error bar is treated as too small to
+display (default: \verb{0.1\%} of the y-axis range)
+}
+
+Observed histogram and KDE settings (for plot of RT distributions/densities):
+\itemize{
+\item \code{obs.hist.col}: fill color for histograms (default: \code{"gray20"})
+\item \code{obs.kde.col}: color of KDE lines (default: \code{"black"})
+\item \code{obs.kde.lty}: line type of KDE lines (default: \code{2})
+\item \code{obs.kde.lwd}: line width of KDE lines (default: \code{1})
+}
+
+ETC.
+\itemize{
+\item \code{horiz.col}: color of a horizontal axis line at y = 0 (default: \code{"gray"})
+}
+}
+
+\examples{
+# This is not an example of calling set_default_arguments() directly
+# (because it is an internal function), but it illustrates how user-supplied
+# plotting arguments are processed via this helper.
+
+some_data <- ulrich_flanker_data
+some_stats <- calc_stats(some_data, type = "quantiles")
+
+# See also ?plot.quantiles for more detail
+plot(
+  some_stats,
+  obs.pch = 21,        # optional argument 1: point type
+  obs.pt.bg = "black", # optional argument 2: point background
+  legend = c("foo", "bar") # optional argument 3: custom legend labels
+)
+# for a full list of optional arguments, see the Details above
+
 }
 \keyword{internal}

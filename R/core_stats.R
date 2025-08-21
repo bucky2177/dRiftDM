@@ -45,7 +45,6 @@
 #' The `<U>` and `<L>` placeholders are determined by the `b_coding` argument.
 #'
 #' @keywords internal
-#' @name calc_dens_functions
 calc_dens_obs = function(rts_u, rts_l, one_cond, t_max = NULL, discr = NULL,
                          scaling_factor = 1.0) {
 
@@ -102,7 +101,7 @@ calc_dens_obs = function(rts_u, rts_l, one_cond, t_max = NULL, discr = NULL,
 }
 
 
-#' @rdname calc_dens_functions
+#' @rdname calc_dens_obs
 calc_dens <- function(pdf_u = NULL, pdf_l = NULL, t_vec = NULL, t_max = NULL,
                       discr = NULL, rts_u = NULL, rts_l = NULL, one_cond,
                       b_coding, scaling_factor = 1.0) {
@@ -833,12 +832,9 @@ calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
   if (length(subtrahends) != length(minuends)) {
     stop("different length of minuends and subtrahends")
   }
-  if (!all(minuends %in% unique(quantiles_dat$Cond))) {
-    stop("Conds specified in minuends are not provided within quantiles_dat")
-  }
-  if (!all(subtrahends %in% unique(quantiles_dat$Cond))) {
-    stop("Conds specified in subtrahends are not provided within quantiles_dat")
-  }
+  conds <- unique(quantiles_dat$Cond)
+  minuends = match.arg(minuends, conds, several.ok = TRUE)
+  subtrahends = match.arg(subtrahends, conds, several.ok = TRUE)
 
   # input checks on dvs
   if (is.null(dvs)) {
@@ -866,7 +862,7 @@ calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
 
   n_probs <- length(unique(quantiles_dat$Prob))
   n_source <- length(unique(quantiles_dat$Source))
-  n_cond <- length(unique(quantiles_dat$Cond))
+  n_cond <- length(conds)
   if (nrow(quantiles_dat) != n_probs * n_source * n_cond) {
     stop(
       "quantiles_dat doesn't uniquely code rows solely by Probs, Source, ",
@@ -1179,27 +1175,26 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...,
 #'  [dRiftDM::estimate_dm()]).
 #' @param type a character vector, specifying the statistics to calculate.
 #' Supported values include `"basic_stats"`, `"cafs"`, `"quantiles"`,
-#' `"delta_funs"`, and `"fit_stats"`.
+#' `"delta_funs"`, `"densities"`, and `"fit_stats"`.
 #' @param ... additional arguments passed to the respective method and the
 #' underlying calculation functions (see Details for mandatory arguments).
 #' @param conds optional character vector specifying conditions to include.
 #' Conditions must match those found in the `object`.
 #' @param resample logical. If `TRUE`, then data is (re-)sampled to create
-#' an uncertainty estimate for the requested statistic. See Details for more
-#' information). Default is `FALSE`.
-#' @param split_by_ID logical. If `TRUE`, statistics are calculated separately
-#' for each individual ID in `object` (when `object` is a [data.frame]). Default
-#' is `TRUE`.
+#' an uncertainty estimate for the requested summary statistic. See Details for
+#' more information. Default is `FALSE`. Note that resampling does not work with
+#' `type = "fit_stats"`.
+#' @param progress integer, indicating if information about the progress
+#'  should be displayed. 0 -> no information, 1 -> a progress bar. Default is 1.
+#' @param level a single character string, indicating at which "level" the
+#' statistic should be calculated. Options are `"group"` or `"individual"`. If
+#' `"individual"`, the returned `stats_dm` object contains an `"ID"` column.
 #' @param b_coding a list for boundary coding (see [dRiftDM::b_coding]). Only
 #' relevant when `object` is a [data.frame]. For other `object` types, the
 #' `b_coding` of the `object` is used.
-#' @param average logical. If `TRUE`, averages the statistics across individuals
-#' where applicable. Default for `calc_stats.data.frame` is `FALSE`. Default
-#' for `calc_stats.fits_agg_dm` is `TRUE`.
-#' @param progress integer, indicating if information about the progress
-#'  should be displayed. 0 -> no information, 1 -> a progress bar. Default is 1.
 #' @param round_digits integer, controls the number of digits shown.
 #'  Default is 3.
+#' @param messaging logical, if `FALSE`, no message is provided.
 #' @param print_rows integer, controls the number of rows shown.
 #' @param some logical. If `TRUE`, a subset of randomly sampled rows is shown.
 #' @param show_header logical. If `TRUE`, a header specifying the type of
@@ -1266,7 +1261,26 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...,
 #'     and matching occurs pairwise. In this case, if only one
 #'     minuend/subtrahend is specified, minuend and subtrahend are recycled to
 #'     the necessary length.
+#'  - specifying `probs` is possible (see Quantiles)
 #'
+#' **Densities**
+#'
+#' With "densities", we refer to a summary of the distribution of observed
+#' or predicted data. For observed data, histogram values and kernel density
+#' estimates are provided. For predicted data, the model's predicted PDFs are
+#' provided.
+#'
+#'  Optional arguments are:
+#'  - `discr`: numeric, the band-width when calculating the histogram or the
+#'  kernel density estimates. Defaults to `0.015` seconds
+#'  - `t_max`: numeric, the maximum time window when calculating the distribution
+#'  summaries of observe data. Defaults to the longest RT (for observed data)
+#'  or the maximum of the time domain of a model (which is the preferred choice,
+#'  if possible). If necessary, `t_max` is slightly adjusted to match with
+#'  `discr`.
+#'  - `scale_mass`: logical, only relevant if observed data is available. If
+#'  `TRUE`, density masses are scaled proportional to the number of trials per
+#'  condition.
 #'
 #' **Fit Statistics**
 #'
@@ -1277,7 +1291,58 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...,
 #'
 #' ## Resampling
 #'
-#' When users set `resampling = TRUE`, the statistics TODO
+#' When `resampling = TRUE`, an uncertainty interval is provided via simulation.
+#' The default number of iterations is `R = 100`, which can be changed by
+#' passing the optional argument `R`.
+#'
+#' If resampling is requested, the returned `stats_dm` object contains the
+#' column `"Estimate"`, coding the interval. The interval width is controlled
+#' via the optional argument `interval_level`, a single numeric value between
+#' 0 and 1 (default: `0.95`). The interpretation of this interval depends on
+#' the specific situation (see below).
+#'
+#' **Resampling at the Individual Level**
+#'
+#' If `object` is a `drift_dm` object (i.e., a single model created by
+#' [dRiftDM::drift_dm()]), synthetic data are simulated under the model, and
+#' for each synthetic data set the requested statistic is calculated. The
+#' interval then reflects the range of these simulated statistics. To determine
+#' the number of trials for each synthetic data set, dRiftDM either uses the
+#' observed data attached to the model (if available) or the optional argument
+#' `n_sim` (passed to [dRiftDM::simulate_data()]). Note that `n_sim` must be
+#' provided if no observed data are available, and that `n_sim` always has
+#' priority.
+#'
+#' If `object` is a `drift_dm` object with attached observed data, resampling
+#' is also performed for the observed data. In this case, trials are
+#' bootstrapped, and for each bootstrap sample the requested statistic is
+#' calculated.
+#'
+#' If `object` is a `data.frame`, `fits_agg_dm`, or `fits_ids_dm` object,
+#' resampling is performed for each individual if `level = "individual"`. For
+#' both models and observed data, synthetic or bootstrapped data sets are
+#' generated as described above.
+#'
+#' **Resampling at the Group Level**
+#'
+#' Group-level resampling is possible only if `object` is a `data.frame`
+#' (with an `"ID"` column), `fits_agg_dm`, or `fits_ids_dm` object. To request
+#' this, set `level = "group"`. Participants are then bootstrapped, and
+#' for each bootstrapped sample the aggregated statistic is calculated.
+#'
+#' **Interpretation of Intervals**
+#'
+#' For `level = "group"`, intervals represent bootstrapped confidence intervals
+#' For `level = "individual"`, intervals represent the variability in the
+#' statistic when data for a single participant are resampled or simulated
+#' under the model.
+#'
+#' **Note**
+#'
+#' For objects of type `fits_agg_dm`, which contain a mixture of group- and
+#' individual-level information, the `level` argument only affects resampling
+#' for the observed data. For the model itself, resampling is always performed
+#' under the fitted model, in the same way as for a `drift_dm` object.
 #'
 #'
 #' @returns
@@ -1378,6 +1443,11 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL,
     stop("progress must be 0 or 1")
   }
   level = match.arg(level, c("individual", "group"))
+  if (type == "fit_stats" && resample) {
+    warning("`resampling` not available for `type = 'fit_stats'`; ",
+            "setting `resampling = FALSE`")
+    resample = FALSE
+  }
 
   # deprecation warning about split_by_ID and average
   if (!is.null(dots$split_by_ID)) {
@@ -1529,7 +1599,12 @@ calc_stats.drift_dm <- function(object, type, ..., conds = NULL,
   type <- match.arg(type, drift_dm_stats_types("drift_dm"))
   dots = list(...)
 
-
+  # input check on resample and fit_stats
+  if (type == "fit_stats" && resample) {
+    warning("`resampling` not available for `type = 'fit_stats'`; ",
+            "setting `resampling = FALSE`")
+    resample = FALSE
+  }
 
   # if fit_stats requested, return it
   if (type == "fit_stats") {
@@ -1619,8 +1694,6 @@ calc_stats.fits_ids_dm <- function(object, type, ..., conds = NULL,
   dots <- list(...)
 
   # input checks
-  type <- match.arg(type, drift_dm_stats_types("sum_dist"))
-
   model_conds <- conds(fits_ids)
   if (is.null(conds)) {
     conds <- model_conds
@@ -1633,6 +1706,11 @@ calc_stats.fits_ids_dm <- function(object, type, ..., conds = NULL,
   }
   level = match.arg(level, c("individual", "group"))
 
+  if (type == "fit_stats" && resample) {
+    warning("`resampling` not available for `type = 'fit_stats'`; ",
+            "setting `resampling = FALSE`")
+    resample = FALSE
+  }
 
   # deprecation warning about average
   if (!is.null(dots$average)) {
@@ -1721,6 +1799,11 @@ calc_stats.fits_agg_dm <- function(object, type, ..., conds = NULL,
   }
   level = match.arg(level, c("individual", "group"))
 
+  if (type == "fit_stats" && resample) {
+    warning("`resampling` not available for `type = 'fit_stats'`; ",
+            "setting `resampling = FALSE`")
+    resample = FALSE
+  }
 
   # deprecation warning about average
   if (!is.null(dots$average)) {
@@ -1752,18 +1835,27 @@ calc_stats.fits_agg_dm <- function(object, type, ..., conds = NULL,
     )
 
     # resample predicted
-    if (messaging) {
-      message(
-        "Generating simulations under the model using the average trial ",
-        "number across participants. Other options are not available for ",
-        "objects of type 'fits_agg_dm'."
-      )
+    if (is.null(dots$n_sim)) {
+      dots$n_sim = summary(fits_agg)$obs_data$avg_trials
+      if (messaging) {
+        message(
+          "Generating simulations under the model using the average trial ",
+          "number across participants."
+        )
+      }
+    } else {
+      if (messaging) {
+        message(
+          "Generating simulations under the model using the trial numbers",
+          "specified by `n_sim`."
+        )
+      }
     }
-    n_sim = summary(fits_agg)$obs_data$avg_trials
-    results_pred <- stats_resample_dm.drift_dm(
+    args = list(
       object = fits_agg$drift_dm_obj, conds = conds, type = type,
-      b_coding = b_coding, ..., n_sim = n_sim
+      b_coding = b_coding
     )
+    results_pred <- do.call(stats_resample_dm.drift_dm, args = c(args, dots))
     if (level == "individual") {
       results_pred = cbind(ID = NA, results_pred) # to ensure rbind works
     }
@@ -1857,7 +1949,6 @@ calc_stats.fits_agg_dm <- function(object, type, ..., conds = NULL,
 #' `interval_level` argument.
 #'
 #' @keywords internal
-#' @name stats_resample_dm
 stats_resample_dm <- function(object, conds, type, b_coding, ..., R,
                               interval_level) {
   UseMethod("stats_resample_dm")
@@ -1876,7 +1967,10 @@ stats_resample_dm.drift_dm <- function(object, conds, type, b_coding, ...,
 
   obs_data <- obs_data(drift_dm_obj, messaging = FALSE)
   if (is.null(obs_data)) {
-    stopifnot(!is.null(n_sim))
+    if (is.null(n_sim)) {
+      stop("No data found. In this case, please specify `n_sim` (i.e., the ",
+           "number of trials for the synthetic data")
+    }
   }
 
   # now get the results for the observed data (if possible)
@@ -1904,8 +1998,6 @@ stats_resample_dm.drift_dm <- function(object, conds, type, b_coding, ...,
   # get the synthetic data (in a format suitable for stats_resample_wrapper)
   if (is.null(n_sim)) {
     n_sim = sapply(conds, \(one_cond) nrow(obs_data[obs_data$Cond == one_cond,]))
-  } else {
-    n_sim = n_sim[conds]
   }
 
   get_synth_data <- function(){
@@ -1926,6 +2018,7 @@ stats_resample_dm.drift_dm <- function(object, conds, type, b_coding, ...,
       )
     })
   )
+  resample_list = lapply(resample_list, \(x){ x$Source <- "pred"; x})
 
 
   # get the original statistic
@@ -2773,9 +2866,11 @@ internal_aggregate <- function(data, group_cols) {
   agg_df <- agg_df[c(group_cols, dv_cols)]
 
   # Reorder rows to match original order
-  key_agg <- do.call(paste, agg_df[group_cols])
-  key_orig <- do.call(paste, original_keys[group_cols])
-  agg_df <- agg_df[match(key_orig, key_agg), ]
+  if (length(group_cols) >= 1) {
+    key_agg <- do.call(paste, agg_df[group_cols])
+    key_orig <- do.call(paste, original_keys[group_cols])
+    agg_df <- agg_df[match(key_orig, key_agg), ]
+  }
   rownames(agg_df) <- NULL
 
   # Keep class and attributes
@@ -2861,7 +2956,8 @@ copy_class_attributes.stats_dm <- function(old, new) {
 #' - Full list of options (if no input),
 #' - A specific option value (if string input),
 #' - Invisibly `NULL` (if setting or resetting options).
-#' @internal
+#'
+#' @keywords internal
 stats.options <- function(...) {
   dots <- list(...)
   args <- getOption("stats.dRiftDM")

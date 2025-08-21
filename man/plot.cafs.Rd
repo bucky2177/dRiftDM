@@ -23,8 +23,8 @@
 \link{calc_stats(..., type = "cafs")}.}
 
 \item{...}{additional graphical arguments passed to plotting functions.
-Typical examples include \code{pch}, \code{lty}, \code{lwd}, or \code{legend.pos}. See
-\code{\link[=set_default_arguments]{set_default_arguments()}} for the full list of supported options.}
+See \code{\link[=set_default_arguments]{set_default_arguments()}} for the full list of supported
+options.}
 
 \item{id}{a numeric or character, specifying the ID of a single participant
 to plot. If \code{length(id) > 1}, \code{plot.cafs()} is called recursively for
@@ -36,10 +36,10 @@ Defaults to all available conditions.}
 \item{col}{a character vector specifying colors for each condition. If a
 single color is provided, it is repeated for all conditions.}
 
-\item{xlim, ylim}{a numeric vectors of length 2, specifying the x- and y-axis
+\item{xlim, ylim}{numeric vectors of length 2, specifying the x- and y-axis
 limits.}
 
-\item{xlab, ylab}{a character strings for the x- and y-axis labels.}
+\item{xlab, ylab}{character strings for the x- and y-axis labels.}
 
 \item{interval_obs, interval_pred}{logicals; if \code{TRUE} and \code{x} contains a
 column named \code{Estimate}, error bars for observed data and shaded contours

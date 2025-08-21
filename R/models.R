@@ -524,7 +524,7 @@ mu_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
   # calculate the first derivative of the gamma-function
   if (a != 2) {
-    t_vec <- t_vec + 0.0005 # general form can not be derived for t <= 0
+    t_vec <- t_vec + 10^(-5) # general form can not be derived for t <= 0
     mua <- A * exp(-t_vec / tau) * ((t_vec * exp(1)) / ((a - 1) * tau))^(a - 1) *
       (((a - 1) / t_vec) - (1 / tau))
   } else {
@@ -1130,3 +1130,66 @@ component_shelf <- function() {
 dummy_t <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   stop("dummy_t: this should not be called!")
 }
+
+
+
+# FUNCTION FOR GETTING LOWER/UPPER ----------------------------------------
+#
+# get_parameter_defaults <- function(drift_dm_obj, what) {
+#
+#   # input checks
+#   if (!inherits(drift_dm_obj, "drift_dm")) {
+#     stop("drift_dm_obj is not of type drift_dm")
+#   }
+#   what = match.arg(what, c("lower", "upper"))
+#
+#   # now create container and iterate over each pre-built-component
+#   prms = c()
+#   for (one_comp in comp_funs(drift_dm_obj)) {
+#     if (isTRUE(identical(one_comp, mu_constant))) {
+#       if (what == "lower") prms = c(prms, 0.5)
+#       if (what == "upper") prms = c(prms, 9)
+#       if (what == "start") prms = c(prms, 0.5)
+#
+#     }
+#
+#   }
+#
+#
+#
+# }
+#
+# get_lower_upper.dmc_dm <- function(model, lower = NULL, upper = NULL) {
+#
+#   # get time step size and the free model parameters
+#   dt = prms_solve(model)["dt"]
+#   prms_conds = prms_cond_combo(model)
+#   free_prms = unique(prms_conds[1,])
+#
+#   # define default lower upper for DMC
+#   def_lower = c(muc = 0.5, b = 0.15, non_dec = 0.15,
+#                 sd_non_dec = pmax(dt, 0.005), tau = 0.015, a = 1.2, A = 0.005,
+#                 alpha = 2)
+#
+#   def_upper = c(muc = 9, b = 1.2, non_dec = 0.6,
+#                 sd_non_dec = pmax(dt + 0.005, 0.1), tau = 0.25, a = 3, A = 0.3,
+#                 alpha = 8)
+#
+#   # if lower and upper were not specified, use default
+#   if (is.null(lower)) {
+#     lower = def_lower[free_prms]
+#
+#   }
+#   if (is.null(upper)) {
+#     upper = def_upper[free_prms]
+#   }
+#
+#   # expand to all model parameters
+#   l_u = get_parameters_smart(
+#     model, input_a = lower, input_b = upper, fill_up_with = NA
+#   )
+#   lower = l_u$vec_a
+#   upper = l_u$vec_b
+#
+#
+# }

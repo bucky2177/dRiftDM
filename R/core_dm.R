@@ -1331,7 +1331,34 @@ set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
 }
 
 
-# TODO
+#' Update aggregated statistics in a `drift_dm` object
+#'
+#' Internal function that creates or updates the aggregated statistics
+#' (`stats_agg` and `stats_agg_info`) in a [dRiftDM::drift_dm] object, depending
+#' on the specified cost function. For maximum likelihood estimation
+#' (`"neg_log_like"`), aggregated statistics are removed, because the raw
+#' RTs are used directly.
+#'
+#' @param drift_dm_obj a `drift_dm` object.
+#' @param which_cost_function a character string, indicating which cost function
+#'   is used. Must be one of [dRiftDM::drift_dm_cost_functions()].
+#' @param probs optional numeric vector of probabilities for quantile
+#'   calculation. If `NULL`, defaults are taken from
+#'   [dRiftDM::drift_dm_default_probs()].
+#' @param n_bins an optional integer, giving the number of bins for the CAFs.
+#'   If `NULL`, defaults are taken from [dRiftDM::drift_dm_default_n_bins()].
+#'
+#' @returns the input `drift_dm_obj`, with its `stats_agg` and
+#'   `stats_agg_info` entries updated or removed, depending on the cost
+#'   function and availability of observed data
+#'
+#' @note This function is called by [dRiftDM::obs_data()] and
+#'   [dRiftDM::cost_function()]
+#'
+#' @keywords internal
+#'
+#' @seealso [dRiftDM::obs_data()], [dRiftDM::cost_function()],
+#'   [dRiftDM::drift_dm()]
 update_stats_agg <- function(drift_dm_obj, which_cost_function,
                              probs = NULL, n_bins = NULL) {
 
@@ -2966,8 +2993,9 @@ prms_cond_combo <- function(drift_dm_obj) {
 #' information.
 #'
 #' @returns
-#' `simulate_traces()` returns either a list of type `traces_dm_list`, or
-#' directly the plain traces as matrices across conditions (if `unpack = TRUE`).
+#' `simulate_traces()` returns either an object of type `traces_dm_list`, or
+#' directly a list of matrices across conditions, containing the traces
+#' (if `unpack = TRUE`).
 #' If the model has only one condition (and `unpack = TRUE`), then the matrix of
 #' traces for this one condition is directly returned.
 #'

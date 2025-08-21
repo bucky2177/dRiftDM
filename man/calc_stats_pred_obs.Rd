@@ -4,7 +4,7 @@
 \alias{calc_stats_pred_obs}
 \title{Calculate Statistics for Model Prediction and/or Observed Data}
 \usage{
-calc_stats_pred_obs(type, b_coding, conds, ...)
+calc_stats_pred_obs(type, b_coding, conds, ..., scale_mass = FALSE)
 }
 \arguments{
 \item{type}{character string, specifying the type of statistic to calculate.
@@ -19,6 +19,10 @@ observed data).}
 
 \item{...}{Additional parameters passed on to the specific statistic
 calculation function (see Details).}
+
+\item{scale_mass}{a single logical, only relevant for density estimation.
+If \code{TRUE}, PDF masses are scaled proportional to the number of trials per
+condition.}
 }
 \value{
 A data frame with the calculated statistic across \code{conds}

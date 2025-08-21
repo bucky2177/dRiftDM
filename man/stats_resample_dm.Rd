@@ -17,8 +17,6 @@ stats_resample_dm(object, conds, type, b_coding, ..., R, interval_level)
   ...,
   R = 100,
   interval_level = 0.95,
-  resample_obs = TRUE,
-  resample_pred = TRUE,
   n_sim = NULL
 )
 
@@ -42,8 +40,6 @@ stats_resample_dm(object, conds, type, b_coding, ..., R, interval_level)
   ...,
   R = 100,
   interval_level = 0.95,
-  resample_obs = TRUE,
-  resample_pred = TRUE,
   progress = 0,
   level
 )
@@ -70,9 +66,6 @@ contain \code{type} and \code{b_coding}}
 
 \item{interval_level}{a numeric between 0 and 1, controlling the width of the
 interval (default is 0.95).}
-
-\item{resample_obs, resample_pred}{logicals, if \code{TRUE}, resampling is performed
-on observed data and/or for the model simulation, respectively.}
 
 \item{n_sim}{an optional vector, providing the trial numbers for simulating
 synthetic data under the model. Only relevant when no observed data is

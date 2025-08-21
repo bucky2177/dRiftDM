@@ -8,78 +8,59 @@
 \method{plot}{traces_dm_list}(
   x,
   ...,
+  conds = NULL,
   col = NULL,
   col_b = NULL,
   xlim = NULL,
   ylim = NULL,
   xlab = "Time",
-  ylab = "Evidence",
-  lty = 1,
-  type = "l",
-  legend = NULL,
-  legend_pos = "topright"
+  ylab = "Evidence"
 )
 
-\method{plot}{traces_dm}(
-  x,
-  ...,
-  col = NULL,
-  col_b = NULL,
-  xlim = NULL,
-  ylim = NULL,
-  xlab = "Time",
-  ylab = "Evidence",
-  lty = 1,
-  type = "l"
-)
+\method{plot}{traces_dm}(x, ...)
 }
 \arguments{
 \item{x}{an object of type \code{traces_dm_list} or \code{traces_dm}, containing the
-traces to be plotted, resulting from a call to \link{simulate_traces}.}
+traces to be plotted, resulting from a call to \code{\link[=simulate_traces]{simulate_traces()}}.}
 
-\item{...}{additional arguments passed to the \link{plot}, \link[graphics:points]{graphics::points},
-and \link[graphics:legend]{graphics::legend} functions. Oftentimes, this will (unfortunately) lead
-to an error due to a clash of arguments.}
+\item{...}{additional graphical arguments passed to plotting functions.
+See \code{\link[=set_default_arguments]{set_default_arguments()}} for the full list of supported
+options.}
 
-\item{col}{character, vector of colors for the evidence accumulation traces,
-one per condition. Defaults to a rainbow palette if not specified.}
+\item{conds}{a character vector specifying the conditions to plot.
+Defaults to all available conditions.}
 
-\item{col_b}{character, a vector of colors for the boundary lines.
-Defaults to black for all conditions.}
+\item{col}{a character vector specifying colors for each condition. If a
+single color is provided, it is repeated for all conditions.}
 
-\item{xlim, ylim}{numeric vectors of length 2, specifying the x and y axis
+\item{col_b}{a character vector, specifying the color of the boundary for
+each condition. If a single color is provided, it is repeated for all
+conditions. Default is \code{"black"}.}
+
+\item{xlim, ylim}{numeric vectors of length 2, specifying the x- and y-axis
 limits.}
 
-\item{xlab, ylab}{character, labels for the x and y axes.}
-
-\item{lty}{integer, line type for both the traces and boundary lines.}
-
-\item{type}{character, type of plot to use for traces and boundaries.}
-
-\item{legend}{character vector, specifying legend labels, corresponding to
-the conditions in the traces. Defaults to the condition names.}
-
-\item{legend_pos}{character, specifying the position of the legend on the
-plot.}
+\item{xlab, ylab}{character strings for the x- and y-axis labels.}
 }
 \value{
-Nothing (\code{NULL}; invisibly)
+\code{NULL} invisibly
 }
 \description{
-Creates a basic plot showing simulated traces (simulated evidence
+Creates a plot of simulated traces (i.e., simulated evidence
 accumulation processes) from a drift diffusion model. Such plots are useful
-for exploring and testing model behavior, allowing users to visualize the
-traces.
+for exploring and testing model behavior.
 }
 \details{
 \code{plot.traces_dm_list()} iterates over all conditions and plots the traces.
 It includes a legend with condition labels.
 
-\code{plot_traces_dm} only plots the traces provided (i.e., traces for one
-condition)
+\code{plot.traces_dm} plots a single set of traces. Because
+\code{\link[=simulate_traces]{simulate_traces()}} returns an object of type \code{traces_dm_list} per
+default, users will likely call \code{plot.traces_dm_list()} in most cases; and
+not \code{plot.traces_dm}. \code{plot.traces_dm} is only relevant if users explicitly
+extract and provide an object of type \code{traces_dm}.
 
-Boundaries and traces are color-coded according to \code{col} and \code{col_b}. The
-function automatically generates the upper and lower boundaries based on
+The function automatically generates the upper and lower boundaries based on
 the information stored within \code{x}.
 }
 \examples{
@@ -105,12 +86,13 @@ plot(some_traces,
 one_set_traces <- some_traces$comp
 plot(one_set_traces)
 
-# modifications to the plot generally work in the same way
+# modifications to the plot work in the same way
 plot(one_set_traces,
   col = "green",
   xlim = c(0, 0.35),
   xlab = "Time [s]",
-  ylab = bquote(Realizations ~ of ~ X[t])
+  ylab = bquote(Realizations ~ of ~ X[t]),
+  legend = "just comp"
 )
 
 }

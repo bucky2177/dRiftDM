@@ -29,7 +29,6 @@ print.mcmc_dm <- function(x, ...,
 
 #' Summary for `mcmc_dm` Objects
 #'
-#' TODO examples
 #'
 #' Summary and corresponding print methods for objects of the class `mcmc_dm`,
 #' resulting from a call to [dRiftDM::estimate_bayesian()]. `mcmc_dm`
@@ -73,6 +72,11 @@ print.mcmc_dm <- function(x, ...,
 #'
 #' `print.summary.mcmc_dm()` prints selected summary components and returns the
 #' input object invisibly.
+#'
+#' @examples
+#' mcmc_obj <- get_example_fits("mcmc_dm")
+#' print(mcmc_obj)
+#' summary(mcmc_obj)
 #'
 #' @seealso [coda::gelman.diag()], [coda::effectiveSize()],
 #'   [coda::summary.mcmc.list()]

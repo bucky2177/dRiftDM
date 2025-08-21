@@ -23,22 +23,14 @@ calc_stats(object, type, ...)
   b_coding = NULL
 )
 
-\method{calc_stats}{drift_dm}(
-  object,
-  type,
-  ...,
-  conds = NULL,
-  resample_obs = FALSE,
-  resample_pred = FALSE
-)
+\method{calc_stats}{drift_dm}(object, type, ..., conds = NULL, resample = FALSE)
 
 \method{calc_stats}{fits_ids_dm}(
   object,
   type,
   ...,
   conds = NULL,
-  resample_obs = FALSE,
-  resample_pred = FALSE,
+  resample = FALSE,
   progress = 1,
   level = "individual"
 )
@@ -48,10 +40,10 @@ calc_stats(object, type, ...)
   type,
   ...,
   conds = NULL,
-  resample_obs = FALSE,
-  resample_pred = FALSE,
+  resample = FALSE,
   progress = 1,
-  level = "group"
+  level = "group",
+  messaging = TRUE
 )
 
 \method{print}{stats_dm}(
@@ -74,7 +66,7 @@ calc_stats(object, type, ...)
 
 \item{type}{a character vector, specifying the statistics to calculate.
 Supported values include \code{"basic_stats"}, \code{"cafs"}, \code{"quantiles"},
-\code{"delta_funs"}, and \code{"fit_stats"}.}
+\code{"delta_funs"}, \code{"densities"}, and \code{"fit_stats"}.}
 
 \item{...}{additional arguments passed to the respective method and the
 underlying calculation functions (see Details for mandatory arguments).}
@@ -83,15 +75,22 @@ underlying calculation functions (see Details for mandatory arguments).}
 Conditions must match those found in the \code{object}.}
 
 \item{resample}{logical. If \code{TRUE}, then data is (re-)sampled to create
-an uncertainty estimate for the requested statistic. See Details for more
-information). Default is \code{FALSE}.}
+an uncertainty estimate for the requested summary statistic. See Details for
+more information. Default is \code{FALSE}. Note that resampling does not work with
+\code{type = "fit_stats"}.}
 
 \item{progress}{integer, indicating if information about the progress
 should be displayed. 0 -> no information, 1 -> a progress bar. Default is 1.}
 
+\item{level}{a single character string, indicating at which "level" the
+statistic should be calculated. Options are \code{"group"} or \code{"individual"}. If
+\code{"individual"}, the returned \code{stats_dm} object contains an \code{"ID"} column.}
+
 \item{b_coding}{a list for boundary coding (see \link{b_coding}). Only
 relevant when \code{object} is a \link{data.frame}. For other \code{object} types, the
 \code{b_coding} of the \code{object} is used.}
+
+\item{messaging}{logical, if \code{FALSE}, no message is provided.}
 
 \item{x}{an object of type \code{stats_dm} or \code{stats_dm_list}, as returned by
 the function \code{calc_stats()}.}
@@ -108,14 +107,6 @@ statistic will be displayed.}
 
 \item{show_note}{logical. If \code{TRUE}, a footnote  is displayed indicating
 that the underlying \link{data.frame} can be accessed as usual.}
-
-\item{split_by_ID}{logical. If \code{TRUE}, statistics are calculated separately
-for each individual ID in \code{object} (when \code{object} is a \link{data.frame}). Default
-is \code{TRUE}.}
-
-\item{average}{logical. If \code{TRUE}, averages the statistics across individuals
-where applicable. Default for \code{calc_stats.data.frame} is \code{FALSE}. Default
-for \code{calc_stats.fits_agg_dm} is \code{TRUE}.}
 }
 \value{
 If \code{type} is a single character string, then a subclass of \link{data.frame} is
@@ -199,6 +190,28 @@ then minuends and subtrahends must have the same length,
 and matching occurs pairwise. In this case, if only one
 minuend/subtrahend is specified, minuend and subtrahend are recycled to
 the necessary length.
+\item specifying \code{probs} is possible (see Quantiles)
+}
+
+\strong{Densities}
+
+With "densities", we refer to a summary of the distribution of observed
+or predicted data. For observed data, histogram values and kernel density
+estimates are provided. For predicted data, the model's predicted PDFs are
+provided.
+
+Optional arguments are:
+\itemize{
+\item \code{discr}: numeric, the band-width when calculating the histogram or the
+kernel density estimates. Defaults to \code{0.015} seconds
+\item \code{t_max}: numeric, the maximum time window when calculating the distribution
+summaries of observe data. Defaults to the longest RT (for observed data)
+or the maximum of the time domain of a model (which is the preferred choice,
+if possible). If necessary, \code{t_max} is slightly adjusted to match with
+\code{discr}.
+\item \code{scale_mass}: logical, only relevant if observed data is available. If
+\code{TRUE}, density masses are scaled proportional to the number of trials per
+condition.
 }
 
 \strong{Fit Statistics}
@@ -210,7 +223,58 @@ and \link{AIC.fits_ids_dm})
 
 \subsection{Resampling}{
 
-When users set \code{resampling = TRUE}, the statistics TODO
+When \code{resampling = TRUE}, an uncertainty interval is provided via simulation.
+The default number of iterations is \code{R = 100}, which can be changed by
+passing the optional argument \code{R}.
+
+If resampling is requested, the returned \code{stats_dm} object contains the
+column \code{"Estimate"}, coding the interval. The interval width is controlled
+via the optional argument \code{interval_level}, a single numeric value between
+0 and 1 (default: \code{0.95}). The interpretation of this interval depends on
+the specific situation (see below).
+
+\strong{Resampling at the Individual Level}
+
+If \code{object} is a \code{drift_dm} object (i.e., a single model created by
+\code{\link[=drift_dm]{drift_dm()}}), synthetic data are simulated under the model, and
+for each synthetic data set the requested statistic is calculated. The
+interval then reflects the range of these simulated statistics. To determine
+the number of trials for each synthetic data set, dRiftDM either uses the
+observed data attached to the model (if available) or the optional argument
+\code{n_sim} (passed to \code{\link[=simulate_data]{simulate_data()}}). Note that \code{n_sim} must be
+provided if no observed data are available, and that \code{n_sim} always has
+priority.
+
+If \code{object} is a \code{drift_dm} object with attached observed data, resampling
+is also performed for the observed data. In this case, trials are
+bootstrapped, and for each bootstrap sample the requested statistic is
+calculated.
+
+If \code{object} is a \code{data.frame}, \code{fits_agg_dm}, or \code{fits_ids_dm} object,
+resampling is performed for each individual if \code{level = "individual"}. For
+both models and observed data, synthetic or bootstrapped data sets are
+generated as described above.
+
+\strong{Resampling at the Group Level}
+
+Group-level resampling is possible only if \code{object} is a \code{data.frame}
+(with an \code{"ID"} column), \code{fits_agg_dm}, or \code{fits_ids_dm} object. To request
+this, set \code{level = "group"}. Participants are then bootstrapped, and
+for each bootstrapped sample the aggregated statistic is calculated.
+
+\strong{Interpretation of Intervals}
+
+For \code{level = "group"}, intervals represent bootstrapped confidence intervals
+For \code{level = "individual"}, intervals represent the variability in the
+statistic when data for a single participant are resampled or simulated
+under the model.
+
+\strong{Note}
+
+For objects of type \code{fits_agg_dm}, which contain a mixture of group- and
+individual-level information, the \code{level} argument only affects resampling
+for the observed data. For the model itself, resampling is always performed
+under the fitted model, in the same way as for a \code{drift_dm} object.
 }
 }
 \note{
