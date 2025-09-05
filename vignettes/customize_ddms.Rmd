@@ -62,13 +62,13 @@ flex_prms(ddm)
 
 Here we see the two core aspects of any `flex_prms` object (see also the first print statement in `vignette("dRiftDM", "dRiftDM")` for more information): 
 
-- The **Current Parameter Matrix** shows you the current parameter values for all conditions. 
+- The **Parameter Values** shows you the current parameter values for all conditions. 
 
-- The **Unique Parameters** show how each parameter behaves across conditions. 
+- The **Parameter Settings** show how each parameter behaves across conditions. 
 
 ## Modifying How Each Parameter Behaves Across Conditions
 
-The **Unique Parameters** are relevant to model customization, and we can change them with the `modify_flex_prms()` method. The function takes a model and a set of **instructions** as a string. For example, if we want `muc` to vary freely across conditions, we can write
+The **Parameter Settings** are relevant to model customization, and we can change them with the `modify_flex_prms()` method. The function takes a model and a set of **instructions** as a string. For example, if we want `muc` to vary freely across conditions, we can write
 
 ```{r}
 ddm_free_muc <- modify_flex_prms(
@@ -167,7 +167,7 @@ The structure of each of these component functions is generally the same. The dr
 ```
 
 
-- `prms_model` is a named numeric vector and is identical to a row of the **Current Parameter Matrix** stored within the `flex_prms` object of a model (see the first part of the following output).
+- `prms_model` is a named numeric vector and is identical to a row of the **Parameter Values** stored within the `flex_prms` object of a model (see the first part of the following output).
 
 ```{r}
 flex_prms(ddm)
@@ -189,7 +189,7 @@ head(t_vec)
 tail(t_vec)
 ```
 
-- `one_cond` is the label of the current condition for which the model is being evaluated (i.e., a row name of the **Current Parameter Matrix**).
+- `one_cond` is the label of the current condition for which the model is being evaluated (i.e., a row name of the **Parameter Values**).
 
 - `ddm_opts` is taken directly from the model. It is used as a backdoor to inject arbitrary `R` objects (see the final comments below for an example)
 

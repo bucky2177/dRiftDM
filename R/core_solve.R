@@ -60,7 +60,7 @@ calc_pdfs.ratcliff_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
   }
 
   # and check if constant drift rate was not modified
-  if (!isTRUE(all.equal(drift_dm_obj$comp_funs$mu_fun, mu_constant))) {
+  if (!identical(drift_dm_obj$comp_funs$mu_fun, mu_constant)) {
     stop(
       "Ratcliff DDM with variable drift rate requires dRiftDM's",
       " mu_constant function"
@@ -68,14 +68,14 @@ calc_pdfs.ratcliff_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
   }
 
   if (drift_dm_obj$solver == "im_zero" &&
-      !isTRUE(all.equal(drift_dm_obj$comp_funs$mu_int_fun, mu_int_constant))) {
+      !identical(drift_dm_obj$comp_funs$mu_int_fun, mu_int_constant)) {
     stop(
       "Ratcliff DDM with variable drift rate requires dRiftDM's",
       " mu_int_constant function"
     )
   }
 
-  if (any(prms_matrix[, "sd_muc"]) <= 0) {
+  if (any(prms_matrix[, "sd_muc"] <= 0)) {
     stop("sd_muc values <= 0 are not allowed")
   }
 
@@ -154,9 +154,9 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
 
     if (solver == "kfe") {
       # solve the pdfs with kfe
-      cpp_kfe(
+      cpp_kfe_ada(
         pdf_u = pdf_u, pdf_l = pdf_l, xx = x_vals,
-        nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
+        nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
         b_vals = b_vals, mu_vals = mu_vals,
         dt_b_vals = dt_b_vals, x_vec = x_vec
       )

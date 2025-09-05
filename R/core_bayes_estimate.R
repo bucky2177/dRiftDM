@@ -509,7 +509,7 @@ log_posterior_lower <- function(thetas_one_subj_mat, all_phis_mat,
         prms <- prms_to_str(model_subj)
         if (!suppress_warnings)
           warning("Evaluation of the model failed, tried values: \n", prms)
-        return(NA) # NA ensures that sapply returns a vector
+        return(NA_real_) # NA ensures that sapply returns a vector
       }
     )
   })
@@ -711,7 +711,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, means = NULL,
   means <- get_parameters_smart(
     drift_dm_obj = drift_dm_obj,
     input_a = means,
-    fill_up_with = NA
+    fill_up_with = NA_real_
   )$vec_a
 
   # if mean is NULL, set it equal to the model parameters, otherwise
@@ -726,7 +726,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, means = NULL,
   # then, get the sds
   sds <- get_parameters_smart(
     drift_dm_obj = drift_dm_obj, input_a = sds,
-    fill_up_with = NA
+    fill_up_with = NA_real_
   )$vec_a
   # if sds is NULL, set it equal to the means, otherwise replace missing values
   # with the remaining means
@@ -1500,7 +1500,7 @@ estimate_bayesian = function(drift_dm_obj, obs_data_ids = NULL,
 
 
   # calculate the marginal distribution
-  ti = NA
+  ti = NA_real_
   if (sampler == "TIDE") {
     temperatures = create_temperatures(n_chains, sampler)
     lls_theta = results$lls_theta

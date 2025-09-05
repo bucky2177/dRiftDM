@@ -814,7 +814,7 @@ re_evaluate_model <- function(drift_dm_obj, eval_model = TRUE) {
   }
 
   if (drift_dm_obj$cost_function == "rmse") {
-    cost_value <- calc_rmse(
+    cost_value <- calc_rmse_eval(
       pdfs = pdfs, t_vec = t_vec, dt = dt,
       stats_agg = drift_dm_obj$stats_agg,
       stats_agg_info = drift_dm_obj$stats_agg_info
@@ -3269,7 +3269,7 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
         return(acc_steps)
       }
       if (idx_fP > 0 & idx_fP < length(acc_steps)) {
-        acc_steps[(idx_fP + 1):length(acc_steps)] <- NA
+        acc_steps[(idx_fP + 1):length(acc_steps)] <- NA_real_
       }
       return(acc_steps)
     })
@@ -3605,7 +3605,7 @@ unpack_traces.traces_dm_list <- function(object, ..., unpack = TRUE,
 #' * Plain numeric vectors (not very much recommended). In this case,
 #' `lower/upper` must be sorted in accordance with the free parameters in the
 #' `flex_prms_obj` object (call `print(<model>)` and have a look at the
-#' `Unique Parameters` output)
+#' `Parameter Settings` output)
 #'
 #' * Named numeric vectors. In this case `lower/upper` have to provide labels
 #' in accordance with the parameters that are considered "free" at least once

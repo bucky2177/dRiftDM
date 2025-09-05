@@ -2,7 +2,7 @@
 ^\.Rproj\.user$
 ^data-raw$
 ^LICENSE\.md$
-^playground\.R$
+^playground*\.R$
 ^.*\.Rprofile
 ^README\.Rmd$
 ^tutorial$

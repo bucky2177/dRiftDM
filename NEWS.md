@@ -2,6 +2,9 @@
 
 ## Major and New features: 
 
+- `dRiftDM` now uses an adaptive time-stepping scheme when deriving the PDFs.
+This allows for a substantial increase in speed.
+
 - `plot()` methods have been changed fundamentally, now avoiding clash of 
 arguments and providing more customization options
 
@@ -11,7 +14,18 @@ and further allows to fit aggregated data via the `"rmse"` statistic.
 
 - `estimate_dm()` has been introduced.
 
-- `calc_stats.drift_dm()` has gained an additional argument resample
+- `estimate_model()` has been deprecated and superseded with the more general 
+`estimate_dm()` function
+
+- `estimate_model_ids()` has been deprecated. The function `estimate_dm()`
+should now be used, which doesn't, however, save individual fits to the file 
+system (to ensure a more consistent behavior across different ways of fitting
+a model).
+
+- `get_lower_upper()` has been introduced. The function provides default upper
+and lower parameter ranges for pre-built models and their components.
+
+- `calc_stats.drift_dm()` has gained an additional argument resample.
 
 - Bayesian parameter estimation is now possible with 
 `estimate_bayesian()`! However, this function will be already removed 
@@ -49,7 +63,10 @@ index for the dirac delta. This reduces the bias in non-decision time estimates.
 
 - the `coef()` method now supports bayesian returns
 
-- `progress` argument replaced `verbose` in `calc_stats`. Default is 1
+- `progress` argument replaced `verbose` in `calc_stats`. Default is 1.
+
+- `"fit_stats"` option for `calc_stats()` now returns multiple fit statistics,
+including the log-likelihood, AIC, BIC, and the root-mean squared-error.
 
 ## Bug and Code Fixes
 

@@ -9,7 +9,7 @@ src/*.so
 src/*.dll
 inst/doc
 data-raw
-playground.R
+playground*
 .Rprofile
 tutorial/drift_dm_fits
 tutorial/figures

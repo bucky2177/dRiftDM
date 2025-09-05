@@ -69,7 +69,7 @@ Here we get a glimpse on the underlying structure of any model created with dRif
 
 - The model is of type `dmc_dm`
 
-- The model has the parameters `muc`, `b`, ..., `alpha`, and the current parameter values for each conditions are shown under `Current Parameter Matrix`.
+- The model has the parameters `muc`, `b`, ..., `alpha`, and the current parameter values for each conditions are shown under `Parameter Values`.
 
 - Below this, under `Unique Parameters`, we obtain how each parameter behaves across conditions. If a number is the same for a parameter across conditions, this means that this parameter is equated across conditions. For example, the parameter `muc` is assumed to be identical for the conditions `comp` and `incomp`. If a number is zero, this means that this parameter is assumed to be "fixed" and thus is not a "free" parameter that can be estimated. If an entry shows a "d", this means there is a special dependency, as listed under `Special Dependencies` (see `vignette("customize_ddms", "dRiftDM")` for more information). 
 <!--^[comp and incomp stand for compatible and incompatible, the two experimental conditions common to all conflict tasks. In a conflict task, participants perform a task while being presented with irrelevant, distracting information. For example, they have to respond to a single letter surrounded by irrelevant, flanking letters. In compatible vs. incompatible trials, the distracting information matches vs. mismatches with the task-relevant information, respectively.]-->

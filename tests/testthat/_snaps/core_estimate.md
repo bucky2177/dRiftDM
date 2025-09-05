@@ -985,11 +985,11 @@
       ==> gave -log_like_val of -1439.722[0m
       Class(es): ratcliff_dm, drift_dm
       
-      Current Parameter Matrix:
+      Parameter Values:
              muc   b non_dec range_non_dec
       null 2.955 0.6   0.298         0.051
       
-      Unique Parameters:
+      Parameter Settings:
            muc b non_dec range_non_dec
       null   1 2       3             4
       
@@ -1104,12 +1104,12 @@
       ==> gave -log_like_val of -583.5996[0m
       Class(es): dmc_dm, drift_dm
       
-      Current Parameter Matrix:
+      Parameter Values:
                muc   b non_dec sd_non_dec  tau a    A alpha
       comp   4.185 0.6   0.306       0.02 0.04 2  0.1     4
       incomp 4.185 0.6   0.306       0.02 0.04 2 -0.1     4
       
-      Unique Parameters:
+      Parameter Settings:
              muc b non_dec sd_non_dec tau a A alpha
       comp     1 0       2          0   0 0 0     0
       incomp   1 0       2          0   0 0 0     0
@@ -1230,12 +1230,12 @@
       ==> gave -log_like_val of -583.5996[0m
       Class(es): dmc_dm, drift_dm
       
-      Current Parameter Matrix:
+      Parameter Values:
                muc   b non_dec sd_non_dec  tau a    A alpha
       comp   4.185 0.6   0.306       0.02 0.04 2  0.1     4
       incomp 4.185 0.6   0.306       0.02 0.04 2 -0.1     4
       
-      Unique Parameters:
+      Parameter Settings:
              muc b non_dec sd_non_dec tau a A alpha
       comp     1 0       2          0   0 0 0     0
       incomp   1 0       2          0   0 0 0     0

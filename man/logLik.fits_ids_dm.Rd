@@ -15,7 +15,7 @@
 \arguments{
 \item{object}{a \code{fits_ids_dm} object (see \link{estimate_model_ids})}
 
-\item{...}{additional arguments}
+\item{...}{additional arguments (currently not used)}
 
 \item{k}{numeric; penalty parameter for the AIC calculation.
 Defaults to 2 (standard AIC).}
@@ -23,7 +23,8 @@ Defaults to 2 (standard AIC).}
 \value{
 An object of type \code{fit_stats} containing the respective statistic in
 one column (named \code{Log_Like}, \code{AIC}, or \code{BIC}) and a corresponding \code{ID}
-column.
+column. If any of the statistics can't be calculated, the function returns
+\code{NULL}.
 }
 \description{
 These methods are wrappers to extract specific model fit statistics
@@ -37,7 +38,7 @@ for \code{ID} and the required statistic.
 \examples{
 # get an auxiliary fits_ids object for demonstration purpose;
 # such an object results from calling load_fits_ids
-all_fits <- get_example_fits_ids()
+all_fits <- get_example_fits("fits_ids_dm")
 
 # AICs
 AIC(all_fits)

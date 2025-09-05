@@ -216,9 +216,18 @@ condition.
 
 \strong{Fit Statistics}
 
-Calculates the Akaike and Bayesian Information Criteria (AIC and BIC). Users
-can provide a \code{k} argument to penalize the AIC statistic (see \link[stats:AIC]{stats::AIC}
-and \link{AIC.fits_ids_dm})
+Calculates the Log-Likelihood, Akaike and Bayesian Information Criteria,
+and root-mean squared-error statistic.
+
+Optional arguments are:
+\itemize{
+\item \code{k}: numeric, for penalizing the AIC statistic (see also \link[stats:AIC]{stats::AIC}
+and \link{AIC.fits_ids_dm}).
+\item \code{n_bins}, \code{probs}: numeric vectors, see the section on CAFs and Quantiles
+above
+\item \code{weight_err}: numeric scalar, determines how CAFs and quantiles are
+weighted. Default is \code{1.5}.
+}
 }
 
 \subsection{Resampling}{

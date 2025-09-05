@@ -6,12 +6,13 @@
 #' This method retrieves the total number of observations in the `obs_data`
 #' list of a `drift_dm` object.
 #'
-#' @param object a [dRiftDM::drift_dm] object, which contains the observed data
-#' in `object$obs_data`.
+#' @param object a [dRiftDM::drift_dm] object, which potentially contains the
+#' observed data in `object$obs_data`.
 #' @param ... additional arguments
 #'
 #' @return An integer representing the total number of observations across
-#' all conditions in `object$obs_data`.
+#' all conditions in `object$obs_data`.  If `obs_data` doesn't exist, the
+#' function returns 0
 #'
 #' @details The function iterates over each element in `object$obs_data`, counts
 #' the entries in each nested component, and returns the cumulative sum as the
@@ -36,14 +37,15 @@
 #'
 #' @export
 nobs.drift_dm <- function(object, ...) {
+  if (is.null(object$obs_data)) return(0L)
   return(sum(sapply(object$obs_data, lengths)))
 }
 
 
 #' Extract Log-Likelihood for a drift_dm Object
 #'
-#' This method extracts the log-likelihood for a `drift_dm` object if the cost
-#' function is a log-likelihood function and if the cost value is available.
+#' This method extracts the log-likelihood for a `drift_dm` object if
+#' possible.
 #'
 #' @param object a [dRiftDM::drift_dm] object containing observed data
 #' @param ... additional arguments
@@ -52,9 +54,8 @@ nobs.drift_dm <- function(object, ...) {
 #' [dRiftDM::drift_dm] object. This value has attributes for the number of
 #' observations (`nobs`) and the number of model parameters (`df`).
 #'
-#' Returns `NULL` if the cost function is not a (log-)likelihood or if the
-#' cost value is not available (e.g., when the model has not yet been
-#' evaluated).
+#' Returns `NULL` if the log-likelihood is not available (e.g., when the model
+#' has no observed data attached).
 #'
 #' @importFrom stats logLik
 #'
@@ -63,32 +64,20 @@ nobs.drift_dm <- function(object, ...) {
 #' # (when creating the model, set the discretization to reasonable values)
 #' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 #' obs_data(a_model) <- dmc_synth_data
-#'
-#' # this returns NULL because the model has not yet been evaluated!
-#' logLik(a_model)
-#'
-#' # evaluate the model
-#' a_model <- re_evaluate_model(a_model)
 #' logLik(a_model)
 #'
 #' @export
 logLik.drift_dm <- function(object, ...) {
 
-  # check if the cost_function is "neg_log_like"
-  if (object$cost_function != "neg_log_like") {
-    warning("The currently set cost_function of the model is not a ",
-            "(log)-likelihood. Returning NULL.")
-    return(NULL)
-  }
+  stats <- calc_fit_stats(object, ...)
+  val <- stats[["Log_Like"]]
 
-  # extract cost value (if NULL return NULL)
-  val <- cost_value(object)
-  if (is.null(val)) {
+  # extract cost value (if NA return NULL)
+  if (is.na(val)) {
     return(NULL)
   }
 
   # otherwise proceed with creating the log-likelihood object
-  val <- val * -1.0 # turn the negative log-likelihood to a log-likelihood
   class(val) <- "logLik"
   attr(val, "nobs") <- nobs(object)
   attr(val, "df") <- get_number_prms(object$flex_prms_obj)
@@ -242,11 +231,12 @@ coef.fits_agg_dm <- function(object, ...) {
 #' @param object a `fits_ids_dm` object (see [dRiftDM::estimate_model_ids])
 #' @param k numeric; penalty parameter for the AIC calculation.
 #' Defaults to 2 (standard AIC).
-#' @param ... additional arguments
+#' @param ... additional arguments (currently not used)
 #'
 #' @return An object of type `fit_stats` containing the respective statistic in
 #' one column (named `Log_Like`, `AIC`, or `BIC`) and a corresponding `ID`
-#' column.
+#' column. If any of the statistics can't be calculated, the function returns
+#' `NULL`.
 #'
 #' @details
 #'
@@ -258,7 +248,7 @@ coef.fits_agg_dm <- function(object, ...) {
 #' @examples
 #' # get an auxiliary fits_ids object for demonstration purpose;
 #' # such an object results from calling load_fits_ids
-#' all_fits <- get_example_fits_ids()
+#' all_fits <- get_example_fits("fits_ids_dm")
 #'
 #' # AICs
 #' AIC(all_fits)
@@ -279,16 +269,8 @@ coef.fits_agg_dm <- function(object, ...) {
 #'
 #' @export
 logLik.fits_ids_dm <- function(object, ...) {
-  if (object$drift_dm_fit_info$drift_dm_obj$cost_function == "neg_log_like") {
-    stats <- calc_stats(object, type = "fit_stats")
-  } else {
-    warning(
-      "The currently set cost_function of the model is not a ",
-      "(log)-likelihood. Returning NULL."
-    )
-    return(NULL)
-  }
-
+  stats <- calc_stats(object, type = "fit_stats")
+  if (all(is.na(stats[["Log_Like"]]))) return(NULL)
   return(stats[c("ID", "Log_Like")])
 }
 
@@ -296,15 +278,8 @@ logLik.fits_ids_dm <- function(object, ...) {
 #' @importFrom stats AIC
 #' @export
 AIC.fits_ids_dm <- function(object, ..., k = 2) {
-  if (object$drift_dm_fit_info$drift_dm_obj$cost_function == "neg_log_like") {
-    stats <- calc_stats(object, type = "fit_stats", k = k)
-  } else {
-    warning(
-      "The currently set cost_function of the model is not a ",
-      "(log)-likelihood. Returning NULL."
-    )
-    return(NULL)
-  }
+  stats <- calc_stats(object, type = "fit_stats", k = k)
+  if (all(is.na(stats[["AIC"]]))) return(NULL)
   return(stats[c("ID", "AIC")])
 }
 
@@ -312,15 +287,8 @@ AIC.fits_ids_dm <- function(object, ..., k = 2) {
 #' @importFrom stats BIC
 #' @export
 BIC.fits_ids_dm <- function(object, ...) {
-  if (object$drift_dm_fit_info$drift_dm_obj$cost_function == "neg_log_like") {
-    stats <- calc_stats(object, type = "fit_stats")
-  } else {
-    warning(
-      "The currently set cost_function of the model is not a ",
-      "(log)-likelihood. Returning NULL."
-    )
-    return(NULL)
-  }
+  stats <- calc_stats(object, type = "fit_stats")
+  if (all(is.na(stats[["BIC"]]))) return(NULL)
   return(stats[c("ID", "BIC")])
 }
 

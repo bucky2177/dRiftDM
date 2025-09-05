@@ -4,33 +4,35 @@
 \alias{calc_fit_stats}
 \title{Calculate Fit Statistics}
 \usage{
-calc_fit_stats(drift_dm_obj, k = 2)
+calc_fit_stats(drift_dm_obj, k = 2, ...)
 }
 \arguments{
 \item{drift_dm_obj}{an object of type \link{drift_dm}}
 
 \item{k}{a single numeric, scaling the penality of \link[stats:AIC]{stats::AIC})}
+
+\item{...}{additional arguments passed forward. Options are \code{probs}, \code{n_bins},
+and \code{weight_err} for calculating the RMSE.}
 }
 \value{
 A custom object of class \code{stats_dm}
-(c("fit_stats", "stats_dm", "data.frame")). The columns are either:
+(c("fit_stats", "stats_dm", "data.frame")). The columns are:
 \itemize{
 \item \code{Log_Like}: the log-likelihood value
 \item \code{Neg_Log_Like}: the negative log-likelihood value
 \item \code{AIC}: the calculated AIC value
 \item \code{BIC}: the calculated BIC value
-or
 \item \code{RMSE_s}: the root-mean-squared error (for RTs in seconds)
 \item \code{RMSE_ms}: the root-mean-squared error (for RTs in milliseconds)
+If a respective statistic cannot be calculated, the respective column
+contains \code{NA}.
 }
 }
 \description{
-Computes/Summarizes the current value of the cost function. In case the
-cost function is a log-likelihood, then the Log-Likelihood, the Negative
-Log-Likelihood, the Akaike Information Criterion (AIC), and the Bayesian
-Information Criterion (BIC) are returned. In case the cost function is
-the Root-Mean-Squared Error (RMSE) statistic, the respective statistic
-in the unit of milliseconds and seconds is returned.
+Computes/Summarizes multiple fit statistics, inclduing Log-Likelihood,
+the Negative Log-Likelihood, the Akaike Information Criterion (AIC), the
+Bayesian Information Criterion (BIC), and the Root-Mean Squared-Error (RMSE)
+statistic.
 }
 \seealso{
 \code{\link[=new_stats_dm]{new_stats_dm()}}, \link{logLik.drift_dm}

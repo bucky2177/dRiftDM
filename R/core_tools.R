@@ -104,13 +104,6 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL,
 }
 
 
-cumtrapz <- function(x, y) {
-  dx <- diff(x)
-  mid_heights <- (utils::head(y, -1) + utils::tail(y, -1)) / 2
-  y_int <- c(0, cumsum(dx * mid_heights))
-  return(y_int)
-}
-
 # FUNCTIONS FOR SIMULATING PRMS --------------------------------------------
 
 #' Simulate Values
@@ -290,7 +283,181 @@ simulate_values <- function(lower, upper, k, distr = NULL,
     prms <- cbind(prms, ID = as.character(ids))
   }
 
-
-
   return(prms)
+}
+
+
+
+
+# FUNCTIONS FOR DX AND DT SETTINGS ----------------------------------------
+
+
+#' Check time/space discretization via reference comparison
+#'
+#' @description
+#'
+#' `check_discretization()` helps you choose or check time (`dt`) and space
+#' (`dx`) discretization settings. It computes a high-precision *reference*
+#' solution of the model's PDFs with `dt_ref`/`dx_ref`, and then compares the
+#' reference PDFs to the discretization settings of the supplied object, using
+#' the Hellinger distance per condition. Smaller distances indicate closer
+#' agreement with the reference --- i.e., a sufficiently fine grid.
+#'
+#' There are not yet overall and officially published recommendations on how
+#' large the Hellinger distance can be without affecting model precision, and
+#' this might even depend on the model itself. Based on some preliminary
+#' simulations we would recommend trying to keep the Hellinger Distance between
+#' below 5\% on average.
+#'
+#' @param object a [dRiftDM::drift_dm], `fits_agg_dm`, or `fits_ids_dm` object.
+#'   (the latter two are returned by [dRiftDM::estimate_dm()])
+#' @param dt_ref,dx_ref numeric scalars, providing a fine time or space step
+#'   size for the reference solution. Defaults to `0.001`.
+#' @param ... further arguments passed forward to the respective method.
+#'
+#' @return a named numeric vector of Hellinger distances (one per condition)
+#'   if `object` is of type [dRiftDM::drift_dm] or `fits_agg_dm`. A [data.frame]
+#'   of Hellinger distances across IDs and conditions if `object` is of type
+#'   `fits_ids_dm`. Hellinger distances are in `[0, 1]`, where `0` means
+#'   identical to the reference.
+#'
+#' @details
+#' Under the hood, for each condition, we concatenate the lower- and upper-
+#' boundary PDFs (`pdf_l`, `pdf_u`), interpolate the model PDFs to a time space
+#' matching with the reference PDFs, and then compute the Hellinger distance:
+#' \eqn{H(p,q) = \sqrt{1 - \int \sqrt{p(t)\,q(t)}\,dt}}
+#'
+#' There are not yet overall, officially published recommendations on how large
+#' the Hellinger distance can be without affecting model precision, and this may
+#' even depend on the specific model. Based on preliminary simulations, we
+#' recommend trying to keep the average Hellinger distance below 5\%.
+#'
+#' The reference discretizations (`dt_ref/dx_ref`) must be at least as fine as
+#' the object's current discretization settings (`dt_model/dx_model`). If
+#' `dt_model < dt_ref` or `dx_model < dx_ref`, an error is raised because the
+#' “reference” would not be the finest solution.
+#'
+#' @examples
+#' # Example:
+#' my_model <- ratcliff_dm(t_max = 1.5, dx = 0.1, dt = 0.005)
+#'
+#' # Assess current (dt=0.01, dx=0.01) against a fine reference:
+#' check_discretization(my_model)
+#'
+#' # If distances are near zero across conditions, the current grid is adequate.
+#'
+#' @seealso [estimate_dm()], [trapz()]
+#' @export
+check_discretization <- function(object, ...) {
+  UseMethod("check_discretization")
+}
+
+#' @rdname check_discretization
+#' @export
+check_discretization.drift_dm <- function(object, dt_ref = 0.001,
+                                          dx_ref = 0.001, round_digits = 5) {
+
+  drift_dm_obj <- object
+
+  # basic input checks
+  stopifnot(is.numeric(dt_ref), length(dt_ref) == 1)
+  stopifnot(is.numeric(dx_ref), length(dx_ref) == 1)
+  dt_model <- prms_solve(drift_dm_obj)["dt"]
+  dx_model <- prms_solve(drift_dm_obj)["dx"]
+  t_max = prms_solve(drift_dm_obj)["t_max"]
+  if (dt_model < dt_ref) {
+    stop(
+      "the model's 'dt' is smaller than 'dt_ref'. The reference should be ",
+      "finer (smaller dt) than the model."
+    )
+  }
+  if (dx_model < dx_ref) {
+    stop(
+      "the model's 'dx' is smaller than 'dx_ref'. The reference should be ",
+      "finer (smaller dx) than the model."
+    )
+  }
+
+  # create the common time space
+  time_pm = c(seq(-t_max - dt_ref, 0 - dt_ref, dt_ref), seq(0, t_max, dt_ref))
+
+  ###
+  # interim: define helper functions to calculate the distance between two
+  # pdfs
+  hellinger_dist <- function(pdf_a, pdf_b, x) {
+    pdf_a <- pdf_a / trapz(x = x, y = pdf_a)
+    pdf_b <- pdf_b / trapz(x = x, y = pdf_b)
+    dist <- sqrt(max(0.0, 1 - trapz(x = x, sqrt(pdf_a * pdf_b))))
+    round(dist, round_digits)
+  }
+
+  # paste pdf_u and pdf_l together
+  interp_pdf <- function(pdfs_one_cond, dt) {
+
+    # unpack the pdfs
+    pdf_u = pdfs_one_cond$pdf_u
+    pdf_l = pdfs_one_cond$pdf_l
+    stopifnot(length(pdf_u) == length(pdf_l))
+    stopifnot(length(pdf_u) == (t_max / dt) + 1 )
+
+    # create new time space (negative and positive)
+    x = c(seq(-t_max - dt, 0 - dt, dt), seq(0, t_max, dt))
+
+    # paste the pdfs together and interpolate to common time_space
+    pdf <- c(rev(pdf_l), pdf_u)
+    pdf <- approx(x = x, y = pdf, xout = time_pm)$y
+    return(pdf)
+  }
+
+  # wraps around the model, returns the interpolated pdfs per condition as a
+  # list
+  pdfs_by_dx_dt <- function(model, one_dt = NULL, one_dx = NULL) {
+    stopifnot(!xor(is.null(one_dt), is.null(one_dx)))
+    if (!is.null(one_dt) & !is.null(one_dx)) {
+      prms_solve(model)[c("dt", "dx")] = c(one_dt, one_dx)
+    }
+    pdfs_per_cond = pdfs(model)$pdfs
+    sapply(
+      pdfs_per_cond, \(x) interp_pdf(x, prms_solve(model)["dt"]),
+      simplify = FALSE, USE.NAMES = TRUE
+    )
+  }
+  ###
+
+
+  # calculate the reference and model
+  pdfs_ref = pdfs_by_dx_dt(model = drift_dm_obj, one_dt = dt_ref, one_dx = dx_ref)
+  pdfs_model = pdfs_by_dx_dt(model = drift_dm_obj)
+
+  # iterate over all conditions and calculate the hellinger distance
+  conds = names(pdfs_ref)
+  hs <- vapply(conds, \(one_cond) {
+    hellinger_dist(
+      pdf_a = pdfs_ref[[one_cond]],
+      pdf_b = pdfs_model[[one_cond]],
+      x = time_pm
+    )
+  }, FUN.VALUE = numeric(1))
+
+  return(hs)
+}
+
+#' @rdname check_discretization
+#' @export
+check_discretization.fits_ids_dm <- function(object, ...) {
+
+  hs <- sapply(object$all_fits, \(x) check_discretization(x, ...))
+  hs <- t(hs)
+  ids <- rownames(hs)
+  hs = cbind(ID = ids, as.data.frame(hs))
+  row.names(hs) <- NULL
+  hs$ID = try_cast_integer(hs$ID)
+  hs = hs[order(hs$ID),]
+  return(hs)
+}
+
+#' @rdname check_discretization
+#' @export
+check_discretization.fits_agg_dm <- function(object, ...) {
+  check_discretization(object$drift_dm_obj, ...)
 }

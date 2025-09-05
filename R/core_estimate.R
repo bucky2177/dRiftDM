@@ -67,8 +67,9 @@
 #' @param seed an optional integer to set the RNG seed for reproducibility.
 #' @param ... additional arguments forwarded to lower-level routines. Options
 #'    are: `progress/verbose` (integers, for controlling progress bars and
-#'    verbosity of estimation infos), `rounding` (for controlling rounding when
-#'    printing individual model evaluations; if `verbose = 2`), `return_runs`
+#'    verbosity of estimation infos), `round_digits` (for controlling the number
+#'    of digits for rounding when printing individual model evaluations;
+#'    if `verbose = 2`), `return_runs`
 #'    (when fitting a single individual and starting the estimation
 #'    routine with multiple starting points; if `TRUE`, then a list of all
 #'    routines is returned), `probs/n_bins` (the quantile levels and the number
@@ -107,7 +108,7 @@
 #' `lower/upper` must be sorted in accordance with the parameters in the
 #' underlying [dRiftDM::flex_prms] object of `drift_dm_obj` that vary for at
 #' least one condition (call `print(drift_dm_obj)` and have a look at the
-#' columns of the `Unique Parameters` output; for each column that has a
+#' columns of the `Parameter Settings` output; for each column that has a
 #' number > 0, specify an entry in `lower/upper`).
 #'
 #' * Named numeric vectors. In this case `lower/upper` have to provide labels
@@ -500,7 +501,7 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
       drift_dm_obj = drift_dm_obj, optimizer = optimizer,
       start_vals = start_vals, return_runs = dots$return_runs,
       lower = lower, upper = upper, verbose = dots$verbose, de_n_cores = n_cores,
-      control = control, rounding = dots$rounding
+      control = control, round_digits = dots$round_digits
     )
 
     # wrap up the return value and create a custom class
@@ -546,7 +547,7 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
         drift_dm_obj = drift_dm_obj, optimizer = optimizer,
         start_vals = start_vals, return_runs = dots$return_runs,
         lower = lower, upper = upper, verbose = dots$verbose,
-        de_n_cores = n_cores, control = control, rounding = dots$rounding
+        de_n_cores = n_cores, control = control, round_digits = dots$round_digits
       )
       return(drift_dm_obj)
     }
@@ -615,7 +616,7 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
       progress = dots$progress, start_vals = start_vals,
       optimizer = optimizer, lower = lower, upper = upper,
       verbose = dots$verbose, n_cores = n_cores, control = control,
-      rounding = dots$rounding
+      round_digits = dots$round_digits
     )
     return(all_fits)
   }
@@ -666,7 +667,7 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
 #' @param de_n_cores an integer > 0. Number of CPU cores to use for `DEoptim`.
 #' @param control a named list of control parameters passed to the chosen
 #' optimizer.
-#' @param rounding an integer. Number of digits to round cost values in printed
+#' @param round_digits an integer. Number of digits to round cost values in printed
 #'   output. If `NULL`, defaults to [dRiftDM::drift_dm_default_rounding()].
 #'
 #' @return The updated `drift_dm_obj`, with optimized parameters.
@@ -705,7 +706,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
                                return_runs = NULL,
                                lower = NULL, upper = NULL, verbose = NULL,
                                de_n_cores = 1,
-                               control = list(), rounding = NULL) {
+                               control = list(), round_digits = NULL) {
   # input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -757,7 +758,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
           estimate_classical(drift_dm_obj = drift_dm_obj, optimizer = optimizer,
                              start_vals = one_row, return_runs = FALSE,
                              lower = lower, upper = upper, verbose = verbose,
-                             control = control, rounding = rounding)
+                             control = control, round_digits = round_digits)
         })
         cost_values = sapply(results, cost_value)
         prms = do.call(rbind, lapply(results, coef))
@@ -812,16 +813,16 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     stop("control must be a list")
   }
 
-  if (is.null(rounding)) {
-    rounding = drift_dm_default_rounding()
+  if (is.null(round_digits)) {
+    round_digits = drift_dm_default_rounding()
   }
-  if (!is.numeric(rounding) || length(rounding) != 1) {
-    stop("'rounding' must be a single numeric value")
+  if (!is.numeric(round_digits) || length(round_digits) != 1) {
+    stop("'round_digits' must be a single numeric value")
   }
 
 
   # objective function to minimize
-  goal_wrapper <- function(new_model_prms, drift_dm_obj, verbose, rounding) {
+  goal_wrapper <- function(new_model_prms, drift_dm_obj, verbose, round_digits) {
     tryCatch(
       {
         # set (must re_evaluate!)
@@ -843,7 +844,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
           message(
             "Parameters\n", prms_string, "\n==> gave a ",
             drift_dm_obj$cost_function, " of ",
-            round(drift_dm_obj$cost_value, rounding)
+            round(drift_dm_obj$cost_value, round_digits)
           )
         }
         return(cost_value)
@@ -869,7 +870,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     out <- dfoptim::nmkb(
       par = coef(drift_dm_obj), fn = goal_wrapper, lower = lower,
       upper = upper, control = control, drift_dm_obj = drift_dm_obj,
-      verbose = verbose, rounding = rounding
+      verbose = verbose, round_digits = round_digits
     )
     n_eval <- out$feval
 
@@ -878,7 +879,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
   if (optimizer == "nmk") {
     out <- dfoptim::nmk(
       par = coef(drift_dm_obj), fn = goal_wrapper, control = control,
-      drift_dm_obj = drift_dm_obj, verbose = verbose, rounding = rounding
+      drift_dm_obj = drift_dm_obj, verbose = verbose, round_digits = round_digits
     )
     n_eval <- out$feval
   }
@@ -887,7 +888,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     out <- stats::optim(
       par = coef(drift_dm_obj), fn = goal_wrapper, method = optimizer,
       control = control, lower = lower, upper = upper,
-      drift_dm_obj = drift_dm_obj, verbose = verbose, rounding = rounding
+      drift_dm_obj = drift_dm_obj, verbose = verbose, round_digits = round_digits
     )
     n_eval <- out$counts
   }
@@ -896,7 +897,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     out <- stats::optim(
       par = coef(drift_dm_obj), fn = goal_wrapper, method = optimizer,
       control = control, drift_dm_obj = drift_dm_obj, verbose = verbose,
-      rounding = rounding
+      round_digits = round_digits
     )
     n_eval <- out$counts
   }
@@ -984,7 +985,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     message(
       "Final Parameters\n", prms_string, "\n==> gave a ",
       drift_dm_obj$cost_function, " of ",
-      round(drift_dm_obj$cost_value, rounding)
+      round(drift_dm_obj$cost_value, round_digits)
 
     )
   }
@@ -1024,7 +1025,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
 #'   individual. Must contain an `ID` column matching the IDs in
 #'   `obs_data_ids`, and one column per parameter.
 #' @param ... further arguments passed to [estimate_classical()], including
-#'   `optimizer`, `lower`, `upper`, `verbose`, `control`, `rounding`, and
+#'   `optimizer`, `lower`, `upper`, `verbose`, `control`, `round_digits`, and
 #'   `n_cores`. Note that the argument `return_runs` is not supported.
 #'
 #' @return an object of class `fits_ids_dm`, which is a list with two
@@ -1120,7 +1121,7 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
         start_vals = one_model_start$start_vals,
         lower = dots$lower, upper = dots$upper, verbose = dots$verbose,
         de_n_cores = n_cores, control = dots$control,
-        rounding = dots$rounding
+        round_digits = dots$round_digits
       )
     }
 

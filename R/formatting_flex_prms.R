@@ -99,13 +99,13 @@ print.summary.flex_prms <- function(x, ...,
                                     cust_parameters = TRUE) {
   summary_obj <- x
 
-  cat("Current Parameter Matrix:\n")
+  cat("Parameter Values:\n")
   prm_mat <- summary_obj$prms_matrix
   print(round(prm_mat, round_digits))
   cat("\n")
 
 
-  cat("Unique Parameters:\n")
+  cat("Parameter Settings:\n")
   unique_mat <- summary_obj$unique_matrix
   print(noquote(unique_mat))
   cat("\n")

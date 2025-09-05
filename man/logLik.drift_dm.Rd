@@ -16,25 +16,18 @@ A \code{logLik} object containing the log-likelihood value for the
 \link{drift_dm} object. This value has attributes for the number of
 observations (\code{nobs}) and the number of model parameters (\code{df}).
 
-Returns \code{NULL} if the cost function is not a (log-)likelihood or if the
-cost value is not available (e.g., when the model has not yet been
-evaluated).
+Returns \code{NULL} if the log-likelihood is not available (e.g., when the model
+has no observed data attached).
 }
 \description{
-This method extracts the log-likelihood for a \code{drift_dm} object if the cost
-function is a log-likelihood function and if the cost value is available.
+This method extracts the log-likelihood for a \code{drift_dm} object if
+possible.
 }
 \examples{
 # get a pre-built model and a data set for demonstration purpose
 # (when creating the model, set the discretization to reasonable values)
 a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 obs_data(a_model) <- dmc_synth_data
-
-# this returns NULL because the model has not yet been evaluated!
-logLik(a_model)
-
-# evaluate the model
-a_model <- re_evaluate_model(a_model)
 logLik(a_model)
 
 }

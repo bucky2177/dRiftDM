@@ -267,8 +267,8 @@ calc_basic_stats_pred <- function(pdf_u, pdf_l, one_cond, t_vec, dt,
   ratio = sum_pdf_u / (sum_pdf_l + sum_pdf_u)
 
   # determine if the contribution is relevant
-  if (sum_pdf_u < skip_if_contr_low) pdf_u <- rep(NA, length(pdf_u))
-  if (sum_pdf_l < skip_if_contr_low) pdf_l <- rep(NA, length(pdf_l))
+  if (sum_pdf_u < skip_if_contr_low) pdf_u <- rep(NA_real_, length(pdf_u))
+  if (sum_pdf_l < skip_if_contr_low) pdf_l <- rep(NA_real_, length(pdf_l))
 
   # then scale each pdf
   pdf_u = pdf_u / sum_pdf_u
@@ -644,10 +644,10 @@ calc_quantiles_pred <- function(pdf_u, pdf_l, t_vec, one_cond, probs, dt,
   sum_pdf_u <- sum(pdf_u)
 
   if (sum_pdf_u * dt < skip_if_contr_low) {
-    quants["Quant_U"] <- NA
+    quants["Quant_U"] <- NA_real_
   }
   if (sum_pdf_l * dt < skip_if_contr_low) {
-    quants["Quant_L"] <- NA
+    quants["Quant_L"] <- NA_real_
   }
 
   return(quants)
@@ -925,54 +925,80 @@ calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
 
 #' Calculate Fit Statistics
 #'
-#' Computes/Summarizes the current value of the cost function. In case the
-#' cost function is a log-likelihood, then the Log-Likelihood, the Negative
-#' Log-Likelihood, the Akaike Information Criterion (AIC), and the Bayesian
-#' Information Criterion (BIC) are returned. In case the cost function is
-#' the Root-Mean-Squared Error (RMSE) statistic, the respective statistic
-#' in the unit of milliseconds and seconds is returned.
+#' Computes/Summarizes multiple fit statistics, inclduing Log-Likelihood,
+#' the Negative Log-Likelihood, the Akaike Information Criterion (AIC), the
+#' Bayesian Information Criterion (BIC), and the Root-Mean Squared-Error (RMSE)
+#' statistic.
 #'
 #' @param drift_dm_obj an object of type [dRiftDM::drift_dm]
 #' @param k a single numeric, scaling the penality of [stats::AIC])
+#' @param ... additional arguments passed forward. Options are `probs`, `n_bins`,
+#' and `weight_err` for calculating the RMSE.
 #'
 #' @return A custom object of class `stats_dm`
-#' (c("fit_stats", "stats_dm", "data.frame")). The columns are either:
+#' (c("fit_stats", "stats_dm", "data.frame")). The columns are:
 #' * `Log_Like`: the log-likelihood value
 #' * `Neg_Log_Like`: the negative log-likelihood value
 #' * `AIC`: the calculated AIC value
 #' * `BIC`: the calculated BIC value
-#' or
 #' * `RMSE_s`: the root-mean-squared error (for RTs in seconds)
 #' * `RMSE_ms`: the root-mean-squared error (for RTs in milliseconds)
+#' If a respective statistic cannot be calculated, the respective column
+#' contains `NA`.
 #'
 #' @seealso [dRiftDM::new_stats_dm()], [dRiftDM::logLik.drift_dm]
 #'
 #' @keywords internal
-calc_fit_stats <- function(drift_dm_obj, k = 2) {
+calc_fit_stats <- function(drift_dm_obj, k = 2, ...) {
 
-  cost_function <- cost_function(drift_dm_obj)
-  stopifnot(cost_function %in% drift_dm_cost_functions())
+  dots <- list(...)
 
-  if (cost_function == "neg_log_like") {
-    ll <- logLik(drift_dm_obj) # returns log-like (not the negative log-like)
-    if (is.null(ll)) return (NULL)
-    neg_ll <- ll * -1.0
-    aic <- stats::AIC(ll, k = k)
-    bic <- stats::BIC(ll)
-    result <- data.frame(
-      Log_Like = ll,
-      Neg_Log_Like = neg_ll,
-      AIC = aic,
-      BIC = bic
+  # extract necessary information
+  df <- get_number_prms(drift_dm_obj$flex_prms_obj)
+  n <- nobs(drift_dm_obj)
+
+  # get the pdfs and the time domain
+  pdfs_t_vec = pdfs(drift_dm_obj)
+
+  # calculate the log_likelihood, aic and bic
+  log_like = calc_log_like(
+    pdfs_t_vec$pdfs,
+    pdfs_t_vec$t_vec,
+    obs_data = drift_dm_obj$obs_data
+  )
+  if (is.null(log_like)) log_like <- NA_real_
+  aic <- -2 * log_like + k * df
+  bic <- -2 * log_like + df * log(n)
+  neg_log_like <- -1.0 * log_like
+
+
+  # calculate rmse
+  if (is.null(drift_dm_obj$stats_agg)) {
+    drift_dm_obj <- update_stats_agg(
+      drift_dm_obj, which_cost_function = "rmse", probs = dots$probs,
+      n_bins = dots$n_bins
     )
   }
+  weight_err <- dots$weight_err %||% 1.5
+  rmse <- calc_rmse_eval(
+    pdfs_t_vec$pdfs, t_vec = pdfs_t_vec$t_vec,
+    dt = prms_solve(drift_dm_obj)["dt"], stats_agg = drift_dm_obj$stats_agg,
+    stats_agg_info = drift_dm_obj$stats_agg_info, weight_err = weight_err
+  )
+  if (is.null(rmse) || is.infinite(rmse)) rmse <- NA_real_
+  rmse_ms <- rmse * 1000
 
-  if (cost_function == "rmse") {
-    rmse <- cost_value(drift_dm_obj)
-    if (is.null(rmse)) return (NULL)
-    result <- data.frame(RMSE_s = rmse, RMSE_ms = rmse * 1000)
-  }
+  # bind everything
+  result = data.frame(
+    Log_Like = log_like,
+    Neg_Log_Like = neg_log_like,
+    AIC = aic,
+    BIC = bic,
+    RMSE_s = rmse,
+    RMSE_ms = rmse_ms
+  )
 
+  # make it a stats_dm object and return
   stats_obj <- new_stats_dm(stat_df = result, type = "fit_stats")
   return(stats_obj)
 }
@@ -1284,9 +1310,16 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...,
 #'
 #' **Fit Statistics**
 #'
-#' Calculates the Akaike and Bayesian Information Criteria (AIC and BIC). Users
-#' can provide a `k` argument to penalize the AIC statistic (see [stats::AIC]
-#' and [dRiftDM::AIC.fits_ids_dm])
+#' Calculates the Log-Likelihood, Akaike and Bayesian Information Criteria,
+#' and root-mean squared-error statistic.
+#'
+#' Optional arguments are:
+#' - `k`: numeric, for penalizing the AIC statistic (see also [stats::AIC]
+#'   and [dRiftDM::AIC.fits_ids_dm]).
+#' - `n_bins`, `probs`: numeric vectors, see the section on CAFs and Quantiles
+#'   above
+#' - `weight_err`: numeric scalar, determines how CAFs and quantiles are
+#'   weighted. Default is `1.5`.
 #'
 #'
 #' ## Resampling
@@ -1857,7 +1890,7 @@ calc_stats.fits_agg_dm <- function(object, type, ..., conds = NULL,
     )
     results_pred <- do.call(stats_resample_dm.drift_dm, args = c(args, dots))
     if (level == "individual") {
-      results_pred = cbind(ID = NA, results_pred) # to ensure rbind works
+      results_pred = cbind(ID = NA_real_, results_pred) # to ensure rbind works
     }
 
     # row bind and return
@@ -1872,7 +1905,7 @@ calc_stats.fits_agg_dm <- function(object, type, ..., conds = NULL,
   )
   # add a fake ID column if individual was requested and observed data exists
   if (level == "individual") {
-    stats_pred = cbind(ID = NA, stats_pred)
+    stats_pred = cbind(ID = NA_real_, stats_pred)
   }
 
   # if statistics are requested that can not be used for observed data stop here
@@ -2522,7 +2555,7 @@ new_stats_dm <- function(stat_df, type, ...) {
 
   # turn all NaNs to NA (to have a consistent output for missing values
   stat_df[] <- lapply(stat_df, function(x) {
-    x[is.nan(x)] <- NA
+    x[is.nan(x)] <- NA_real_
     return(x)
   })
 
@@ -2750,13 +2783,8 @@ validate_stats_dm.fit_stats <- function(stat_df) {
   NextMethod() # to validate stats_dm objects
 
   cols <- colnames(stat_df)
-  if ("Log_Like" %in% cols) {
-    exp_col_names = c("Log_Like", "Neg_Log_Like", "AIC", "BIC")
-  } else if ("RMSE_ms" %in% cols) {
-    exp_col_names = c("RMSE_s", "RMSE_ms")
-  } else {
-    stop("stat_df type could not be identified")
-  }
+  exp_col_names = c("Log_Like", "Neg_Log_Like", "AIC", "BIC", "RMSE_s",
+                    "RMSE_ms")
 
   if (!identical(exp_col_names, cols)) {
     stop("stats_dm object does not have the expected column names.\n",

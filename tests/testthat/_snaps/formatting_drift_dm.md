@@ -5,12 +5,12 @@
     Output
       Class(es): dmc_dm, drift_dm
       
-      Current Parameter Matrix:
+      Parameter Values:
              muc   b non_dec sd_non_dec  tau a    A alpha
       comp     4 0.6     0.3       0.02 0.04 2  0.1     4
       incomp   4 0.6     0.3       0.02 0.04 2 -0.1     4
       
-      Unique Parameters:
+      Parameter Settings:
              muc b non_dec sd_non_dec tau a A alpha
       comp   1   2 3       4          5   0 6 7    
       incomp 1   2 3       4          5   0 d 7    
@@ -36,12 +36,12 @@
     Output
       Class(es): dmc_dm, drift_dm
       
-      Current Parameter Matrix:
+      Parameter Values:
              muc   b non_dec sd_non_dec  tau a    A alpha
       comp     4 0.6     0.3       0.02 0.04 2  0.1     4
       incomp   4 0.6     0.3       0.02 0.04 2 -0.1     4
       
-      Unique Parameters:
+      Parameter Settings:
              muc b non_dec sd_non_dec tau a A alpha
       comp   1   2 3       4          5   0 6 7    
       incomp 1   2 3       4          5   0 d 7    

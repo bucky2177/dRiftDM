@@ -3,13 +3,13 @@
     Code
       print(sum_obj)
     Output
-      Current Parameter Matrix:
+      Parameter Values:
           a  b  c
       foo 2  3  4
       bar 2 -8 10
       ho  2 -2  4
       
-      Unique Parameters:
+      Parameter Settings:
           a b c
       foo 1 4 0
       bar 2 d 5
@@ -31,13 +31,13 @@
     Code
       print(a_flex_prms)
     Output
-      Current Parameter Matrix:
+      Parameter Values:
           a  b  c
       foo 2  3  4
       bar 2 -8 10
       ho  2 -2  4
       
-      Unique Parameters:
+      Parameter Settings:
           a b c
       foo 1 4 0
       bar 2 d 5

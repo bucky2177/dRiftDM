@@ -126,7 +126,7 @@ Users have three options to specify the simulation space:
 \item Plain numeric vectors (not very much recommended). In this case,
 \code{lower/upper} must be sorted in accordance with the free parameters in the
 \code{flex_prms_obj} object (call \verb{print(<model>)} and have a look at the
-\verb{Unique Parameters} output)
+\verb{Parameter Settings} output)
 \item Named numeric vectors. In this case \code{lower/upper} have to provide labels
 in accordance with the parameters that are considered "free" at least once
 across conditions.

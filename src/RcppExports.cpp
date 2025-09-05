@@ -52,6 +52,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_kfe_ada
+int cpp_kfe_ada(NumericVector& pdf_u, NumericVector& pdf_l, NumericVector& xx, const int nt, const int nx, const double dtbase, const double dx, const double sigma, const NumericVector& b_vals, const NumericVector& mu_vals, const NumericVector& dt_b_vals, const NumericVector& x_vec);
+RcppExport SEXP _dRiftDM_cpp_kfe_ada(SEXP pdf_uSEXP, SEXP pdf_lSEXP, SEXP xxSEXP, SEXP ntSEXP, SEXP nxSEXP, SEXP dtbaseSEXP, SEXP dxSEXP, SEXP sigmaSEXP, SEXP b_valsSEXP, SEXP mu_valsSEXP, SEXP dt_b_valsSEXP, SEXP x_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector& >::type pdf_u(pdf_uSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type pdf_l(pdf_lSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type xx(xxSEXP);
+    Rcpp::traits::input_parameter< const int >::type nt(ntSEXP);
+    Rcpp::traits::input_parameter< const int >::type nx(nxSEXP);
+    Rcpp::traits::input_parameter< const double >::type dtbase(dtbaseSEXP);
+    Rcpp::traits::input_parameter< const double >::type dx(dxSEXP);
+    Rcpp::traits::input_parameter< const double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type b_vals(b_valsSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type mu_vals(mu_valsSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type dt_b_vals(dt_b_valsSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type x_vec(x_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_kfe_ada(pdf_u, pdf_l, xx, nt, nx, dtbase, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_kfe_simple
 int cpp_kfe_simple(NumericVector& pdf_u, NumericVector& pdf_l, NumericVector& xx, const int nt, const int nx, const double dt, const double dx, const double sigma, const NumericVector& b_vals, const NumericVector& mu_vals, const NumericVector& dt_b_vals, const NumericVector& x_vec);
 RcppExport SEXP _dRiftDM_cpp_kfe_simple(SEXP pdf_uSEXP, SEXP pdf_lSEXP, SEXP xxSEXP, SEXP ntSEXP, SEXP nxSEXP, SEXP dtSEXP, SEXP dxSEXP, SEXP sigmaSEXP, SEXP b_valsSEXP, SEXP mu_valsSEXP, SEXP dt_b_valsSEXP, SEXP x_vecSEXP) {
@@ -78,6 +100,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_dRiftDM_cpp_imzero", (DL_FUNC) &_dRiftDM_cpp_imzero, 10},
     {"_dRiftDM_cpp_kfe", (DL_FUNC) &_dRiftDM_cpp_kfe, 12},
+    {"_dRiftDM_cpp_kfe_ada", (DL_FUNC) &_dRiftDM_cpp_kfe_ada, 12},
     {"_dRiftDM_cpp_kfe_simple", (DL_FUNC) &_dRiftDM_cpp_kfe_simple, 12},
     {NULL, NULL, 0}
 };

@@ -65,7 +65,7 @@
 #' * Plain numeric vectors (not very much recommended). In this case,
 #' `lower/upper` must be sorted in accordance with the parameters in the
 #' `flex_prms_obj` object that vary for at least one condition
-#' (call `print(drift_dm_obj)` and have a look at the `Unique Parameters`
+#' (call `print(drift_dm_obj)` and have a look at the `Parameter Settings`
 #' output)
 #'
 #' * Named numeric vectors. In this case `lower/upper` have to provide labels

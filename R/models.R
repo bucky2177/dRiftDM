@@ -1134,62 +1134,165 @@ dummy_t <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 
 # FUNCTION FOR GETTING LOWER/UPPER ----------------------------------------
-#
-# get_parameter_defaults <- function(drift_dm_obj, what) {
-#
-#   # input checks
-#   if (!inherits(drift_dm_obj, "drift_dm")) {
-#     stop("drift_dm_obj is not of type drift_dm")
-#   }
-#   what = match.arg(what, c("lower", "upper"))
-#
-#   # now create container and iterate over each pre-built-component
-#   prms = c()
-#   for (one_comp in comp_funs(drift_dm_obj)) {
-#     if (isTRUE(identical(one_comp, mu_constant))) {
-#       if (what == "lower") prms = c(prms, 0.5)
-#       if (what == "upper") prms = c(prms, 9)
-#       if (what == "start") prms = c(prms, 0.5)
-#
-#     }
-#
-#   }
-#
-#
-#
-# }
-#
-# get_lower_upper.dmc_dm <- function(model, lower = NULL, upper = NULL) {
-#
-#   # get time step size and the free model parameters
-#   dt = prms_solve(model)["dt"]
-#   prms_conds = prms_cond_combo(model)
-#   free_prms = unique(prms_conds[1,])
-#
-#   # define default lower upper for DMC
-#   def_lower = c(muc = 0.5, b = 0.15, non_dec = 0.15,
-#                 sd_non_dec = pmax(dt, 0.005), tau = 0.015, a = 1.2, A = 0.005,
-#                 alpha = 2)
-#
-#   def_upper = c(muc = 9, b = 1.2, non_dec = 0.6,
-#                 sd_non_dec = pmax(dt + 0.005, 0.1), tau = 0.25, a = 3, A = 0.3,
-#                 alpha = 8)
-#
-#   # if lower and upper were not specified, use default
-#   if (is.null(lower)) {
-#     lower = def_lower[free_prms]
-#
-#   }
-#   if (is.null(upper)) {
-#     upper = def_upper[free_prms]
-#   }
-#
-#   # expand to all model parameters
-#   l_u = get_parameters_smart(
-#     model, input_a = lower, input_b = upper, fill_up_with = NA
-#   )
-#   lower = l_u$vec_a
-#   upper = l_u$vec_b
-#
-#
-# }
+
+#' Get Default Parameter Ranges for a Model
+#'
+#' `get_lower_upper()` returns suggested default values for parameter
+#' bounds of a `drift_dm` model. The function inspects the model's component
+#' functions (e.g., drift, boundary, non-decision time, start) and provides
+#' heuristic defaults for some of the pre-built components. Only parameters
+#' that are currently considered *free* in the model are returned.
+#'
+#' @param object a [dRiftDM::drift_dm] model.
+#' @param warn a single logical, if `TRUE` issue a warning listing components
+#'   and parameters where no defaults could be provided.
+#' @param ... additional arguments passed forward to the respective method.
+#'
+#' @return a list with two named numeric vectors:
+#'   - `lower` --- suggested lower bounds for free parameters
+#'   - `upper` --- suggested upper bounds for free parameters
+#'
+#'
+#' @details
+#'
+#' Supported components include: `mu_constant`, `mu_dmc`,
+#' `mu_ssp`, `b_constant`, `x_uniform`, `x_beta`, `nt_constant`,
+#' `nt_uniform`, `nt_truncated_normal`. For some defaults we use the model's
+#' discretization (`dt`, `dx`) to ensure sensible minima.
+#'
+#' If a component is not recognized (or refers to currently unsupported
+#' components), no defaults are provided for that component. When `warn = TRUE`,
+#' a single warning lists components without defaults and any free parameters
+#' that remain unmatched. In this case, the user has to add the missing
+#' parameter ranges before attempting to fit the model.
+#'
+#' The default ranges are **heuristics** intended to provide a reasonable
+#' starting point for new users. They are not guaranteed to be
+#' appropriate for every model or data set. Always review and, if needed,
+#' adjust the returned values as needed.
+#'
+#' @examples
+#' # get a model for the example
+#' model <- dmc_dm(dx = .005, dt = 0.005, obs_data = dmc_synth_data)
+#'
+#' # get the parameter ranges
+#' lu <- get_lower_upper(model)
+#' lu$lower
+#' lu$upper
+#'
+#' # then continue to estimate
+#' # estimate_dm(model, lower = lu$lower, upper = lu$upper, optimizer = "nmkb")
+#'
+#' @export
+get_lower_upper <- function(object, ...) {
+  UseMethod("get_lower_upper")
+}
+
+#' @rdname get_lower_upper
+#' @export
+get_lower_upper.drift_dm <- function(object, warn = TRUE) {
+
+
+  drift_dm_obj <- object
+  dx = prms_solve(drift_dm_obj)["dx"]
+  dt = prms_solve(drift_dm_obj)["dt"]
+
+  # input checks
+  stopifnot(is.logical(warn), length(warn) == 1)
+
+  # small helper
+  pmax_un <- function(...) {
+    unname(base::pmax(...))
+  }
+
+  # now create container and iterate over each component
+  prms_lower = numeric(0)
+  prms_upper = numeric(0)
+  all_comp_funs = comp_funs(drift_dm_obj)
+  fails = character(0)
+  for (one_comp in names(all_comp_funs)) {
+
+    # extract the current component of the model
+    comp = all_comp_funs[[one_comp]]
+
+    # check for various pre-built functions (not all currently)
+    if (isTRUE(identical(comp, mu_constant))) {
+      prms_lower = c(prms_lower, muc = 0.5)
+      prms_upper = c(prms_upper,  muc = 9)
+    } else if (isTRUE(identical(comp, x_uniform))) {
+      prms_lower = c(prms_lower, range_start = pmax_un(dx + 0.005, 0.01))
+      prms_upper = c(prms_upper,  range_start = 1.5)
+    } else if (isTRUE(identical(comp, b_constant))) {
+      prms_lower = c(prms_lower, b = 0.15)
+      prms_upper = c(prms_upper,  b = 1.20)
+    } else if (isTRUE(identical(comp, nt_constant))) {
+      prms_lower = c(prms_lower, non_dec = 0.15)
+      prms_upper = c(prms_upper,  non_dec = 0.60)
+    } else if (isTRUE(identical(comp, nt_uniform))) {
+      prms_lower = c(
+        prms_lower, non_dec = 0.15, range_non_dec = pmax_un(dt + 0.005, 0.01)
+      )
+      prms_upper = c(
+        prms_upper, non_dec = 0.60, range_non_dec = pmax_un(dt + 0.005, 0.4)
+      )
+    } else if (isTRUE(identical(comp, mu_dmc))) {
+      prms_lower = c(prms_lower, muc = 0.5, tau = 0.015, a = 1.2, A = 0.005)
+      prms_upper = c(prms_upper, muc = 9, tau = 0.25, a = 3, A = 0.3)
+    } else if (isTRUE(identical(comp, x_beta))) {
+      prms_lower = c(prms_lower, alpha = 2)
+      prms_upper = c(prms_upper,  alpha = 8)
+    } else if (isTRUE(identical(comp, nt_truncated_normal))) {
+      prms_lower = c(
+        prms_lower, non_dec = 0.15, sd_non_dec = pmax_un(dt, 0.005)
+      )
+      prms_upper = c(
+        prms_upper, non_dec = 0.6, sd_non_dec = pmax_un(dt + 0.005, 0.1)
+      )
+    } else if (isTRUE(identical(comp, mu_ssp))) {
+      prms_lower = c(prms_lower, p = 1, sd_0 = 0.5, r = 3)
+      prms_upper = c(prms_upper,  p = 7, sd_0 = 3.2, r = 30)
+    } else {
+
+      # no match with a pre-built function; check if it refers to a
+      # pre-built component that is defined above, or doesn't have a parameter
+      # -> if so, skip, else through a warning
+      l <- list(mu_int_constant, dt_b_constant, mu_int_dmc, x_dirac_0, dummy_t)
+      checks <- vapply(l, \(one_fun){
+          isTRUE(identical(one_fun, comp))
+        }, FUN.VALUE = logical(1)
+      )
+      if (any(checks)) next
+      fails = c(fails, one_comp)
+    }
+  }
+
+  # get those parameters that are free
+  prms_conds = prms_cond_combo(drift_dm_obj)
+  free_prms = unique(prms_conds[1,])
+
+  # check if users want a variable drift rate, and add corresponding defaults
+  if (identical(all_comp_funs$mu_fun, mu_constant) &&
+      ("sd_muc" %in% free_prms)) {
+    prms_lower = c(prms_lower, sd_muc = 0.01)
+    prms_upper = c(prms_upper, sd_muc = 2.20)
+  }
+  diff_prms <- setdiff(free_prms, names(prms_lower))
+  stopifnot(!(length(fails) == 0 & length(diff_prms) != 0))
+
+  # warn if there are unmatched parameters and skipped components
+  if (length(fails) > 0 && warn) {
+    fails = paste("-", paste("'", fails, "'", sep = ""), "\n")
+    diff_prms = paste("-", paste("'", diff_prms, "'", sep = ""), "\n")
+
+    warning("Cannot provide default values for the model components:\n", fails,
+            "Please specify default values for... \n", diff_prms,
+            "...before attempting to fit the model.")
+  }
+
+
+  # finally, use those parameters that are actually considered free and return
+  prms_lower = prms_lower[names(prms_lower) %in% free_prms]
+  prms_upper = prms_upper[names(prms_upper) %in% free_prms]
+  return(list(lower = prms_lower, upper = prms_upper))
+}
+

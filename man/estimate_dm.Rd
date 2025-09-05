@@ -160,7 +160,7 @@ below):
 \code{lower/upper} must be sorted in accordance with the parameters in the
 underlying \link{flex_prms} object of \code{drift_dm_obj} that vary for at
 least one condition (call \code{print(drift_dm_obj)} and have a look at the
-columns of the \verb{Unique Parameters} output; for each column that has a
+columns of the \verb{Parameter Settings} output; for each column that has a
 number > 0, specify an entry in \code{lower/upper}).
 \item Named numeric vectors. In this case \code{lower/upper} have to provide labels
 in accordance with the parameters that are considered "free" at least once
@@ -323,13 +323,15 @@ coef(fit)
 
 
 ###
-# Fit a single individual (using DE-MCMC; Bayesian)
+# Fit a single individual (using DE-MCMC; Bayesian; custom priors)
 fit <- estimate_dm(
   drift_dm_obj = model,
   optimizer = "DE-MCMC",
   burn_in = 2, # this is usually way higher
   samples = 2, # this too
-  n_chains = 10 # this too
+  n_chains = 10, # this too
+  mean = c(muc = 3, A = 0.9),
+  sd = c(muc = 2, A = 0.8),
 )
 print(fit)
 coef(fit)

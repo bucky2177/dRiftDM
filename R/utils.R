@@ -13,7 +13,7 @@
 #'
 #' @keywords internal
 is_numeric <- function(x) {
-  is.numeric(x) & all(!is.na(x)) & all(!is.infinite(x))
+  is.numeric(x) & !anyNA(x) & all(!is.infinite(x))
 }
 
 #' Check if Object is a Named Numeric Vector
@@ -527,6 +527,37 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
   return(list(vec_a = vec_a, vec_b = vec_b))
 }
 
+
+
+# INTEGRATION -------------------------------------------------------------
+
+
+internal_trapz <- function(x, y, return_cumsum = FALSE) {
+
+  if (length(x) != length(y)) stop("'x' and 'y' must have the same length")
+  n <- length(x)
+  if (n < 2L) stop("need at least two points")
+  if (!is_numeric(x) || !is_numeric(y)){
+    stop("'x' and 'y' must be valid numerics")
+  }
+  if (any(diff(x) <= 0)) stop("'x' must be strictly increasing")
+
+  dx <- diff(x)
+  mid_heights <- (y[-n] + y[-1]) / 2.0
+
+  if (return_cumsum) {
+    y_int <- c(0, cumsum(dx * mid_heights))
+    return(y_int)
+  }
+  return(sum(dx * mid_heights))
+}
+
+cumtrapz <- function(x, y){
+  internal_trapz(x, y, TRUE)
+}
+trapz  <- function(x, y){
+  internal_trapz(x, y, FALSE)
+}
 
 
 # GLOBAL VARIABLES  -------------------------------------------------------
