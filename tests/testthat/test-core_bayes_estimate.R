@@ -410,9 +410,8 @@ test_that("log_posterior_hyper works as expected", {
 test_that("log_posterior_lower -> works in the hierarchical case", {
   withr::local_preserve_seed()
   set.seed(1)
-  model_subj <- readRDS(test_path("fixtures", "ratcliff.rds"))
+  model_subj <- ratcliff_dummy
   prms_solve(model_subj)[c("t_max", "dx", "dt")] <- c(1, 0.05, 0.01)
-  obs_data(model_subj) <- ratcliff_synth_data
 
   # create matrices
   thetas <- matrix(
@@ -437,7 +436,7 @@ test_that("log_posterior_lower -> works in the hierarchical case", {
   # get the likelihoods
   lls <- sapply(1:3, \(x){
     coef(model_subj) <- thetas[, x]
-    re_evaluate_model(model_subj)$log_like_val
+    -re_evaluate_model(model_subj)$cost_value
   })
 
   # get the log-posteriors
@@ -466,9 +465,8 @@ test_that("log_posterior_lower -> works in the hierarchical case", {
 test_that("log_posterior_lower -> works in the non-hierarchical case", {
   withr::local_preserve_seed()
   set.seed(1)
-  model_subj <- readRDS(test_path("fixtures", "ratcliff.rds"))
+  model_subj <- ratcliff_dummy
   prms_solve(model_subj)[c("t_max", "dx", "dt")] <- c(1, 0.05, 0.01)
-  obs_data(model_subj) <- ratcliff_synth_data
 
   # create matrices
   thetas <- matrix(
@@ -480,7 +478,7 @@ test_that("log_posterior_lower -> works in the non-hierarchical case", {
 
   # and the prior functions
   prior <- get_default_prior_settings(
-    drift_dm_obj = model_subj, level = "none", mean = c(non_dec = 0.2),
+    drift_dm_obj = model_subj, level = "none", means = c(non_dec = 0.2),
     lower = c(non_dec = 0.1), upper = c(non_dec = 1)
   )
   prior <- prior$log_dens_priors
@@ -488,7 +486,7 @@ test_that("log_posterior_lower -> works in the non-hierarchical case", {
   # get the likelihoods
   lls <- sapply(1:3, \(x){
     coef(model_subj) <- thetas[, x]
-    re_evaluate_model(model_subj)$log_like_val
+    -re_evaluate_model(model_subj)$cost_value
   })
 
   # get the log-posteriors
@@ -742,33 +740,33 @@ test_that("r_default_prior_hyper -> works as expected", {
 })
 
 test_that("get_default_prior_settings -> returns correct structure", {
-  drift_dm_obj <- readRDS(test_path("fixtures", "ratcliff.rds"))
+  drift_dm_obj <- ratcliff_dummy
   mean <- c(muc = 0.5, b = 0.6)
 
-  out <- get_default_prior_settings(drift_dm_obj, level = "none", mean = mean, sd = mean)
+  out <- get_default_prior_settings(drift_dm_obj, level = "none", means = mean, sd = mean)
   expect_s3_class(out, "ddm_prior_settings")
   expect_named(out, c("log_dens_priors", "r_priors"))
   expect_equal(attr(out, "level"), "none")
   expect_length(out$log_dens_priors, 3)
   expect_length(out$r_priors, 3)
 
-  out <- get_default_prior_settings(drift_dm_obj, level = "hyper", mean = mean, sd = mean)
+  out <- get_default_prior_settings(drift_dm_obj, level = "hyper", means = mean, sd = mean)
   expect_equal(attr(out, "level"), "hyper")
 
-  out <- get_default_prior_settings(drift_dm_obj, level = "lower", mean = mean, sd = mean)
+  out <- get_default_prior_settings(drift_dm_obj, level = "lower", means = mean, sd = mean)
   expect_equal(attr(out, "level"), "lower")
 })
 
 test_that("get_default_prior_settings -> creates working functions", {
-  drift_dm_obj <- readRDS(test_path("fixtures", "ratcliff.rds"))
+  drift_dm_obj <- ratcliff_dummy
   mean <- c(muc = 1)
   sd <- c(muc = 0)
 
   #####
   # checks for none
   out <- get_default_prior_settings(drift_dm_obj,
-    level = "none", mean = mean,
-    sd = sd
+    level = "none", means = mean,
+    sds = sd
   )
 
   # Should return a log-density and random sampler function
@@ -787,8 +785,8 @@ test_that("get_default_prior_settings -> creates working functions", {
   ###
   # checks for hyper
   out <- get_default_prior_settings(drift_dm_obj,
-    level = "hyper", mean = mean,
-    sd = sd
+    level = "hyper", means = mean,
+    sds = sd
   )
 
   # should return expected dimension
@@ -799,8 +797,8 @@ test_that("get_default_prior_settings -> creates working functions", {
   ###
   # checks for lower
   out <- get_default_prior_settings(drift_dm_obj,
-    level = "lower", mean = mean,
-    sd = sd
+    level = "lower", means = mean,
+    sds = sd
   )
 
   # should return expected dimension
@@ -810,7 +808,7 @@ test_that("get_default_prior_settings -> creates working functions", {
 
 test_that("get_default_prior_settings -> returns correct density values", {
   # Create dummy drift_dm_obj (not used in this path)
-  drift_dm_obj <- readRDS(test_path("fixtures", "ratcliff.rds"))
+  drift_dm_obj <- ratcliff_dummy
 
   coef(drift_dm_obj)["b"] <- 0.5
   mean <- c(muc = 3)
@@ -824,7 +822,7 @@ test_that("get_default_prior_settings -> returns correct density values", {
   # Get prior settings
   prior <- get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
-    level = "none", mean = mean, sd = sd, lower = lower, upper = upper
+    level = "none", means = mean, sds = sd, lower = lower, upper = upper
   )
 
   # Manually compute expected density
@@ -850,7 +848,7 @@ test_that("get_default_prior_settings -> returns correct density values", {
   # Get prior settings
   prior <- get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
-    level = "hyper", mean = mean, sd = sd, lower = lower, upper = upper,
+    level = "hyper", means = mean, sds = sd, lower = lower, upper = upper,
     shape = shape, rate = rate
   )
 
@@ -878,8 +876,8 @@ test_that("get_default_prior_settings -> returns correct density values", {
   # Get prior settings
   prior <- get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
-    level = "lower", mean = mean, sd = sd, lower = lower, upper = upper,
-    shape = shape, rate = rate
+    level = "lower", means = mean, sds = sd, lower = lower, upper = upper,
+    shapes = shape, rates = rate
   )
 
   # Manually compute expected density
@@ -909,14 +907,14 @@ test_that("estimate_bayes_one_subj runs and returns correct structure", {
 
   # minimal test example to ensure that the function runs and returns
   # the expected object
-  some_model <- readRDS(test_path("fixtures", "ratcliff.rds"))
-  obs_data(some_model) <- ratcliff_synth_data
+  some_model <- ratcliff_dummy
   prms_solve(some_model)[c("dx", "dt", "t_max")] = c(0.01, 0.01, 1)
+  withr::local_seed(123)
   sink(file = file.path(tempdir(), "capture.txt"))
   result <- estimate_bayes_one_subj(
-    drift_dm_obj = some_model,
-    samples = 2, burn_in = 1, n_chains = 3,
-    seed = 123
+    drift_dm_obj = some_model, sampler = "DE-MCMC", n_chains = 3,
+    burn_in = 1, samples = 2, prob_migration = 0.1, prob_re_eval = 0.1,
+    verbose = 0
   )
   sink()
 
@@ -948,7 +946,7 @@ test_that("estimate_bayes_h runs and returns correct structure", {
 
   # minimal test example to ensure the function runs and returns
   # the expected object
-  some_model <- readRDS(test_path("fixtures", "ratcliff.rds"))
+  some_model <- ratcliff_dummy
   prms_solve(some_model)[c("dx", "dt", "t_max")] = c(0.01, 0.01, 1)
 
   # create minimal hierarchical structure by duplicating data
@@ -960,10 +958,10 @@ test_that("estimate_bayes_h runs and returns correct structure", {
 
   sink(file = file.path(tempdir(), "capture.txt"))
   result <- estimate_bayes_h(
-    drift_dm_obj = some_model,
-    obs_data_ids = obs_data_ids,
-    samples = 2, burn_in = 1, n_chains = 3,
-    seed = 123
+    drift_dm_obj = some_model, obs_data_ids = obs_data_ids,
+    sampler = "DE-MCMC", n_chains = 3,
+    burn_in = 1, samples = 2, n_cores = 1, prob_migration = 0.1,
+    prob_re_eval = 0.1, verbose = 0
   )
   sink()
 
@@ -1019,14 +1017,14 @@ test_that("estimate_bayes_h runs and returns correct structure", {
 
 
 test_that("create_temperatures returns correct quantiles for tide", {
-  result <- create_temperatures(20L, "tide")
+  result <- create_temperatures(20L, "TIDE")
   exp <- qbeta(p = seq(0, 1, length.out = 20), shape1 = 0.3, shape2 = 1)
   expect_equal(exp, result)
 })
 
 
 test_that("create_temperatures returns 1s quantiles for de_mcmc", {
-  result <- create_temperatures(20L, "de_mcmc")
+  result <- create_temperatures(20L, "DE-MCMC")
   exp <- rep(1, 20L)
   expect_equal(exp, result)
 })

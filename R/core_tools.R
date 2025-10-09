@@ -307,12 +307,14 @@ simulate_values <- function(lower, upper, k, distr = NULL,
 #' large the Hellinger distance can be without affecting model precision, and
 #' this might even depend on the model itself. Based on some preliminary
 #' simulations we would recommend trying to keep the Hellinger Distance between
-#' below 5\% on average.
+#' below 5 percent on average.
 #'
 #' @param object a [dRiftDM::drift_dm], `fits_agg_dm`, or `fits_ids_dm` object.
 #'   (the latter two are returned by [dRiftDM::estimate_dm()])
 #' @param dt_ref,dx_ref numeric scalars, providing a fine time or space step
 #'   size for the reference solution. Defaults to `0.001`.
+#' @param round_digits number of decimal places to which the final Hellinger
+#'   distances are rounded (default: `5`).
 #' @param ... further arguments passed forward to the respective method.
 #'
 #' @return a named numeric vector of Hellinger distances (one per condition)
@@ -346,7 +348,7 @@ simulate_values <- function(lower, upper, k, distr = NULL,
 #'
 #' # If distances are near zero across conditions, the current grid is adequate.
 #'
-#' @seealso [estimate_dm()], [trapz()]
+#' @seealso [dRiftDM::estimate_dm()], [dRiftDM::trapz()]
 #' @export
 check_discretization <- function(object, ...) {
   UseMethod("check_discretization")
@@ -354,7 +356,7 @@ check_discretization <- function(object, ...) {
 
 #' @rdname check_discretization
 #' @export
-check_discretization.drift_dm <- function(object, dt_ref = 0.001,
+check_discretization.drift_dm <- function(object, ..., dt_ref = 0.001,
                                           dx_ref = 0.001, round_digits = 5) {
 
   drift_dm_obj <- object
@@ -405,7 +407,7 @@ check_discretization.drift_dm <- function(object, dt_ref = 0.001,
 
     # paste the pdfs together and interpolate to common time_space
     pdf <- c(rev(pdf_l), pdf_u)
-    pdf <- approx(x = x, y = pdf, xout = time_pm)$y
+    pdf <- stats::approx(x = x, y = pdf, xout = time_pm)$y
     return(pdf)
   }
 

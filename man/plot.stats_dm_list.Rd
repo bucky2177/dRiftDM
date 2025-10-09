@@ -8,7 +8,7 @@
 }
 \arguments{
 \item{x}{an object of type \code{stats_dm_list}, which is essentially a list
-multiple statistics, resulting from a call to \code{\link[=calc_stats]{calc_stats()}}.}
+of multiple statistics, resulting from a call to \code{\link[=calc_stats]{calc_stats()}}.}
 
 \item{...}{additional arguments passed to the \link{plot} function for each
 individual \code{stats_dm} object in \code{x}.}
@@ -24,11 +24,11 @@ Nothing (\code{NULL}; invisibly)
 \description{
 This function iterates over a list of statistics data, resulting from a call
 to \code{\link[=calc_stats]{calc_stats()}}, and subsequently plots each statistic. It allows
-for flexible arrangement of multiple plots on a single graphics device.
+for a simple arrangement of multiple plots on a single graphics device.
 }
 \details{
-The \code{plot.stats_dm_list()} function is "merely" a wrapper. All plotting
-is done by the respective \code{plot()} methods. If \code{dRiftDM} doesn't provide a
+The \code{plot.stats_dm_list()} function "merely" iterates over each entry of \code{x}
+and calls the respective \code{plot()} method. If \code{dRiftDM} doesn't provide a
 \code{plot()} method for an object stored in \code{x}, the respective entry is
 skipped and a message is displayed.
 
@@ -38,7 +38,7 @@ When users want more control over each plot, it is best to call the
 }
 \examples{
 # get a list of statistics for demonstration purpose
-all_fits <- get_example_fits_ids()
+all_fits <- get_example_fits("fits_ids_dm")
 stats <- calc_stats(all_fits, type = c("cafs", "quantiles"))
 
 # then call the plot function.
@@ -47,5 +47,5 @@ plot(stats, mfrow = c(1, 2))
 }
 \seealso{
 \code{\link[=plot.cafs]{plot.cafs()}}, \code{\link[=plot.quantiles]{plot.quantiles()}},
-\code{\link[=plot.delta_funs]{plot.delta_funs()}}, \code{\link[=calc_stats]{calc_stats()}}
+\code{\link[=plot.delta_funs]{plot.delta_funs()}}, \code{\link[=plot.densities]{plot.densities()}}
 }

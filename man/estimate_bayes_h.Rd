@@ -15,7 +15,7 @@ estimate_bayes_h(
   n_cores,
   prob_migration,
   prob_re_eval,
-  progress,
+  verbose,
   seed = NULL,
   ...
 )
@@ -28,7 +28,7 @@ estimate_bayes_one_subj(
   samples,
   prob_migration,
   prob_re_eval,
-  progress,
+  verbose,
   ...
 )
 }
@@ -61,17 +61,13 @@ likelihood/posterior values of the previous iteration \code{i-1} when deciding
 for the acceptance of the proposal in iteration \code{i}. Only considered during
 burn-in. Default is \code{0.1} (i.e., 10\%).}
 
-\item{progress}{integer, indicating progress output: 0 (none),
+\item{verbose}{integer, indicating verbosity of output: 0 (none),
 1 (minimal text output), or 2 (text output and progress bar). Default is \code{2}.}
 
 \item{seed}{optional random seed for reproducibility.}
 
 \item{...}{additional arguments passed to
 \link{get_default_prior_settings} to customize prior settings.}
-
-\item{mean}{numeric vector or a list, specifying the expected mean of each
-parameter to be optimized (see the Details below). If \code{NULL}, then the
-currently set model parameters are used for \code{mean}.}
 }
 \value{
 A named ist containing posterior samples for

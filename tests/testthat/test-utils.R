@@ -31,7 +31,7 @@ test_that("prms_to_str works as expected", {
   )
 
   expect_identical(
-    prms_to_str(dmc_dm()),
+    prms_to_str(dmc_dummy),
     "muc=>4\nb=>0.6\nnon_dec=>0.3\nsd_non_dec=>0.02\ntau=>0.04\nA=>0.1\nalpha=>4"
   )
 })
@@ -263,6 +263,39 @@ test_that("get_parameters_smart works as expected", {
 })
 
 
+test_that("trapz works on a simple linear function", {
+  x <- 0:4
+  y <- 2 * x + 1  # integral from 0..4 of (2x+1) = [x^2 + x]_0^4 = 20
+  expect_equal(trapz(x, y), 20)
+})
+
+test_that("cumtrapz returns cumulative integral starting at 0", {
+  x <- 0:3
+  y <- x  # integral of x dx over [0,1],[1,2],[2,3]: 0.5, 1.5, 2.5; cumul: 0,0.5,2.0,4.5
+  res <- cumtrapz(x, y)
+  expect_equal(res, c(0, 0.5, 2.0, 4.5))
+  # last element should match trapz
+  expect_equal(tail(res, 1), trapz(x, y))
+})
+
+test_that("trapz errors as expected", {
+  expect_error(trapz(0:2, c(1, 2)), "same length")
+  expect_error(trapz(0, 1), "at least two points")
+
+  expect_error(trapz(0:2, c("a", "b", "c")), "valid numerics")
+
+  expect_error(trapz(c(0, 1, 1, 2), c(0, 1, 2, 3)), "strictly increasing")
+  expect_error(trapz(c(2, 1, 0), c(1, 2, 3)), "strictly increasing")
+})
+
+test_that("numerical accuracy vs analytic integral for a smooth function", {
+  # f(x) = sin(x) on [0, pi]; integral = 2
+  x <- seq(0, pi, length.out = 201)
+  y <- sin(x)
+  expect_equal(trapz(x, y), 2, tolerance = 1e-4)
+})
+
+
 test_that("get_parameters_smart input checks", {
   # general input errors
   a_model <- drift_dm(
@@ -283,7 +316,7 @@ test_that("get_parameters_smart input checks", {
       a_model,
       input_a = c(1, 2),
       input_b = c("1")
-    ), "must match"
+    ), "doesn't match"
   )
 
   expect_error(
@@ -321,54 +354,24 @@ test_that("get_parameters_smart input checks", {
     get_parameters_smart(
       a_model,
       list(
-        default_valu = c(a = 1, b = 2, c = 3),
-        i = c(b = 4)
-      ),
-      list(default_values = c(c = 6, b = 5, a = 4))
-    ),
-    "not part of the model"
-  )
-
-  expect_error(
-    get_parameters_smart(
-      a_model,
-      list(
         default_values = c(a = 1, b = 2, c = 3),
         i = c(a = 4)
       ),
       list(default_values = c(c = 6, b = 5, a = 4))
     ),
-    "not unique across conditions"
+    "this parameter is identical across conditions"
   )
 })
 
 
-test_that("get_example_fits_ids", {
-  # some very rough checks; as this function is an auxiliary function that is
-  # only used for package examples
-  aux_fits <- get_example_fits_ids()
+test_that("get_example_fits", {
 
-  # how it should look like
-  real_fits <- load_fits_ids(
-    path = test_path("fixtures"),
-    fit_procedure_name = "test_case_saved"
-  )
+  # some rough checks, as this is merely a helper function to get some
+  # example fit objects
 
-  expect_identical(names(real_fits), names(aux_fits))
-  expect_identical(
-    names(real_fits$drift_dm_fit_info),
-    names(aux_fits$drift_dm_fit_info)
-  )
-
-  # check the coefficients
-  coefs <- coef(aux_fits)
-  expect_identical(coefs$muc, c(4.70, 5.4, 5.8))
-  expect_identical(coefs$b, c(0.44, 0.40, 0.60))
-  expect_identical(coefs$non_dec, c(0.34, 0.30, 0.32))
-  expect_identical(coefs$sd_non_dec, c(0.03, 0.04, 0.01))
-  expect_identical(coefs$tau, c(0.04, 0.05, 0.11))
-  expect_identical(coefs$A, c(0.10, 0.09, 0.19))
-  expect_identical(coefs$alpha, c(7.00, 3, 3.7))
+  # fits_ids
+  aux_fits <- get_example_fits("fits_ids")
+  expect_s3_class(aux_fits, "fits_ids_dm")
 
   expect_identical(
     aux_fits$drift_dm_fit_info$obs_data_ids,
@@ -379,4 +382,20 @@ test_that("get_example_fits_ids", {
     class(aux_fits$drift_dm_fit_info$drift_dm_obj),
     c("dmc_dm", "drift_dm")
   )
+
+  # fits_agg_dm
+  aux_fits <- get_example_fits("fits_agg")
+  expect_s3_class(aux_fits, "fits_agg_dm")
+  expect_identical(class(aux_fits$drift_dm_obj), c("ratcliff_dm", "drift_dm"))
+
+
+  # mcmc
+  aux_fits <- get_example_fits("mcmc")
+  expect_s3_class(aux_fits, "mcmc_dm")
+  expect_identical(
+    class(attr(aux_fits, "data_model")), c("ratcliff_dm", "drift_dm")
+  )
 })
+
+
+

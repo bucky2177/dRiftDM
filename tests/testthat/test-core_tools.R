@@ -5,7 +5,7 @@ test_that("draw_from_pdf works as expected", {
   pdf <- dnorm(x_def)
 
   # discrete
-  samp_quants <- quantile(
+  samp_quants <- stats::quantile(
     draw_from_pdf(
       a_pdf = pdf, x_def = x_def,
       k = 50000, seed = 1, method = "discr"
@@ -16,7 +16,7 @@ test_that("draw_from_pdf works as expected", {
 
 
   # linear
-  samp_quants <- quantile(
+  samp_quants <- stats::quantile(
     draw_from_pdf(
       a_pdf = pdf, x_def = x_def,
       k = 50000, seed = 1, method = "linear"

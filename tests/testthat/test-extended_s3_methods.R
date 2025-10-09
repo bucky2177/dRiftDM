@@ -1,10 +1,8 @@
 # DRIFT_DM ----------------------------------------------------------------
 
 test_that("nobs.drift_dm works as expected", {
-  a_model <- readRDS(test_path("fixtures", "ssp.rds"))
-  some_data <- dRiftDM::ulrich_flanker_data[dRiftDM::ulrich_flanker_data$ID == 7, ]
-  obs_data(a_model) <- some_data
-  expect_identical(nobs(a_model), nrow(some_data))
+  a_model <- ssp_dummy
+  expect_identical(nobs(a_model), nrow(dRiftDM::ssp_synth_data))
 })
 
 
@@ -12,7 +10,7 @@ test_that("nobs.drift_dm works as expected", {
 
 # function testing done when testing the log_like function itself
 test_that("logLik is formatted as expected", {
-  a_model <- readRDS(test_path("fixtures", "dmc.rds"))
+  a_model <- dmc_dummy
   log_like_obj <- logLik(a_model)
 
   expect_identical(class(log_like_obj), "logLik")
@@ -24,7 +22,7 @@ test_that("logLik is formatted as expected", {
 
 
 test_that("coef.drift_dm returns values as expected", {
-  a_model <- readRDS(test_path("fixtures", "dmc.rds"))
+  a_model <- dmc_dummy
 
   coefs_unique <- coef(a_model)
   expect_equal(
@@ -55,26 +53,22 @@ test_that("coef.drift_dm returns values as expected", {
 
 
 test_that("coef.fits_ids_dm returns values as expected", {
-  all_fits <- load_fits_ids(
-    path = test_path("fixtures"),
-    fit_procedure_name = "test_case_saved"
-  )
+  all_fits <- get_example_fits(class = "fits_ids")
 
   coefs_unique <- coef(all_fits)
   expect_true(is.data.frame(coefs_unique))
-  expect_equal(names(coefs_unique), c("ID", "muc", "b", "non_dec"))
+  u_model <- all_fits$drift_dm_fit_info$drift_dm_obj
+  expect_equal(names(coefs_unique), c("ID", names(coef(u_model))))
 
-  coefs_all <- coef(all_fits, select_unique = F)
+  coefs_all <- coef(all_fits, select_unique = FALSE)
   expect_true(is.data.frame(coefs_all))
-  expect_equal(names(coefs_all), c("ID", "Cond", "muc", "b", "non_dec"))
+  exp_coefs = colnames(coef(u_model, select_unique = FALSE))
+  expect_equal(names(coefs_all), c("ID", "Cond", exp_coefs))
 })
 
 
 test_that("logLik|AIC|BIC.fits_ids_dm return values as expected", {
-  all_fits <- load_fits_ids(
-    path = test_path("fixtures"),
-    fit_procedure_name = "test_case_saved"
-  )
+  all_fits <- get_example_fits(class = "fits_ids")
 
   logs <- logLik(all_fits)
   aics <- AIC(all_fits)
@@ -86,11 +80,8 @@ test_that("logLik|AIC|BIC.fits_ids_dm return values as expected", {
   expect_true(is.data.frame(aics))
   expect_equal(names(aics), c("ID", "AIC"))
 
-
   expect_true(is.data.frame(bics))
   expect_equal(names(bics), c("ID", "BIC"))
 })
 
 
-
-# UNPACK COEFS_DM ---------------------------------------------------------

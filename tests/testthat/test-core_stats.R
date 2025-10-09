@@ -46,8 +46,8 @@ test_that("calc_basic_stats_pred works as expected", {
 test_that("calc_basic_stats -> works as expected", {
 
   # get a model to test
-  model <- dmc_dm(dt = .005, dx = .005, obs_data = dmc_synth_data,
-                  t_max = 2)
+  model <- dmc_dummy
+  prms_solve(model)[c("dx", "dt", "t_max")] <- c(.005, .005, 2)
 
   model <- re_evaluate_model(model)
 
@@ -113,7 +113,7 @@ test_that("basic_stats -> validate work as expected", {
                     na.action = na.pass, na.rm = T)
 
   # test what is returned
-  basic_stats_agg <- calc_stats(data_id, type = "basic_stats", average = T)
+  basic_stats_agg <- calc_stats(data_id, type = "basic_stats", level = "group")
   expect_equal(unpack_obj(basic_stats_agg), test)
   expect_equal(class(basic_stats_agg),
                c("basic_stats", "sum_dist", "stats_dm", "data.frame"))
@@ -256,7 +256,7 @@ test_that("cafs -> validate and aggregate work as expected", {
   test <- test[c("Source", "Cond", "Bin", "P_corr")]
 
   # test what is returned
-  obs_cafs <- calc_stats(data_id, type = "cafs", average = T)
+  obs_cafs <- calc_stats(data_id, type = "cafs", level = "group")
   expect_equal(obs_cafs$P_corr, test$P_corr)
   expect_equal(class(obs_cafs), c("cafs", "sum_dist", "stats_dm", "data.frame"))
   expect_equal(attr(obs_cafs, "b_coding"), drift_dm_default_b_coding())
@@ -323,10 +323,11 @@ test_that("calc_cafs -> input checks", {
 })
 
 test_that("calc_cafs -> predicted works as expected", {
-  a_model <- dmc_dm(dt = 0.001, dx = 0.005, t_max = 1)
-  pdfs_comp <- re_evaluate_model(a_model)$pdfs[["comp"]]
-  pdfs_incomp <- re_evaluate_model(a_model)$pdfs[["incomp"]]
+  a_model <- dmc_dummy
+  pdfs_comp <- a_model$pdfs[["comp"]]
+  pdfs_incomp <- a_model$pdfs[["incomp"]]
   pred_cafs <- calc_stats(a_model, type = "cafs")
+  pred_cafs <- pred_cafs[pred_cafs$Source == "pred",]
 
   # reference obtained by my former package
   expect_true(all(
@@ -345,7 +346,7 @@ test_that("calc_cafs -> predicted works as expected", {
 
 test_that("calc_quantiles -> observed and predicted works as expected", {
   # get a dummy model
-  dummy_model <- dmc_dm()
+  dummy_model <- dmc_dummy
 
   # and some data
   withr::local_seed(1)
@@ -452,8 +453,6 @@ test_that("quantiles -> validate and aggregate work as expected", {
   data_id <- dRiftDM::ulrich_flanker_data
   obs_quants <- calc_stats(data_id, type = "quantiles")
 
-
-
   test <- aggregate(cbind(Quant_corr, Quant_err) ~ Prob + Cond + Source,
     obs_quants, mean,
     na.rm = T, na.action = na.pass
@@ -461,7 +460,7 @@ test_that("quantiles -> validate and aggregate work as expected", {
   test <- test[c("Source", "Cond", "Prob", "Quant_corr", "Quant_err")]
 
   # test what is returned
-  obs_quants <- calc_stats(data_id, type = "quantiles", average = T)
+  obs_quants <- calc_stats(data_id, type = "quantiles", level = "group")
   expect_equal(obs_quants$Quant_corr, test$Quant_corr)
   expect_equal(obs_quants$Quant_err, test$Quant_err)
 
@@ -658,7 +657,6 @@ test_that("delta_funs -> validate and aggregate work as expected", {
     subtrahends = "comp"
   )
 
-
   test <- aggregate(cbind(Quant_corr_comp, Delta_incomp_comp) ~ Prob + Source,
     obs_delta, mean,
     na.rm = T, na.action = na.pass
@@ -668,7 +666,7 @@ test_that("delta_funs -> validate and aggregate work as expected", {
   # test what is returned
   avg_delta <- calc_stats(data_id,
     type = "delta_funs", minuends = "incomp",
-    subtrahends = "comp", average = T
+    subtrahends = "comp", level = "group"
   )
   expect_equal(avg_delta$Delta_incomp_comp, test$Delta_incomp_comp)
   expect_equal(avg_delta$Quant_corr_comp, test$Quant_corr_comp)
@@ -724,45 +722,21 @@ test_that("calc_delta_funs -> input checks", {
   expect_error(
     calc_delta_funs(
       quantiles_dat = quantiles,
-      minuends = c("incomp", "neutral", "foo"),
-      subtrahends = c("comp", "comp"),
+      minuends = c("incomp", "comp"),
+      subtrahends = c("comp"),
       dvs = c("Quant_corr", "Quant_err"), b_coding = b_coding
     ), "length of minuends and subtrahends"
   )
 
-  expect_error(
-    calc_delta_funs(
-      quantiles_dat = quantiles,
-      minuends = c("incomp", "neutral", "bla"),
-      subtrahends = c("comp", "comp", "uff"),
-      dvs = c("Quant_corr", "Quant_err"), b_coding = b_coding
-    ), "Conds specified in minuends"
-  )
-  expect_error(
-    calc_delta_funs(
-      quantiles_dat = quantiles,
-      minuends = c("incomp", "incomp"),
-      subtrahends = c("comp", "uff"),
-      dvs = c("Quant_corr", "Quant_err"), b_coding = b_coding
-    ), "Conds specified in subtrahends"
-  )
-
-  expect_error(
-    calc_delta_funs(
-      quantiles_dat = quantiles,
-      minuends = character(),
-      subtrahends = c("comp", "uff"),
-      dvs = c("Quant_corr", "Quant_err"), b_coding = b_coding
-    ), "must be a character"
-  )
-
-  expect_error(
-    calc_delta_funs(
-      quantiles_dat = quantiles,
-      minuends = c("incomp"),
-      subtrahends = character(),
-      dvs = c("Quant_corr", "Quant_err"), b_coding = b_coding
-    ), "must be a character"
+  expect_warning(
+    expect_warning(
+      calc_delta_funs(
+        quantiles_dat = quantiles,
+        minuends = c("incomp", "neutral", "bla"),
+        subtrahends = c("incomp", "neutral", "uff"),
+        dvs = c("Quant_corr", "Quant_err"), b_coding = b_coding
+      ), "minuends: neutral, bla"
+    ), "subtrahends: neutral, uff"
   )
 
   expect_error(
@@ -789,7 +763,7 @@ test_that("calc_delta_funs -> input checks", {
       minuends = "comp",
       subtrahends = "incomp",
       dvs = c("Quant_corr", "Quant_foo"), b_coding = b_coding
-    )
+    ), "should be one of \"Quant_corr\""
   )
 
   temp <- quantiles
@@ -820,6 +794,7 @@ test_that("calc_fit_stats -> works as expected", {
     dt = 0.005, t_max = 1, subclass = "test"
   )
   obs_data(a_model) <- data
+  cost_function(a_model) <- "neg_log_like"
   a_model <- re_evaluate_model(a_model)
   pdfs_null <- a_model$pdfs$null
   pdfs_foo <- a_model$pdfs$foo
@@ -833,36 +808,56 @@ test_that("calc_fit_stats -> works as expected", {
   d_5 <- pdfs_foo$pdf_l[88]
   for_test_log_like <- log(d_1) + log(d_2) + log(d_3) + log(d_4) + log(d_5)
   # calc_log_like
-  expect_equal(a_model$log_like, for_test_log_like)
+  expect_equal(-a_model$cost_value, for_test_log_like)
 
   # AIC, BIC
   for_test_AIC <- -2 * for_test_log_like + 2 * 2
   for_test_BIC <- -2 * for_test_log_like + 2 * log(5)
 
+  # RMSE
+  agg_stats_obs <- calc_stats(data, type = c("cafs", "quantiles"), n_bins = 2)
+  tmp <- a_model
+  tmp$obs_data <- NULL
+  agg_stats_pred <- calc_stats(tmp, type = c("cafs", "quantiles"), n_bins = 2)
+  for_test_rmse_s <- calc_rmse(
+    quants_pred = agg_stats_pred$quantiles$Quant_corr,
+    cafs_pred = agg_stats_pred$cafs$P_corr,
+    quants_obs = agg_stats_obs$quantiles$Quant_corr,
+    cafs_obs = agg_stats_obs$cafs$P_corr
+  )
 
   # get from function
-  fit_stats <- calc_stats(a_model, "fit_stats")
+  fit_stats <- calc_stats(a_model, "fit_stats", n_bins = 2)
   exp_stats <- data.frame(
     Log_Like = for_test_log_like,
+    Neg_Log_Like = -for_test_log_like,
     AIC = for_test_AIC,
-    BIC = for_test_BIC
+    BIC = for_test_BIC,
+    RMSE_s = for_test_rmse_s,
+    RMSE_ms = for_test_rmse_s * 1000
   )
   class(exp_stats) <- c("fit_stats", "stats_dm", "data.frame")
   expect_equal(fit_stats, exp_stats)
 
-
-  # use AIC k = 3
+  # use AIC() -> k = 3
   expect_equal(AIC(a_model, k = 3), -2 * for_test_log_like + 2 * 3)
 })
 
 test_that("fit_stats -> validate and aggregate work as expected", {
   data_id <- data.frame(
-    ID = c(1, 2),
     Log_Like = c(1, 2),
+    Neg_Log_Like = c(-1, -2),
     AIC = c(2, 3),
-    BIC = c(4, 5)
+    BIC = c(4, 5),
+    RMSE_s = 0.1,
+    RMSE_ms = 1
   )
-  data_id <- new_stats_dm(data_id, "fit_stats")
+  data_id <- apply(data_id, 1, \(one_row){
+    new_stats_dm(as.data.frame(t(one_row)), "fit_stats")
+  })
+  data_id <- do.call(rbind, data_id)
+  data_id$ID = c(1,2)
+  data_id = data_id[c(ncol(data_id), 1:(ncol(data_id)-1))]
 
 
 
@@ -893,36 +888,20 @@ test_that("fit_stats -> validate and aggregate work as expected", {
   expect_error(validate_stats_dm(temp), "BIC")
 })
 
-test_that("fit_stats -> input checks", {
-  expect_error(calc_ic(NULL))
-
-  a_model <- drift_dm(c("a" = 4, "b" = 4),
-    conds = c("null", "foo"), dx = 0.005,
-    dt = 0.005, t_max = 1, subclass = "test"
-  )
-
-  expect_warning(expect_error(calc_ic(a_model)), "No data")
-})
-
 
 # FITS_IDS_DM -----------------------------------------------------------
 
 test_that("fits_ids_dm calc_stats works as expected", {
-  all_fits <- load_fits_ids(test_path("fixtures"),
-    fit_procedure_name = "test_case_saved"
-  )
+  all_fits <- get_example_fits("fits_ids")
 
-  all_stats <- calc_stats(all_fits, c("fit_stats", "cafs"))
+  all_stats <- calc_stats(all_fits, c("fit_stats", "cafs"), progress = 0)
 
   # test against one single subject
   all_2 <- all_stats$fit_stats[all_stats$fit_stats$ID == 2, ]
   rownames(all_2) <- 1L
   sep_2 <- calc_stats(all_fits$all_fits$`2`, type = "fit_stats")
   expect_equal(class(all_2), class(sep_2))
-  expect_equal(
-    all_2[c("Log_Like", "AIC", "BIC")],
-    sep_2[c("Log_Like", "AIC", "BIC")]
-  )
+  expect_equal(all_2[,-1], sep_2)
 
 
   # test against one single subject
@@ -930,14 +909,11 @@ test_that("fits_ids_dm calc_stats works as expected", {
   rownames(all_2) <- 1:nrow(all_2)
   sep_2 <- calc_stats(all_fits$all_fits$`2`, type = "cafs")
   expect_equal(class(all_2), class(sep_2))
-  expect_equal(
-    all_2[c("Source", "Cond", "Bin", "P_corr")],
-    sep_2[c("Source", "Cond", "Bin", "P_corr")]
-  )
+  expect_equal(unpack_obj(all_2[,-1]), unpack_obj(sep_2))
 
 
   # test the direct aggregation (aggregation function was tested above)
-  agg_stats <- calc_stats(all_fits, c("fit_stats", "cafs"), average = T)
+  agg_stats <- calc_stats(all_fits, c("fit_stats", "cafs"), level = "group")
   expect_equal(agg_stats$fit_stats, aggregate_stats(all_stats$fit_stats))
   expect_equal(agg_stats$cafs, aggregate_stats(all_stats$cafs))
 })

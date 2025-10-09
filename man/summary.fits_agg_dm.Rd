@@ -14,6 +14,9 @@
 
 \item{...}{additional arguments (currently unused).}
 
+\item{just_header}{logical, if \code{TRUE} only print the header information
+without details. Default is \code{FALSE}.}
+
 \item{round_digits}{an integer, specifying the number of decimal places for
 rounding in the printed summary. Default is 3.}
 
@@ -50,7 +53,7 @@ in a human-readable form.
 }
 \examples{
 # Load example fit object
-fits_agg <- get_example_fits_agg()
+fits_agg <- get_example_fits("fits_agg")
 sum_obj <- summary(fits_agg)
 print(sum_obj, round_digits = 2)
 

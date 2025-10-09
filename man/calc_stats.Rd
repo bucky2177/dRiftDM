@@ -316,7 +316,7 @@ print(some_stats, print_rows = 5)
 
 # Example 3: Calculate Quantiles from a fits_ids_dm object -----------------
 # get an auxiliary fits_ids_dm object
-all_fits <- get_example_fits_ids()
+all_fits <- get_example_fits("fits_ids_dm")
 some_stats <- calc_stats(all_fits, type = "quantiles")
 print(some_stats, print_rows = 5) # note the ID column
 

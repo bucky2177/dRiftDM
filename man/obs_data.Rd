@@ -103,7 +103,7 @@ all.equal(obs_data(my_model), some_data)
 # accessor method also available for fits_ids_dm objects
 # (see estimate_model_ids)
 # get an exemplary fits_ids_dm object
-fits <- get_example_fits_ids()
+fits <- get_example_fits("fits_ids_dm")
 head(obs_data(fits))
 
 }

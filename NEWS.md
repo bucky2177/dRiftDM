@@ -1,12 +1,23 @@
 # dRiftDM (development version)
 
+## Important Notes to Users:
+
+- the workflow of estimating a model has changed with the introduction of the 
+new function `estimate_dm()`. From this version on, fits are not automatically 
+saved to the file system from which they then have to be re-loaded. Instead, 
+`estimate_dm()` directly returns fitted objects, and the user has to save the 
+result on their own.
+
 ## Major and New features: 
 
 - `dRiftDM` now uses an adaptive time-stepping scheme when deriving the PDFs.
 This allows for a substantial increase in speed.
 
+- `dRiftDM` now generally supports variability in the drift rate for the 
+constant drift rate component (not only for the Ratcliff DDM)
+
 - `plot()` methods have been changed fundamentally, now avoiding clash of 
-arguments and providing more customization options
+arguments and providing more customization options.
 
 - `drift_dm()` objects now gain the new feature `cost_function`. This allows
 users to either use the `"rmse"` statistic or (full)-range maximum likelihood,
@@ -35,7 +46,7 @@ soon for a more general all-purpose estimation function.
 argument. `basic_stats` allows you to request means, standard deviations, and a 
 ratio of response choices. `densities` allows you to request density values.
 
- `calc_stats()` gains the `resample` option
+- `calc_stats()` gains the `resample` option
 
 - `simulate_data()` does no longer return RTs exactly matching with the
 time domain (i.e., they are no longer limited by step size `dt`). Now, the model
@@ -52,7 +63,6 @@ point.
 - `ssp_dm()` uses a uniform variability in the non-decision time, aligning more 
 closely with the original publication.
 
-- 
 
 ## Minor: 
 
@@ -61,12 +71,15 @@ index for the dirac delta. This reduces the bias in non-decision time estimates.
 
 - `pdfs()` now also returns a vector of the time domain
 
-- the `coef()` method now supports bayesian returns
+- the `coef()` method now supports Bayesian returns
 
 - `progress` argument replaced `verbose` in `calc_stats`. Default is 1.
 
 - `"fit_stats"` option for `calc_stats()` now returns multiple fit statistics,
 including the log-likelihood, AIC, BIC, and the root-mean squared-error.
+
+- `simulate_traces` now properly considers trial-by-trial variability in the
+drift rate
 
 ## Bug and Code Fixes
 

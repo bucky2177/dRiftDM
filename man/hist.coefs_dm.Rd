@@ -13,7 +13,7 @@
   ylim = NULL,
   xlab = "value",
   ylab = NULL,
-  bundle_plots = FALSE
+  bundle_plots = TRUE
 )
 }
 \arguments{
@@ -30,8 +30,9 @@ Defaults to all available conditions.}
 \item{col}{character vector, specifying colors for each condition, if
 conditions are present.}
 
-\item{xlim, ylim}{numeric vectors of length 2, specifying the x- and y-axis
-limits.}
+\item{xlim}{a numeric vector of length 2, specifying the x-axis limits.}
+
+\item{ylim}{a numeric vector of length 2, specifying the y-axis limits.}
 
 \item{xlab, ylab}{character strings for the x- and y-axis labels.}
 
@@ -63,7 +64,8 @@ own using R's \code{\link[graphics:hist]{graphics::hist()}} function (see the ex
 # get an auxiliary fit procedure result (see the function load_fits_ids)
 all_fits <- get_example_fits("fits_ids")
 coefs <- coef(all_fits)
-hist() # only three participants in this fits_ids object
+print(coefs)
+hist(coefs, bundle_plots = FALSE) # calls hist.coefs_dm method of dRiftDM
 
 # how to fall back to R's hist() function for heavy customization
 coefs <- unpack_obj(coefs) # provides the plain data.frame

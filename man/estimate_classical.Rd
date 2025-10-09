@@ -14,14 +14,14 @@ estimate_classical(
   verbose = NULL,
   de_n_cores = 1,
   control = list(),
-  rounding = NULL
+  round_digits = NULL
 )
 }
 \arguments{
 \item{drift_dm_obj}{an object inheriting from \link{drift_dm}.}
 
 \item{optimizer}{a character string specifying the optimizer to use.
-Must be one of \code{"nmk"}, \code{"nmkb"}, \code{"BFGS"}, \code{"L-BFGS-B"}, or \code{"DEoptim"}.}
+Must be one of \code{"Nelder-Mead"}, \code{"nmkb"}, \code{"BFGS"}, \code{"L-BFGS-B"}, or \code{"DEoptim"}.}
 
 \item{start_vals}{a set of starting values. Must be compatible with
 \code{\link[=get_parameters_smart]{get_parameters_smart()}}. If \code{start_vals}
@@ -54,7 +54,7 @@ Can be numeric vectors, named vectors, or flexible lists (see Details).}
 \item{control}{a named list of control parameters passed to the chosen
 optimizer.}
 
-\item{rounding}{an integer. Number of digits to round cost values in printed
+\item{round_digits}{an integer. Number of digits to round cost values in printed
 output. If \code{NULL}, defaults to \code{\link[=drift_dm_default_rounding]{drift_dm_default_rounding()}}.}
 }
 \value{
@@ -67,8 +67,8 @@ log-likelihood) using classical (non-Bayesian) optimization routines.
 
 Available optimizers include:
 \itemize{
-\item Nelder-Mead (bounded or unbounded): \code{"nmk"}, \code{"nmkb"} (via \code{\link[dfoptim:nmkb]{dfoptim::nmk()}}
-and \code{\link[dfoptim:nmkb]{dfoptim::nmkb()}})
+\item Nelder-Mead (bounded or unbounded): \code{"Nelder-Mead"}, \code{"nmkb"}
+(via \code{\link[stats:optim]{stats::optim()}} and \code{\link[dfoptim:nmkb]{dfoptim::nmkb()}}, respectively)
 \item BFGS and L-BFGS-B (via \code{\link[stats:optim]{stats::optim()}})
 \item Differential Evolution (via \code{\link[DEoptim:DEoptim]{DEoptim::DEoptim()}})
 }

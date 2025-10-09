@@ -68,16 +68,16 @@ calc_dens_obs = function(rts_u, rts_l, one_cond, t_max = NULL, discr = NULL,
   mids <- breaks[-length(breaks)] + diff(breaks) / 2
 
   # call hist() twice and extract the values
-  dens_hist_u = hist(rts_u, breaks = breaks, plot = FALSE)$density
-  dens_hist_l = hist(rts_l, breaks = breaks, plot = FALSE)$density
+  dens_hist_u = graphics::hist(rts_u, breaks = breaks, plot = FALSE)$density
+  dens_hist_l = graphics::hist(rts_l, breaks = breaks, plot = FALSE)$density
 
   # call density() twice and extract the values
   # the wrapper ensures that the function doesn't crash if one of the
   # rt vectors has less than two values
   kde_wrapper <- function(vals) {
     if (length(vals) <= 1) return(rep(NaN, length(mids)))
-    d <- density(vals, from = 0, to = t_max)
-    d <- approx(d$x, d$y, xout = mids, rule = 2)$y
+    d <- stats::density(vals, from = 0, to = t_max)
+    d <- stats::approx(d$x, d$y, xout = mids, rule = 2)$y
     d <- d / sum(d * discr) # ensure it sums to 1
     return(d)
   }
@@ -431,8 +431,16 @@ calc_cafs_obs <- function(rts_u, rts_l, one_cond, n_bins) {
   rts <- c(rts_u, rts_l)
   probs <- seq(0, 1, length.out = n_bins + 1)
   borders <- stats::quantile(rts, probs = probs)
-  bins <- cut(rts, breaks = borders, labels = FALSE, include.lowest = TRUE)
-  stopifnot(identical(sort(unique(bins)), 1:n_bins))
+  tryCatch(
+    {
+      bins <- cut(rts, breaks = borders, labels = FALSE, include.lowest = TRUE)
+      stopifnot(identical(sort(unique(bins)), 1:n_bins))
+    }, error = function(e) {
+      stop("Couldn't form ", n_bins, " bins from ", length(rts), " RTs ",
+           "(condition: ", one_cond, ")") # AIC, BIC -> muffle this warning
+    }
+  )
+
 
   # create a vector to code accuracy
   corr <- rep(c(1, 0), times = c(length(rts_u), length(rts_l)))
@@ -823,18 +831,31 @@ calc_delta_funs <- function(quantiles_dat, minuends = NULL, subtrahends = NULL,
   if (is.null(subtrahends)) {
     stop("calc_delta_funs was called but the argument subtrahends not provided")
   }
-  if (!is.character(minuends) | length(minuends) < 1) {
-    stop("minuends must be a character vector of length >= 1")
+
+  conds <- unique(quantiles_dat$Cond)
+
+  n_m <- length(minuends)
+  tmp_m <- minuends
+  minuends = match.arg(minuends, conds, several.ok = TRUE)
+  if (n_m > length(minuends)) {
+    warning(
+      "dropping unmatched conditions in minuends: ",
+      paste(setdiff(tmp_m, minuends), collapse = ", ")
+    )
   }
-  if (!is.character(subtrahends) | length(subtrahends) < 1) {
-    stop("subtrahends must be a character vector of length >= 1")
+
+  n_s <- length(subtrahends)
+  tmp_s <- subtrahends
+  subtrahends = match.arg(subtrahends, conds, several.ok = TRUE)
+  if (n_s > length(subtrahends)) {
+    warning(
+      "dropping unmatched conditions in subtrahends: ",
+      paste(setdiff(tmp_s, subtrahends), collapse = ", ")
+    )
   }
   if (length(subtrahends) != length(minuends)) {
     stop("different length of minuends and subtrahends")
   }
-  conds <- unique(quantiles_dat$Cond)
-  minuends = match.arg(minuends, conds, several.ok = TRUE)
-  subtrahends = match.arg(subtrahends, conds, several.ok = TRUE)
 
   # input checks on dvs
   if (is.null(dvs)) {
@@ -972,13 +993,20 @@ calc_fit_stats <- function(drift_dm_obj, k = 2, ...) {
   neg_log_like <- -1.0 * log_like
 
 
-  # calculate rmse
+  # calculate rmse (try to calculate the aggregated statistics)
   if (is.null(drift_dm_obj$stats_agg)) {
-    drift_dm_obj <- update_stats_agg(
-      drift_dm_obj, which_cost_function = "rmse", probs = dots$probs,
-      n_bins = dots$n_bins
-    )
-  }
+    tryCatch({
+      drift_dm_obj <- update_stats_agg(
+        drift_dm_obj, which_cost_function = "rmse", probs = dots$probs,
+        n_bins = dots$n_bins
+      )
+    }, error = function(e) {
+      warning(
+        "Calculating aggregated stats failed: ", conditionMessage(e)
+      )
+      return(NULL)
+    })
+  } # -> stats_agg is still NULL if this fails -> rmse will be null
   weight_err <- dots$weight_err %||% 1.5
   rmse <- calc_rmse_eval(
     pdfs_t_vec$pdfs, t_vec = pdfs_t_vec$t_vec,
@@ -987,6 +1015,7 @@ calc_fit_stats <- function(drift_dm_obj, k = 2, ...) {
   )
   if (is.null(rmse) || is.infinite(rmse)) rmse <- NA_real_
   rmse_ms <- rmse * 1000
+
 
   # bind everything
   result = data.frame(
@@ -1139,7 +1168,7 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...,
   if (type == "densities") {
 
     # determine the scaling factors
-    scaling_factors = setNames(rep(1.0, length(conds)), conds)
+    scaling_factors = stats::setNames(rep(1.0, length(conds)), conds)
     if (scale_mass) {
       n_per_cond <- sapply(conds, \(one_cond){
         rts_u <- dotdot$all_rts_u[[one_cond]]
@@ -1148,7 +1177,7 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...,
       })
       # if there are no trials, fall back to scaling of 1.0
       if (any(n_per_cond == 0)) {
-        scaling_factors = setNames(rep(1.0, length(conds)), conds)
+        scaling_factors = stats::setNames(rep(1.0, length(conds)), conds)
       } else {
         scaling_factors <- n_per_cond / (sum(n_per_cond) / length(n_per_cond))
       }
@@ -1427,7 +1456,7 @@ calc_stats_pred_obs <- function(type, b_coding, conds, ...,
 #'
 #' # Example 3: Calculate Quantiles from a fits_ids_dm object -----------------
 #' # get an auxiliary fits_ids_dm object
-#' all_fits <- get_example_fits_ids()
+#' all_fits <- get_example_fits("fits_ids_dm")
 #' some_stats <- calc_stats(all_fits, type = "quantiles")
 #' print(some_stats, print_rows = 5) # note the ID column
 #'
@@ -1493,6 +1522,16 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL,
     } else {
       level = "group"
     }
+    dots$split_by_ID = NULL
+    return(
+      do.call(
+        calc_stats.data.frame,
+        args = c(dots, list(
+          object = object, type = type, conds = conds, resample = resample,
+          progress = progress, level = level, b_coding = b_coding
+        ))
+      )
+    )
   }
 
   if (!is.null(dots$average)) {
@@ -1505,6 +1544,16 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL,
     } else {
       level = "individual"
     }
+    dots$average = NULL
+    return(
+      do.call(
+        calc_stats.data.frame,
+        args = c(dots, list(
+          object = object, type = type, conds = conds, resample = resample,
+          progress = progress, level = level, b_coding = b_coding
+        ))
+      )
+    )
   }
 
   # get b_coding and check the data
@@ -1526,6 +1575,10 @@ calc_stats.data.frame <- function(object, type, ..., conds = NULL,
   } else {
     conds <- match.arg(arg = conds, choices = data_conds, several.ok = TRUE)
   }
+
+  # temporarily set t_max as an option, if it was not specified,
+  # this ensures a consistent size of outputs (like in density)
+  stats.options(t_max = max(obs_data$RT))
 
 
   #  calculate for each ID (if possible)
@@ -2435,7 +2488,8 @@ resample_assemble <- function(resample_list, level, original) {
     # rows -> statistic realizations
     # cols -> replications
     out <- apply(
-      matrix, 1, quantile, probs = c(level_lower, level_upper), na.rm = TRUE
+      X = matrix, MARGIN = 1, FUN = stats::quantile,
+      probs = c(level_lower, level_upper), na.rm = TRUE
     )
     # returns probs as rows and statistic realizations as cols
     return(out)
@@ -2760,13 +2814,16 @@ validate_stats_dm.sum_dist <- function(stat_df) {
     stop("no attribute b_coding in stats_dm")
   }
 
-  # check for equal count data
-  check_equal_n = c("ID", "Source", "Cond", "Prob", "Bin", "Estimate", "Stat", "Time")
+  # check for equal count data (if available)
+  check_equal_n = c(
+    "ID", "Source", "Cond", "Prob", "Bin", "Estimate", "Stat", "Time"
+  )
   check_equal_n = intersect(names(stat_df), check_equal_n)
   counts = table(
     stat_df[, check_equal_n], useNA = "ifany"
   )
-  counts = subset(as.data.frame(counts), Freq > 0)
+  counts <- as.data.frame(counts)
+  counts = counts[counts$Freq > 0, , drop = FALSE]
   check = length(unique(counts$Freq)) == 1L
   if (!check) {
     stop("The number of data points across factor levels is not equal")

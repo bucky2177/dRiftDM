@@ -68,7 +68,7 @@ log_like_heart <- function(pdf_u, pdf_l, t_vec, rts_u, rts_l) {
         xout = rts_l
       )$y
 
-      log_like <- sum(log(app_like_u)) + sum(log(app_like_l))
+      log_like <- suppressWarnings(sum(log(app_like_u)) + sum(log(app_like_l)))
       if (is.nan(log_like)) { # log(0) gives -Inf
         if (min(app_like_u) < 0 | min(app_like_l) < 0) {
           warning(
@@ -160,6 +160,7 @@ calc_rmse_eval <- function(pdfs, t_vec, dt, stats_agg, stats_agg_info,
 
 #' Compute RMSE from predicted and observed quantiles/CAFs
 #' @keywords internal
+#' @rdname calc_rmse_eval
 calc_rmse <- function(quants_pred, cafs_pred, quants_obs, cafs_obs,
                       weight_err = 1.5) {
   # basic checks

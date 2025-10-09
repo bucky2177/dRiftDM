@@ -1190,20 +1190,15 @@ get_lower_upper <- function(object, ...) {
 
 #' @rdname get_lower_upper
 #' @export
-get_lower_upper.drift_dm <- function(object, warn = TRUE) {
+get_lower_upper.drift_dm <- function(object, ..., warn = TRUE) {
 
 
   drift_dm_obj <- object
-  dx = prms_solve(drift_dm_obj)["dx"]
-  dt = prms_solve(drift_dm_obj)["dt"]
+  dx = unname(prms_solve(drift_dm_obj)["dx"])
+  dt = unname(prms_solve(drift_dm_obj)["dt"])
 
   # input checks
   stopifnot(is.logical(warn), length(warn) == 1)
-
-  # small helper
-  pmax_un <- function(...) {
-    unname(base::pmax(...))
-  }
 
   # now create container and iterate over each component
   prms_lower = numeric(0)
@@ -1220,7 +1215,7 @@ get_lower_upper.drift_dm <- function(object, warn = TRUE) {
       prms_lower = c(prms_lower, muc = 0.5)
       prms_upper = c(prms_upper,  muc = 9)
     } else if (isTRUE(identical(comp, x_uniform))) {
-      prms_lower = c(prms_lower, range_start = pmax_un(dx + 0.005, 0.01))
+      prms_lower = c(prms_lower, range_start = max(dx + 0.005, 0.01))
       prms_upper = c(prms_upper,  range_start = 1.5)
     } else if (isTRUE(identical(comp, b_constant))) {
       prms_lower = c(prms_lower, b = 0.15)
@@ -1230,10 +1225,10 @@ get_lower_upper.drift_dm <- function(object, warn = TRUE) {
       prms_upper = c(prms_upper,  non_dec = 0.60)
     } else if (isTRUE(identical(comp, nt_uniform))) {
       prms_lower = c(
-        prms_lower, non_dec = 0.15, range_non_dec = pmax_un(dt + 0.005, 0.01)
+        prms_lower, non_dec = 0.15, range_non_dec = max(dt + 0.005, 0.01)
       )
       prms_upper = c(
-        prms_upper, non_dec = 0.60, range_non_dec = pmax_un(dt + 0.005, 0.4)
+        prms_upper, non_dec = 0.60, range_non_dec = max(dt + 0.005, 0.4)
       )
     } else if (isTRUE(identical(comp, mu_dmc))) {
       prms_lower = c(prms_lower, muc = 0.5, tau = 0.015, a = 1.2, A = 0.005)
@@ -1243,10 +1238,10 @@ get_lower_upper.drift_dm <- function(object, warn = TRUE) {
       prms_upper = c(prms_upper,  alpha = 8)
     } else if (isTRUE(identical(comp, nt_truncated_normal))) {
       prms_lower = c(
-        prms_lower, non_dec = 0.15, sd_non_dec = pmax_un(dt, 0.005)
+        prms_lower, non_dec = 0.15, sd_non_dec = max(dt, 0.005)
       )
       prms_upper = c(
-        prms_upper, non_dec = 0.6, sd_non_dec = pmax_un(dt + 0.005, 0.1)
+        prms_upper, non_dec = 0.6, sd_non_dec = max(dt + 0.005, 0.1)
       )
     } else if (isTRUE(identical(comp, mu_ssp))) {
       prms_lower = c(prms_lower, p = 1, sd_0 = 0.5, r = 3)
@@ -1277,7 +1272,9 @@ get_lower_upper.drift_dm <- function(object, warn = TRUE) {
     prms_upper = c(prms_upper, sd_muc = 2.20)
   }
   diff_prms <- setdiff(free_prms, names(prms_lower))
-  stopifnot(!(length(fails) == 0 & length(diff_prms) != 0))
+  if (length(fails) == 0 & length(diff_prms) != 0) {
+    stop ("There are unexpected free parameters in your model.")
+  }
 
   # warn if there are unmatched parameters and skipped components
   if (length(fails) > 0 && warn) {
@@ -1291,8 +1288,8 @@ get_lower_upper.drift_dm <- function(object, warn = TRUE) {
 
 
   # finally, use those parameters that are actually considered free and return
-  prms_lower = prms_lower[names(prms_lower) %in% free_prms]
-  prms_upper = prms_upper[names(prms_upper) %in% free_prms]
+  prms_lower = prms_lower[intersect(free_prms, names(prms_lower))]
+  prms_upper = prms_upper[intersect(free_prms, names(prms_upper))]
   return(list(lower = prms_lower, upper = prms_upper))
 }
 

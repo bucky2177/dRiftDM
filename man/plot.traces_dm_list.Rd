@@ -37,8 +37,9 @@ single color is provided, it is repeated for all conditions.}
 each condition. If a single color is provided, it is repeated for all
 conditions. Default is \code{"black"}.}
 
-\item{xlim, ylim}{numeric vectors of length 2, specifying the x- and y-axis
-limits.}
+\item{xlim}{a numeric vector of length 2, specifying the x-axis limits.}
+
+\item{ylim}{a numeric vector of length 2, specifying the y-axis limits.}
 
 \item{xlab, ylab}{character strings for the x- and y-axis labels.}
 }

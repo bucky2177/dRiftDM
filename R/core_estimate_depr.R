@@ -119,6 +119,14 @@ estimate_model <- function(drift_dm_obj, lower, upper, verbose = 0,
     set.seed(seed)
   }
 
+  if (!use_de_optim & !use_nmkb) {
+    warning(
+      "use_de_optim and use_nmkb are set to FALSE.",
+      " No estimation done, passing back unmodified object"
+    )
+    return(drift_dm_obj)
+  }
+
 
   if (use_de_optim) {
     drift_dm_obj <- estimate_classical(
@@ -262,11 +270,13 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 
   # check if data makes sense
   b_coding <- attr(drift_dm_obj, "b_coding")
+  old_sorting <- names(obs_data_ids)
   obs_data_ids <- check_reduce_raw_data(obs_data_ids,
                                         b_coding_column = b_coding$column,
                                         u_value = b_coding$u_name_value,
                                         l_value = b_coding$l_name_value
   )
+  obs_data_ids <- obs_data_ids[old_sorting] # for identical behavior to v.0.2.2
 
   if (!("ID" %in% colnames(obs_data_ids))) {
     stop("no ID column found in obs_data_ids")
@@ -525,10 +535,6 @@ estimate_model_ids <- function(drift_dm_obj, obs_data_ids, lower,
 #'  If 0, no progress is shown. If 1, basic infos about the checking progress
 #'  is shown. If 2, multiple progressbars are shown. Default is 2.
 #'
-#' @param x an object of type `fits_ids_dm`, created when calling
-#'  `load_fits_ids`
-#' @param ... additional arguments
-#'
 #' @details
 #' with respect to the logic outlined in the details of
 #' [dRiftDM::estimate_model_ids] on the organization of fit procedures,
@@ -680,7 +686,18 @@ load_fits_ids <- function(path = "drift_dm_fits",
 
   class(fits_ids) <- "fits_ids_dm"
   if (check_data) {
-    fits_ids <- validate_fits_ids(fits_ids = fits_ids, progress = progress)
+    tryCatch(
+      fits_ids <- validate_fits_ids(fits_ids = fits_ids, progress = progress),
+      error = function(e) {
+        warning(
+          "Validating model objects failed under dRiftDM ",
+          base::getNamespaceVersion("dRiftDM"), "\n",
+          "-> Error message: ", conditionMessage(e), "\n",
+          "-> Are you loading models that were created by a previous version?",
+          call. = FALSE
+        )
+      }
+    )
   }
   return(fits_ids)
 }

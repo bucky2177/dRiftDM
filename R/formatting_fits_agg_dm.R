@@ -18,7 +18,7 @@ print.summary.fits_agg_dm <- function(x, ...,
   summary_obj <- x
 
   # same information as print.fits_agg_dm
-  cat("Fit approach: aggregated\n")
+  cat("Fit approach: aggregated - classical\n")
   print_classes(
     header = "Fitted model type:",
     class_vector = summary_obj$summary_drift_dm_obj$class
@@ -67,8 +67,7 @@ print.summary.fits_agg_dm <- function(x, ...,
 #' @param x an object of class `summary.fits_agg_dm`.
 #' @param round_digits an integer, specifying the number of decimal places for
 #'   rounding in the printed summary. Default is 3.
-#' @param select_unique logical, passed to [dRiftDM::coef.drift_dm()].
-#' @param ... additional arguments (currently unused).
+#' @inheritParams summary.fits_ids_dm
 #'
 #' @details
 #' The `summary.fits_agg_dm` function creates a structured summary of a
@@ -93,7 +92,7 @@ print.summary.fits_agg_dm <- function(x, ...,
 #'
 #' @examples
 #' # Load example fit object
-#' fits_agg <- get_example_fits_agg()
+#' fits_agg <- get_example_fits("fits_agg")
 #' sum_obj <- summary(fits_agg)
 #' print(sum_obj, round_digits = 2)
 #'
@@ -109,7 +108,7 @@ summary.fits_agg_dm <- function(object, ..., select_unique = FALSE) {
   ans$prms = coef(fits_agg$drift_dm_obj, select_unique = select_unique)
 
   # Infos subjects
-  n_avg_trials = get_n_avg_trials(fits_agg$obs_data_ids)
+  n_avg_trials = get_avg_trials(fits_agg$obs_data_ids)
   ans$obs_data <- n_avg_trials
 
   class(ans) <- "summary.fits_agg_dm"

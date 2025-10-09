@@ -39,6 +39,13 @@ cost_value(object, ...)
 
 \item{...}{additional arguments passed down to \code{\link[=update_stats_agg]{update_stats_agg()}}
 when setting the cost function label.}
+
+\item{value}{a character string, providing the cost function label
+(options are \code{"neg_log_like"} or \code{"rmse"})}
+
+\item{eval_model}{logical, indicating if the model should be re-evaluated or
+not when updating the conditions (see \link{re_evaluate_model}).
+Default is \code{FALSE}.}
 }
 \value{
 \itemize{

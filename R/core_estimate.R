@@ -1,6 +1,6 @@
 
 
-#' Fit a DDM to observed data
+#' Fit a DDM to Observed Data
 #'
 #' @description
 #'
@@ -8,32 +8,28 @@
 #' in `dRiftDM`. Several ways of fitting a model are supported: fitting a single
 #' participant, fitting multiple participants separately or aggregated, and
 #' fitting a (hierarchical) Bayesian model. The particular way is controlled
-#' via the `approach` and `framework` arguments.
-#'
-#' Note that not all combinations of `approach` and `framework` are currently
-#' supported. Also, the hierarchical estimation procedure is in an experimental
-#' stage.
+#' via the `approach` argument.
 #'
 #' @param drift_dm_obj a [dRiftDM::drift_dm] object containing the model to be
 #'   fitted.
 #' @param obs_data an optional [data.frame] (see also [dRiftDM::obs_data]).
 #'   If no `ID` column is present, a single-individual setup is assumed.
 #'   If an `ID` column is present, the model is fitted separately for each individual.
-#' @param approach an optional character string, can be `"separately"`,
-#'   `"aggregated"` or `"hierarchical"`.
-#' @param framework a character string, one of `"classical"` or `"bayesian"`.
-#'   This argument is adjusted automatically for incompatible combinations of
-#'   `approach` and `framework` (e.g., `"hierarchical"` implies `"bayesian"`).
-#'   Defaults to `"classical"`.
-#' @param optimizer a character string. For the classical framework, one of
-#'   `"nmkb"`, `"nmk"`, `"BFGS"`, `"L-BFGS-B"`, `"DEoptim"`. For the Bayesian
-#'   framework, only `"DE-MCMC"` is currently supported. If `NULL` and the
-#'   framework is `"classical"`, `"DEoptim"` or `"nmk"` is used, depending
-#'   on whether `lower/upper` are provided or not. If `NULL` and
-#'   the framework is `"bayesian"`, then `"DE-MCMC` is used. Note that
-#'   `"BFGS"` and `"L-BFGS-B"` are often unstable.
+#' @param approach an optional character string, specifying the approach to
+#'   fitting the model. Options are `"sep_c"`, `"agg_c"`, `"sep_b"`, `"hier_b"`
+#'   (see the Details).
+#' @param optimizer a character string. For classical optimization, one of
+#'   `"nmkb"`, `"Nelder-Mead"`, `"BFGS"`, `"L-BFGS-B"`, `"DEoptim"`. For the Bayesian
+#'   framework, only `"DE-MCMC"` is currently supported. If `NULL` and if a
+#'   classical optimization approach is used, defaults to `"DEoptim"` or
+#'   `"Nelder-Mead"`, depending on whether `lower/upper` are provided or not. If
+#'   `NULL` and if a Bayesian framework is used, defaults to `"DE-MCMC`.
+#'   Note that `"BFGS"` and `"L-BFGS-B"` are often unstable.
 #' @param control a list of control parameters passed to the optimizer
-#'   (see [dfoptim::nmk], [dfoptim::nmkb], [DEoptim::DEoptim], [stats::optim])
+#'   (see [dfoptim::nmkb], [DEoptim::DEoptim], [stats::optim]).
+#'   Per default, we set the `trace` control argument for [DEoptim::DEoptim] to
+#'   `FALSE`. Also, we set the `parscale` control argument for "Nelder-Mead" via
+#'   [stats::optim] to `pmax(x0, 1e-6)`.
 #' @param n_cores an integer > 0, indicating the number of CPU cores/threads to
 #'   use (at the moment, this doesn't have an effect when fitting a single
 #'   individual within the Bayesian framework).
@@ -74,13 +70,17 @@
 #'    routine with multiple starting points; if `TRUE`, then a list of all
 #'    routines is returned), `probs/n_bins` (the quantile levels and the number
 #'    of CAF bins when fitting aggregated data using the RMSE cost function).
+#' @param round_digits integer, specifying the number of decimal places for
+#'   rounding in the printed summary. Default is 3.
+#' @param x an object of type `fits_agg_dm`, `fits_ids_dm`, or `mcmc_dm`
 #'
 #' @return
 #'   * If fitting a single individual: either a `drift_dm` object with
-#'     fitted parameters (for the classical optimization framework) or
-#'     an object of type `mcmc_dm` (for the Bayesian framework)
+#'     fitted parameters and additional fit information (for the classical
+#'     optimization framework) or an object of type `mcmc_dm` (for the Bayesian
+#'     framework)
 #'   * If fitting multiple individuals separately: a `fits_ids_dm` object
-#'     containing all the individual model fits and some estimation info.
+#'     or a list of `mcmc_dm` objects, containing all the individual model fits.
 #'   * If fitting aggregated data: a `fits_agg_dm` object containing the model
 #'     itself and the raw data.
 #'   * If fitting multiple individuals hierarchically: an object of type
@@ -88,12 +88,41 @@
 #'
 #' @details
 #'
+#'
+#' ## Fitting Approaches
+#'
+#' The function supports different "approaches" to fitting data.
+#'
+#' - `"sep_c"`: This means that data is always considered `sep`arately for
+#'   each participant (if there are multiple participants) and that a
+#'   `c`lassical approach to parameter optimization is used. This means that
+#'   a standard [dRiftDM::cost_function] is minimized (e.g., the negative
+#'   log-likelihood). If users provide only a single participant or a data set
+#'   without an `ID` column, then the model is fitted just once to that data
+#'   set.
+#'
+#' - `"agg_c"`: This fits the model to aggregated data. For each individual in
+#'   a data set, summary statistics (e.g., quantiles, accuracies) are
+#'   calculated, and the model is fitted once to the average of these summary
+#'   statistics.
+#'
+#' - `"sep_b"`: Similar to `sep_b"`, although a Bayesian approach is used to
+#'   sample from the posterior distribution.
+#'
+#' - `"hier_b"`: A hierarchical approach to parameter estimation. In this case
+#'   all participants are considered simultaneously and samples are drawn both
+#'   at the individual-level and group-level.
+#'
+#' The optimizers  `"nmkb"`, `"L-BFGS-B"`, and `"DEoptim"` (for classical
+#' parameter optimization) require the specification of the `lower/upper`
+#' arguments.
+#'
+#' ## Fitting to Aggregated Data
+#'
 #' For aggregated fits, aggregated statistics are set to the model and the cost
 #' function is switched to `"rmse"`. If incompatible settings are requested,
 #' the function switches to a compatible configuration and informs the user
 #' with messages (these messages can be suppressed via the `messaging` argument).
-#' Lower and upper parameter bounds are required for `"nmkb"`, `"L-BFGS-B"`,
-#' and `"DEoptim"` optimizer.
 #'
 #' ## Specifying `lower/upper` for Classical optimization
 #'
@@ -202,12 +231,15 @@
 #' @examples
 #' ##########
 #' # Note: The following examples were trimmed for speed to ensure they run
-#' # within seconds. They do not provide realistic settings.
+#' # within seconds. They do not always provide realistic settings.
 #' ##########
-#' tic()
+#'
+#' ####
+#' # Setup
+#'
 #' # get a model for the examples (DMC with just two free parameters)
 #' model <- dmc_dm(
-#'   t_max = 1.5, dx = .01, dt = .01, # very coarse settings for speed
+#'   t_max = 1.5, dx = .01, dt = .01,
 #'   instr = '
 #'    b <!>
 #'    non_dec <!>
@@ -216,22 +248,18 @@
 #'    alpha <!>
 #'    '
 #' )
-#' # simulate two data sets under the model (for demonstration purpose)
-#' lower <- c(muc = 1, A = 0.05)
-#' upper <- c(muc = 7, A = 0.15)
-#' synth_data_prms <- simulate_data(
-#'   model, n = 200, k = 2, lower = lower, upper = upper, seed = 1
-#' )
-#' synth_data <- synth_data_prms$synth_data
+#'
+#' # get some data (the first two participants in the data set of Ulrich et al.)
+#' data <- ulrich_flanker_data[ulrich_flanker_data$ID %in% 1:2,]
+#'
 #'
 #'
 #' ####
 #' # Fit a single individual (using unbounded Nelder-Mead)
-#' one_subj <- synth_data[synth_data$ID == 1,] # data of one individual
-#' obs_data(model) <- one_subj
 #' fit <- estimate_dm(
 #'   drift_dm_obj = model,
-#'   optimizer = "nmk"
+#'   obs_data = data[data$ID == 1,],
+#'   optimizer = "Nelder-Mead"
 #' )
 #' print(fit)
 #'
@@ -239,21 +267,42 @@
 #' ####
 #' # Fit a single individual (using bounded Nelder-Mead and custom starting
 #' # values)
+#' l_u <- get_lower_upper(model)
 #' fit <- estimate_dm(
 #'   drift_dm_obj = model,
+#'   obs_data = data[data$ID == 1,],
 #'   optimizer = "nmkb",
-#'   lower = lower, upper = upper,
+#'   lower = l_u$lower, upper = l_u$upper,
 #'   start_vals = c(muc = 4, A = 0.06)
 #' )
 #' print(fit)
 #'
+#'
 #' ####
-#' # Fit multiple individuals (separately; using bounded Nelder-Mead)
+#' # Fit a single individual (using DEoptim)
+#' # Note: DEoptim always runs for 200 iterations per default; which is not
+#' # necessary here -> in this simple example, we stop it after 10 iterations
+#' # without improvement
+#' l_u <- get_lower_upper(model)
+#' set.seed(2)
 #' fit <- estimate_dm(
 #'   drift_dm_obj = model,
-#'   obs_data = synth_data, # contains data for two individuals
+#'   obs_data = data[data$ID == 1,],
+#'   optimizer = "DEoptim",
+#'   lower = l_u$lower, upper = l_u$upper,
+#'   control = list(steptol = 10)
+#' )
+#' print(fit)
+#'
+#'
+#' ####
+#' # Fit multiple individuals (separately; using bounded Nelder-Mead)
+#' l_u <- get_lower_upper(model)
+#' fit <- estimate_dm(
+#'   drift_dm_obj = model,
+#'   obs_data = data, # contains the data for two individuals
 #'   optimizer = "nmkb",
-#'   lower = lower, upper = upper
+#'   lower = l_u$lower, upper = l_u$upper,
 #' )
 #' print(fit)
 #' coef(fit)
@@ -263,19 +312,21 @@
 #' # Fit to aggregated data (using unbounded Nelder-Mead)
 #' fit <- estimate_dm(
 #'   drift_dm_obj = model,
-#'   obs_data = synth_data, # contains data for two individuals
-#'   optimizer = "nmk",
-#'   approach = "agg"
+#'   obs_data = data, # contains data for two individuals
+#'   optimizer = "Nelder-Mead",
+#'   approach = "agg_c"
 #' )
 #' print(fit)
 #' coef(fit)
 #'
 #'
 #' ###
+#' # EXPERIMENTAL
 #' # Fit a single individual (using DE-MCMC; Bayesian; custom priors)
 #' fit <- estimate_dm(
 #'   drift_dm_obj = model,
-#'   optimizer = "DE-MCMC",
+#'   obs_data = data[data$ID == 1,],
+#'   approach = "sep_b",
 #'   burn_in = 2, # this is usually way higher
 #'   samples = 2, # this too
 #'   n_chains = 10, # this too
@@ -287,22 +338,22 @@
 #'
 #'
 #' ###
+#' # EXPERIMENTAL
 #' # Fit multiple individuals (using DE-MCMC; hierarchical Bayesian)
 #' fit <- estimate_dm(
 #'   drift_dm_obj = model,
-#'   obs_data = synth_data, # contains data for two individuals
-#'   optimizer = "DE-MCMC",
+#'   approach = "hier_b",
+#'   obs_data = data, # contains data for two individuals
 #'   burn_in = 2, # this is usually way higher
 #'   samples = 2, # this too
 #'   n_chains = 10 # this too
 #' )
 #' print(fit)
 #' coef(fit)
-#' toc()
 #'
 #' @export
 estimate_dm <- function(drift_dm_obj, obs_data = NULL,
-                        approach = NULL, framework = NULL, optimizer = NULL,
+                        approach = NULL, optimizer = NULL,
                         control = list(), n_cores = 1,
                         parallelization_strategy = NULL, lower = NULL,
                         upper = NULL, start_vals = NULL, means = NULL,
@@ -382,45 +433,15 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
 
   # check the approach settings and set default values
   if (is.null(approach)) {
-    approach = "NULL"
+    approach = "sep_c"
   }
   approach <- match.arg(
-    approach, choices = c("NULL", "separately", "aggregated", "hierarchical")
+    approach, choices = c("sep_c", "sep_b", "agg_c", "hier_b")
   )
-
-  # check the framework and set default values
-  if (is.null(framework) & optimizer != "DE-MCMC") {
-    framework = "classical"
-  } else if (optimizer == "DE-MCMC") {
-    framework = "bayesian"
-  }
-  framework <- match.arg(
-    framework, choices = c("classical", "bayesian")
-  )
-
-  # check the combinations (currently, not everything is implemented)
-  if (approach %in% c("separately", "aggregated")) {
-    if (messaging) {
-      message("Approach '", approach, "' requested, using the 'classical' ",
-              "estimation framework")
-    }
-    framework = "classical"
-  }
-  if (approach == "hierarchical") {
-    if (messaging) {
-      message("Approach '", approach, "' requested, using the 'bayesian' ",
-              "estimation framework")
-    }
-    framework = "bayesian"
-  }
-
 
   # check the optimizer or use default
   requ_optimizer = NULL
-  if (approach == "hierarchical") {
-    requ_optimizer = "DE-MCMC"
-  }
-  if (framework == "bayesian") {
+  if (approach %in% c("hier_b", "sep_b")) {
     requ_optimizer = "DE-MCMC"
   }
 
@@ -430,29 +451,33 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
       if (!is.null(lower) | !is.null(upper)) {
         optimizer = "DEoptim"
       } else {
-        optimizer = "nmk"
+        optimizer = "Nelder-Mead"
       }
     } else {
       optimizer = requ_optimizer
     }
-  } else {
-    # if the user did specify an optimizer, maybe override it
-    if (!is.null(requ_optimizer) && !identical(requ_optimizer, optimizer)) {
-      if (messaging) {
-        message("The provided optimizer ('", optimizer, "') is not compatible ",
-                "with the specified approach ('", approach, "') and framework ",
-                "('", framework, "'). Using the following optimizer instead: '",
-                requ_optimizer, "'.")
-      }
-    optimizer = requ_optimizer
-    }
   }
 
-  # check if the optimizer is implemented
+  # check if the optimizer is actually implemented
   optimizer <- match.arg(
-    optimizer, choices = c("nmk", "nmkb", "BFGS", "L-BFGS-B", "DEoptim",
+    optimizer, choices = c("Nelder-Mead", "nmkb", "BFGS", "L-BFGS-B", "DEoptim",
                            "DE-MCMC")
   )
+
+  # if there is a required optimizer not matching with the input,
+  # inform the user
+  if (!is.null(requ_optimizer) && !identical(requ_optimizer, optimizer)) {
+    if (messaging) {
+      message("The requested optimizer ('", optimizer, "') is not compatible ",
+              "with the specified approach ('", approach, "'). Using the ",
+              "following optimizer instead: '", requ_optimizer, "'.")
+    }
+    optimizer = requ_optimizer
+  } else {
+    if (messaging) {
+      message("Using optimizer '", optimizer, "'.")
+    }
+  }
 
   # check n_cores
   if (!is.numeric(n_cores) || length(n_cores) != 1 || n_cores <= 0) {
@@ -462,14 +487,14 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
   # check seed input
   if (!is.null(seed)) {
     if (!is.numeric(seed) | length(seed) != 1)
-      stop ("seed must be a single numeric")
+      stop("seed must be a single numeric")
     withr::local_preserve_seed()
     set.seed(seed)
   }
 
   # now handle/dispatch the separate strategies ####
-  # aggregated ####
-  if (approach == "aggregated") {
+  # aggregated - classical ####
+  if (approach == "agg_c") {
     cost_fun = cost_function(drift_dm_obj)
     if (cost_fun != "rmse") {
       cost_function(drift_dm_obj) <- "rmse"
@@ -485,7 +510,7 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
     # aggregate the data
     data_available = !(is.null(drift_dm_obj$obs_data) &
       is.null(drift_dm_obj$stats_agg))
-    if (messaging & data_available) {
+    if (messaging && data_available) {
       message("Aggregated data has been set to the model. The previously ",
               "attached data has been overridden.")
     } else if (messaging) {
@@ -495,8 +520,14 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
       drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data, probs = dots$probs,
       n_bins = dots$n_bins
     )
+    if (messaging) {
+      message(
+        "Fitting the model to aggregated data across participants. The ",
+        "returned object will of type 'fits_agg_dm'."
+      )
+    }
 
-    # then call the estimation function for a single model
+    # then call the estimation function as if for a single model
     drift_dm_obj <- estimate_classical(
       drift_dm_obj = drift_dm_obj, optimizer = optimizer,
       start_vals = start_vals, return_runs = dots$return_runs,
@@ -511,38 +542,34 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
   }
 
 
-  # interim: handle the NULL (default) setting (can lead to fitting just
-  # one participant or multiple participants separately)
-  if (approach == "NULL") {
-    if (which_data == "obs_data") {
-      if (!("ID" %in% names(obs_data))) {
-        approach <- "one_subj"
+  # handle the classical ways of fitting a single or multiple participants
+  toggle <- ""
+  if (approach == "sep_c" || approach == "sep_b") {
+    if (identical(which_data, "obs_data")) {
+      n_ids <- if ("ID" %in% names(obs_data)) length(unique(obs_data$ID)) else 0L
+      if (n_ids <= 1L) {
         obs_data(drift_dm_obj) <- obs_data
-        if (messaging) {
-          message(
-            "No 'ID' column found in the supplied 'obs_data'. Attaching the ",
-            "data to the model assuming a single-participant setup."
-          )
-        }
+        toggle <- "single"
       } else {
-        if (framework == "classical") {
-          approach <- "separately"
-        } else {
-          approach <- "hierarchical"
-        }
+        toggle <- "multi"
       }
-    } else { # which_data == "model"
-      approach <- "one_subj"
+    } else {
+      toggle <- "single"
     }
   }
 
-  # handle the original case: Fit a model to just one participant
-  # one_subj ####
-  if (approach == "one_subj") {
-    if (messaging) {
-      message("Fitting the model to the data of one participant")
+
+  # handle the rather original case: Fit a model to just one participant
+  # single (only for approach == "sep_c" or "sep_b", see above) ####
+  if (toggle == "single") {
+    if (messaging && approach == "sep_c") {
+      message(
+        "Fitting a single data set/participant (cost function: '",
+        drift_dm_obj$cost_function, "'). The returned object will be the model ",
+        "itself."
+      )
     }
-    if (framework == "classical") {
+    if (approach == "sep_c") {
       drift_dm_obj <- estimate_classical(
         drift_dm_obj = drift_dm_obj, optimizer = optimizer,
         start_vals = start_vals, return_runs = dots$return_runs,
@@ -552,73 +579,153 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
       return(drift_dm_obj)
     }
 
-    if (framework == "bayesian") {
+    if (messaging && approach == "sep_b") {
+      message(
+        "Fitting a single data set/participant using the Bayesian framework. ",
+        "The result will be a fit object of type 'mcmc_dm'"
+      )
+    }
+    if (approach == "sep_b") {
       mcmc_out = estimate_bayesian(
         drift_dm_obj = drift_dm_obj, sampler = optimizer,
         n_chains = n_chains, burn_in = burn_in, samples = samples,
         prob_migration = prob_migration, prob_re_eval = prob_re_eval,
-        progress = dots$progress, means = means, sds = sds,
+        verbose = dots$verbose, means = means, sds = sds,
         lower = lower, upper = upper, shapes = shapes, rates = rates
       )
       return(mcmc_out)
     }
   }
 
-  # continue with hierarchical or separately (both require a valid obs_data
-  # input)
-  if (which_data != "obs_data") {
-    stop ("The specified approach ('", approach, "') requires observed data ",
-          "via the 'obs_data' argument")
-  }
-  if (!("ID" %in% colnames(obs_data))) {
-    stop("No 'ID' column found in 'obs_data'")
+  # handle the separate case: Iterate over multiple participants
+  # multi (only for approach == "sep_c" or "sep_b", see above) ####
+  if (toggle == "multi") {
+    if (messaging && approach == "sep_c") {
+      message(
+        "Fitting the model separately to multiple participants (cost function:",
+        "'", drift_dm_obj$cost_function, "'). The result will be a fit object ",
+        "of type 'fits_ids_dm'"
+      )
+    }
+    if (!is.null(dots$return_runs) && approach == "sep_c") {
+      warning(
+        "The argument 'return_runs' is currently not supported for ",
+        "'approach = sep_c'."
+      )
+    }
+    if (approach == "sep_c") {
+      all_fits = estimate_classical_wrapper(
+        drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data,
+        parallelization_strategy = parallelization_strategy,
+        progress = dots$progress, start_vals = start_vals,
+        optimizer = optimizer, lower = lower, upper = upper,
+        verbose = dots$verbose, n_cores = n_cores, control = control,
+        round_digits = dots$round_digits
+      )
+    }
+
+    if (messaging && approach == "sep_b") {
+      message(
+        "Fitting the model separaetely to multiple participants using the ",
+        "Bayesian framework. For now, the result will be a list of 'mcmc_dm'",
+        "objects"
+      )
+    }
+    if (approach == "sep_b") {
+
+      # prepare cluster
+      cl <- NULL
+      if (n_cores > 1) {
+        cl <- parallel::makeCluster(n_cores)
+        parallel::clusterSetRNGStream(cl, iseed = seed)
+        parallel::clusterExport(
+          cl,
+          varlist = c("estimate_bayesian"),
+          envir = environment()
+        )
+      }
+
+      # prepare progress
+      if (!is.null(dots$progress) && dots$progress == 0) {
+        op <- pbapply::pboptions(type = "none")  # respect the user settings
+        withr::defer(pbapply::pboptions(type = op$type))
+      }
+
+      # helper function for easier call
+      run_estimation <- function(args, cl = NULL) {
+        # one iteration for a single ID
+        FUN <- function(one_id, args) {
+          # set the data and delete from args
+          obs_data(args$drift_dm_obj) <-
+            args$obs_data[args$obs_data$ID == one_id,]
+          args$obs_data <- NULL
+          # run the Bayesian estimation
+          do.call(estimate_bayesian, args)
+        }
+
+        # Use parallel if cluster provided
+        ids = unique(args$obs_data$ID)
+        if (!is.null(cl)) {
+          result <- pbapply::pblapply(ids, FUN, args = args, cl = cl)
+        } else {
+          result <- pbapply::pblapply(ids, FUN, args = args)
+        }
+        names(result) <- ids
+        return(result)
+      }
+
+      # prepare the args
+      args = list(
+        obs_data = obs_data, drift_dm_obj = drift_dm_obj, sampler = optimizer,
+        n_chains = n_chains, burn_in = burn_in,
+        samples = samples, prob_migration = prob_migration,
+        prob_re_eval = prob_re_eval, verbose = dots$verbose, means = means,
+        sds = sds, lower = lower, upper = upper, shapes = shapes, rates = rates
+      )
+
+      # run everything
+      tryCatch({
+        all_fits <- run_estimation(args, cl)
+      }, finally = {
+        if (!is.null(cl)) parallel::stopCluster(cl)
+      })
+    }
+    return(all_fits)
   }
 
-  # now call the Bayesian-hierarchical estimation approach
-  # hierarchical ####
-  if (approach == "hierarchical") {
 
-    if (length(unique(obs_data$ID)) <= 1) {
+
+  # finally, handle the hierarchical case ####
+  if (approach == "hier_b") {
+
+    if (which_data != "obs_data") {
+      stop("The specified approach ('", approach, "') requires observed data ",
+           "via the 'obs_data' argument")
+    }
+    if (!("ID" %in% colnames(obs_data))) {
+      stop("No 'ID' column found in 'obs_data'")
+    }
+    if (length(unique(obs_data$ID)) <= 1L) {
       stop("The 'ID' column provides only one participant. A hierarchical",
            " approach doesn't make sense in this case.")
     }
-    if (messaging) {
-      message("Fitting the model hierarchically")
+    cost_fun = cost_function(drift_dm_obj)
+    if (cost_fun != "neg_log_like") {
+      cost_function(drift_dm_obj) <- "neg_log_like"
+      if (messaging) message("Changing the 'cost_function' to 'neg_log_like'")
     }
-
+    if (messaging) {
+      message("Fitting the model hierarchically using a Bayesian framework. ",
+              "The result will be a fit object of type 'mcmc_dm'")
+    }
     mcmc_out = estimate_bayesian(
       drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data, sampler = optimizer,
       n_chains = n_chains, burn_in = burn_in, samples = samples,
       prob_migration = prob_migration, prob_re_eval = prob_re_eval,
-      progress = dots$progress, n_cores = n_cores, means = means, sds = sds,
+      verbose = dots$verbose, n_cores = n_cores, means = means, sds = sds,
       lower = lower, upper = upper, shapes = shapes, rates = rates
     )
     return(mcmc_out)
-  }
-
-  # finally, handle the last case
-  # separately ####
-  if (approach == "separately") {
-    if (messaging) {
-      message("Fitting the model separately for each participant")
-    }
-    if (!is.null(dots$return_runs)) {
-      if (messaging) {
-        message(
-          "The argument `return_runs` is ignored for ",
-          "`'approach = 'separately'`."
-        )
-      }
-    }
-    all_fits = estimate_classical_wrapper(
-      drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data,
-      parallelization_strategy = parallelization_strategy,
-      progress = dots$progress, start_vals = start_vals,
-      optimizer = optimizer, lower = lower, upper = upper,
-      verbose = dots$verbose, n_cores = n_cores, control = control,
-      round_digits = dots$round_digits
-    )
-    return(all_fits)
   }
 }
 
@@ -635,15 +742,15 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
 #' log-likelihood) using classical (non-Bayesian) optimization routines.
 #'
 #' Available optimizers include:
-#' * Nelder-Mead (bounded or unbounded): `"nmk"`, `"nmkb"` (via [dfoptim::nmk()]
-#'  and [dfoptim::nmkb()])
+#' * Nelder-Mead (bounded or unbounded): `"Nelder-Mead"`, `"nmkb"`
+#'   (via [stats::optim()] and [dfoptim::nmkb()], respectively)
 #' * BFGS and L-BFGS-B (via [stats::optim()])
 #' * Differential Evolution (via [DEoptim::DEoptim()])
 #'
 #'
 #' @param drift_dm_obj an object inheriting from [dRiftDM::drift_dm].
 #' @param optimizer a character string specifying the optimizer to use.
-#'   Must be one of `"nmk"`, `"nmkb"`, `"BFGS"`, `"L-BFGS-B"`, or `"DEoptim"`.
+#'   Must be one of `"Nelder-Mead"`, `"nmkb"`, `"BFGS"`, `"L-BFGS-B"`, or `"DEoptim"`.
 #' @param start_vals a set of starting values. Must be compatible with
 #' [dRiftDM::get_parameters_smart()]. If `start_vals`
 #' is not `NULL`, the function tries to set the provided parameter values to
@@ -712,17 +819,25 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     stop("drift_dm_obj is not of type drift_dm")
   }
 
+  cost_function = cost_function(drift_dm_obj)
+  no_raw = cost_function == "neg_log_like" && is.null(drift_dm_obj$obs_data)
+  no_agg = cost_function == "rmse" &&
+    (is.null(drift_dm_obj$stats_agg) || is.null(drift_dm_obj$stats_agg_info))
+  if (no_raw || no_agg) {
+    warning("No data set, passing back unmodified object")
+    return(drift_dm_obj)
+  }
 
   optimizer <- match.arg(
     optimizer,
-    choices = c("nmkb", "nmk", "BFGS", "L-BFGS-B", "DEoptim")
+    choices = c("nmkb", "Nelder-Mead", "BFGS", "L-BFGS-B", "DEoptim")
   )
 
   # continue checks/defaults
   if (is.null(verbose)) {
     verbose = 1
   }
-  if (length(verbose) != 1 || verbose < 0) {
+  if (length(verbose) != 1 || !is.numeric(verbose) || verbose < 0) {
     stop("verbose must be numeric >= 0")
   }
 
@@ -857,7 +972,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
 
   if (verbose >= 1) {
     add = ""
-    if (optimizer %in% c("nmkb", "nmk", "L-BFGS-B", "BFGS")) {
+    if (optimizer %in% c("nmkb", "Nelder-Mead", "L-BFGS-B", "BFGS")) {
       add = "using the current parameter values of the model"
     }
     message("Starting optimizer '", optimizer, "' ", add)
@@ -873,15 +988,19 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
       verbose = verbose, round_digits = round_digits
     )
     n_eval <- out$feval
-
   }
 
-  if (optimizer == "nmk") {
-    out <- dfoptim::nmk(
-      par = coef(drift_dm_obj), fn = goal_wrapper, control = control,
-      drift_dm_obj = drift_dm_obj, verbose = verbose, round_digits = round_digits
+  if (optimizer == "Nelder-Mead") {
+    x0 <- coef(drift_dm_obj)
+    if (is.null(control$parscale)) {
+      control$parscale = pmax(x0, 1e-6)
+    }
+    out <- stats::optim(
+      par = x0, fn = goal_wrapper, method = optimizer,
+      control = control, drift_dm_obj = drift_dm_obj, verbose = verbose,
+      round_digits = round_digits
     )
-    n_eval <- out$feval
+    n_eval <- out$counts
   }
 
   if (optimizer == "L-BFGS-B") {
@@ -905,6 +1024,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     convergence <- out$convergence
     prms <- out$par
     message <- out$message
+    n_iter <- NA_real_
   }
 
   if (optimizer == "DEoptim") {
@@ -927,8 +1047,9 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     if (is.null(control$trace)) {
       control$trace = FALSE
     }
-    de_controls <- DEoptim::DEoptim.control(cluster = cl)
-    de_controls <- utils::modifyList(de_controls, control)
+    de_controls <- do.call(
+      DEoptim::DEoptim.control, args = c(list(cluster = cl), control)
+    )
 
 
     # now run the optimization (with tryCatch to avoid that clusters are not
@@ -946,9 +1067,34 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     )
     n_eval <- out$optim$nfeval
     n_iter <- out$optim$iter
-    convergence <- NA
     prms <- out$optim$bestmem
-    message <- NULL
+    steptol <- de_controls$steptol
+    itermax <- de_controls$itermax
+    VTR <- de_controls$VTR
+
+    # figure out convergence
+    # info and message (default)
+    convergence = NA_integer_
+    message = "DEoptim had to run for the maximum number of iterations"
+
+    # possible convergence via VTR or steptol
+    vtr_on <- !is.infinite(VTR)
+    stall_on <- steptol < itermax
+    if (vtr_on || stall_on) {
+      convergence = 0L
+      message = "Successful convergence"
+
+      # override if it actually wasn't successful
+      if (n_iter == itermax) {
+        convergence = 1L
+        message = NULL
+        if (vtr_on) message = c(message, "DEoptim did not reach VTR")
+        if (stall_on) {
+          message = c(message, "DEoptim did not meet the stall criterion")
+        }
+      }
+      message <- paste(message, collapse = " + ")
+    }
   }
 
   # continue with some exit messages and return value
@@ -956,24 +1102,32 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
   if (is.na(convergence)) conv_flag = NA
   if (!is.na(convergence) && convergence > 0) {
     warning(
-      "The optimization routine did not converge successfully (convergence message: ",
-      message, "). Treat the estimated parameters with caution."
+      "The optimization routine did not converge successfully (convergence ",
+      "message: ", message, "). Treat the estimated parameters with some caution."
     )
     conv_flag = FALSE
   }
 
   if (verbose >= 1) {
-    # special treatment of n_eval as vector (occurs for BFGS)
+    # special treatment of n_eval as vector (occurs for optim)
+    n_eval = stats::na.omit(n_eval)
     if (length(n_eval) > 1) {
       message(
         "Optimization routine exited after ", n_eval[1], " function ",
         "evaluations and ", n_eval[2], " gradient evaluations\n"
       )
     } else {
-      message(
-        "Optimization routine exited after ", n_eval, " function ",
-        "evaluations"
-      )
+      if (is.na(n_iter)) {
+        message(
+          "Optimization routine exited after ", n_eval, " function ",
+          "evaluations"
+        )
+      } else {
+        message(
+          "Optimization routine exited after ", n_iter, " iterations."
+        )
+      }
+
     }
   }
 
@@ -992,10 +1146,9 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
 
   # finally, attach some infos for downstream processing
   drift_dm_obj$estimate_info = list(
-    conv_flag = conv_flag, optimizer = optimizer, message = message
+    conv_flag = conv_flag, optimizer = optimizer, message = message,
+    n_iter = n_iter, n_eval = n_eval
   )
-
-
   return(drift_dm_obj)
 }
 
@@ -1137,6 +1290,7 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
   cl <- NULL
   if (parallelization_strategy == 1 & n_cores > 1) {
     cl <- parallel::makeCluster(n_cores)
+    parallel::clusterSetRNGStream(cl, iseed = dots$seed)
     parallel::clusterExport(
       cl,
       varlist = c("estimate_classical"),
@@ -1162,21 +1316,17 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
     all_fits <- run_estimation(
       list_of_models, n_cores = n_cores, dots = dots, cl = cl
     )
-  }, error = function(e){
-    stop(conditionMessage(e))
   }, finally = {
     if (!is.null(cl)) parallel::stopCluster(cl)
   })
 
   # Check convergence: did some of the fit runs not converge?
   not_conv = sapply(all_fits, \(x) isFALSE(x$estimate_info$conv_flag))
-  not_conv = not_conv[not_conv] # get those that did not converge
+  messages = lapply(all_fits, \(x) x$estimate_info$message)
 
-  messages = character(0)
-  ids = character(0)
-  if (length(not_conv) >= 1) {
-    ids = names(not_conv)
-    messages = sapply(ids, \(x) all_fits[[x]]$estimate_info$message)
+  if (any(not_conv)) {
+    ids = names(not_conv[not_conv])
+    not_conv_msg = messages[not_conv]
     messages_formatted = paste("-", unique(messages))
     add = ""
     n_ids = length(ids)
@@ -1184,10 +1334,10 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
       n_ids = drift_dm_n_id_trunc_warn()
       add = ", (and more)"
     }
-    which_ids <- paste(paste(ids[1:n_ids], collapse = ", "), add)
+    which_ids <- paste(paste(ids[1:n_ids], collapse = ", "), add, sep = "")
     warning(
       "The optimization routine did not converge successfully for the ",
-      "following IDs: ", which_ids, "\n", "Summary of messages\n",
+      "following IDs: ", which_ids, "\n", "Summary of messages:\n",
       paste(messages_formatted, collapse = "\n")
     )
   }
@@ -1196,7 +1346,7 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
   drift_dm_fit_info = list(
     drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data_ids,
     optimizer = dots$optimizer,
-    conv_info = list(messages = messages, ids = ids)
+    conv_info = list(not_conv = not_conv, messages = messages)
   )
   fits_ids <- list(drift_dm_fit_info = drift_dm_fit_info, all_fits = all_fits)
   class(fits_ids) <- "fits_ids_dm"
@@ -1215,7 +1365,7 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
 #'
 #' @param drift_dm_obj a model object (of class `drift_dm`) to which the
 #'  aggregated data will be attached.
-#' @param obs_data a data.frame containing individual-level observations.
+#' @param obs_data_ids a data.frame containing individual-level observations.
 #'  Must include an `ID` column identifying participants.
 #' @param ... optional arguments (currently supported are `n_bins` and
 #' `probs` which are relevant when using the `rmse` cost function)

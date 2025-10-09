@@ -15,7 +15,7 @@ plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
       xlim = xlim, ylim = ylim, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
       cex.main = dots$cex.main, main = dots$main
     )
-    abline(h = 0, col = dots$horiz.col, lwd = dots$horiz.lwd)
+    graphics::abline(h = 0, col = dots$horiz.col, lwd = dots$horiz.lwd)
   }
 
   # Plot each condition's traces
@@ -31,8 +31,12 @@ plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
   }
 
   b_vals <- attr(traces_obj, "b_vals")
-  graphics::points(b_vals ~ t_vec, type = "l", col = col_b)
-  graphics::points(-b_vals ~ t_vec, type = "l", col = col_b)
+  graphics::points(
+    b_vals ~ t_vec, type = "l", col = col_b, lwd = dots$b.lwd, lty = dots$b.lty
+  )
+  graphics::points(
+    -b_vals ~ t_vec, type = "l", col = col_b, lwd = dots$b.lwd, lty = dots$b.lty
+  )
 }
 
 
@@ -115,7 +119,38 @@ plot.traces_dm_list <- function(x, ..., conds = NULL, col = NULL, col_b = NULL,
 
   t_vec <- attr(x, "t_vec")
   dots <-  list(...)
+
   dots <- set_default_arguments(dots = dots, conds, NULL)
+
+  # for backward compatibility (remove in the future)
+  if (!is.null(dots$lwd)) {
+    dots$b.lwd = dots$lwd
+    dots$pred.lwd = dots$lwd
+  }
+  if (!is.null(dots$lty)) {
+    dots$b.lty = dots$lty
+    dots$pred.lty = dots$lty
+    lifecycle::deprecate_warn(
+      "0.3.0",
+      "dRiftDM::plot.traces_dm_list(lty = )",
+      details = "Please use the optional arguments `b.lty` and `pred.lty`"
+    )
+  }
+  if (!is.null(dots$type)) {
+    lifecycle::deprecate_warn(
+      "0.3.0",
+      "dRiftDM::plot.traces_dm_list(type = )"
+    )
+  }
+  if (!is.null(dots$legend_pos)) {
+    dots$legend.pos = dots$legend_pos
+    lifecycle::deprecate_warn(
+      "0.3.0",
+      "dRiftDM::plot.traces_dm_list(legend_pos = )",
+      details = "Please use the optional `legend.pos` argument instead"
+    )
+  }
+
 
   # Set defaults for colors, x/y limits, and legend
   col <- set_default_colors(colors = col, n = length(all_conds))
@@ -191,7 +226,7 @@ plot.traces_dm <- function(x, ...) {
 #' response patterns across conditions or participants.
 #'
 #' @param x an object of `type = "cafs"`, typically returned by
-#'   [dRiftDM::calc_stats(..., type = "cafs")].
+#'   [dRiftDM::calc_stats()].
 #' @param id a numeric or character, specifying the ID of a single participant
 #'   to plot. If `length(id) > 1`, `plot.cafs()` is called recursively for
 #'   each entry. Each `id` must match an entry in the `ID` column of `x`.
@@ -199,8 +234,8 @@ plot.traces_dm <- function(x, ...) {
 #'   Defaults to all available conditions.
 #' @param col a character vector specifying colors for each condition. If a
 #'   single color is provided, it is repeated for all conditions.
-#' @param xlim,ylim numeric vectors of length 2, specifying the x- and y-axis
-#'   limits.
+#' @param xlim a numeric vector of length 2, specifying the x-axis limits.
+#' @param ylim a numeric vector of length 2, specifying the y-axis limits.
 #' @param xlab,ylab character strings for the x- and y-axis labels.
 #' @param interval_obs,interval_pred logicals; if `TRUE` and `x` contains a
 #' column named `Estimate`, error bars for observed data and shaded contours
@@ -342,7 +377,7 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
       err_y0 <- df_lower[[caf_name]]
       err_y1 <- df_upper[[caf_name]]
       err_x  <- sub_dat_orig$Bin
-      keep <- abs(err_y1 - err_y0) > range(ylim) * dots$err.eps
+      keep <- abs(err_y1 - err_y0) > diff(ylim) * dots$err.eps
 
       graphics::arrows(
         x0 = err_x[keep], y0 = err_y0[keep], x1 = err_x[keep], y1 = err_y1[keep],
@@ -375,9 +410,11 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
       x_poly <- c(df_lower$Bin, rev(df_upper$Bin))
       y_poly <- c(df_lower[[caf_name]], rev(df_upper[[caf_name]]))
 
-      polygon(x = x_poly, y = y_poly,
-              col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
-              border = NA)
+      graphics::polygon(
+        x = x_poly, y = y_poly,
+        col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
+        border = NA
+      )
     }
 
     graphics::points(
@@ -420,7 +457,7 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
 #' response patterns across conditions or participants.
 #'
 #' @param x an object of `type = "quantiles"`, typically returned by
-#'   [dRiftDM::calc_stats(..., type = "quantiles")].
+#'   [dRiftDM::calc_stats()].
 #' @inheritParams plot.cafs
 #' @param dv a character string indicating the dependent variable to plot.
 #'   Defaults to the quantiles for the upper boundary.
@@ -561,7 +598,7 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       err_x0 <- df_lower[[dv]]
       err_x1 <- df_upper[[dv]]
       err_y  <- sub_dat_orig$Prob
-      keep <- abs(err_x1 - err_x0) > range(ylim) * dots$err.eps
+      keep <- abs(err_x1 - err_x0) > diff(ylim) * dots$err.eps
 
       graphics::arrows(
         y0 = err_y[keep], x0 = err_x0[keep], y1 = err_y[keep], x1 = err_x1[keep],
@@ -595,7 +632,7 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       y_poly <- c(df_lower$Prob, rev(df_upper$Prob))
       x_poly <- c(df_lower[[dv]], rev(df_upper[[dv]]))
 
-      polygon(x = x_poly, y = y_poly,
+      graphics::polygon(x = x_poly, y = y_poly,
               col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
               border = NA)
     }
@@ -640,7 +677,7 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 #' for assessing model fit or exploring the model behavior
 #'
 #' @param x an object of `type = "delta_funs"`, typically returned by
-#'   [dRiftDM::calc_stats(..., type = "delta_funs")].
+#'   [dRiftDM::calc_stats()].
 #' @inheritParams plot.cafs
 #' @param dv a character vector indicating the delta function(s) to plot.
 #'   Defaults to all columns in `x` that begin with `"Delta_"`.
@@ -811,7 +848,7 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       err_x0 <- df_lower[[uv[idx]]]
       err_x1 <- df_upper[[uv[idx]]]
       err_y  <- sub_obs_orig[[dv[idx]]]
-      keep <- abs(err_x1 - err_x0) > range(ylim) * dots$err.eps
+      keep <- abs(err_x1 - err_x0) > diff(ylim) * dots$err.eps
 
       graphics::arrows(
         y0 = err_y[keep], x0 = err_x0[keep], y1 = err_y[keep], x1 = err_x1[keep],
@@ -821,7 +858,7 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       err_y0 <- df_lower[[dv[idx]]]
       err_y1 <- df_upper[[dv[idx]]]
       err_x  <- sub_obs_orig[[uv[idx]]]
-      keep <- abs(err_y1 - err_y0) > range(ylim) * dots$err.eps
+      keep <- abs(err_y1 - err_y0) > diff(ylim) * dots$err.eps
 
 
       graphics::arrows(
@@ -862,7 +899,7 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       x_poly <- c(uv_lower[1], uv_orig, uv_upper[n], rev(uv_orig))
       y_poly <- c(dv_orig[1], dv_lower, dv_orig[n], rev(dv_upper))
 
-      polygon(x = x_poly, y = y_poly,
+      graphics::polygon(x = x_poly, y = y_poly,
               col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
               border = NA)
     }
@@ -909,7 +946,7 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 #' assessing model fit or exploring model behavior.
 #'
 #' @param x an object of `type = "densities"`, typically returned by
-#'   [dRiftDM::calc_stats(..., type = "densities")].
+#'   [dRiftDM::calc_stats()].
 #' @inheritParams plot.cafs
 #' @param obs_stats a character vector specifying which observed statistics to
 #'   plot. Options include `"hist"` for histograms and `"kde"` for kernel
@@ -925,12 +962,14 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 #' (default: colorized). Distributions associated with the upper boundary are
 #' shown with values > 0 (i.e., the upper part of the plot), distributions
 #' associated with the lower boundary are shown with values < 0 (i.e., the lower
-#' part of the plot)
+#' part of the plot).
 #'
 #' Axis limits, colors, and styling options can be customized via `...`. If
 #' interval information is provided (i.e., the column `Estimate` exists in `x`),
 #' error bars or shading will be added, depending on the type of
 #' statistic.
+#'
+#' A legend is only displayed if there is predicted data.
 #'
 #' @returns
 #' Returns `NULL` invisibly. The function is called for its side effect of
@@ -938,22 +977,24 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 #'
 #' @examples
 #' # Example 1: Predicted densities only -------------------------------------
-#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+#' a_model <- dmc_dm()
 #' dens <- calc_stats(a_model, type = "densities")
-#' plot(dens)
+#' plot(dens, xlim = c(0, 1))
+#' plot(dens, xlim = c(0, 1), conds = "comp")
+#'
 #'
 #' # Example 2: Observed and predicted densities -----------------------------
 #' obs_data(a_model) <- dmc_synth_data
 #' dens <- calc_stats(a_model, type = "densities")
-#' plot(dens)
+#' plot(dens, xlim = c(0, 1), conds = "comp", col = "blue")
 #'
 #' # Example 3: Observed densities only --------------------------------------
 #' dens <- calc_stats(dmc_synth_data, type = "densities")
-#' plot(dens)
+#' plot(dens, conds = "comp", obs.hist.col = "green", alpha = 1)
 #'
 #' # Example 4: With interval estimates --------------------------------------
 #' dens <- calc_stats(dmc_synth_data, type = "densities", resample = TRUE)
-#' plot(dens, interval_obs = TRUE)
+#' plot(dens, interval_obs = TRUE, conds = "comp")
 #'
 #' @export
 plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
@@ -1007,7 +1048,7 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
   y_r <- c(-max_dens[1] - diff(max_dens) / 5, max_dens[2] + diff(max_dens) / 5)
   ylim <- ylim %||% y_r
 
-  xlim <- xlim %||% range(densities$Time) / 3
+  xlim <- xlim %||% range(densities$Time)
 
   # Set colors
   col <- set_default_colors(colors = col, n = length(all_conds))
@@ -1045,7 +1086,7 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
     ylim = ylim, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
     cex.main = dots$cex.main, main = dots$main
   )
-  abline(h = 0, col = dots$horiz.col, lwd = dots$horiz.lwd)
+  graphics::abline(h = 0, col = dots$horiz.col, lwd = dots$horiz.lwd)
 
   # Determine original vs interval data
   if ("Estimate" %in% names(densities)) {
@@ -1083,7 +1124,7 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
           err_y0 <- sign*df_lower[[dv[i]]]
           err_y1 <- sign*df_upper[[dv[i]]]
           err_x  <- df_lower[["Time"]]
-          keep <- abs(err_y1 - err_y0) > range(ylim) * dots$err.eps
+          keep <- abs(err_y1 - err_y0) > diff(ylim) * dots$err.eps
 
           graphics::arrows(
             y0 = err_y0[keep], x0 = err_x[keep], y1 = err_y1[keep],
@@ -1099,7 +1140,7 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
           x_poly <- c(x_orig, rev(x_orig))
           y_poly <- c(y_orig, numeric(nrow(df_orig)))
 
-          polygon(x = x_poly, y = y_poly,
+          graphics::polygon(x = x_poly, y = y_poly,
                   col = grDevices::adjustcolor(dots$obs.hist.col[idx],
                                                alpha.f = dots$alpha),
                   border = NA)
@@ -1142,7 +1183,7 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
         x_poly <- c(err_x, rev(err_x))
         y_poly <- c(err_y0, rev(err_y1))
 
-        polygon(x = x_poly, y = y_poly,
+        graphics::polygon(x = x_poly, y = y_poly,
                 col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
                 border = NA)
       }
@@ -1159,7 +1200,6 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
 
   # Legend (condition)
   dots$pred.lty <- if (!any(densities$Source == "pred")) NULL else dots$pred.lty
-  dots$obs.pch <- if (!any(densities$Source == "obs")) NULL else dots$obs.pch
 
   if (is.character(dots$legend.pos)) {
     x_leg <- dots$legend.pos
@@ -1169,7 +1209,7 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
     y_leg <- dots$legend.pos[2]
   }
 
-  if (all(!is.na(dots$legend)) && length(dots$legend) >= 1) {
+  if (!is.null(dots$pred.lty) && !anyNA(dots$legend) && length(dots$legend) >= 1) {
     graphics::legend(
       x = x_leg, y = y_leg, legend = dots$legend,
       col = col, lwd = dots$pred.lwd, lty = dots$pred.lty,
@@ -1179,7 +1219,8 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
     )
   }
 
-  # Legend (lines, if obs_data is represented as a line)
+  # Legend (lines, if obs_data is represented as a line and both
+  # predicted and observed densities are present)
   if (is.character(dots$lines.legend.pos)) {
     x_leg <- dots$lines.legend.pos
     y_leg <- NULL
@@ -1188,16 +1229,19 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
     y_leg <- dots$lines.legend.pos[2]
   }
 
-  dots[["lines.legend"]] = dots[["lines.legend"]] %||% c("pred", "obs")
-  if ("kde" %in% obs_stats && !all(is.na(dots[["lines.legend"]]))) {
-    graphics::legend(
-      x = x_leg, y = y_leg, legend = dots$lines.legend,
-      col = "black", lwd = c(dots$pred.lwd, dots$obs.kde.lwd),
-      lty = c(dots$pred.lty, dots$obs.kde.lty), bg = dots$legend.bg,
-      bty = dots$bty, box.lwd = dots$box.lwd, box.col = dots$box.col,
-      box.lty = dots$box.lty, cex = dots$cex.legend
-    )
+  if (all(c("pred", "obs") %in% unique(densities$Source))) {
+    dots[["lines.legend"]] = dots[["lines.legend"]] %||% c("pred", "obs")
+    if ("kde" %in% obs_stats && !all(is.na(dots[["lines.legend"]]))) {
+      graphics::legend(
+        x = x_leg, y = y_leg, legend = dots$lines.legend,
+        col = "black", lwd = c(dots$pred.lwd, dots$obs.kde.lwd),
+        lty = c(dots$pred.lty, dots$obs.kde.lty), bg = dots$legend.bg,
+        bty = dots$bty, box.lwd = dots$box.lwd, box.col = dots$box.col,
+        box.lty = dots$box.lty, cex = dots$cex.legend
+      )
+    }
   }
+
 
   invisible()
 }
@@ -1209,11 +1253,11 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
 #' @description
 #' This function iterates over a list of statistics data, resulting from a call
 #' to [dRiftDM::calc_stats()], and subsequently plots each statistic. It allows
-#' for flexible arrangement of multiple plots on a single graphics device.
+#' for a simple arrangement of multiple plots on a single graphics device.
 #'
 #'
 #' @param x an object of type `stats_dm_list`, which is essentially a list
-#'  multiple statistics, resulting from a call to [dRiftDM::calc_stats()].
+#'  of multiple statistics, resulting from a call to [dRiftDM::calc_stats()].
 #' @param mfrow an optional numeric vector of length 2, specifying the number of
 #'  rows and columns for arranging multiple panels in a single plot
 #'  (e.g., `c(1, 3)`). Plots are provided sequentially if `NULL` (default),
@@ -1222,8 +1266,8 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
 #'  individual `stats_dm` object in `x`.
 #'
 #' @details
-#' The `plot.stats_dm_list()` function is "merely" a wrapper. All plotting
-#' is done by the respective `plot()` methods. If `dRiftDM` doesn't provide a
+#' The `plot.stats_dm_list()` function "merely" iterates over each entry of `x`
+#' and calls the respective `plot()` method. If `dRiftDM` doesn't provide a
 #' `plot()` method for an object stored in `x`, the respective entry is
 #' skipped and a message is displayed.
 #'
@@ -1237,14 +1281,14 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
 #'
 #' @examples
 #' # get a list of statistics for demonstration purpose
-#' all_fits <- get_example_fits_ids()
+#' all_fits <- get_example_fits("fits_ids_dm")
 #' stats <- calc_stats(all_fits, type = c("cafs", "quantiles"))
 #'
 #' # then call the plot function.
 #' plot(stats, mfrow = c(1, 2))
 #'
 #' @seealso [dRiftDM::plot.cafs()], [dRiftDM::plot.quantiles()],
-#' [dRiftDM::plot.delta_funs()], [dRiftDM::calc_stats()]
+#' [dRiftDM::plot.delta_funs()], [dRiftDM::plot.densities()]
 #'
 #' @export
 plot.stats_dm_list <- function(x, ..., mfrow = NULL) {
@@ -1311,7 +1355,8 @@ plot.stats_dm_list <- function(x, ..., mfrow = NULL) {
 #' # get an auxiliary fit procedure result (see the function load_fits_ids)
 #' all_fits <- get_example_fits("fits_ids")
 #' coefs <- coef(all_fits)
-#' hist() # only three participants in this fits_ids object
+#' print(coefs)
+#' hist(coefs, bundle_plots = FALSE) # calls hist.coefs_dm method of dRiftDM
 #'
 #' # how to fall back to R's hist() function for heavy customization
 #' coefs <- unpack_obj(coefs) # provides the plain data.frame
@@ -1320,9 +1365,27 @@ plot.stats_dm_list <- function(x, ..., mfrow = NULL) {
 #' @export
 hist.coefs_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
                           ylim = NULL, xlab = "value", ylab = NULL,
-                          bundle_plots = FALSE) {
+                          bundle_plots = TRUE) {
   coefs_obj <- x
   dots <- list(...)
+
+  # ensure backward compatibility (delete in the future)
+  if (!is.null(dots$colors)) {
+    col = dots$colors
+    lifecycle::deprecate_warn(
+      "0.3.0",
+      "dRiftDM::hist.coefs_dm(colors = )",
+      "dRiftDM::hist.coefs_dm(col = )"
+    )
+  }
+  if (!is.null(dots$separate_plots)) {
+    bundle_plots = dots$separate_plots
+    lifecycle::deprecate_warn(
+      "0.3.0",
+      "dRiftDM::hist.coefs_dm(separate_plots = )",
+      "dRiftDM::hist.coefs_dm(bundle_plots = )"
+    )
+  }
 
   # get the parameter and condition names (if existant)
   prm_names <- setdiff(colnames(coefs_obj), c("ID", "Cond"))
@@ -1341,7 +1404,7 @@ hist.coefs_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     col <- set_default_colors(colors = col, n = length(all_conds))
     col <- col[which(all_conds %in% conds)]
   } else {
-    col <- set_default_colors(NULL, n = 1)
+    col <- set_default_colors(col, n = 1)
   }
 
   # figure out the plot outline if separate panels shall be plotted in one plot
@@ -1500,9 +1563,20 @@ hist.coefs_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #'
 #' @export
 plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
-                          bundle_plots = FALSE) {
+                          bundle_plots = TRUE) {
   drift_dm_obj <- x
   dots <- list(...)
+
+
+  # ensure backward compatibility (delete in the future)
+  if (!is.null(dots$legend_pos)) {
+    dots$legend.pos = dots$legend_pos
+    lifecycle::deprecate_warn(
+      "0.3.0",
+      "dRiftDM::plot.drift_dm(legend_pos = )",
+      details = "Please use the optional `legend.pos` argument instead"
+    )
+  }
 
   # get conditions
   all_conds = conds(drift_dm_obj)
@@ -2050,14 +2124,13 @@ plot_mcmc_auto <- function(chains, lags = 1:30, col_line = NULL,
 #'
 #' @description
 #' This function assigns default colors if none are provided or adjusts the
-#' color vector to match the number of conditions.
+#' color vector to match the number `n`
 #'
 #' @param colors character vector, specifying colors for conditions. If `NULL`,
 #' default colors are used.
-#' @param unique_conds character vector, listing unique conditions to match
-#' color assignments (only the length counts).
+#' @param n
 #'
-#' @return A character vector of colors, matching the length of `unique_conds`.
+#' @return A character vector of colors of length `n`.
 #'
 #' @keywords internal
 set_default_colors <- function(colors, n) {
@@ -2103,9 +2176,9 @@ set_default_colors <- function(colors, n) {
 #'
 #' @details
 #'
-#' ## Possible arguments and default values are:
+#' The following list shows possible arguments and default values for...
 #'
-#' # Shades, Lines, Points
+#' shades, lines, points:
 #'
 #' - `obs.pch`: plotting symbol for points of observed data (default: `19`)
 #' - `obs.pt.bg`: background color for points (default: `NA`)
@@ -2113,15 +2186,17 @@ set_default_colors <- function(colors, n) {
 #' - `pred.lwd`: line width for lines (default: `1`)
 #' - `alpha`: alpha transparency for shaded prediction intervals
 #'    (default: `0.2`)
+#' - `b.lty`: line type for decision boundaries (default: `1`)
+#' - `b.lwd`: line width for decision boundaries (default: `1`)
 #'
-#' Text and scaling options:
+#' text and scaling:
 #'
 #' - `cex.axis`, `cex.lab`, `cex.main`, `cex.pt`, `cex.legend`: text and point
 #'   scaling factors (default: `1`)
-#' - `main`: plot title (default: empty string, with `id` appended if applicable)
+#' - `main`: plot title (default: NULL, with `id` appended if applicable)
 #' - `family`: font family (default: empty string)
 #'
-#' Legend settings:
+#' legend:
 #'
 #' - `legend`: legend labels (default: `leg`)
 #' - `legend.pos`: position of the primary legend (default: `"bottomright"`,
@@ -2139,7 +2214,7 @@ set_default_colors <- function(colors, n) {
 #'   `"topright"`, passing a vector with exact x- and y-positions for
 #'   `lines.legend` is possible)
 #'
-#' Error bar settings:
+#' error bars:
 #'
 #' - `err.width`: width of caps on error bars (default: `0.05`)
 #' - `err.col`: color of error bars (default: `NULL`; resolved to
@@ -2148,16 +2223,17 @@ set_default_colors <- function(colors, n) {
 #' - `err.eps`: threshold under which an error bar is treated as too small to
 #'   display (default: `0.1%` of the y-axis range)
 #'
-#' Observed histogram and KDE settings (for plot of RT distributions/densities):
+#' observed histogram and KDE (for plot of RT distributions/densities):
 #'
 #' - `obs.hist.col`: fill color for histograms (default: `"gray20"`)
 #' - `obs.kde.col`: color of KDE lines (default: `"black"`)
 #' - `obs.kde.lty`: line type of KDE lines (default: `2`)
 #' - `obs.kde.lwd`: line width of KDE lines (default: `1`)
 #'
-#' ETC.
+#' ETC.:
 #'
 #' - `horiz.col`: color of a horizontal axis line at y = 0 (default: `"gray"`)
+#' - `horiz.lwd`: color of a horizontal axis line at y = 0 (default: `1`)
 #'
 #' @returns A list with all updated graphical parameters, ready to be passed
 #' to plotting functions. (done internally, not by the user)
@@ -2187,6 +2263,8 @@ set_default_arguments <- function(dots, leg, id) {
   dots$pred.lty = if (is.null(dots$pred.lty)) 1 else dots$pred.lty
   dots$obs.pt.bg = if (is.null(dots$obs.pt.bg)) NA else dots$obs.pt.bg
   dots$pred.lwd = if (is.null(dots$pred.lwd)) 1 else dots$pred.lwd
+  dots$b.lty = if (is.null(dots$b.lty)) 1 else dots$b.lty
+  dots$b.lwd = if (is.null(dots$b.lwd)) 1 else dots$b.lwd
 
   # shading settings
   dots$alpha = if (is.null(dots$alpha)) 0.2 else dots$alpha
@@ -2199,7 +2277,9 @@ set_default_arguments <- function(dots, leg, id) {
   dots$cex.legend = if (is.null(dots$cex.legend)) 1 else dots$cex.legend
 
   # main and family
-  dots$main = paste(c(dots$main, id), collapse = " - ")
+  if (!is.null(id)) {
+    dots$main = paste(dots$main, id, sep = " - ")
+  }
   dots$family = if (is.null(dots$family)) "" else dots$family
 
   # the primary legend settings
@@ -2219,7 +2299,7 @@ set_default_arguments <- function(dots, leg, id) {
   dots$lines.legend.pos = if (is.null(dots$lines.legend.pos))
     "topright"
   else
-    dots$legend.pos
+    dots$lines.legend.pos
 
   # error bar settings
   dots$err.width = if (is.null(dots$err.width)) 0.05 else dots$err.width

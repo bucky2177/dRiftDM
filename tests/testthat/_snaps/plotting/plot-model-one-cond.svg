@@ -61,7 +61,7 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpMC4wMHwzNjAuMDB8MC4wMHwxOTIuMDA=)'>
-<text x='189.50' y='22.75' text-anchor='middle' style='font-size: 9.50px; font-weight: bold; font-family: sans;' textLength='31.71px' lengthAdjust='spacingAndGlyphs'>mu_fun</text>
+<text x='189.50' y='22.21' text-anchor='middle' style='font-size: 7.92px; font-weight: bold; font-family: sans;' textLength='26.42px' lengthAdjust='spacingAndGlyphs'>mu_fun</text>
 <text x='189.50' y='179.64' text-anchor='middle' style='font-size: 7.92px; font-family: sans;' textLength='28.17px' lengthAdjust='spacingAndGlyphs'>Time [s]</text>
 <text transform='translate(8.55,91.25) rotate(-90)' text-anchor='middle' style='font-size: 7.92px; font-family: sans;' textLength='33.45px' lengthAdjust='spacingAndGlyphs'>Drift Rate</text>
 </g>
@@ -108,7 +108,7 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpMzYwLjAwfDcyMC4wMHwwLjAwfDE5Mi4wMA==)'>
-<text x='549.50' y='22.75' text-anchor='middle' style='font-size: 9.50px; font-weight: bold; font-family: sans;' textLength='23.25px' lengthAdjust='spacingAndGlyphs'>x_fun</text>
+<text x='549.50' y='22.21' text-anchor='middle' style='font-size: 7.92px; font-weight: bold; font-family: sans;' textLength='19.38px' lengthAdjust='spacingAndGlyphs'>x_fun</text>
 <text x='549.50' y='179.64' text-anchor='middle' style='font-size: 7.92px; font-family: sans;' textLength='55.05px' lengthAdjust='spacingAndGlyphs'>Evidence Value</text>
 <text transform='translate(368.55,91.25) rotate(-90)' text-anchor='middle' style='font-size: 7.92px; font-family: sans;' textLength='26.42px' lengthAdjust='spacingAndGlyphs'>Density</text>
 </g>
@@ -157,7 +157,7 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpMC4wMHwzNjAuMDB8MTkyLjAwfDM4NC4wMA==)'>
-<text x='189.50' y='214.75' text-anchor='middle' style='font-size: 9.50px; font-weight: bold; font-family: sans;' textLength='23.78px' lengthAdjust='spacingAndGlyphs'>b_fun</text>
+<text x='189.50' y='214.21' text-anchor='middle' style='font-size: 7.92px; font-weight: bold; font-family: sans;' textLength='19.82px' lengthAdjust='spacingAndGlyphs'>b_fun</text>
 <text x='189.50' y='371.64' text-anchor='middle' style='font-size: 7.92px; font-family: sans;' textLength='28.17px' lengthAdjust='spacingAndGlyphs'>Time [s]</text>
 <text transform='translate(8.55,283.25) rotate(-90)' text-anchor='middle' style='font-size: 7.92px; font-family: sans;' textLength='33.91px' lengthAdjust='spacingAndGlyphs'>Boundary</text>
 </g>
@@ -206,7 +206,7 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpMzYwLjAwfDcyMC4wMHwxOTIuMDB8Mzg0LjAw)'>
-<text x='549.50' y='214.75' text-anchor='middle' style='font-size: 9.50px; font-weight: bold; font-family: sans;' textLength='37.00px' lengthAdjust='spacingAndGlyphs'>dt_b_fun</text>
+<text x='549.50' y='214.21' text-anchor='middle' style='font-size: 7.92px; font-weight: bold; font-family: sans;' textLength='30.83px' lengthAdjust='spacingAndGlyphs'>dt_b_fun</text>
 <text x='549.50' y='371.64' text-anchor='middle' style='font-size: 7.92px; font-family: sans;' textLength='28.17px' lengthAdjust='spacingAndGlyphs'>Time [s]</text>
 <text transform='translate(368.55,283.25) rotate(-90)' text-anchor='middle' style='font-size: 7.92px; font-family: sans;' textLength='71.33px' lengthAdjust='spacingAndGlyphs'>Derivative Boundary</text>
 </g>
@@ -255,7 +255,7 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpMC4wMHwzNjAuMDB8Mzg0LjAwfDU3Ni4wMA==)'>
-<text x='189.50' y='406.75' text-anchor='middle' style='font-size: 9.50px; font-weight: bold; font-family: sans;' textLength='26.42px' lengthAdjust='spacingAndGlyphs'>nt_fun</text>
+<text x='189.50' y='406.21' text-anchor='middle' style='font-size: 7.92px; font-weight: bold; font-family: sans;' textLength='22.02px' lengthAdjust='spacingAndGlyphs'>nt_fun</text>
 <text x='189.50' y='563.64' text-anchor='middle' style='font-size: 7.92px; font-family: sans;' textLength='28.17px' lengthAdjust='spacingAndGlyphs'>Time [s]</text>
 <text transform='translate(8.55,475.25) rotate(-90)' text-anchor='middle' style='font-size: 7.92px; font-family: sans;' textLength='26.42px' lengthAdjust='spacingAndGlyphs'>Density</text>
 </g>

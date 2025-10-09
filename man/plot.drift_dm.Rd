@@ -4,7 +4,7 @@
 \alias{plot.drift_dm}
 \title{Plot Components of a Drift Diffusion Model}
 \usage{
-\method{plot}{drift_dm}(x, ..., conds = NULL, col = NULL, xlim = NULL, bundle_plots = FALSE)
+\method{plot}{drift_dm}(x, ..., conds = NULL, col = NULL, xlim = NULL, bundle_plots = TRUE)
 }
 \arguments{
 \item{x}{an object of class \link{drift_dm}}
@@ -18,6 +18,8 @@ Defaults to all available conditions.}
 
 \item{col}{a character vector specifying colors for each condition. If a
 single color is provided, it is repeated for all conditions.}
+
+\item{xlim}{a numeric vector of length 2, specifying the x-axis limits.}
 
 \item{bundle_plots}{logical, indicating whether to display separate panels
 in a single plot layout (\code{FALSE}), or to plot them separately (\code{TRUE}).}

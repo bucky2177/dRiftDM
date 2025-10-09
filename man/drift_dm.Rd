@@ -163,5 +163,5 @@ print(my_model)
 \seealso{
 \code{\link[=conds]{conds()}}, \code{\link[=flex_prms]{flex_prms()}}, \code{\link[=prms_solve]{prms_solve()}},
 \code{\link[=solver]{solver()}}, \code{\link[=obs_data]{obs_data()}}, \code{\link[=comp_funs]{comp_funs()}},
-\code{\link[=b_coding]{b_coding()}}, \code{\link[=coef]{coef()}}, \code{\link[=pdfs]{pdfs()}}, \link{dRiftDM}
+\code{\link[=b_coding]{b_coding()}}, \code{\link[=coef]{coef()}}, \code{\link[=pdfs]{pdfs()}}
 }

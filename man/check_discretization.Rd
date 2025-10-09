@@ -9,7 +9,13 @@
 \usage{
 check_discretization(object, ...)
 
-\method{check_discretization}{drift_dm}(object, dt_ref = 0.001, dx_ref = 0.001)
+\method{check_discretization}{drift_dm}(
+  object,
+  ...,
+  dt_ref = 0.001,
+  dx_ref = 0.001,
+  round_digits = 5
+)
 
 \method{check_discretization}{fits_ids_dm}(object, ...)
 
@@ -23,10 +29,16 @@ check_discretization(object, ...)
 
 \item{dt_ref, dx_ref}{numeric scalars, providing a fine time or space step
 size for the reference solution. Defaults to \code{0.001}.}
+
+\item{round_digits}{number of decimal places to which the final Hellinger
+distances are rounded (default: \code{5}).}
 }
 \value{
-a named numeric vector of Hellinger distances (one per condition).
-Values are in \verb{[0, 1]}, where \code{0} means identical to the reference.
+a named numeric vector of Hellinger distances (one per condition)
+if \code{object} is of type \link{drift_dm} or \code{fits_agg_dm}. A \link{data.frame}
+of Hellinger distances across IDs and conditions if \code{object} is of type
+\code{fits_ids_dm}. Hellinger distances are in \verb{[0, 1]}, where \code{0} means
+identical to the reference.
 }
 \description{
 \code{check_discretization()} helps you choose or check time (\code{dt}) and space
@@ -40,7 +52,7 @@ There are not yet overall and officially published recommendations on how
 large the Hellinger distance can be without affecting model precision, and
 this might even depend on the model itself. Based on some preliminary
 simulations we would recommend trying to keep the Hellinger Distance between
-below 5\\% on average.
+below 5 percent on average.
 }
 \details{
 Under the hood, for each condition, we concatenate the lower- and upper-

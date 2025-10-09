@@ -871,9 +871,6 @@ get_default_prior_settings <- function(drift_dm_obj, level, means = NULL,
 #'
 #'
 #' @param drift_dm_obj an object of type [dRiftDM::drift_dm].
-#' @param mean numeric vector or a list, specifying the expected mean of each
-#'  parameter to be optimized (see the Details below). If `NULL`, then the
-#'  currently set model parameters are used for `mean`.
 #' @param obs_data_ids data.frame for the hierarchical case. An additional
 #'  column ID is necessary that codes the individuals (see also
 #'  [dRiftDM::obs_data]).
@@ -892,7 +889,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, means = NULL,
 #'  likelihood/posterior values of the previous iteration `i-1` when deciding
 #'  for the acceptance of the proposal in iteration `i`. Only considered during
 #'  burn-in. Default is `0.1` (i.e., 10%).
-#' @param progress integer, indicating progress output: 0 (none),
+#' @param verbose integer, indicating verbosity of output: 0 (none),
 #'  1 (minimal text output), or 2 (text output and progress bar). Default is `2`.
 #' @param seed optional random seed for reproducibility.
 #' @param ... additional arguments passed to
@@ -929,7 +926,7 @@ get_default_prior_settings <- function(drift_dm_obj, level, means = NULL,
 #' @keywords internal
 estimate_bayes_h <- function(drift_dm_obj, obs_data_ids, sampler, n_chains,
                              burn_in, samples, n_cores, prob_migration,
-                             prob_re_eval, progress, seed = NULL, ...) {
+                             prob_re_eval, verbose, seed = NULL, ...) {
 
   sampler = match.arg(sampler, choices = c("DE-MCMC", "TIDE"))
 
@@ -1034,7 +1031,7 @@ estimate_bayes_h <- function(drift_dm_obj, obs_data_ids, sampler, n_chains,
   }
 
   # get starting values
-  if (progress >= 1) {
+  if (verbose >= 1) {
     message("Finding starting values...")
   }
 
@@ -1115,11 +1112,11 @@ estimate_bayes_h <- function(drift_dm_obj, obs_data_ids, sampler, n_chains,
     lls_phi[one_prm,, 1] = posterior_ll_vals$log_like_vals
   }
 
-  if (progress >= 1) {
+  if (verbose >= 1) {
     message("Starting the sampling procedure")
   }
 
-  if (progress >= 2) {
+  if (verbose >= 2) {
     pb <- progress::progress_bar$new(
       format = "  sampling [:bar] :percent remaining: :eta",
       total = iterations - 1,
@@ -1239,20 +1236,20 @@ estimate_bayes_h <- function(drift_dm_obj, obs_data_ids, sampler, n_chains,
       lls_theta[,j , i] = new_thetas_and_pis[[j]]$new_log_likes
     }
 
-    if (progress >= 2) pb$tick()
+    if (verbose >= 2) pb$tick()
   }
 
   parallel::stopCluster(cl)
 
   # drop the burn_in period
   idx_after_burn_in = (burn_in + 2):iterations
-  phi_array = phi_array[,,idx_after_burn_in]
-  pis_phi = pis_phi[,,idx_after_burn_in]
-  lls_phi = lls_phi[,,idx_after_burn_in]
+  phi_array = phi_array[,,idx_after_burn_in, drop = FALSE]
+  pis_phi = pis_phi[,,idx_after_burn_in, drop = FALSE]
+  lls_phi = lls_phi[,,idx_after_burn_in, drop = FALSE]
 
-  theta_array = theta_array[,,,idx_after_burn_in]
-  pis_theta = pis_theta[,,idx_after_burn_in]
-  lls_theta = lls_theta[,,idx_after_burn_in]
+  theta_array = theta_array[,,,idx_after_burn_in, drop = FALSE]
+  pis_theta = pis_theta[,,idx_after_burn_in, drop = FALSE]
+  lls_theta = lls_theta[,,idx_after_burn_in, drop = FALSE]
 
   # wrap up everything in a list and pass back
   r_l = list(phi = phi_array, pis_phi = pis_phi, lls_phi = lls_phi,
@@ -1268,7 +1265,7 @@ estimate_bayes_h <- function(drift_dm_obj, obs_data_ids, sampler, n_chains,
 #' @keywords internal
 estimate_bayes_one_subj <- function(drift_dm_obj, sampler, n_chains,
                                     burn_in, samples, prob_migration,
-                                    prob_re_eval, progress, ...) {
+                                    prob_re_eval, verbose, ...) {
 
 
   # get the prior distributions for theta
@@ -1311,7 +1308,7 @@ estimate_bayes_one_subj <- function(drift_dm_obj, sampler, n_chains,
 
 
   # get starting values
-  if (progress >= 1) {
+  if (verbose >= 1) {
     message("Finding starting values...")
   }
 
@@ -1335,11 +1332,11 @@ estimate_bayes_one_subj <- function(drift_dm_obj, sampler, n_chains,
 
 
   # start the sampling....
-  if (progress >= 1) {
+  if (verbose >= 1) {
     message("Starting the sampling procedure")
   }
 
-  if (progress >= 2) {
+  if (verbose >= 2) {
     pb <- progress::progress_bar$new(
       format = "  sampling [:bar] :percent remaining: :eta",
       total = iterations - 1,
@@ -1381,14 +1378,14 @@ estimate_bayes_one_subj <- function(drift_dm_obj, sampler, n_chains,
     theta_array[, , i] = returned_list$new_prms_across_chains
     pis_theta[, i] = returned_list$new_pis
     lls_theta[, i] = returned_list$new_log_likes
-    if (progress >= 2) pb$tick()
+    if (verbose >= 2) pb$tick()
   }
 
   # drop the burn_in period
   idx_after_burn_in = (burn_in + 2):iterations
-  theta_array = theta_array[,,idx_after_burn_in]
-  pis_theta = pis_theta[,idx_after_burn_in]
-  lls_theta = lls_theta[,idx_after_burn_in]
+  theta_array = theta_array[,,idx_after_burn_in, drop = FALSE]
+  pis_theta = pis_theta[,idx_after_burn_in, drop = FALSE]
+  lls_theta = lls_theta[,idx_after_burn_in, drop = FALSE]
 
 
   # wrap up everything
@@ -1443,7 +1440,7 @@ estimate_bayes_one_subj <- function(drift_dm_obj, sampler, n_chains,
 estimate_bayesian = function(drift_dm_obj, obs_data_ids = NULL,
                              sampler, n_chains, burn_in, samples,
                              prob_migration, prob_re_eval,
-                             progress = NULL, ...) {
+                             verbose = NULL, ...) {
 
 
 
@@ -1468,11 +1465,14 @@ estimate_bayesian = function(drift_dm_obj, obs_data_ids = NULL,
       !(prob_re_eval >= 0 & prob_re_eval <= 1)) {
     stop("prob_re_eval must be a numeric between 0 and 1")
   }
-  if (is.null(progress)) {
-    progress = 2
+  if (is.null(verbose)) {
+    verbose = 2
   }
-  if (!is_numeric(progress) | !(progress %in% 0:2)) {
-    stop("progress must be either 0, 1, or 2")
+  if (!is_numeric(verbose) | !(verbose %in% 0:2)) {
+    stop("verbose must be either 0, 1, or 2")
+  }
+  if (cost_function(drift_dm_obj) != "neg_log_like") {
+    stop("cost function of the model is not the negative log-likelihood!")
   }
 
 
@@ -1484,7 +1484,7 @@ estimate_bayesian = function(drift_dm_obj, obs_data_ids = NULL,
       sampler = sampler,
       n_chains = n_chains, burn_in = burn_in, samples = samples,
       prob_migration = prob_migration, prob_re_eval = prob_re_eval,
-      progress = progress, ...
+      verbose = verbose, ...
     )
   } else {
     hierarchical = FALSE
@@ -1492,7 +1492,7 @@ estimate_bayesian = function(drift_dm_obj, obs_data_ids = NULL,
       drift_dm_obj = drift_dm_obj, sampler = sampler,
       n_chains = n_chains, burn_in = burn_in, samples = samples,
       prob_migration = prob_migration, prob_re_eval = prob_re_eval,
-      progress = progress, ...
+      verbose = verbose, ...
     )
   }
   # result is a list of chains, containing parameters, posteriors, and

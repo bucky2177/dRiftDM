@@ -518,8 +518,7 @@ test_that("messages and warnings", {
 
 
 test_that("modify_flex_prms -> drift_dm", {
-  a_model <- readRDS(test_path("fixtures", "dmc.rds"))
-
+  a_model <- dmc_dummy
   a_model <- modify_flex_prms(a_model, instr = "muc ~
                              alpha ~ => 5")
 

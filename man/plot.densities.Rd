@@ -21,7 +21,7 @@
 }
 \arguments{
 \item{x}{an object of \code{type = "densities"}, typically returned by
-\link{calc_stats(..., type = "densities")}.}
+\code{\link[=calc_stats]{calc_stats()}}.}
 
 \item{...}{additional graphical arguments passed to plotting functions.
 See \code{\link[=set_default_arguments]{set_default_arguments()}} for the full list of supported
@@ -37,8 +37,9 @@ Defaults to all available conditions.}
 \item{col}{a character vector specifying colors for each condition. If a
 single color is provided, it is repeated for all conditions.}
 
-\item{xlim, ylim}{numeric vectors of length 2, specifying the x- and y-axis
-limits.}
+\item{xlim}{a numeric vector of length 2, specifying the x-axis limits.}
+
+\item{ylim}{a numeric vector of length 2, specifying the y-axis limits.}
 
 \item{xlab, ylab}{character strings for the x- and y-axis labels.}
 
@@ -68,30 +69,34 @@ KDE lines (default: black, dotted). Predicted densities are shown as lines
 (default: colorized). Distributions associated with the upper boundary are
 shown with values > 0 (i.e., the upper part of the plot), distributions
 associated with the lower boundary are shown with values < 0 (i.e., the lower
-part of the plot)
+part of the plot).
 
 Axis limits, colors, and styling options can be customized via \code{...}. If
 interval information is provided (i.e., the column \code{Estimate} exists in \code{x}),
 error bars or shading will be added, depending on the type of
 statistic.
+
+A legend is only displayed if there is predicted data.
 }
 \examples{
 # Example 1: Predicted densities only -------------------------------------
-a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+a_model <- dmc_dm()
 dens <- calc_stats(a_model, type = "densities")
-plot(dens)
+plot(dens, xlim = c(0, 1))
+plot(dens, xlim = c(0, 1), conds = "comp")
+
 
 # Example 2: Observed and predicted densities -----------------------------
 obs_data(a_model) <- dmc_synth_data
 dens <- calc_stats(a_model, type = "densities")
-plot(dens)
+plot(dens, xlim = c(0, 1), conds = "comp", col = "blue")
 
 # Example 3: Observed densities only --------------------------------------
 dens <- calc_stats(dmc_synth_data, type = "densities")
-plot(dens)
+plot(dens, conds = "comp", obs.hist.col = "green", alpha = 1)
 
 # Example 4: With interval estimates --------------------------------------
 dens <- calc_stats(dmc_synth_data, type = "densities", resample = TRUE)
-plot(dens, interval_obs = TRUE)
+plot(dens, interval_obs = TRUE, conds = "comp")
 
 }

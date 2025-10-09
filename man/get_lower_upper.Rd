@@ -7,7 +7,7 @@
 \usage{
 get_lower_upper(object, ...)
 
-\method{get_lower_upper}{drift_dm}(object, warn = TRUE)
+\method{get_lower_upper}{drift_dm}(object, ..., warn = TRUE)
 }
 \arguments{
 \item{object}{a \link{drift_dm} model.}

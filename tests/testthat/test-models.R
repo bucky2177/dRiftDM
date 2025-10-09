@@ -46,16 +46,16 @@ test_that("testing DMC", {
   a_dmc_model <- dmc_dm(instr = "a ~ => 2.1")
   all_comps <- comp_vals(a_dmc_model)
 
-  a_dmc_model_im <- a_dmc_model
   # just to ensure comp_vals evaluates the integral
+  a_dmc_model_im <- a_dmc_model
   suppressWarnings(solver(a_dmc_model_im) <- "im_zero")
   all_comps_im <- comp_vals(a_dmc_model_im)
 
   # drift rate
   mu_t <- all_comps$comp$mu_vals[c(0.002, 0.2) / 0.001 + 1]
-  expect_equal(round(mu_t, 5), c(8.99534, 3.79313))
+  expect_equal(round(mu_t, 5), c(9.006200, 3.79129))
   mu_t <- all_comps$incomp$mu_vals[c(0.003, 0.3) / 0.001 + 1]
-  expect_equal(round(mu_t, 5), c(-0.91730, 4.02898))
+  expect_equal(round(mu_t, 5), c(-0.96272, 4.02928))
 
   # test integral of the drift rate
   mu_t <- all_comps_im$comp$mu_int_vals[c(0.002, 0.2) / 0.001 + 1]
@@ -125,7 +125,7 @@ test_that("testing DMC", {
                                   tau ~ => 50
                                   A ~ comp => 20
                                   alpha ~ => 2")
-  pdfs_comp <- re_evaluate_model(a_dmc_model)$pdfs[["comp"]]
+  quants_ms <- calc_stats(a_dmc_model, "quantiles")
 
 
   ###
@@ -139,14 +139,15 @@ test_that("testing DMC", {
                                   tau ~ => 0.05
                                   A ~ comp => 0.1581139
                                   alpha ~ => 2")
-
-  pdfs_comp_s <- re_evaluate_model(a_dmc_model)$pdfs[["comp"]]
-  expect_true(all(abs(pdfs_comp_s[[1]] / 1000 - pdfs_comp[[1]]) < 1e-8))
-  expect_true(all(abs(pdfs_comp_s[[2]] / 1000 - pdfs_comp[[2]]) < 1e-8))
+  quants_s <- calc_stats(a_dmc_model, "quantiles")
+  diff_corr <- quants_s$Quant_corr * 1000 - quants_ms$Quant_corr
+  diff_err <- quants_s$Quant_err * 1000 - quants_ms$Quant_err
+  expect_true(all(abs(diff_corr) < 0.2))
+  expect_true(all(abs(diff_err) < 0.2))
 
 
   ## roughly compare with DMCfun # 1
-  a_dmc_model <- dmc_dm()
+  a_dmc_model <- dmc_dm(dt = .005, dx = .005)
   a_dmc_model <- modify_flex_prms(a_dmc_model, instr = "
                                   muc ~ => 4
                                   b ~ => 0.6
@@ -1499,6 +1500,154 @@ test_that("test_dummy", {
   a_model <- drift_dm(c(a = 2, b = 3), "comp", subclass = "test")
   a_model$comp_funs$mu_fun <- dummy_t
   expect_error(comp_vals(a_model), "should not be called")
+})
+
+
+
+# get_lower_upper works as expected ------------------------------------
+
+test_that("get_lower_upper returns expected bounds for Ratcliff components.", {
+
+  model <- ratcliff_dm(var_drift = TRUE, var_start = TRUE, var_non_dec = TRUE)
+  res <- get_lower_upper(model)
+
+  expect_named(res, c("lower", "upper"))
+  exp_prms <- c("muc", "b", "non_dec", "range_non_dec", "range_start", "sd_muc")
+  expect_equal(names(res$lower), exp_prms)
+  expect_equal(names(res$upper), exp_prms)
+
+  # check the values
+  expect_equal(res$lower[["muc"]], 0.5)
+  expect_equal(res$upper[["muc"]], 9)
+
+  expect_equal(res$lower[["b"]], 0.15)
+  expect_equal(res$upper[["b"]], 1.20)
+
+  expect_equal(res$lower[["non_dec"]], 0.15)
+  expect_equal(res$upper[["non_dec"]], 0.60)
+
+  expect_true(res$lower[["range_non_dec"]] >= 0.01)
+  expect_true(res$upper[["range_non_dec"]] <= 0.4)
+
+  expect_true(res$lower[["range_start"]] >= 0.01)
+  expect_equal(res$upper[["range_start"]], 1.5)
+
+  expect_equal(res$lower[["sd_muc"]], 0.01)
+  expect_equal(res$upper[["sd_muc"]], 2.20)
+
+  # is lower < upper?
+  expect_true(all(res$lower < res$upper))
+
+})
+
+
+test_that("get_lower_upper returns expected bounds for DMC components.", {
+
+  model <- dmc_dummy
+  res <- get_lower_upper(model)
+
+  expect_named(res, c("lower", "upper"))
+  exp_prms <- c("muc", "b", "non_dec", "sd_non_dec", "tau", "A", "alpha")
+  expect_equal(names(res$lower), exp_prms)
+  expect_equal(names(res$upper), exp_prms)
+
+
+  # fixed-value checks
+  expect_equal(res$lower[["muc"]], 0.5)
+  expect_equal(res$upper[["muc"]], 9)
+
+  expect_equal(res$lower[["b"]], 0.15)
+  expect_equal(res$upper[["b"]], 1.20)
+
+  expect_equal(res$lower[["non_dec"]], 0.15)
+  expect_equal(res$upper[["non_dec"]], 0.60)
+
+  expect_equal(res$lower[["tau"]], 0.015)
+  expect_equal(res$upper[["tau"]], 0.25)
+
+  expect_equal(res$lower[["A"]], 0.005)
+  expect_equal(res$upper[["A"]], 0.3)
+
+  expect_equal(res$lower[["alpha"]], 2)
+  expect_equal(res$upper[["alpha"]], 8)
+
+  # value checks depending on dt
+  dt <- prms_solve(model)["dt"]
+  expect_equal(res$lower[["sd_non_dec"]], 0.005)
+  expect_equal(res$upper[["sd_non_dec"]], 0.1)
+
+  # lower < upper
+  expect_true(all(res$lower < res$upper))
+})
+
+
+test_that("get_lower_upper returns expected bounds for SSP components.", {
+
+  # var_non_dec = FALSE to catch all cases
+  model <- ssp_dm(var_non_dec = FALSE)
+  res <- get_lower_upper(model)
+
+  expect_named(res, c("lower", "upper"))
+  exp_prms <- c("b", "non_dec", "p", "sd_0")
+  expect_equal(names(res$lower), exp_prms)
+  expect_equal(names(res$upper), exp_prms)
+
+
+  # fixed-value checks
+  expect_equal(res$lower[["b"]], 0.15)
+  expect_equal(res$upper[["b"]], 1.20)
+
+  expect_equal(res$lower[["non_dec"]], 0.15)
+  expect_equal(res$upper[["non_dec"]], 0.60)
+
+  expect_equal(res$lower[["p"]], 1)
+  expect_equal(res$upper[["p"]], 7)
+
+  expect_equal(res$lower[["sd_0"]], 0.5)
+  expect_equal(res$upper[["sd_0"]], 3.2)
+
+  # lower < upper
+  expect_true(all(res$lower < res$upper))
+})
+
+
+test_that("get_lower_upper -> warns correctly (and warns can be toggled off)", {
+
+  model <- dmc_dummy
+
+  # define an unknown component
+  weird_fun <- function(...) {}
+  model$comp_funs$mu_fun <- weird_fun
+
+  # with warn = TRUE, we should see a warning
+  expect_warning(
+    res <- get_lower_upper(model, warn = TRUE),
+    regexp = "Cannot provide default values"
+  )
+
+  # result should still contain the known parameter
+  expect_named(res, c("lower", "upper"))
+  exp_names = setdiff(names(coef(model)), c("muc", "A", "tau", "a"))
+  expect_equal(exp_names, names(res$lower))
+  expect_equal(exp_names, names(res$upper))
+
+  # no warning if warn = FALSE
+  expect_no_warning(res2 <- get_lower_upper(model, warn = FALSE))
+  expect_identical(res2, res)
+})
+
+
+test_that("get_lower_upper considers dx and dt", {
+
+  model <- ratcliff_dm(var_non_dec = TRUE, var_start = TRUE, dx = .1, dt = 0.1)
+  res <- get_lower_upper(model)
+
+  expect_equal(res$lower[["range_non_dec"]], 0.105)
+  expect_equal(res$upper[["range_non_dec"]], 0.4)
+
+
+  expect_equal(res$lower[["range_start"]], 0.105)
+  expect_equal(res$upper[["range_start"]], 1.5)
 })
 
 

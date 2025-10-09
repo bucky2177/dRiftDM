@@ -10,11 +10,11 @@ set_agg_data(drift_dm_obj, obs_data_ids, ...)
 \item{drift_dm_obj}{a model object (of class \code{drift_dm}) to which the
 aggregated data will be attached.}
 
+\item{obs_data_ids}{a data.frame containing individual-level observations.
+Must include an \code{ID} column identifying participants.}
+
 \item{...}{optional arguments (currently supported are \code{n_bins} and
 \code{probs} which are relevant when using the \code{rmse} cost function)}
-
-\item{obs_data}{a data.frame containing individual-level observations.
-Must include an \code{ID} column identifying participants.}
 }
 \value{
 The updated \code{drift_dm_obj} with aggregated \code{stats_agg} and

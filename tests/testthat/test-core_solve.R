@@ -163,7 +163,7 @@ test_that("test im_zero", {
 
 test_that("kfe input checks", {
 
-  a_model = readRDS(test_path("fixtures", "ratcliff.rds"))
+  a_model = ratcliff_dummy
 
   # input checks
   nt = prms_solve(a_model)["nt"]
@@ -261,19 +261,7 @@ test_that("input checks calc_pdfs", {
 
   a_model = ratcliff_dm(var_drift = T)
 
-  # no muc parameter
-  temp = a_model
-  flex_prms(temp) = flex_prms(
-    coef(a_model)[names(coef(a_model)) != "muc"],
-    conds = "null"
-  )
-
-  expect_error(
-    calc_pdfs(temp, x_vec = NULL, t_vec = NULL, prms_solve = NULL),
-    "sd_muc found, but no parameter muc"
-  )
-
-  # no dRiftDM drift rate
+  # no dRiftDM constant drift rate
   temp = a_model
   comp_funs(temp)[["mu_fun"]] = mu_dmc
   expect_error(
@@ -282,7 +270,7 @@ test_that("input checks calc_pdfs", {
   )
 
   temp = a_model
-  solver(temp) = "im_zero"
+  temp$solver = "im_zero"
   temp$comp_funs$mu_int_fun = mu_int_dmc
   expect_error(
     calc_pdfs(temp, x_vec = NULL, t_vec = NULL, prms_solve = NULL),
@@ -300,28 +288,20 @@ test_that("input checks calc_pdfs", {
 
 
 test_that("subst. negative PDF values test", {
-  # before evaluating
-  a_model <- readRDS(test_path("fixtures", "ratcliff.rds"))
-  obs_data(a_model) = ratcliff_synth_data
-
-  prms_solve(a_model) <- c(t_max = 3, dt = .1, dx = .1, sigma = 2)
-  expect_identical(
-    prms_solve(a_model),
-    c(sigma = 2, t_max = 3, dt = .1, dx = .1, nt = 30, nx = 20)
-  )
+  a_model <- ratcliff_dummy
 
   # negative density warnings
   # add a data point to trigger the warning twice: when calculating the density
   # values and when computing the log_likelihood
-  a_model$obs_data$rts_l$null = c(2.5, a_model$obs_data$rts_l$null)
-  suppressWarnings(
-    prms_solve(a_model)[c("dx", "dt")] <- c(dx = .5, dt = .5)
-  )
+  a_model$obs_data$rts_l$null = c(3, a_model$obs_data$rts_l$null)
+  suppressWarnings({
+    prms_solve(a_model)[c("dx", "dt", "t_max")] <- c(.5, .5, 3)
+    coef(a_model) <- c(1.5, 0.3, 0.3)
+
+  })
   expect_warning(
-    expect_warning(
-      expect_warning(re_evaluate_model(a_model), "negative density values"),
-      "NaNs"
-    ), "when calculating the log-likelihood"
+    expect_warning(re_evaluate_model(a_model), "negative density values"),
+  "when calculating the log-likelihood"
   )
 
 })

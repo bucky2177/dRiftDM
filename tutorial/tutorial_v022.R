@@ -1,10 +1,10 @@
 #' ---
-#' title: "Reproducing dRiftDM Article Output"
+#' title: "Reproducing dRiftDM Article Output - package version 0.2.2"
 #' author: "Valentin Koob (bucky2177)"
 #' date: "04.03.2025"
 #' ---
 #'
-#' This document contains the code for dRiftDM's article to facilitate review.
+#' This document contains the code for dRiftDM's old tutorial.
 
 rm(list = ls())
 
@@ -98,7 +98,7 @@ obs_data(a_model) <- dmc_synth_data
 # t_max -> should be large enough to easily cover even the largest observed RTs
 # dt, dx -> depend on the model; no general recommendation yet
 prms_solve(a_model)["t_max"] <- 2
-prms_solve(a_model)["dt"] <- .002
+prms_solve(a_model)["dt"] <- .01
 prms_solve(a_model)["dx"] <- .01
 
 # create the search space -> defined this way, the lower and upper search
@@ -134,6 +134,10 @@ a_model <- estimate_model( # takes about 7 minutes with 2 cores
   lower = lower_prm_bnd,
   upper = upper_prm_bnd,
   seed = 1,
+  de_control = list(
+    reltol = 1e-8, steptol = 50,
+    itermax = 200, trace = TRUE
+  ),
   de_n_cores = n_cores
 )
 
@@ -171,7 +175,7 @@ head(large_dat)
 #' Fit a model to each participant
 #+ fit_multiple_ids
 # fresh model without data
-a_model <- dmc_dm(t_max = 2, dx = .01, dt = .002)
+a_model <- dmc_dm(t_max = 2, dx = .01, dt = .01)
 
 # now call the fit procedure.
 # we'll write each fit into the working directory

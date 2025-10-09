@@ -30,10 +30,9 @@ won't call it directly. However, the Details below list all optional
 arguments that users can provide when calling the \verb{plot.*} methods
 }
 \details{
-\subsection{Possible arguments and default values are:}{
-}
-}
-\section{Shades, Lines, Points}{
+The following list shows possible arguments and default values for...
+
+shades, lines, points:
 \itemize{
 \item \code{obs.pch}: plotting symbol for points of observed data (default: \code{19})
 \item \code{obs.pt.bg}: background color for points (default: \code{NA})
@@ -41,17 +40,19 @@ arguments that users can provide when calling the \verb{plot.*} methods
 \item \code{pred.lwd}: line width for lines (default: \code{1})
 \item \code{alpha}: alpha transparency for shaded prediction intervals
 (default: \code{0.2})
+\item \code{b.lty}: line type for decision boundaries (default: \code{1})
+\item \code{b.lwd}: line width for decision boundaries (default: \code{1})
 }
 
-Text and scaling options:
+text and scaling:
 \itemize{
 \item \code{cex.axis}, \code{cex.lab}, \code{cex.main}, \code{cex.pt}, \code{cex.legend}: text and point
 scaling factors (default: \code{1})
-\item \code{main}: plot title (default: empty string, with \code{id} appended if applicable)
+\item \code{main}: plot title (default: NULL, with \code{id} appended if applicable)
 \item \code{family}: font family (default: empty string)
 }
 
-Legend settings:
+legend:
 \itemize{
 \item \code{legend}: legend labels (default: \code{leg})
 \item \code{legend.pos}: position of the primary legend (default: \code{"bottomright"},
@@ -69,7 +70,7 @@ the exact x- and y-position)
 \code{lines.legend} is possible)
 }
 
-Error bar settings:
+error bars:
 \itemize{
 \item \code{err.width}: width of caps on error bars (default: \code{0.05})
 \item \code{err.col}: color of error bars (default: \code{NULL}; resolved to
@@ -79,7 +80,7 @@ across conditions)
 display (default: \verb{0.1\%} of the y-axis range)
 }
 
-Observed histogram and KDE settings (for plot of RT distributions/densities):
+observed histogram and KDE (for plot of RT distributions/densities):
 \itemize{
 \item \code{obs.hist.col}: fill color for histograms (default: \code{"gray20"})
 \item \code{obs.kde.col}: color of KDE lines (default: \code{"black"})
@@ -87,12 +88,12 @@ Observed histogram and KDE settings (for plot of RT distributions/densities):
 \item \code{obs.kde.lwd}: line width of KDE lines (default: \code{1})
 }
 
-ETC.
+ETC.:
 \itemize{
 \item \code{horiz.col}: color of a horizontal axis line at y = 0 (default: \code{"gray"})
+\item \code{horiz.lwd}: color of a horizontal axis line at y = 0 (default: \code{1})
 }
 }
-
 \examples{
 # This is not an example of calling set_default_arguments() directly
 # (because it is an internal function), but it illustrates how user-supplied

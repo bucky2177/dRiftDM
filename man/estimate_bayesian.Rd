@@ -13,7 +13,7 @@ estimate_bayesian(
   samples,
   prob_migration,
   prob_re_eval,
-  progress = NULL,
+  verbose = NULL,
   ...
 )
 }
@@ -43,7 +43,7 @@ likelihood/posterior values of the previous iteration \code{i-1} when deciding
 for the acceptance of the proposal in iteration \code{i}. Only considered during
 burn-in. Default is \code{0.1} (i.e., 10\%).}
 
-\item{progress}{integer, indicating progress output: 0 (none),
+\item{verbose}{integer, indicating verbosity of output: 0 (none),
 1 (minimal text output), or 2 (text output and progress bar). Default is \code{2}.}
 
 \item{...}{additional arguments passed forward to

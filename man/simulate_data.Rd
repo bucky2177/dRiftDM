@@ -17,7 +17,7 @@ simulate_data(object, ...)
   upper = NULL,
   df_prms = NULL,
   seed = NULL,
-  verbose = 1
+  progress = 1
 )
 }
 \arguments{
@@ -53,7 +53,7 @@ names matching with (\code{coef(object, select_unique = TRUE)}), plus a column
 
 \item{seed}{a single numeric, an optional seed for reproducible sampling}
 
-\item{verbose}{an integer, indicating if information about the progress
+\item{progress}{an integer, indicating if information about the progress
 should be displayed. 0 -> no information, 1 -> a progress bar.
 Default is 1. Only effective when \code{k > 1}.}
 }
@@ -156,7 +156,7 @@ upper <- c(6, 0.9, 0.5)
 # now simulate 5 data sets with each 100 trials
 data_prms <- simulate_data(a_model,
   n = 100, k = 5, lower = lower,
-  upper = upper, seed = 1, verbose = 0
+  upper = upper, seed = 1, progress = 0
 )
 head(data_prms$synth_data)
 head(data_prms$prms)
@@ -188,7 +188,7 @@ upper <- list(
 
 data_prms <- simulate_data(a_model,
   n = 100, k = 5, lower = lower,
-  upper = upper, seed = 1, verbose = 0
+  upper = upper, seed = 1, progress = 0
 )
 range(data_prms$prms$muc.comp)
 range(data_prms$prms$muc.incomp)

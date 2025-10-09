@@ -16,7 +16,7 @@
 #' A synthetic data set with two conditions
 #'
 #' This dataset was simulated by using the Diffusion Model for Conflict tasks
-#' (see  [dRiftDM::dmc_dm()]) with parameter settings that are typical for a
+#' (see [dRiftDM::dmc_dm()]) with parameter settings that are typical for a
 #' Simon task.
 #'
 #' @format
@@ -27,6 +27,23 @@
 #'   \item{Cond}{Condition ('comp' and 'incomp')}
 #' }
 "dmc_synth_data"
+
+
+#' A synthetic data set with two conditions
+#'
+#' This dataset was simulated by using the Shrinking Spotlight Model
+#' (see [dRiftDM::ssp_dm()]) with parameter settings that are typical for a
+#' Flanker task.
+#'
+#' @format
+#' A data frame with 600 rows and 3 columns:
+#' \describe{
+#'   \item{RT}{Response Times}
+#'   \item{Error}{Error Coding (Error Response = 1; Correct Response = 0)}
+#'   \item{Cond}{Condition ('comp' and 'incomp')}
+#' }
+"ssp_synth_data"
+
 
 
 

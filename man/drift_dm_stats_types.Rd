@@ -7,7 +7,7 @@
 drift_dm_stats_types(context = NULL)
 }
 \arguments{
-\item{for_what}{a character string, indicating the context. If
+\item{context}{a character string, indicating the context. If
 \code{NULL}, all available types are returned.}
 }
 \value{

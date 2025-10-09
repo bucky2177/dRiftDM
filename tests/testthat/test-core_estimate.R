@@ -1,222 +1,316 @@
-test_that("input checks estimate_model", {
-  # first tests without data
-  a_model <- ratcliff_dm()
 
-  expect_error(estimate_model("hallo"), "drift_dm")
-  expect_warning(estimate_model(a_model,
-    lower = c(1, 0.2, 0.1),
-    upper = c(7, 0.8, 0.6)
-  ), "No data set")
-  return_val <- suppressWarnings(estimate_model(a_model,
-    lower = c(1, 0.2, 0.1),
-    upper = c(7, 0.8, 0.6)
-  ))
-  expect_identical(return_val, a_model)
+test_that("estimate_dm -> sep_c works as expected", {
 
+  model <- ratcliff_dummy
+  prms_solve(model)[c("dx", "dt", "t_max")] <- c(.01, .01, 1.5)
+  l_u <- get_lower_upper(model)
 
-  # first tests with data
-  a_model <- ratcliff_dm(obs_data = ratcliff_synth_data)
-  expect_error(estimate_model(a_model,
-    lower = c(0.2, 0.1),
-    upper = c(7, 0.8, 0.6)
-  ), "Check your input and the model parameters")
-
-  expect_error(estimate_model(a_model,
-    lower = c("1", 0.2, 0.1),
-    upper = c(7, 0.8, 0.6)
-  ), "illegal data type")
-
-  expect_error(estimate_model(a_model,
-    lower = c(0.2, 0.2, 0.1),
-    upper = c(1, Inf, 0.6)
-  ), "illegal data type")
-
-
-  expect_error(estimate_model(a_model,
-    lower = c(0.2, 0.1),
-    upper = c(7, 0.8)
-  ), "Check your input and the model parameters")
-
-  expect_error(
-    estimate_model(a_model,
-      lower = c(1, 0.2, 0.1),
-      upper = c(7, 0.8, 0.8), verbose = "a"
-    ),
-    "must be numeric of either 0, 1, or 2"
-  )
-  expect_error(
-    estimate_model(a_model,
-      lower = c(1, 0.2, 0.1),
-      upper = c(7, 0.8, 0.8), use_de_optim = "a"
-    ),
-    "logical"
-  )
-  expect_error(
-    estimate_model(a_model,
-      lower = c(1, 0.2, 0.1),
-      upper = c(7, 0.8, 0.8), use_nmkb = "a"
-    ),
-    "logical"
+  # test the old variant: Data attached to the model and classical
+  # optimization via the negative log-likelihood and DEoptim
+  # -> trimmed for speed with VTR = 0
+  tmp <- model
+  tmp <- estimate_dm(
+    drift_dm_obj = tmp, lower = l_u$lower, upper = l_u$upper, messaging = FALSE,
+    verbose = 0, control = list(VTR = 0, trace = FALSE)
   )
 
-  expect_error(
-    estimate_model(a_model,
-      lower = c(a = 1, 2, 3), upper = c(5, 3, 4)
-    ),
-    "does not provide a name for each entry"
+  expect_identical(
+    names(tmp$estimate_info),
+    c("conv_flag", "optimizer", "message", "n_iter", "n_eval")
+  )
+  expect_identical(tmp$estimate_info$optimizer, "DEoptim")
+
+  # now with data supplied separately
+  tmp2 <- model
+  data <- obs_data(tmp2, messaging = FALSE)
+  tmp2 <- estimate_dm(
+    drift_dm_obj = tmp2, obs_data = data, lower = l_u$lower, upper = l_u$upper,
+    messaging = FALSE, verbose = 0,
+    control = list(VTR = 0, trace = FALSE)
+  )
+  expect_identical(tmp2, tmp)
+
+  # check messages
+  expect_message(
+    expect_message(
+      expect_message(
+        tmp2 <- estimate_dm(
+          drift_dm_obj = tmp2, obs_data = data, lower = l_u$lower,
+          upper = l_u$upper, verbose = 0, control = list(VTR = 0, trace = FALSE)
+        ), "supplied via the 'obs_data'"
+      ), "DEoptim"
+    ), "Fitting a single data set"
   )
 
-  expect_error(
-    estimate_model(a_model,
-      lower = c(muc = 1, b = 0.3, foo = 0.4),
-      upper = c(muc = 3, b = 5, non_dec = 0.4)
-    ),
-    "don't match with the model parameters"
-  )
-
-  expect_error(
-    estimate_model(a_model,
-      lower = c(muc = 1, b = 0.3, non_dec = 0.4),
-      upper = c(muc = 3, foo = 5, non_dec = 0.4)
-    ),
-    "don't match with the model parameters"
+  # check verbose
+  expect_message(
+    expect_message(
+      expect_message(
+        tmp2 <- estimate_dm(
+          drift_dm_obj = tmp2, obs_data = data, lower = l_u$lower,
+          upper = l_u$upper, verbose = 1, messaging = FALSE,
+          control = list(VTR = 0, trace = FALSE)
+        ), "Starting optimizer"
+      ), "exited after 0 iterations"
+    ), "Final Parameters"
   )
 
 
+  # now try multiple individuals for fits_ids
+  tmp <- model
+  data <- rbind(
+    cbind(ID = 1, ratcliff_synth_data), cbind(ID = 2, ratcliff_synth_data)
+  )
+  all_fits <- estimate_dm(
+    drift_dm_obj = tmp, obs_data = data, lower = l_u$lower, upper = l_u$upper,
+    messaging = FALSE, verbose = 0, progress = 0,
+    control = list(VTR = 0, trace = FALSE)
+  )
+  expect_identical(
+    names(all_fits), c("drift_dm_fit_info", "all_fits")
+  )
+  expect_identical(
+    names(all_fits$drift_dm_fit_info),
+    c("drift_dm_obj", "obs_data_ids", "optimizer", "conv_info")
+  )
+
+
+  # different optimizer and conv. warning
+  tmp <- model
   expect_warning(
-    estimate_model(a_model,
-      lower = c(1, 0.2, 0.1),
-      upper = c(7, 0.8, 0.8),
-      use_nmkb = F, use_de_optim = F
-    ),
-    "No estimation done"
+    tmp <- estimate_dm(
+      drift_dm_obj = tmp, approach = "sep_c", lower = l_u$lower, upper = l_u$upper,
+      optimizer = "nmkb", messaging = FALSE, verbose = 0, progress = 0,
+      control = list(maxfeval = 20)
+    ), "fevals exceeded"
+  )
+  expect_identical(tmp$estimate_info$optimizer, "nmkb")
+  expect_identical(tmp$estimate_info$conv_flag, FALSE)
+  expect_match(tmp$estimate_info$message, "fevals exceeded")
+  expect_identical(tmp$estimate_info$n_iter, NA_real_)
+  expect_identical(tmp$estimate_info$n_eval, 20)
+
+
+  # some edge cases
+  expect_error(estimate_dm(drift_dm_obj = "foo"), "not of type drift_dm")
+
+  tmp <- model
+  tmp$obs_data <- NULL
+  expect_error(estimate_dm(drift_dm_obj = tmp), "No observed data")
+
+  tmp <- model
+  tmp$obs_data <- NULL
+  prms_solve(tmp)["t_max"] = 0.5
+  data <- ratcliff_synth_data
+  expect_error(
+    estimate_dm(drift_dm_obj = tmp, obs_data = data), "increase 't_max'"
   )
 
-  return_val <- suppressWarnings(estimate_model(a_model,
-    lower = c(1, 0.2, 0.1),
-    upper = c(7, 0.8, 0.8),
-    use_nmkb = F, use_de_optim = F
-  ))
-  expect_identical(return_val, a_model)
-
-  expect_error(estimate_model(a_model,
-    lower = c(1, 0.2, 0.1),
-    upper = c(7, 0.8, 0.6), seed = "a"
-  ), "seed")
+  tmp <- model
   expect_error(
-    estimate_model(a_model,
-      lower = c(1, 0.2, 0.1),
-      upper = c(7, 0.8, 0.6), de_n_cores = "a"
-    ),
-    "de_n_cores"
+    estimate_dm(drift_dm_obj = tmp, n_cores = "foo", messaging = FALSE),
+    "n_cores"
   )
 
+  tmp <- model
   expect_error(
-    estimate_model(a_model,
-      lower = c(1, 0.2, 0.1),
-      upper = c(7, 0.8, 0.6), de_control = "a"
-    ),
-    "de_control"
-  )
-  expect_error(
-    estimate_model(a_model,
-      lower = c(1, 0.2, 0.1),
-      upper = c(7, 0.8, 0.6), nmkb_control = "a"
-    ),
-    "nmkb_control"
+    estimate_dm(drift_dm_obj = tmp, seed = "foo", messaging = FALSE),
+    "seed"
   )
 
-  # some check with list
-  expect_error(
-    estimate_model(a_model,
-      lower = list(
-        default_values = c(muc = 1, b = 0.3, non_dec = 0.4),
-        null = c(foo = 3)
-      ),
-      upper = c(muc = 3, b = 5, non_dec = 0.4)
-    ),
-    "not part of the default values"
+  tmp <- model
+  data <- rbind(
+    cbind(ID = 1, ratcliff_synth_data), cbind(ID = 2, ratcliff_synth_data)
+  )
+  expect_warning(
+    estimate_dm(
+      drift_dm_obj = tmp, obs_data = data, optimizer = "DEoptim",
+      lower = l_u$lower, upper = l_u$upper, messaging = FALSE,
+      control = list(VTR = 0), return_runs = TRUE, progress = 0
+    ), "'return_runs' is currently not supported"
   )
 })
 
-test_that("snapshot of the model running through nmkb", {
-  a_model <- ratcliff_dm(dt = .005, dx = .05, var_non_dec = T)
 
-  new_data <- simulate_data(a_model, n = 2000, seed = 1)
-  obs_data(a_model) <- new_data
-  coef(a_model) <- c(muc = 2, b = 0.5, non_dec = 0.2, range_non_dec = 0.02)
-  expect_snapshot(
-    estimate_model(a_model,
-      lower = c(1, 0.2, 0.1, 0.01), upper = c(7, 0.8, 0.6, 0.1),
-      use_de_optim = F, use_nmkb = T, verbose = 2
-    )
+
+test_that("estimate_dm -> agg_c works as expected", {
+
+  model <- ratcliff_dummy
+  prms_solve(model)[c("dx", "dt", "t_max")] <- c(.01, .01, 1.5)
+  l_u <- get_lower_upper(model)
+
+  data <- rbind(
+    cbind(ID = 1, ratcliff_synth_data), cbind(ID = 2, ratcliff_synth_data)
   )
+
+  # test the fitted aggregated variant
+  tmp <- model
+  agg_fit <- estimate_dm(
+    drift_dm_obj = tmp, obs_data = data, approach = "agg_c", lower = l_u$lower,
+    upper = l_u$upper, messaging = FALSE, n_bins = 6,
+    probs = c(0.1, 0.4, 0.6, 0.8),
+    verbose = 0, control = list(VTR = 0.3, trace = FALSE, NP = 30)
+  )
+
+  expect_identical(names(agg_fit), c("drift_dm_obj", "obs_data_ids"))
+
+  # did the aggregation work?
+  exp_stats = calc_stats(
+    data, type = c("quantiles", "cafs"), level = "group", n_bins = 6,
+    probs = c(0.1, 0.4, 0.6, 0.8)
+  )
+  model_stats = agg_fit$drift_dm_obj$stats_agg
+  expect_identical(exp_stats$quantiles$Quant_corr, model_stats$null$quantiles_corr)
+  expect_identical(exp_stats$cafs$P_corr, model_stats$null$cafs)
+
+  # check messages
+  expect_message(
+    expect_message(
+      expect_message(
+        expect_message(
+          expect_message(
+            estimate_dm(
+              drift_dm_obj = tmp, obs_data = data, approach = "agg_c",
+              lower = l_u$lower, upper = l_u$upper, messaging = TRUE,
+              verbose = 0, control = list(VTR = 0.3, trace = FALSE, NP = 30)
+            ), "supplied via the 'obs_data'"
+          ), "DEoptim"
+        ), "Changing the 'cost_function' to 'rmse'"
+      ), "Fitting the model to aggregated"
+    ), "Aggregated data has been set"
+  )
+
+  # check verbose
+  withr::local_seed(1)
+  expect_message(
+    expect_message(
+      expect_message(
+        estimate_dm(
+          drift_dm_obj = tmp, obs_data = data, approach = "agg_c",
+          lower = l_u$lower, upper = l_u$upper, messaging = FALSE,
+          verbose = 1, control = list(VTR = 0.03, trace = FALSE, NP = 30)
+        ), "Starting optimizer"
+      ), "exited after 5 iterations"
+    ), "Final Parameters"
+  )
+
+
+  # some edge cases
+  tmp <- model
+  expect_error(
+    estimate_dm(drift_dm_obj = tmp, approach = "agg_c", messaging = FALSE),
+    "'obs_data'"
+  )
+
 })
 
-test_that("behavior of DE and nmkb toggles", {
-  a_model <- suppressWarnings(dmc_dm(
-    t_max = 1, dt = 0.01, dx = 0.1,
-    instr = "b + sd_non_dec + tau + a + A + alpha <!>"
-  ))
-  subject <- simulate_data(a_model, n = 300, seed = 1)
-  obs_data(a_model) <- subject
 
-  # both toggles FALSE
-  expect_warning(
-    estimate_model(
-      drift_dm_obj = a_model,
-      lower = c(1, 0.1),
-      upper = c(5, 0.5), seed = 1,
-      use_de_optim = FALSE
-    ), "No estimation done"
+test_that("estimate_dm -> sep_b works as expected", {
+
+  model <- ratcliff_dummy
+  prms_solve(model)[c("dx", "dt", "t_max")] <- c(.01, .01, 1.5)
+  l_u <- get_lower_upper(model)
+
+  # test the bayesian estimation (separately for each participant)
+  # -> one participant
+  tmp <- model
+  data <- ratcliff_synth_data
+  tmp$obs_data <- NULL
+  withr::local_seed(1)
+  mcmc_obj <- estimate_dm(
+    drift_dm_obj = tmp, obs_data = data, approach = "sep_b", lower = l_u$lower,
+    messaging = FALSE, verbose = 0, burn_in = 1, samples = 1, n_chains = 5
+  )
+  expect_s3_class(mcmc_obj, "mcmc_dm")
+
+  # now with data already attached
+  tmp <- model
+  withr::local_seed(1)
+  mcmc_obj2 <- estimate_dm(
+    drift_dm_obj = tmp, approach = "sep_b", lower = l_u$lower,
+    messaging = FALSE, verbose = 0, burn_in = 1, samples = 1, n_chains = 5
+  )
+  expect_identical(mcmc_obj$theta, mcmc_obj2$theta)
+
+  # check messages
+  expect_message(
+    expect_message(
+      expect_message(
+        estimate_dm(
+          drift_dm_obj = tmp, approach = "sep_b", lower = l_u$lower,
+          messaging = TRUE, verbose = 0, burn_in = 1, samples = 1, n_chains = 3
+        ), "Using the data attached"
+      ), "DE-MCMC"
+    ), "using the Bayesian framework"
   )
 
-  # DE TRUE nmkb FALSE
-  expect_snapshot(
-    estimate_model(
-      drift_dm_obj = a_model,
-      lower = c(1, 0.1),
-      upper = c(5, 0.5),
-      seed = 1,
-      verbose = 1,
-      use_de_optim = TRUE,
-      de_control = list(
-        reltol = 1e-9, steptol = 50,
-        itermax = 200, trace = TRUE
+  # check verbose
+  expect_message(
+    expect_message(
+      estimate_dm(
+        drift_dm_obj = tmp, approach = "sep_b", lower = l_u$lower,
+        messaging = FALSE, verbose = 1, burn_in = 1, samples = 1, n_chains = 3
+      ), "starting values"
+    ), "sampling procedure"
+  )
+
+
+
+  # now try multiple individuals for the list of mcmc_obj (experimental)
+  tmp <- model
+  data <- rbind(
+    cbind(ID = 1, ratcliff_synth_data), cbind(ID = 2, ratcliff_synth_data)
+  )
+  all_fits <- estimate_dm(
+    drift_dm_obj = tmp, obs_data = data, approach = "sep_b", lower = l_u$lower,
+    messaging = FALSE, verbose = 0, burn_in = 1, progress = 0, samples = 1,
+    n_chains = 3, n_cores = 2, seed = 1
+  )
+  expect_vector(all_fits)
+  expect_s3_class(all_fits$`1`, "mcmc_dm")
+  expect_s3_class(all_fits$`2`, "mcmc_dm")
+})
+
+
+
+
+test_that("estimate_dm -> hier_b runs as expected", {
+
+  model <- ratcliff_dummy
+  prms_solve(model)[c("dx", "dt", "t_max")] <- c(.01, .01, 1.5)
+  l_u <- get_lower_upper(model)
+
+  # simple call runs?
+  data <- rbind(
+    cbind(ID = 1, ratcliff_synth_data), cbind(ID = 2, ratcliff_synth_data)
+  )
+  mcmc_obj <- estimate_dm(
+    drift_dm_obj = model, obs_data = data, approach = "hier_b", lower = l_u$lower,
+    messaging = FALSE, verbose = 0, burn_in = 1, progress = 0, samples = 1,
+    n_chains = 3, n_cores = 2, seed = 1
+  )
+  expect_true(attr(mcmc_obj, "hierarchical"))
+
+
+
+  mock_call_bayesian <- function(...) return(1)
+
+  with_mocked_bindings(
+    estimate_bayesian = mock_call_bayesian,
+    {
+      # check messages
+      expect_message(
+        expect_message(
+          expect_message(
+            estimate_dm(
+              drift_dm_obj = model, obs_data = data, approach = "hier_b"
+            ), "supplied via the 'obs_data' argument"
+          ), "DE-MCMC"
+        ), "hierarchically"
       )
-    )
-  )
-
-  # DE FALSE and nmkb TRUE -> see above
-
-  # nmkb TRUE but univariate case
-  a_model <- modify_flex_prms(a_model, instr = "non_dec <!>")
-  expect_warning(
-    estimate_model(
-      drift_dm_obj = a_model,
-      lower = c(1),
-      upper = c(5), seed = 1,
-      use_nmkb = TRUE, use_de_optim = FALSE,
-      verbose = 0
-    ),
-    "univariate optimization"
-  )
-
-  # DE TRUE nmkb FALSE
-  a_model <- modify_flex_prms(a_model, instr = "non_dec ~!")
-  expect_snapshot(
-    estimate_model(
-      drift_dm_obj = a_model,
-      lower = c(1, 0.1),
-      upper = c(5, 0.5),
-      seed = 1,
-      verbose = 1,
-      use_de_optim = TRUE,
-      de_control = list(
-        reltol = 1e-9, steptol = 50,
-        itermax = 200, trace = TRUE
-      ),
-      de_n_cores = 2
-    )
+    },
   )
 })
+
+
+

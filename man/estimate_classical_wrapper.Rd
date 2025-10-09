@@ -32,7 +32,7 @@ individual. Must contain an \code{ID} column matching the IDs in
 \code{obs_data_ids}, and one column per parameter.}
 
 \item{...}{further arguments passed to \code{\link[=estimate_classical]{estimate_classical()}}, including
-\code{optimizer}, \code{lower}, \code{upper}, \code{verbose}, \code{control}, \code{rounding}, and
+\code{optimizer}, \code{lower}, \code{upper}, \code{verbose}, \code{control}, \code{round_digits}, and
 \code{n_cores}. Note that the argument \code{return_runs} is not supported.}
 }
 \value{

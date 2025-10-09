@@ -49,7 +49,6 @@ int cpp_kfe_ada(NumericVector& pdf_u,
   NumericVector a(nx+1, 0.), b(nx+1, 0.), c(nx+1, 0.), xxnew(nx+1,0.);
 
   double acc = 0;
-  int nsteps = 0;
   double tt = 0.0;
 
   for (int n=1; n<=nt; ++n) {
@@ -71,6 +70,7 @@ int cpp_kfe_ada(NumericVector& pdf_u,
     tt = (n-1)*dtbase;
     double dt = dtbase;
     double time = 0;
+    int nsteps = 0;
 
     while (time < dtbase-1.e-8) // iterate until we complete the time step
     {
@@ -127,6 +127,8 @@ int cpp_kfe_ada(NumericVector& pdf_u,
       else // repeat step
         dt = 0.125 * dt;
 
+      if (nsteps > 50) stop("number of adaptive steps exceeded!");
+
       ++nsteps;
     }
 
@@ -134,6 +136,14 @@ int cpp_kfe_ada(NumericVector& pdf_u,
         (3.0 * xx[nx-1] - 1.5 * xx[nx-2] + 1.0 / 3.0 * xx[nx -3]);
     pdf_l[n] = 0.5 * sigma_new*sigma_new / dx / dx *
         (3.0 * xx[1] - 1.5 * xx[2] + 1.0 / 3.0 * xx[3]);
+
+    if (pdf_u[n] < -tol)
+      pdf_u[n] = 0.5 * sigma_new*sigma_new/ dx / dx *
+        (1.0 * xx[nx-1]);
+
+    if (pdf_l[n] < -tol)
+      pdf_l[n] = 0.5 * sigma_new*sigma_new / dx / dx *
+        (1.0 * xx[1]);
 
     acc += pdf_u[n] + pdf_l[n];
     if (acc * dx * dtbase > 0.999)

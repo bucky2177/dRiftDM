@@ -2,9 +2,12 @@
 % Please edit documentation in R/core_cost_functions.R
 \name{calc_rmse_eval}
 \alias{calc_rmse_eval}
+\alias{calc_rmse}
 \title{RMSE Calculation and Helpers}
 \usage{
 calc_rmse_eval(pdfs, t_vec, dt, stats_agg, stats_agg_info, weight_err = 1.5)
+
+calc_rmse(quants_pred, cafs_pred, quants_obs, cafs_obs, weight_err = 1.5)
 }
 \arguments{
 \item{pdfs}{list of PDFs per condition (named).}

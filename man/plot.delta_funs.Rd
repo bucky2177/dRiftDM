@@ -21,7 +21,7 @@
 }
 \arguments{
 \item{x}{an object of \code{type = "delta_funs"}, typically returned by
-\link{calc_stats(..., type = "delta_funs")}.}
+\code{\link[=calc_stats]{calc_stats()}}.}
 
 \item{...}{additional graphical arguments passed to plotting functions.
 See \code{\link[=set_default_arguments]{set_default_arguments()}} for the full list of supported
@@ -40,8 +40,9 @@ Defaults to all columns in \code{x} that begin with \code{"Delta_"}.}
 \item{col}{a character vector specifying colors for each condition. If a
 single color is provided, it is repeated for all conditions.}
 
-\item{xlim, ylim}{numeric vectors of length 2, specifying the x- and y-axis
-limits.}
+\item{xlim}{a numeric vector of length 2, specifying the x-axis limits.}
+
+\item{ylim}{a numeric vector of length 2, specifying the y-axis limits.}
 
 \item{xlab, ylab}{character strings for the x- and y-axis labels.}
 

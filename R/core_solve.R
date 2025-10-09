@@ -18,12 +18,7 @@
 #'
 #' @details
 #' calc_pdfs is a generic method which dispatches the function call (not
-#' exported).
-#'
-#' calc_pdfs.ratcliff_dm, is a specific method that checks for the presence of
-#' the parameter `sd_muc`, and, if present, calls the calc_pdfs.drift_dm
-#' function multiple times with different value for `muc` to approximate the
-#' variable drift rate.
+#' exported). Currently, the method only considers objects of type drift_dm.
 #'
 #' calc_pdfs.drift_dm is the function that will be called for all models.
 #' It evaluates the different components of a model, and subsequently calls
@@ -45,79 +40,12 @@ calc_pdfs <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
   UseMethod("calc_pdfs")
 }
 
-#' @rdname calc_pdfs
-#' @export
-calc_pdfs.ratcliff_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
-  # check if variability in drift rate is requested
-  prms_matrix <- drift_dm_obj$flex_prms_obj$prms_matrix
-  if (all("sd_muc" != colnames(prms_matrix))) {
-    return(NextMethod("calc_pdfs", drift_dm_obj))
-  }
-
-  # if requested, check for the presence of muc
-  if (!any("muc" == colnames(prms_matrix))) {
-    stop("parameter sd_muc found, but no parameter muc")
-  }
-
-  # and check if constant drift rate was not modified
-  if (!identical(drift_dm_obj$comp_funs$mu_fun, mu_constant)) {
-    stop(
-      "Ratcliff DDM with variable drift rate requires dRiftDM's",
-      " mu_constant function"
-    )
-  }
-
-  if (drift_dm_obj$solver == "im_zero" &&
-      !identical(drift_dm_obj$comp_funs$mu_int_fun, mu_int_constant)) {
-    stop(
-      "Ratcliff DDM with variable drift rate requires dRiftDM's",
-      " mu_int_constant function"
-    )
-  }
-
-  if (any(prms_matrix[, "sd_muc"] <= 0)) {
-    stop("sd_muc values <= 0 are not allowed")
-  }
-
-
-  # do the quadrature
-  X <- c(-2.02018287, -0.95857246, 0., 0.95857246, 2.02018287)
-  W <- c(0.01995324, 0.39361932, 0.94530872, 0.39361932, 0.01995324)
-  wgts <- W / sqrt(3.141592653589793)
-
-  # iterate multiple times over calc_pdfs
-  all_pdfs <- lapply(1:length(W), \(q) {
-    # update muc
-    drift_dm_obj$flex_prms_obj$prms_matrix[, "muc"] <-
-      sqrt(2.0) * prms_matrix[, "sd_muc"] * X[q] + prms_matrix[, "muc"]
-
-    # get PDFs
-    pdfs <- calc_pdfs.drift_dm(
-      drift_dm_obj = drift_dm_obj, x_vec = x_vec,
-      t_vec = t_vec, prms_solve = prms_solve
-    )
-    return(pdfs)
-  })
-
-  # add up
-  conds <- rownames(prms_matrix)
-  pdfs <- sapply(conds, \(one_cond){
-    pdf_u <- rowSums(sapply(1:length(all_pdfs), \(idx){
-      all_pdfs[[idx]][[one_cond]]$pdf_u * wgts[idx]
-    }))
-
-    pdf_l <- rowSums(sapply(1:length(all_pdfs), \(idx){
-      all_pdfs[[idx]][[one_cond]]$pdf_l * wgts[idx]
-    }))
-    return(list(pdf_u = pdf_u, pdf_l = pdf_l))
-  }, simplify = FALSE, USE.NAMES = TRUE)
-
-  return(pdfs)
-}
 
 #' @rdname calc_pdfs
 #' @export
 calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
+
+
   # unpack parameters and conditions
   nt <- prms_solve[["nt"]]
   dt <- prms_solve[["dt"]]
@@ -127,8 +55,38 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
   solver <- drift_dm_obj$solver
   prms_matrix <- drift_dm_obj$flex_prms_obj$prms_matrix
   conds <- rownames(prms_matrix)
+  prm_labels <- colnames(prms_matrix)
 
-  # get the component functions
+  # check if variability in drift rate is requested
+  var_drift = FALSE
+  if (any("sd_muc" == prm_labels)) {
+    var_drift = TRUE
+
+    # and check if constant drift rate is used
+    if (!identical(drift_dm_obj$comp_funs$mu_fun, mu_constant)) {
+      stop(
+        "Ratcliff DDM with variable drift rate requires dRiftDM's",
+        " mu_constant function"
+      )
+    }
+
+    # or its integral
+    if (drift_dm_obj$solver == "im_zero" &&
+        !identical(drift_dm_obj$comp_funs$mu_int_fun, mu_int_constant)) {
+      stop(
+        "Ratcliff DDM with variable drift rate requires dRiftDM's",
+        " mu_int_constant function"
+      )
+    }
+
+    # check for plausible values
+    if (any(prms_matrix[, "sd_muc"] <= 0)) {
+      stop("sd_muc values <= 0 are not allowed")
+    }
+  }
+
+
+  # get the component values
   comp_vals <- comp_vals(
     drift_dm_obj = drift_dm_obj, x_vec = x_vec,
     t_vec = t_vec, nt = nt, dt = dt, nx = nx, dx = dx,
@@ -136,58 +94,116 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
     prms_matrix = prms_matrix
   )
 
-
-  # Second, calculate the pdfs
+  # calculate the pdfs
   pdfs <- sapply(conds, function(one_cond) {
-    # unpack component values
-    comp_vals_one_cond <- comp_vals[[one_cond]]
-    x_vals <- comp_vals_one_cond$x_vals
-    b_vals <- comp_vals_one_cond$b_vals
-    mu_vals <- comp_vals_one_cond$mu_vals
-    mu_int_vals <- comp_vals_one_cond$mu_int_vals
-    dt_b_vals <- comp_vals_one_cond$dt_b_vals
-    nt_vals <- comp_vals_one_cond$nt_vals
 
-    # Initializing containers
-    pdf_u <- numeric(nt + 1)
-    pdf_l <- numeric(nt + 1)
-
-    if (solver == "kfe") {
-      # solve the pdfs with kfe
-      cpp_kfe_ada(
-        pdf_u = pdf_u, pdf_l = pdf_l, xx = x_vals,
-        nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
-        b_vals = b_vals, mu_vals = mu_vals,
-        dt_b_vals = dt_b_vals, x_vec = x_vec
-      )
-    } else if (solver == "im_zero") {
-      # solve the pdfs with integral approach
-      cpp_imzero(
-        pdf_u = pdf_u, pdf_l = pdf_l, nt = nt, dt = dt,
-        sigma = sigma, b_vals = b_vals, mu_vals = mu_vals,
-        mu_int_vals = mu_int_vals, dt_b_vals = dt_b_vals,
-        t_vec = t_vec
+    if (var_drift) {
+      pdfs_one_cond <- calc_pdfs_var_drift(
+        sd_muc_one_cond = prms_matrix[one_cond, "sd_muc"],
+        comp_vals_one_cond = comp_vals[[one_cond]],
+        nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma, x_vec = x_vec,
+        t_vec = t_vec, solver = solver
       )
     } else {
-      stop("solver '", solver, "' not implemented yet!")
+      pdfs_one_cond <- calc_pdfs_heart(
+        comp_vals_one_cond = comp_vals[[one_cond]],
+        nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma, x_vec = x_vec,
+        t_vec = t_vec, solver = solver
+      )
     }
-
-
-    # Omit all states that did not reach a threshold
-    scale <- sum(pdf_u) * dt + sum(pdf_l) * dt
-    pdf_u <- pdf_u / scale
-    pdf_l <- pdf_l / scale
-
-    #  add residual time ...
-    pdfs_one_cond <- add_residual(
-      pdf_nt = nt_vals, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt, nt = nt
-    )
 
     return(pdfs_one_cond)
   }, simplify = FALSE, USE.NAMES = TRUE)
 
 
   return(pdfs)
+}
+
+# outsourced, for easier looping across calc_pdfs_heart
+calc_pdfs_var_drift <- function(sd_muc_one_cond, comp_vals_one_cond, ...) {
+
+  # do the quadrature
+  X <- c(-2.02018287, -0.95857246, 0., 0.95857246, 2.02018287) * sqrt(2.0)
+  W <- c(0.01995324, 0.39361932, 0.94530872, 0.39361932, 0.01995324)
+  wgts <- W / sqrt(3.141592653589793)
+
+  # iterate multiple times over calc_pdfs_heart
+  all_pdfs <- lapply(X, \(one_x) {
+
+    # create a copy of x_vals (because Thomas' cpp modifies in place)
+    copy_comp_vals <- comp_vals_one_cond
+    copy_comp_vals$x_vals <- copy_comp_vals$x_vals + 0
+
+    # update muc
+    copy_comp_vals$mu_vals <- copy_comp_vals$mu_vals + sd_muc_one_cond * one_x
+
+    # get PDFs
+    pdfs <- calc_pdfs_heart(comp_vals_one_cond = copy_comp_vals, ...)
+    return(pdfs)
+  })
+
+  # add up
+  pdf_u <- rowSums(sapply(1:length(all_pdfs), \(idx){
+    all_pdfs[[idx]]$pdf_u * wgts[idx]
+  }))
+
+  pdf_l <- rowSums(sapply(1:length(all_pdfs), \(idx){
+    all_pdfs[[idx]]$pdf_l * wgts[idx]
+  }))
+
+  # wrap it up and return
+  return(list(pdf_u = pdf_u, pdf_l = pdf_l))
+}
+
+
+# outsourced, for easier looping; prepares a call to the cpp functions
+# and the convolution
+calc_pdfs_heart <- function(comp_vals_one_cond, nt, nx, dt, dx, sigma, t_vec,
+                            x_vec, solver) {
+
+  # unpack component values
+  x_vals <- comp_vals_one_cond$x_vals
+  b_vals <- comp_vals_one_cond$b_vals
+  mu_vals <- comp_vals_one_cond$mu_vals
+  mu_int_vals <- comp_vals_one_cond$mu_int_vals
+  dt_b_vals <- comp_vals_one_cond$dt_b_vals
+  nt_vals <- comp_vals_one_cond$nt_vals
+
+  # Initializing containers
+  pdf_u <- numeric(nt + 1)
+  pdf_l <- numeric(nt + 1)
+
+  if (solver == "kfe") {
+    # # solve the pdfs with kfe
+    cpp_kfe_ada(
+      pdf_u = pdf_u, pdf_l = pdf_l, xx = x_vals,
+      nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
+      b_vals = b_vals, mu_vals = mu_vals,
+      dt_b_vals = dt_b_vals, x_vec = x_vec
+    )
+  } else if (solver == "im_zero") {
+    # solve the pdfs with integral approach
+    cpp_imzero(
+      pdf_u = pdf_u, pdf_l = pdf_l, nt = nt, dt = dt,
+      sigma = sigma, b_vals = b_vals, mu_vals = mu_vals,
+      mu_int_vals = mu_int_vals, dt_b_vals = dt_b_vals,
+      t_vec = t_vec
+    )
+  } else {
+    stop("solver '", solver, "' not implemented yet!")
+  }
+
+
+  # Omit all states that did not reach a threshold
+  scale <- sum(pdf_u) * dt + sum(pdf_l) * dt
+  pdf_u <- pdf_u / scale
+  pdf_l <- pdf_l / scale
+
+  #  add residual time ...
+  pdfs_one_cond <- add_residual(
+    pdf_nt = nt_vals, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt, nt = nt
+  )
+
 }
 
 

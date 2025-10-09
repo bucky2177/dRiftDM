@@ -80,7 +80,7 @@ b_coding(my_model)[["column"]] <- "Response"
 
 # accessor method also available for fits_ids_dm objects
 # get an exemplary fits_ids_dm object (see estimate_model_ids)
-fits <- get_example_fits_ids()
+fits <- get_example_fits("fits_ids_dm")
 names(b_coding(fits))
 
 }

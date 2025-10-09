@@ -279,6 +279,10 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
     # list.. this aligns downstream processing with directly specifying a list
     names_input = names(input)
     if (!is.null(names_input)) {
+      if (any(names_input == "")) {
+        stop("Parameter labels must be specified for each element of your ",
+             "input vector. Check your arguments!")
+      }
       if (any(duplicated(names_input))) {
         stop("Parameter labels must be unique! Check your input.")
       }
@@ -293,7 +297,7 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
         if (!(prm %in% names(def_values))) {
           def_values[prm] = raw_input[i]
         } else {
-          input[[split_up[[i]][2]]] = setNames(raw_input[i], prm)
+          input[[split_up[[i]][2]]] = stats::setNames(raw_input[i], prm)
         }
       }
     } else {
@@ -313,8 +317,11 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
 
     if (length(def_values) != length(prm_labels)) {
       stop(
-        "number of parameter names (prm_labels) must match the number of ",
-        "default parameters. Check your input and the model parameters"
+        "The input (e.g., for lower, upper, means) specified ",
+        length(def_values), " parameter values, ",
+        "which doesn't match with the ", length(prm_labels), " parameters ",
+        "of the model that are considered free in at least one condition (",
+        paste(prm_labels, collapse = ","), "). Double-check your arguments!"
       )
     }
     names(def_values) <- prm_labels
@@ -422,12 +429,10 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
 
   # get the upper and lower matrices (might return NULL if input is NULL)
   matrix_a <- create_matrix_smart(
-    input = input_a, conds = conds,
-    prm_labels = prm_labels
+    input = input_a, conds = conds, prm_labels = prm_labels
   )
   matrix_b <- create_matrix_smart(
-    input = input_b, conds = conds,
-    prm_labels = prm_labels
+    input = input_b, conds = conds, prm_labels = prm_labels
   )
 
 
@@ -451,25 +456,27 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
 
 
   # check if all parameters are there (or additional parameters that are )
-  if (!is.null(matrix_a) && !all(prm_labels %in% colnames(matrix_a))) {
+  diff_a = setdiff(prm_labels, colnames(matrix_a))
+  if (!is.null(matrix_a) && length(diff_a) > 0) {
     stop(
-      "Parameter labels in the created matrix for input_a ",
-      "don't match with the model parameters that are considered free. ",
-      "Did you forgot to specify a parameter?"
+      "Some free model parameters are missing input values. ",
+      "Please check your arguments (e.g., lower, upper, means) and provide ",
+      "values for the following parameters: ", paste(diff_a, collapse = ", ")
     )
   }
+  diff_b = setdiff(prm_labels, colnames(matrix_b))
   if (!is.null(matrix_b) && !all(prm_labels %in%  colnames(matrix_b))) {
     stop(
-      "Parameter labels in the created matrix for input_b ",
-      "don't match with the model parameters that are considered free. ",
-      "Did you forgot to specify a parameter?"
+      "Some free model parameters are missing input values. ",
+      "Please check your arguments (e.g., lower, upper, means) and provide ",
+      "values for the following parameters: ", paste(diff_a, collapse = ", ")
     )
   }
 
   diff_a = setdiff(colnames(matrix_a), prm_labels)
   if (!is.null(matrix_a) && length(diff_a) > 0) {
     warning(
-      "Specifications (e.g., lower or upper boundaries, priors) were provided ",
+      "Parameter values (e.g., for lower, upper, means) were provided ",
       "for the following parameters: ", paste(diff_a, collapse = ", "),
       ". These parameters are not 'free' or not part of the model and will be ",
       "ignored."
@@ -478,7 +485,7 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
   diff_b = setdiff(colnames(matrix_b), prm_labels)
   if (!is.null(matrix_b) && length(diff_b) > 0) {
     warning(
-      "Specifications (e.g., lower or upper boundaries, priors) were provided ",
+      "Parameter values (e.g., for lower, upper, means) were provided ",
       "for the following parameters: ", paste(diff_b, collapse = ", "),
       ". These parameters are not 'free' or not part of the model and will be ",
       "ignored."
@@ -528,10 +535,21 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
 }
 
 
+with_muffled_warning <- function(expr, pattern, ignore.case = FALSE) {
+
+  withCallingHandlers({
+    eval(expr)
+  }, warning = function(w) {
+    if (grepl(pattern, conditionMessage(w), ignore.case = ignore.case)) {
+      invokeRestart("muffleWarning")
+    }
+  })
+}
+
 
 # INTEGRATION -------------------------------------------------------------
 
-
+#' @rdname trapz
 internal_trapz <- function(x, y, return_cumsum = FALSE) {
 
   if (length(x) != length(y)) stop("'x' and 'y' must have the same length")
@@ -552,9 +570,38 @@ internal_trapz <- function(x, y, return_cumsum = FALSE) {
   return(sum(dx * mid_heights))
 }
 
+#' @rdname trapz
 cumtrapz <- function(x, y){
   internal_trapz(x, y, TRUE)
 }
+
+#' Numerical integration using the trapezoidal rule
+#'
+#' These are internal helper functions to perform numerical integration
+#' via the trapezoidal rule. The workhorse is `internal_trapz()`, which
+#' computes the full integral or returns the cumulative integral.
+#'
+#' @param x numeric vector of strictly increasing x-values.
+#' @param y numeric vector of function values at `x`.
+#' @param return_cumsum logical, if `TRUE` return the cumulative integral at
+#'   each point in `x` (starting with 0), if `FALSE` return the total integral.
+#'
+#' @details
+#' - `internal_trapz(x, y, return_cumsum = FALSE)`:
+#'   core implementation
+#'
+#' - `trapz(x, y)`
+#'   wrapper for `internal_trapz(x, y, FALSE)`, returns the total integral.
+#'
+#' - `cumtrapz(x, y)`
+#'   wrapper for `internal_trapz(x, y, TRUE)`, returns the cumulative integral.
+#'
+#' @returns
+#' - `trapz()`: a single numeric value
+#' - `cumtrapz()`: numeric vector of cumulative integrals (starting with 0)
+#' - `internal_trapz()`: either of the above, depending on `return_cumsum`
+#'
+#' @keywords internal
 trapz  <- function(x, y){
   internal_trapz(x, y, FALSE)
 }
@@ -691,7 +738,7 @@ drift_dm_cost_functions <- function() {
 #' Internal helper to return supported statistic types depending on the
 #' context (e.g., for observed data.frames or fitted model objects).
 #'
-#' @param for_what a character string, indicating the context. If
+#' @param context a character string, indicating the context. If
 #'   `NULL`, all available types are returned.
 #'
 #' @return a character vector of valid statistic types for the given context.
@@ -704,7 +751,9 @@ drift_dm_stats_types <- function(context = NULL) {
 
   context <- match.arg(
     context,
-    choices = c("data.frame", "drift_dm", "fits_ids_dm", "fits_agg_dm", "sum_dist")
+    choices = c(
+      "data.frame", "drift_dm","fits_ids_dm", "fits_agg_dm", "sum_dist"
+    )
   )
 
   if (context == "data.frame" || context == "sum_dist") {
@@ -713,6 +762,8 @@ drift_dm_stats_types <- function(context = NULL) {
     return(all_stats)
   }
 }
+
+
 # FOR EXAMPLES ------------------------------------------------------------
 
 #' Auxiliary Function to load a `fits_ids_dm`, `fits_agg_dm`, or `mcmc_dm`

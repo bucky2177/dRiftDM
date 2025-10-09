@@ -1,5 +1,5 @@
 test_that("print.traces_dm_list works as expected", {
-  a_model <- readRDS(test_path("fixtures", "ssp.rds"))
+  a_model <- ssp_dummy
   traces <- simulate_traces(a_model, k = 2, seed = 1)
 
   expect_snapshot(
@@ -9,7 +9,7 @@ test_that("print.traces_dm_list works as expected", {
 
 
 test_that("print.traces_dm works as expected", {
-  a_model <- readRDS(test_path("fixtures", "ssp.rds"))
+  a_model <- ssp_dummy
   traces <- simulate_traces(a_model, k = 5, seed = 1)
   traces <- unpack_obj(traces, unpack_elements = F, conds = "comp")
 
@@ -24,7 +24,7 @@ test_that("summary.traces_dm works as expected", {
   withr::local_preserve_seed()
   set.seed(1)
 
-  some_model <- dmc_dm()
+  some_model <- dmc_dummy
   traces_dm_obj <- simulate_traces(some_model, k = 10)$comp
   summary_traces <- summary(traces_dm_obj)
 
@@ -71,7 +71,10 @@ test_that("summary.traces_dm works as expected", {
 
 
 test_that("summary.traces_dm_list works as expected", {
-  some_model <- dmc_dm(dt = .005, dx = .005)
+  some_model <- dmc_dummy
+  prms_solve(some_model)[c("dx", "dt")] <- 0.005
+
+
   withr::local_preserve_seed()
   set.seed(1)
   traces_dm_list_obj <- simulate_traces(some_model,

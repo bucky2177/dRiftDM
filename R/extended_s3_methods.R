@@ -69,7 +69,10 @@ nobs.drift_dm <- function(object, ...) {
 #' @export
 logLik.drift_dm <- function(object, ...) {
 
-  stats <- calc_fit_stats(object, ...)
+  stats <- with_muffled_warning(
+    calc_fit_stats(object, ...),
+    pattern = "Couldn't form .* bins from .* RTs"
+  )
   val <- stats[["Log_Like"]]
 
   # extract cost value (if NA return NULL)
@@ -167,6 +170,8 @@ logLik.drift_dm <- function(object, ...) {
 #'   per parameter). If `.f` returns a vector, the `data.frame` will include
 #'   an additional column `.f_out`, coding the output of `.f` in long
 #'   format.
+#'
+#' @importFrom stats coef
 #'
 #' @seealso [dRiftDM::drift_dm()]
 #'
@@ -269,7 +274,12 @@ coef.fits_agg_dm <- function(object, ...) {
 #'
 #' @export
 logLik.fits_ids_dm <- function(object, ...) {
-  stats <- calc_stats(object, type = "fit_stats")
+
+  stats <- with_muffled_warning(
+    calc_stats(object, type = "fit_stats"),
+    pattern = "Couldn't form .* bins from .* RTs"
+  )
+
   if (all(is.na(stats[["Log_Like"]]))) return(NULL)
   return(stats[c("ID", "Log_Like")])
 }
@@ -278,7 +288,10 @@ logLik.fits_ids_dm <- function(object, ...) {
 #' @importFrom stats AIC
 #' @export
 AIC.fits_ids_dm <- function(object, ..., k = 2) {
-  stats <- calc_stats(object, type = "fit_stats", k = k)
+  stats <- with_muffled_warning(
+    calc_stats(object, type = "fit_stats", k = k),
+    pattern = "Couldn't form .* bins from .* RTs"
+  )
   if (all(is.na(stats[["AIC"]]))) return(NULL)
   return(stats[c("ID", "AIC")])
 }
@@ -287,7 +300,10 @@ AIC.fits_ids_dm <- function(object, ..., k = 2) {
 #' @importFrom stats BIC
 #' @export
 BIC.fits_ids_dm <- function(object, ...) {
-  stats <- calc_stats(object, type = "fit_stats")
+  stats <- with_muffled_warning(
+    calc_stats(object, type = "fit_stats"),
+    pattern = "Couldn't form .* bins from .* RTs"
+  )
   if (all(is.na(stats[["BIC"]]))) return(NULL)
   return(stats[c("ID", "BIC")])
 }

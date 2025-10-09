@@ -178,7 +178,7 @@ flex_prms(my_model) <- new_flex_prms
 # accessor method also available for fits_ids_dm objects
 # (see estimate_model_ids)
 # get an exemplary fits_ids_dm object
-fits <- get_example_fits_ids()
+fits <- get_example_fits("fits_ids_dm")
 names(comp_funs(fits))
 
 }

@@ -4,9 +4,9 @@
       print(some_stats, some = TRUE, print_rows = 3, show_header = FALSE, show_note = FALSE)
     Output
         Source   Cond Bin P_corr
-      4   pred   comp   4  0.983
-      7   pred incomp   2  0.968
-      9   pred incomp   4  0.991
+      1    obs   comp   1  1.000
+      4    obs   comp   4  0.983
+      7    obs incomp   2  0.867
       ...
 
 # print.basic_stats works as expected
@@ -17,7 +17,7 @@
       Type of Statistic: basic_stats
       
         Source Cond Mean_corr Mean_err SD_corr SD_err P_corr
-      1   pred null      0.49     0.49    0.13   0.13  0.973
+      1    obs null     0.414    0.417   0.086  0.094   0.93
       
       (access the data.frame's columns/rows as usual)
 
@@ -29,16 +29,17 @@
       Type of Statistic: cafs
       
          Source   Cond Bin P_corr
-      1    pred   comp   1  0.982
-      2    pred   comp   2  0.982
-      3    pred   comp   3  0.980
-      4    pred   comp   4  0.983
-      5    pred   comp   5  0.989
-      6    pred incomp   1  0.825
-      7    pred incomp   2  0.968
-      8    pred incomp   3  0.986
-      9    pred incomp   4  0.991
-      10   pred incomp   5  0.992
+      1     obs   comp   1  1.000
+      2     obs   comp   2  0.950
+      3     obs   comp   3  0.984
+      4     obs   comp   4  0.983
+      5     obs   comp   5  0.950
+      6     obs incomp   1  0.733
+      7     obs incomp   2  0.867
+      8     obs incomp   3  0.950
+      9     obs incomp   4  0.950
+      10    obs incomp   5  0.967
+      ...
       
       (access the data.frame's columns/rows as usual)
 
@@ -50,16 +51,16 @@
       Type of Statistic: quantiles
       
          Source   Cond Prob Quant_corr Quant_err
-      1    pred   comp  0.1      0.325     0.321
-      2    pred   comp  0.2      0.346     0.342
-      3    pred   comp  0.3      0.364     0.361
-      4    pred   comp  0.4      0.384     0.379
-      5    pred   comp  0.5      0.407     0.397
-      6    pred   comp  0.6      0.434     0.418
-      7    pred   comp  0.7      0.466     0.442
-      8    pred   comp  0.8      0.509     0.475
-      9    pred   comp  0.9      0.576     0.530
-      10   pred incomp  0.1      0.352     0.301
+      1     obs   comp  0.1      0.401     0.448
+      2     obs   comp  0.2      0.427     0.458
+      3     obs   comp  0.3      0.441     0.463
+      4     obs   comp  0.4      0.463     0.489
+      5     obs   comp  0.5      0.479     0.526
+      6     obs   comp  0.6      0.503     0.568
+      7     obs   comp  0.7      0.535     0.613
+      8     obs   comp  0.8      0.577     0.622
+      9     obs   comp  0.9      0.648     0.698
+      10    obs incomp  0.1      0.440     0.360
       ...
       
       (access the data.frame's columns/rows as usual)
@@ -71,26 +72,29 @@
     Output
       Type of Statistic: delta_funs
       
-        Source Prob Quant_corr_comp Quant_corr_incomp Delta_incomp_comp
-      1   pred  0.1           0.325             0.352             0.027
-      2   pred  0.2           0.346             0.375             0.030
-      3   pred  0.3           0.364             0.394             0.030
-      4   pred  0.4           0.384             0.412             0.028
-      5   pred  0.5           0.407             0.431             0.024
-      6   pred  0.6           0.434             0.453             0.019
-      7   pred  0.7           0.466             0.479             0.013
-      8   pred  0.8           0.509             0.515             0.006
-      9   pred  0.9           0.576             0.575            -0.001
-        Avg_incomp_comp
-      1           0.339
-      2           0.360
-      3           0.379
-      4           0.398
-      5           0.419
-      6           0.443
-      7           0.473
-      8           0.512
-      9           0.576
+         Source Prob Quant_corr_comp Quant_corr_incomp Delta_incomp_comp
+      1     obs  0.1           0.401             0.440             0.039
+      2     obs  0.2           0.427             0.464             0.037
+      3     obs  0.3           0.441             0.483             0.042
+      4     obs  0.4           0.463             0.508             0.045
+      5     obs  0.5           0.479             0.528             0.050
+      6     obs  0.6           0.503             0.544             0.042
+      7     obs  0.7           0.535             0.582             0.047
+      8     obs  0.8           0.577             0.618             0.040
+      9     obs  0.9           0.648             0.672             0.024
+      10   pred  0.1           0.325             0.352             0.027
+         Avg_incomp_comp
+      1            0.421
+      2            0.446
+      3            0.462
+      4            0.485
+      5            0.504
+      6            0.523
+      7            0.558
+      8            0.598
+      9            0.660
+      10           0.339
+      ...
       
       (access the data.frame's columns/rows as usual)
 
@@ -101,9 +105,10 @@
     Output
       Type of Statistic: fit_stats
       
-        ID Log_Like      AIC      BIC
-      1  1  274.725 -543.451 -532.339
-      2  2  234.308 -462.616 -451.505
+        ID Log_Like Neg_Log_Like      AIC      BIC RMSE_s RMSE_ms
+      1  1  399.408     -399.408 -784.816 -758.096  0.020  20.180
+      2  2  377.923     -377.923 -741.846 -715.168  0.031  31.257
+      3  3  472.485     -472.485 -930.970 -904.251  0.012  12.004
       
       (access the data.frame's columns/rows as usual)
 
@@ -114,24 +119,25 @@
     Output
       Element 1, contains fit_stats
       
-        ID Log_Like      AIC      BIC
-      1  1  274.725 -543.451 -532.339
-      2  2  234.308 -462.616 -451.505
+        ID Log_Like Neg_Log_Like      AIC      BIC RMSE_s RMSE_ms
+      1  1  399.408     -399.408 -784.816 -758.096  0.020  20.180
+      2  2  377.923     -377.923 -741.846 -715.168  0.031  31.257
+      3  3  472.485     -472.485 -930.970 -904.251  0.012  12.004
       
       
       Element 2, contains quantiles
       
-         ID Source Cond Prob Quant_corr Quant_err
-      1   1    obs null  0.1      0.370     0.360
-      2   1    obs null  0.2      0.390     0.370
-      3   1    obs null  0.3      0.410     0.370
-      4   1    obs null  0.4      0.430     0.370
-      5   1    obs null  0.5      0.450     0.440
-      6   1    obs null  0.6      0.470     0.510
-      7   1    obs null  0.7      0.501     0.510
-      8   1    obs null  0.8      0.550     0.510
-      9   1    obs null  0.9      0.637     0.600
-      10  1   pred null  0.1      0.371     0.371
+         ID Source   Cond Prob Quant_corr Quant_err
+      1   1    obs   comp  0.1      0.335     0.361
+      2   1    obs   comp  0.2      0.368     0.388
+      3   1    obs   comp  0.3      0.385     0.415
+      4   1    obs   comp  0.4      0.385     0.441
+      5   1    obs   comp  0.5      0.401     0.468
+      6   1    obs   comp  0.6      0.418     0.468
+      7   1    obs   comp  0.7      0.435     0.468
+      8   1    obs   comp  0.8      0.452     0.468
+      9   1    obs   comp  0.9      0.501     0.468
+      10  1    obs incomp  0.1      0.368     0.361
       ...
       
       (extract the list's elements as usual, e.g., with $fit_stats)
@@ -151,13 +157,20 @@
       Type of Statistic: stats_dm
       
       Dependent Variables:
-             ID         Log_Like        AIC            BIC      
-       Min.   :1.0   Min.   :383   Min.   :-927   Min.   :-900  
-       1st Qu.:1.5   1st Qu.:396   1st Qu.:-866   1st Qu.:-839  
-       Median :2.0   Median :409   Median :-804   Median :-778  
-       Mean   :2.0   Mean   :421   Mean   :-827   Mean   :-801  
-       3rd Qu.:2.5   3rd Qu.:440   3rd Qu.:-778   3rd Qu.:-751  
-       Max.   :3.0   Max.   :470   Max.   :-751   Max.   :-724  
+             ID         Log_Like    Neg_Log_Like       AIC            BIC      
+       Min.   :1.0   Min.   :378   Min.   :-472   Min.   :-931   Min.   :-904  
+       1st Qu.:1.5   1st Qu.:389   1st Qu.:-436   1st Qu.:-858   1st Qu.:-831  
+       Median :2.0   Median :399   Median :-399   Median :-785   Median :-758  
+       Mean   :2.0   Mean   :417   Mean   :-417   Mean   :-819   Mean   :-793  
+       3rd Qu.:2.5   3rd Qu.:436   3rd Qu.:-389   3rd Qu.:-763   3rd Qu.:-737  
+       Max.   :3.0   Max.   :472   Max.   :-378   Max.   :-742   Max.   :-715  
+           RMSE_s          RMSE_ms    
+       Min.   :0.0120   Min.   :12.0  
+       1st Qu.:0.0161   1st Qu.:16.1  
+       Median :0.0202   Median :20.2  
+       Mean   :0.0211   Mean   :21.1  
+       3rd Qu.:0.0257   3rd Qu.:25.7  
+       Max.   :0.0313   Max.   :31.3  
       
       N IDs: 3 
 
@@ -170,14 +183,14 @@
       
       Dependent Variables:
           Source              Cond                Bin        P_corr     
-       Length:10          Length:10          Min.   :1   Min.   :0.825  
-       Class :character   Class :character   1st Qu.:2   1st Qu.:0.981  
-       Mode  :character   Mode  :character   Median :3   Median :0.983  
-                                             Mean   :3   Mean   :0.968  
-                                             3rd Qu.:4   3rd Qu.:0.988  
-                                             Max.   :5   Max.   :0.992  
+       Length:20          Length:20          Min.   :1   Min.   :0.733  
+       Class :character   Class :character   1st Qu.:2   1st Qu.:0.950  
+       Mode  :character   Mode  :character   Median :3   Median :0.981  
+                                             Mean   :3   Mean   :0.951  
+                                             3rd Qu.:4   3rd Qu.:0.984  
+                                             Max.   :5   Max.   :1.000  
       
-      Sources: pred 
+      Sources: obs, pred 
 
 # summary.basic_stats works as expected
 
@@ -187,17 +200,18 @@
       Type of Statistic: basic_stats
       
       Dependent Variables:
-         Mean_corr       Mean_err       SD_corr         SD_err          P_corr    
-       Min.   :0.48   Min.   :0.44   Min.   :0.11   Min.   :0.094   Min.   :0.98  
-       1st Qu.:0.48   1st Qu.:0.46   1st Qu.:0.11   1st Qu.:0.104   1st Qu.:0.98  
-       Median :0.48   Median :0.47   Median :0.11   Median :0.113   Median :0.98  
-       Mean   :0.48   Mean   :0.47   Mean   :0.12   Mean   :0.113   Mean   :0.98  
-       3rd Qu.:0.49   3rd Qu.:0.48   3rd Qu.:0.12   3rd Qu.:0.121   3rd Qu.:0.98  
-       Max.   :0.49   Max.   :0.48   Max.   :0.13   Max.   :0.131   Max.   :0.98  
+         Mean_corr       Mean_err       SD_corr          SD_err          P_corr    
+       Min.   :0.36   Min.   :0.29   Min.   :0.054   Min.   :0.020   Min.   :0.90  
+       1st Qu.:0.39   1st Qu.:0.35   1st Qu.:0.062   1st Qu.:0.046   1st Qu.:0.95  
+       Median :0.41   Median :0.36   Median :0.067   Median :0.060   Median :0.97  
+       Mean   :0.41   Mean   :0.37   Mean   :0.067   Mean   :0.056   Mean   :0.96  
+       3rd Qu.:0.44   3rd Qu.:0.40   3rd Qu.:0.070   3rd Qu.:0.069   3rd Qu.:0.98  
+       Max.   :0.45   Max.   :0.44   Max.   :0.085   Max.   :0.077   Max.   :1.00  
+                      NA's   :1                      NA's   :1                     
       
-      N IDs: 2 
+      N IDs: 3 
       Sources: obs, pred 
-      Conditions: null 
+      Conditions: comp, incomp 
 
 # summary.cafs works as expected
 
@@ -208,16 +222,16 @@
       
       Dependent Variables:
            P_corr    
-       Min.   :0.96  
-       1st Qu.:0.98  
+       Min.   :0.74  
+       1st Qu.:0.96  
        Median :0.98  
-       Mean   :0.98  
-       3rd Qu.:0.98  
+       Mean   :0.96  
+       3rd Qu.:1.00  
        Max.   :1.00  
       
-      N IDs: 2 
+      N IDs: 3 
       Sources: obs, pred 
-      Conditions: null 
+      Conditions: comp, incomp 
       Bins: 1, 2, 3, 4, 5 
 
 # summary.quantiles works as expected
@@ -250,15 +264,15 @@
       Type of Statistic: delta_funs
       
       Dependent Variables:
-       Quant_corr_comp Quant_corr_incomp Delta_incomp_comp   Avg_incomp_comp
-       Min.   :0.325   Min.   :0.352     Min.   :-0.000737   Min.   :0.339  
-       1st Qu.:0.364   1st Qu.:0.394     1st Qu.: 0.013103   1st Qu.:0.379  
-       Median :0.407   Median :0.431     Median : 0.024406   Median :0.419  
-       Mean   :0.423   Mean   :0.443     Mean   : 0.019649   Mean   :0.433  
-       3rd Qu.:0.466   3rd Qu.:0.479     3rd Qu.: 0.028130   3rd Qu.:0.473  
-       Max.   :0.576   Max.   :0.575     Max.   : 0.029972   Max.   :0.576  
+       Quant_corr_comp Quant_corr_incomp Delta_incomp_comp  Avg_incomp_comp
+       Min.   :0.325   Min.   :0.352     Min.   :-0.00102   Min.   :0.339  
+       1st Qu.:0.402   1st Qu.:0.433     1st Qu.: 0.02430   1st Qu.:0.419  
+       Median :0.452   Median :0.481     Median : 0.02990   Median :0.467  
+       Mean   :0.460   Mean   :0.490     Mean   : 0.03014   Mean   :0.475  
+       3rd Qu.:0.507   3rd Qu.:0.540     3rd Qu.: 0.04125   3rd Qu.:0.520  
+       Max.   :0.648   Max.   :0.672     Max.   : 0.05000   Max.   :0.660  
       
-      Sources: pred 
+      Sources: obs, pred 
       Probs: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 
 
 # summary.fit_stats works as expected
@@ -269,15 +283,22 @@
       Type of Statistic: fit_stats
       
       Dependent Variables:
-          Log_Like        AIC            BIC      
-       Min.   :234   Min.   :-543   Min.   :-532  
-       1st Qu.:244   1st Qu.:-523   1st Qu.:-512  
-       Median :255   Median :-503   Median :-492  
-       Mean   :255   Mean   :-503   Mean   :-492  
-       3rd Qu.:265   3rd Qu.:-483   3rd Qu.:-472  
-       Max.   :275   Max.   :-463   Max.   :-452  
+          Log_Like    Neg_Log_Like       AIC            BIC           RMSE_s      
+       Min.   :378   Min.   :-472   Min.   :-931   Min.   :-904   Min.   :0.0120  
+       1st Qu.:389   1st Qu.:-436   1st Qu.:-858   1st Qu.:-831   1st Qu.:0.0161  
+       Median :399   Median :-399   Median :-785   Median :-758   Median :0.0202  
+       Mean   :417   Mean   :-417   Mean   :-819   Mean   :-793   Mean   :0.0211  
+       3rd Qu.:436   3rd Qu.:-389   3rd Qu.:-763   3rd Qu.:-737   3rd Qu.:0.0257  
+       Max.   :472   Max.   :-378   Max.   :-742   Max.   :-715   Max.   :0.0313  
+          RMSE_ms    
+       Min.   :12.0  
+       1st Qu.:16.1  
+       Median :20.2  
+       Mean   :21.1  
+       3rd Qu.:25.7  
+       Max.   :31.3  
       
-      N IDs: 2 
+      N IDs: 3 
 
 # summary.stats_dm_list works as expected
 
@@ -289,13 +310,13 @@
       Dependent Variables:
          Quant_corr      Quant_err    
        Min.   :0.325   Min.   :0.301  
-       1st Qu.:0.377   1st Qu.:0.334  
-       Median :0.422   Median :0.363  
-       Mean   :0.433   Mean   :0.378  
-       3rd Qu.:0.476   3rd Qu.:0.413  
-       Max.   :0.576   Max.   :0.531  
+       1st Qu.:0.411   1st Qu.:0.361  
+       Median :0.465   Median :0.431  
+       Mean   :0.475   Mean   :0.438  
+       3rd Qu.:0.530   3rd Qu.:0.491  
+       Max.   :0.672   Max.   :0.698  
       
-      Sources: pred 
+      Sources: obs, pred 
       Conditions: comp, incomp 
       Probs: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 
       -------
@@ -304,14 +325,14 @@
       
       Dependent Variables:
            P_corr     
-       Min.   :0.825  
-       1st Qu.:0.981  
-       Median :0.983  
-       Mean   :0.968  
-       3rd Qu.:0.988  
-       Max.   :0.992  
+       Min.   :0.733  
+       1st Qu.:0.950  
+       Median :0.981  
+       Mean   :0.951  
+       3rd Qu.:0.984  
+       Max.   :1.000  
       
-      Sources: pred 
+      Sources: obs, pred 
       Conditions: comp, incomp 
       Bins: 1, 2, 3, 4, 5 
       -------

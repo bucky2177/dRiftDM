@@ -142,7 +142,7 @@ print(some_traces)
 # a method is also available for fits_ids_dm objects
 # (see estimate_model_ids)
 # get an exemplary fits_ids_dm object
-fits <- get_example_fits_ids()
+fits <- get_example_fits("fits_ids_dm")
 some_traces <- simulate_traces(fits, k = 1, seed = 1)
 print(some_traces)
 

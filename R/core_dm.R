@@ -120,7 +120,7 @@
 #'
 #' @seealso [dRiftDM::conds()], [dRiftDM::flex_prms()], [dRiftDM::prms_solve()],
 #' [dRiftDM::solver()], [dRiftDM::obs_data()], [dRiftDM::comp_funs()],
-#' [dRiftDM::b_coding()], [dRiftDM::coef()], [dRiftDM::pdfs()], [dRiftDM::]
+#' [dRiftDM::b_coding()], [dRiftDM::coef()], [dRiftDM::pdfs()]
 #'
 #' @export
 drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
@@ -310,8 +310,6 @@ validate_drift_dm <- function(drift_dm_obj) {
     }
   }
 
-
-
   # check the prms_solve entry
   check_if_named_numeric_vector(
     x = drift_dm_obj$prms_solve,
@@ -366,7 +364,6 @@ validate_drift_dm <- function(drift_dm_obj) {
   if (prms_solve[["nt"]] <= 10) {
     warning("nt seems very small. Double check your model")
   }
-
 
 
   # check if the solver entry is just a single string and if it makes sense
@@ -434,7 +431,7 @@ validate_drift_dm <- function(drift_dm_obj) {
   # check the cost value and function string
   cost_function = drift_dm_obj$cost_function
   if (!is.character(cost_function) | length(cost_function) != 1) {
-    stop("cost_function in drift_dm_obj is not a single character/string")
+    stop("cost_function in drift_dm_obj is not a single character string")
   }
 
   pos_cost_functions = drift_dm_cost_functions()
@@ -455,16 +452,16 @@ validate_drift_dm <- function(drift_dm_obj) {
         "accuracy-coded (or differ from dRiftDM's default coding). The RMSE ",
         "statistic uses quantiles of the upper boundary and CAFs (which are ",
         "ratios of the PDF mass at the upper vs. lower boundary). Please check ",
-        "whether this is appropriate for your case."
+        "whether this is appropriate in your case."
       )
     }
   }
 
 
   # check cost_value
-  cost_value = drift_dm_obj$cost_value
-  if (!is.null(cost_value)) {
-    if (!is_numeric(cost_value) | length(cost_value) != 1) {
+  cv = drift_dm_obj$cost_value
+  if (!is.null(cv)) {
+    if (!is.numeric(cv) || anyNA(cv) || length(cv) != 1) {
       stop("cost_value in drift_dm_obj is not a single numeric")
     }
   }
@@ -474,6 +471,8 @@ validate_drift_dm <- function(drift_dm_obj) {
   # if the cost_function is a summary function.. here I also check if
   # the stats_agg_info entry is reasonable
   stats_agg = drift_dm_obj$stats_agg
+  if (cost_function == "neg_log_like") stopifnot(is.null(stats_agg))
+
   if (cost_function != "neg_log_like" & !is.null(stats_agg)) {
 
     # check names and data types
@@ -566,7 +565,8 @@ validate_drift_dm <- function(drift_dm_obj) {
   # check estimate_info
   estimate_info = drift_dm_obj$estimate_info
   if (!is.null(estimate_info)) {
-    if (!identical(names(estimate_info), c("conv_flag", "optimizer"))) {
+    exp_entries = c("conv_flag", "optimizer", "message", "n_iter", "n_eval")
+    if (!identical(names(estimate_info), exp_entries)) {
       stop("estimate_info has unexpected entries")
     }
     conv_flag = estimate_info$conv_flag
@@ -576,6 +576,18 @@ validate_drift_dm <- function(drift_dm_obj) {
     optimizer = estimate_info$optimizer
     if (!is.character(optimizer) || length(optimizer) != 1) {
       stop("optimizer must be a single string")
+    }
+    message = estimate_info$message
+    if (!(is.null(message) || (is.character(message) && length(message) == 1))) {
+      stop("message must be a single string")
+    }
+    n_iter = estimate_info$n_iter
+    if (!is.numeric(n_iter) || length(n_iter) != 1) {
+      stop("n_iter must be a single numeric")
+    }
+    n_eval = estimate_info$n_eval
+    if (!is.numeric(n_eval) || length(n_eval) != 1) {
+      stop("n_eval must be a single numeric")
     }
   }
 
@@ -1313,6 +1325,20 @@ set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
   if (name_prm_solve == "t_max" | name_prm_solve == "dt") {
     prms_solve <- drift_dm_obj$prms_solve
     prms_solve[[name_prm_solve]] <- value_prm_solve
+
+    # check if the time line works out
+    dt = prms_solve[["dt"]]
+    t_max = prms_solve[["t_max"]]
+    check = (t_max / dt) %% 1 < drift_dm_approx_error()
+    if (!check) {
+      t_max_new <- ceiling(t_max / dt) * dt
+      message(
+        "Current `t_max` (", t_max, ") is not an integer multiple of `dt` (",
+        dt, "). Adjusting `t_max` to ", t_max_new, " to ensure consistency. ",
+        "Please check if this is fine with you."
+      )
+      prms_solve[["t_max"]] <- t_max_new
+    }
     prms_solve["nt"] <- as.integer(
       prms_solve[["t_max"]] / prms_solve[["dt"]] + 1.e-8
     )
@@ -1322,8 +1348,26 @@ set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
   # if desired, set dx
   if (name_prm_solve == "dx") {
     prms_solve <- drift_dm_obj$prms_solve
-    prms_solve[["dx"]] <- value_prm_solve
-    prms_solve["nx"] <- as.integer(2 / prms_solve["dx"] + 1.e-8)
+    dx = value_prm_solve
+    span <- 2.0 # standardized evidence range length: [-1;1] => 2
+    tol <- drift_dm_approx_error()
+    q <- span / dx # desired number of intervals
+
+    if (abs(q - round(q)) >= tol) {
+      pos_dxs <- 1:9999 / 10000
+      pos_dxs <- pos_dxs[(span / pos_dxs) %% 1 == 0]
+      dx_new = pos_dxs[which.min(abs(pos_dxs - dx))]
+      message(
+        "`dx` (", dx,") does not divide the standardized evidence space ",
+        "([-1;1]) evenly. Adjusting `dx` to ", dx_new, ". Please check ",
+        "if this is fine with you."
+      )
+      prms_solve[["dx"]] <- dx_new
+    } else {
+      prms_solve[["dx"]] <- dx
+    }
+
+    prms_solve["nx"] <- as.integer(2.0 / prms_solve["dx"] + 1.e-8)
     drift_dm_obj$prms_solve <- prms_solve
   }
 
@@ -1453,8 +1497,6 @@ update_stats_agg <- function(drift_dm_obj, which_cost_function,
 
       rts_u = drift_dm_obj$obs_data$rts_u[[one_cond]]
       rts_l = drift_dm_obj$obs_data$rts_l[[one_cond]]
-      # it is not reasonable to have almost no RTs at the upper boundary
-      stopifnot(length(rts_u) > 1)
 
       quantiles = calc_quantiles_obs(
         rts_u = rts_u,
@@ -1842,7 +1884,7 @@ check_b_coding <- function(b_coding) {
 #' conds(some_traces)
 #'
 #' # get an exemplary fits_ids_dm object (see estimate_model_ids)
-#' fits <- get_example_fits_ids()
+#' fits <- get_example_fits("fits_ids_dm")
 #' conds(fits)
 #'
 #' # also works with data.frames that have a "Cond" column
@@ -1941,7 +1983,7 @@ conds.traces_dm_list <- function(object, ...) {
 #' # accessor method also available for fits_ids_dm objects
 #' # (see estimate_model_ids)
 #' # get an exemplary fits_ids_dm object
-#' fits <- get_example_fits_ids()
+#' fits <- get_example_fits("fits_ids_dm")
 #' prms_solve(fits)
 #'
 #' @seealso [dRiftDM::drift_dm()]
@@ -2021,7 +2063,7 @@ prms_solve.fits_agg_dm <- function(object, ...) {
 #' # accessor method also available for fits_ids_dm objects
 #' # (see estimate_model_ids)
 #' # get an exemplary fits_ids_dm object
-#' fits <- get_example_fits_ids()
+#' fits <- get_example_fits("fits_ids_dm")
 #' solver(fits)
 #'
 #' @seealso [dRiftDM::drift_dm()]
@@ -2136,7 +2178,7 @@ solver.fits_agg_dm <- function(object, ...) {
 #' # accessor method also available for fits_ids_dm objects
 #' # (see estimate_model_ids)
 #' # get an exemplary fits_ids_dm object
-#' fits <- get_example_fits_ids()
+#' fits <- get_example_fits("fits_ids_dm")
 #' head(obs_data(fits))
 #'
 #' @seealso [dRiftDM::drift_dm()]
@@ -2361,7 +2403,7 @@ obs_data.fits_agg_dm <- function(object, ...) {
 #' # accessor method also available for fits_ids_dm objects
 #' # (see estimate_model_ids)
 #' # get an exemplary fits_ids_dm object
-#' fits <- get_example_fits_ids()
+#' fits <- get_example_fits("fits_ids_dm")
 #' names(comp_funs(fits))
 #'
 #' @seealso [dRiftDM::drift_dm()]
@@ -2456,7 +2498,7 @@ comp_funs.fits_agg_dm <- function(object, ...) {
 #'
 #' # accessor method also available for fits_ids_dm objects
 #' # get an exemplary fits_ids_dm object (see estimate_model_ids)
-#' fits <- get_example_fits_ids()
+#' fits <- get_example_fits("fits_ids_dm")
 #' names(b_coding(fits))
 #'
 #' @seealso [dRiftDM::drift_dm()]
@@ -2642,7 +2684,11 @@ pdfs.fits_agg_dm <- function(object, ...) {
 #'
 #' @param object an object of type [dRiftDM::drift_dm], `fits_ids_dm`, or
 #' `fits_agg_dm` (see [dRiftDM::estimate_dm()]).
-#'
+#' @param eval_model logical, indicating if the model should be re-evaluated or
+#'  not when updating the conditions (see [dRiftDM::re_evaluate_model]).
+#'  Default is `FALSE`.
+#' @param value a character string, providing the cost function label
+#' (options are `"neg_log_like"` or `"rmse"`)
 #' @param ... additional arguments passed down to [dRiftDM::update_stats_agg()]
 #' when setting the cost function label.
 #'
@@ -3026,7 +3072,7 @@ prms_cond_combo <- function(drift_dm_obj) {
 #' # a method is also available for fits_ids_dm objects
 #' # (see estimate_model_ids)
 #' # get an exemplary fits_ids_dm object
-#' fits <- get_example_fits_ids()
+#' fits <- get_example_fits("fits_ids_dm")
 #' some_traces <- simulate_traces(fits, k = 1, seed = 1)
 #' print(some_traces)
 #'
@@ -3125,8 +3171,6 @@ simulate_traces.drift_dm <- function(object, k, ..., conds = NULL, add_x = FALSE
   if (!all(conds %in% names(sigmas))) {
     stop("names in sigma don't match with the names for each condition")
   }
-
-
 
 
   # call internal function per conditions and pass back
@@ -3256,10 +3300,36 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
     samp_x <- draw_from_pdf(a_pdf = x_vals, x_def = xx, k = k)
   }
 
+  # check for variability in the drift rate
+  var_drift = FALSE
+  prms_matrix = drift_dm_obj$flex_prms_obj$prms_matrix
+  prm_labels = colnames(prms_matrix)
+  if (any("sd_muc" == prm_labels)) {
+    var_drift = TRUE
+
+    # and check if constant drift rate is used
+    if (!identical(drift_dm_obj$comp_funs$mu_fun, mu_constant)) {
+      stop(
+        "Ratcliff DDM with variable drift rate requires dRiftDM's",
+        " mu_constant function"
+      )
+    }
+
+    # check for plausible value of sd
+    sd_muc = prms_matrix[one_cond, "sd_muc"]
+    if (any(sd_muc < 0)) {
+      stop("sd_muc values < 0 are not allowed")
+    }
+  }
+
+
 
   # now simulate values
   e_samples <-
     sapply(1:k, function(one_k) {
+      if (var_drift) {
+        mu_vals = mu_vals + stats::rnorm(n = 1, mean = 0, sd = sd_muc)
+      }
       steps <- mu_vals * dt + sigma * sqrt(dt) * stats::rnorm(nt + 1)
       acc_steps <- c(0, cumsum(steps)) + samp_x[one_k]
       acc_steps <- acc_steps[-length(acc_steps)] # discard last step
@@ -3387,7 +3457,7 @@ simulate_traces_one_cond <- function(drift_dm_obj, k, one_cond, add_x, sigma) {
 #' class(unpack_obj(some_stats))
 #'
 #' # get some parameters ...
-#' some_coefs <- coef(get_example_fits_ids())
+#' some_coefs <- coef(get_example_fits("fits_ids_dm"))
 #' class(some_coefs)
 #' class(unpack_obj(some_coefs))
 #'
@@ -3536,7 +3606,7 @@ unpack_traces.traces_dm_list <- function(object, ..., unpack = TRUE,
 #' names matching with (`coef(object, select_unique = TRUE)`), plus a column
 #' `ID` that will identify each simulated data set.
 #' @param seed a single numeric, an optional seed for reproducible sampling
-#' @param verbose an integer, indicating if information about the progress
+#' @param progress an integer, indicating if information about the progress
 #'  should be displayed. 0 -> no information, 1 -> a progress bar.
 #'  Default is 1. Only effective when `k > 1`.
 #'
@@ -3632,7 +3702,7 @@ unpack_traces.traces_dm_list <- function(object, ..., unpack = TRUE,
 #' # now simulate 5 data sets with each 100 trials
 #' data_prms <- simulate_data(a_model,
 #'   n = 100, k = 5, lower = lower,
-#'   upper = upper, seed = 1, verbose = 0
+#'   upper = upper, seed = 1, progress = 0
 #' )
 #' head(data_prms$synth_data)
 #' head(data_prms$prms)
@@ -3664,7 +3734,7 @@ unpack_traces.traces_dm_list <- function(object, ..., unpack = TRUE,
 #'
 #' data_prms <- simulate_data(a_model,
 #'   n = 100, k = 5, lower = lower,
-#'   upper = upper, seed = 1, verbose = 0
+#'   upper = upper, seed = 1, progress = 0
 #' )
 #' range(data_prms$prms$muc.comp)
 #' range(data_prms$prms$muc.incomp)
@@ -3681,7 +3751,7 @@ simulate_data <- function(object, ...) {
 #' @rdname simulate_data
 simulate_data.drift_dm <- function(object, ..., n, conds = NULL, k = 1,
                                    lower = NULL, upper = NULL, df_prms = NULL,
-                                   seed = NULL, verbose = 1) {
+                                   seed = NULL, progress = 1) {
 
   dots <- list(...)
 
@@ -3695,8 +3765,8 @@ simulate_data.drift_dm <- function(object, ..., n, conds = NULL, k = 1,
     set.seed(seed)
   }
 
-  if (!(verbose %in% c(0, 1))) {
-    stop("verbose must be 0 or 1")
+  if (!(progress %in% c(0, 1))) {
+    stop("progress must be 0 or 1")
   }
 
   if (!is.numeric(k) | k <= 0) {
@@ -3788,7 +3858,7 @@ simulate_data.drift_dm <- function(object, ..., n, conds = NULL, k = 1,
   }
 
   # create a progress bar if desired
-  if (verbose == 1) {
+  if (progress == 1) {
     pb <- progress::progress_bar$new(
       format = "simulating [:bar] :percent; done in: :eta",
       total = nrow(sim_prms), clear = FALSE, width = 60
@@ -3809,7 +3879,7 @@ simulate_data.drift_dm <- function(object, ..., n, conds = NULL, k = 1,
                                          conds = conds,
                                          round_to = dots$round_to)
     one_sim_dat$ID <- one_prm_set$ID # use any cond to set ID
-    if (verbose == 1) pb$tick()
+    if (progress == 1) pb$tick()
     return(one_sim_dat)
   })
 
