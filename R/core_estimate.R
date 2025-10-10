@@ -1110,7 +1110,7 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
 
   if (verbose >= 1) {
     # special treatment of n_eval as vector (occurs for optim)
-    n_eval = stats::na.omit(n_eval)
+    n_eval = n_eval[!is.na(n_eval)]
     if (length(n_eval) > 1) {
       message(
         "Optimization routine exited after ", n_eval[1], " function ",

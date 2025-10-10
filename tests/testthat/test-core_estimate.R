@@ -190,7 +190,7 @@ test_that("estimate_dm -> agg_c works as expected", {
           lower = l_u$lower, upper = l_u$upper, messaging = FALSE,
           verbose = 1, control = list(VTR = 0.03, trace = FALSE, NP = 30)
         ), "Starting optimizer"
-      ), "exited after 5 iterations"
+      ), "exited after 6 iterations"
     ), "Final Parameters"
   )
 

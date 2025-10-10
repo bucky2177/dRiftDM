@@ -46,6 +46,29 @@ test_that("add_residual works as expected", {
 })
 
 
+test_that("pdfs always sum to 1", {
+  model <- dmc_dummy
+  model$comp_funs$x_fun <- x_dirac_0
+  prms_solve(model)[c("dx", "dt", "t_max")] <- c(.005, .005, 1.5)
+
+
+  # standard kfe
+  solver(model) <- "kfe"
+  pdfs <- pdfs(model)
+  sum_comp <- sum(unlist(pdfs$pdfs$comp)) * .005
+  sum_incomp <- sum(unlist(pdfs$pdfs$comp)) * .005
+  expect_equal(sum_comp, 1.0)
+  expect_equal(sum_incomp, 1.0)
+
+  # im_zero
+  solver(model) <- "im_zero"
+  pdfs <- pdfs(model)
+  sum_comp <- sum(unlist(pdfs$pdfs$comp)) * .005
+  sum_incomp <- sum(unlist(pdfs$pdfs$comp)) * .005
+  expect_equal(sum_comp, 1.0)
+  expect_equal(sum_incomp, 1.0)
+})
+
 
 test_that("test im_zero", {
   a_model <- dmc_dm(t_max = 1, dx = .001, dt = .001, var_start = F)
@@ -296,7 +319,7 @@ test_that("subst. negative PDF values test", {
   a_model$obs_data$rts_l$null = c(3, a_model$obs_data$rts_l$null)
   suppressWarnings({
     prms_solve(a_model)[c("dx", "dt", "t_max")] <- c(.5, .5, 3)
-    coef(a_model) <- c(1.5, 0.3, 0.3)
+    coef(a_model) <- c(1.5, 0.2, 0.3)
 
   })
   expect_warning(

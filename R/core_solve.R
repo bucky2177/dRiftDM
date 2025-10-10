@@ -249,8 +249,14 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
 
 
   # add robustness prm
-  pdf_u <- (pdf_u + drift_dm_robust_prm())
-  pdf_l <- (pdf_l + drift_dm_robust_prm())
+  eps <- drift_dm_robust_prm()
+  pdf_u <- (pdf_u + eps)
+  pdf_l <- (pdf_l + eps)
+
+  # and scale the result
+  scale <- sum(pdf_u) * dt + sum(pdf_l) * dt
+  pdf_u <- pdf_u / scale
+  pdf_l <- pdf_l / scale
 
 
   if (min(pdf_u) < 0 | min(pdf_l) < 0) {

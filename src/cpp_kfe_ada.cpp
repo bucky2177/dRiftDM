@@ -41,7 +41,7 @@ int cpp_kfe_ada(NumericVector& pdf_u,
     stop("x_vec has wrong size!");
   }
 
-  const double tol = 1.e-8;
+  const double tol = 1.e-11;
 
   NumericVector f(nx+1, 0.);  // storing the solution
   NumericVector mu_old(nx+1, 0.);
@@ -72,7 +72,7 @@ int cpp_kfe_ada(NumericVector& pdf_u,
     double time = 0;
     int nsteps = 0;
 
-    while (time < dtbase-1.e-8) // iterate until we complete the time step
+    while (time < dtbase-tol) // iterate until we complete the time step
     {
       f[0] = 0.0;
       f[nx] = 0.0;
@@ -121,13 +121,15 @@ int cpp_kfe_ada(NumericVector& pdf_u,
 //          OUT.close();
           time += dt;
           tt += dt;
-          dt = std::min(dtbase,1.8 * dt);    // increase timestep
+          dt = std::min(dtbase, 2.0 * dt);    // increase timestep
           dt = std::min(dt, dtbase - time); // not larger than step
       }
       else // repeat step
         dt = 0.125 * dt;
 
-      if (nsteps > 50) stop("number of adaptive steps exceeded!");
+      if (nsteps > 1000) {
+        stop("Extreme Parameters: number of adaptive steps exceeded!");
+      }
 
       ++nsteps;
     }

@@ -656,7 +656,7 @@ drift_dm_approx_error <- function() {
 
 #' @rdname defaults
 drift_dm_medium_approx_error <- function() {
-  return(.0001)
+  return(1e-06)
 }
 
 #' @rdname defaults
@@ -671,7 +671,7 @@ drift_dm_rough_approx_error <- function() {
 
 #' @rdname defaults
 drift_dm_robust_prm <- function() {
-  return(1e-10)
+  return(1e-8)
 }
 
 #' @rdname defaults
