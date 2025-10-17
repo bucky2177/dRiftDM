@@ -64,7 +64,7 @@ print.summary.fits_ids_dm <- function(x, ...,
     )
     cat("Optimizer:", summary_obj$optimizer, "\n")
     not_conv = summary_obj$conv_info$not_conv
-    not_conv = not_conv[not_conv] # keep only not_conv entries that are TRUE
+    not_conv = not_conv[sapply(not_conv, isTRUE)] # keep only not_conv entries that are TRUE
     ids = names(not_conv) # potentially non-converged individuals
     if (length(ids) > 0) {
       info = paste(
@@ -81,6 +81,9 @@ print.summary.fits_ids_dm <- function(x, ...,
       round_digits = 0,
       header = "Average Trial Numbers:\n"
     )
+    print_cost_function(
+      cost_function_label = summary_obj$summary_drift_dm_obj$cost_function
+    )
   }
 
 
@@ -90,6 +93,7 @@ print.summary.fits_ids_dm <- function(x, ...,
       cat("Parameter Summary:", one_cond, "\n")
       temp <- round(summary_obj$stats[[one_cond]], round_digits)
       print(temp)
+      cat("\n")
     }
 
     if (!is.null(summary_obj$lower)) {
@@ -99,8 +103,9 @@ print.summary.fits_ids_dm <- function(x, ...,
       rownames(temp) <- c("lower", "upper")
       colnames(temp) <- names(summary_obj$upper)
       print(temp)
+      cat("\n")
     }
-    cat("\n-------\n")
+    cat("-------\n")
     if (!is.null(summary_obj$lower)) {
       cat("Fitted Model Type:", summary_obj$model_type)
       cat("\n")

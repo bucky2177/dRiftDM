@@ -29,7 +29,7 @@ store necessary attributes for the custom methods (such as \verb{plot_*})
 \code{new_stats_dm} sets up the \code{stat_df} object by assigning it the class
 \code{stats_dm}, along with additional classes based on the specified \code{type}.
 For "basic_stats", "cafs", "quantiles", "delta_funs", this will be
-c(\verb{<type>}, "sum_dist", "stats_dm", "data.frame")". For "fit_stats", this
+c("\if{html}{\out{<type>}}", "sum_dist", "stats_dm", "data.frame")". For "fit_stats", this
 will be c("\if{html}{\out{<type>}}", "stats_dm", "data.frame")".
 
 For basic stats, Conditional Accuracy Functions (CAFs), Quantiles, and

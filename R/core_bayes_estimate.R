@@ -1011,6 +1011,7 @@ estimate_bayes_h <- function(drift_dm_obj, obs_data_ids, sampler, n_chains,
 
   # turn on parallel engine
   cl <- parallel::makeCluster(n_cores)
+  withr::defer(parallel::stopCluster(cl))
   parallel::clusterExport(
     cl,
     varlist = c("full_crossover", "call_log_posterior_m",
@@ -1238,8 +1239,6 @@ estimate_bayes_h <- function(drift_dm_obj, obs_data_ids, sampler, n_chains,
 
     if (verbose >= 2) pb$tick()
   }
-
-  parallel::stopCluster(cl)
 
   # drop the burn_in period
   idx_after_burn_in = (burn_in + 2):iterations
@@ -1576,6 +1575,8 @@ get_subset_chains <- function(chains_obj, id = NULL) {
   }
 
   hierarchical <- attr(chains_obj, "hierarchical")
+  if (!hierarchical) stopifnot(is.null(id))
+
   if (hierarchical & !is.null(id)) {
     chains <- chains_obj[["theta"]]  # prms x chains x subjs x iterations
     all_ids <- dimnames(chains)[[3]]

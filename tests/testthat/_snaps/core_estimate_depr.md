@@ -4,7 +4,8 @@
       w_estimate_model(a_model, lower = c(1, 0.2, 0.1), upper = c(7, 0.8, 0.6),
       use_de_optim = F, use_nmkb = T, verbose = 2)
     Message
-      Starting optimizer 'nmkb' using the current parameter values of the model
+      Starting optimizer 'nmkb' with the following starting values:
+      muc=2, b=0.3, non_dec=0.2
       Parameters
       muc = 2
       b = 0.3
@@ -1088,38 +1089,38 @@
     Message
       Starting optimizer 'DEoptim' 
     Output
-      Iteration: 1 bestvalit: -585.821781 bestmemit:    4.147303    0.314631
-      Iteration: 2 bestvalit: -585.821781 bestmemit:    4.147303    0.314631
-      Iteration: 3 bestvalit: -585.821781 bestmemit:    4.147303    0.314631
-      Iteration: 4 bestvalit: -585.821781 bestmemit:    4.147303    0.314631
-      Iteration: 5 bestvalit: -591.348871 bestmemit:    4.011332    0.303037
-      Iteration: 6 bestvalit: -591.348871 bestmemit:    4.011332    0.303037
-      Iteration: 7 bestvalit: -591.348871 bestmemit:    4.011332    0.303037
-      Iteration: 8 bestvalit: -592.084276 bestmemit:    4.053700    0.305854
-      Iteration: 9 bestvalit: -592.670353 bestmemit:    4.159118    0.305854
-      Iteration: 10 bestvalit: -592.670353 bestmemit:    4.159118    0.305854
-      Iteration: 11 bestvalit: -592.670353 bestmemit:    4.159118    0.305854
-      Iteration: 12 bestvalit: -592.670353 bestmemit:    4.159118    0.305854
-      Iteration: 13 bestvalit: -592.674257 bestmemit:    4.265938    0.307709
-      Iteration: 14 bestvalit: -592.775942 bestmemit:    4.180421    0.305754
-      Iteration: 15 bestvalit: -592.810648 bestmemit:    4.210696    0.305895
-      Iteration: 16 bestvalit: -592.810648 bestmemit:    4.210696    0.305895
-      Iteration: 17 bestvalit: -592.810648 bestmemit:    4.210696    0.305895
-      Iteration: 18 bestvalit: -592.810648 bestmemit:    4.210696    0.305895
-      Iteration: 19 bestvalit: -592.831613 bestmemit:    4.209805    0.306535
-      Iteration: 20 bestvalit: -592.831613 bestmemit:    4.209805    0.306535
-      Iteration: 21 bestvalit: -592.846305 bestmemit:    4.200642    0.306605
-      Iteration: 22 bestvalit: -592.847120 bestmemit:    4.200642    0.306034
-      Iteration: 23 bestvalit: -592.851374 bestmemit:    4.242439    0.306769
-      Iteration: 24 bestvalit: -592.851374 bestmemit:    4.242439    0.306769
-      Iteration: 25 bestvalit: -592.851374 bestmemit:    4.242439    0.306769
-      Iteration: 26 bestvalit: -592.851374 bestmemit:    4.242439    0.306769
-      Iteration: 27 bestvalit: -592.851374 bestmemit:    4.242439    0.306769
-      Iteration: 28 bestvalit: -592.851374 bestmemit:    4.242439    0.306769
-      Iteration: 29 bestvalit: -592.851374 bestmemit:    4.242439    0.306769
-      Iteration: 30 bestvalit: -592.851374 bestmemit:    4.242439    0.306769
-      Iteration: 31 bestvalit: -592.852381 bestmemit:    4.200642    0.306433
-      Iteration: 32 bestvalit: -592.852381 bestmemit:    4.200642    0.306433
+      Iteration: 1 bestvalit: -585.821769 bestmemit:    4.147303    0.314631
+      Iteration: 2 bestvalit: -585.821769 bestmemit:    4.147303    0.314631
+      Iteration: 3 bestvalit: -585.821769 bestmemit:    4.147303    0.314631
+      Iteration: 4 bestvalit: -585.821769 bestmemit:    4.147303    0.314631
+      Iteration: 5 bestvalit: -591.348859 bestmemit:    4.011332    0.303037
+      Iteration: 6 bestvalit: -591.348859 bestmemit:    4.011332    0.303037
+      Iteration: 7 bestvalit: -591.348859 bestmemit:    4.011332    0.303037
+      Iteration: 8 bestvalit: -592.084264 bestmemit:    4.053700    0.305854
+      Iteration: 9 bestvalit: -592.670341 bestmemit:    4.159118    0.305854
+      Iteration: 10 bestvalit: -592.670341 bestmemit:    4.159118    0.305854
+      Iteration: 11 bestvalit: -592.670341 bestmemit:    4.159118    0.305854
+      Iteration: 12 bestvalit: -592.670341 bestmemit:    4.159118    0.305854
+      Iteration: 13 bestvalit: -592.674244 bestmemit:    4.265938    0.307709
+      Iteration: 14 bestvalit: -592.775930 bestmemit:    4.180421    0.305754
+      Iteration: 15 bestvalit: -592.810636 bestmemit:    4.210696    0.305895
+      Iteration: 16 bestvalit: -592.810636 bestmemit:    4.210696    0.305895
+      Iteration: 17 bestvalit: -592.810636 bestmemit:    4.210696    0.305895
+      Iteration: 18 bestvalit: -592.810636 bestmemit:    4.210696    0.305895
+      Iteration: 19 bestvalit: -592.831600 bestmemit:    4.209805    0.306535
+      Iteration: 20 bestvalit: -592.831600 bestmemit:    4.209805    0.306535
+      Iteration: 21 bestvalit: -592.846292 bestmemit:    4.200642    0.306605
+      Iteration: 22 bestvalit: -592.847108 bestmemit:    4.200642    0.306034
+      Iteration: 23 bestvalit: -592.851362 bestmemit:    4.242439    0.306769
+      Iteration: 24 bestvalit: -592.851362 bestmemit:    4.242439    0.306769
+      Iteration: 25 bestvalit: -592.851362 bestmemit:    4.242439    0.306769
+      Iteration: 26 bestvalit: -592.851362 bestmemit:    4.242439    0.306769
+      Iteration: 27 bestvalit: -592.851362 bestmemit:    4.242439    0.306769
+      Iteration: 28 bestvalit: -592.851362 bestmemit:    4.242439    0.306769
+      Iteration: 29 bestvalit: -592.851362 bestmemit:    4.242439    0.306769
+      Iteration: 30 bestvalit: -592.851362 bestmemit:    4.242439    0.306769
+      Iteration: 31 bestvalit: -592.852369 bestmemit:    4.200642    0.306433
+      Iteration: 32 bestvalit: -592.852369 bestmemit:    4.200642    0.306433
     Message
       Optimization routine exited after 32 iterations.
       Final Parameters

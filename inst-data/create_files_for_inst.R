@@ -2,7 +2,6 @@
 
 # FITS_SEP ----------------------------------------------------------------
 
-
 ddm = dmc_dm(dx = .01, dt = .01)
 ulrich_flanker_data = ulrich_flanker_data
 ulrich_flanker_data = ulrich_flanker_data[ulrich_flanker_data$ID %in% c(1,2,3),]
@@ -40,7 +39,23 @@ ddm <- ratcliff_dm(dx = .01, dt = .01)
 obs_data(ddm) <- ratcliff_synth_data
 
 chains = estimate_dm(drift_dm_obj = ddm, approach = "sep_b",
-                     burn_in = 100, samples = 200, n_chains = 10)
+                     burn_in = 200, samples = 200, n_chains = 20, seed = 1)
 
 use_directory("inst")
 saveRDS(object = chains, file = file.path("inst", "example_mcmc.rds"))
+
+# MCMC HIER ----------------------------------------------------------------
+
+
+
+ddm <- ratcliff_dm(dx = .01, dt = .01)
+
+data <- simulate_data(ddm, k = 6, n = 100, lower = c(2, 0.4, 0.2), upper = c(5, 0.8, 0.4))
+
+chains = estimate_dm(drift_dm_obj = ddm, obs_data = data$synth_data,
+                     approach = "hier_b",
+                     burn_in = 200, samples = 200, n_chains = 20, seed = 1,
+                     n_cores = 3)
+
+use_directory("inst")
+saveRDS(object = chains, file = file.path("inst", "example_mcmc_hier.rds"))

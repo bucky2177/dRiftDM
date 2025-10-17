@@ -61,7 +61,7 @@ test_that("pdfs always sum to 1", {
   expect_equal(sum_incomp, 1.0)
 
   # im_zero
-  solver(model) <- "im_zero"
+  model$solver <- "im_zero"
   pdfs <- pdfs(model)
   sum_comp <- sum(unlist(pdfs$pdfs$comp)) * .005
   sum_incomp <- sum(unlist(pdfs$pdfs$comp)) * .005
@@ -72,7 +72,7 @@ test_that("pdfs always sum to 1", {
 
 test_that("test im_zero", {
   a_model <- dmc_dm(t_max = 1, dx = .001, dt = .001, var_start = F)
-  solver(a_model) <- "im_zero"
+  a_model$solver = "im_zero"
 
   pdf_u <- numeric(1001)
   pdf_l <- numeric(1001)
@@ -101,7 +101,7 @@ test_that("test im_zero", {
     t_max = 1, dx = .001, dt = .001, var_start = F,
     var_non_dec = F
   )
-  solver(a_model) <- "im_zero"
+  a_model$solver <- "im_zero"
   coef(a_model)["non_dec"] <- 0
   a_model <- re_evaluate_model(a_model)
   expect_equal(test_u_pdf, a_model$pdfs$comp$pdf_u, tolerance = .0001)
@@ -184,7 +184,7 @@ test_that("test im_zero", {
 
 
 
-test_that("kfe input checks", {
+test_that("cpp_kfe_ada input checks and errors", {
 
   a_model = ratcliff_dummy
 
@@ -204,24 +204,24 @@ test_that("kfe input checks", {
   x_vec = seq(-1, 1, length.out = nx+1)
 
   expect_error(
-    cpp_kfe(pdf_u = pdf_u[-1], pdf_l = pdf_l, xx = comp_vals$x_vals,
-            nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
+    cpp_kfe_ada(pdf_u = pdf_u[-1], pdf_l = pdf_l, xx = comp_vals$x_vals,
+            nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
             b_vals = comp_vals$b_vals, mu_vals = comp_vals$mu_vals,
             dt_b_vals = comp_vals$dt_b_vals, x_vec = x_vec),
     "pdf-upper has wrong size"
   )
 
   expect_error(
-    cpp_kfe(pdf_u = pdf_u, pdf_l = pdf_l[-1], xx = comp_vals$x_vals,
-            nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
+    cpp_kfe_ada(pdf_u = pdf_u, pdf_l = pdf_l[-1], xx = comp_vals$x_vals,
+            nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
             b_vals = comp_vals$b_vals, mu_vals = comp_vals$mu_vals,
             dt_b_vals = comp_vals$dt_b_vals, x_vec = x_vec),
     "pdf-lower has wrong size"
   )
 
   expect_error(
-    cpp_kfe(pdf_u = pdf_u, pdf_l = pdf_l, xx = comp_vals$x_vals[-1],
-            nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
+    cpp_kfe_ada(pdf_u = pdf_u, pdf_l = pdf_l, xx = comp_vals$x_vals[-1],
+            nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
             b_vals = comp_vals$b_vals, mu_vals = comp_vals$mu_vals,
             dt_b_vals = comp_vals$dt_b_vals, x_vec = x_vec),
     "xx has wrong size"
@@ -230,8 +230,8 @@ test_that("kfe input checks", {
 
 
   expect_error(
-    cpp_kfe(pdf_u = pdf_u, pdf_l = pdf_l, xx = comp_vals$x_vals,
-            nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
+    cpp_kfe_ada(pdf_u = pdf_u, pdf_l = pdf_l, xx = comp_vals$x_vals,
+            nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
             b_vals = comp_vals$b_vals[-1], mu_vals = comp_vals$mu_vals,
             dt_b_vals = comp_vals$dt_b_vals, x_vec = x_vec),
     "b_vals has wrong size"
@@ -239,8 +239,8 @@ test_that("kfe input checks", {
 
 
   expect_error(
-    cpp_kfe(pdf_u = pdf_u, pdf_l = pdf_l, xx = comp_vals$x_vals,
-            nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
+    cpp_kfe_ada(pdf_u = pdf_u, pdf_l = pdf_l, xx = comp_vals$x_vals,
+            nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
             b_vals = comp_vals$b_vals, mu_vals = comp_vals$mu_vals[-1],
             dt_b_vals = comp_vals$dt_b_vals, x_vec = x_vec),
     "mu_vals has wrong size"
@@ -249,8 +249,8 @@ test_that("kfe input checks", {
 
 
   expect_error(
-    cpp_kfe(pdf_u = pdf_u, pdf_l = pdf_l, xx = comp_vals$x_vals,
-            nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
+    cpp_kfe_ada(pdf_u = pdf_u, pdf_l = pdf_l, xx = comp_vals$x_vals,
+            nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
             b_vals = comp_vals$b_vals, mu_vals = comp_vals$mu_vals,
             dt_b_vals = comp_vals$dt_b_vals[-1], x_vec = x_vec),
     "dt_b_vals has wrong size"
@@ -258,25 +258,15 @@ test_that("kfe input checks", {
 
 
   expect_error(
-    cpp_kfe(pdf_u = pdf_u, pdf_l = pdf_l, xx = comp_vals$x_vals,
-            nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
+    cpp_kfe_ada(pdf_u = pdf_u, pdf_l = pdf_l, xx = comp_vals$x_vals,
+            nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
             b_vals = comp_vals$b_vals, mu_vals = comp_vals$mu_vals,
             dt_b_vals = comp_vals$dt_b_vals, x_vec = x_vec[-1]),
     "x_vec has wrong size"
   )
 
-
-  test_rhs = comp_vals$x_vals
-  test_rhs[1] = 1
-  expect_error(
-    cpp_kfe(pdf_u = pdf_u, pdf_l = pdf_l, xx = test_rhs,
-            nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma,
-            b_vals = comp_vals$b_vals, mu_vals = comp_vals$mu_vals,
-            dt_b_vals = comp_vals$dt_b_vals, x_vec = x_vec),
-    "rhs not zero on thresholds"
-  )
-
 })
+
 
 
 

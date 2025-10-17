@@ -1146,8 +1146,7 @@ count_unique_prms_one_internal_entry <- function(one_internal_entry) {
 #' @keywords internal
 is_empty <- function(x) {
   stopifnot(length(x) <= 1)
-
-  (length(x) == 0) | (all(x == ""))
+  (length(x) == 0) || (all(!nzchar(x)))
 }
 
 

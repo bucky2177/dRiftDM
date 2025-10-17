@@ -341,9 +341,9 @@ simulate_values <- function(lower, upper, k, distr = NULL,
 #'
 #' @examples
 #' # Example:
-#' my_model <- ratcliff_dm(t_max = 1.5, dx = 0.1, dt = 0.005)
+#' my_model <- ratcliff_dm()
 #'
-#' # Assess current (dt=0.01, dx=0.01) against a fine reference:
+#' # Assess current (dt=0.0075, dx=0.02) against a fine reference:
 #' check_discretization(my_model)
 #'
 #' # If distances are near zero across conditions, the current grid is adequate.

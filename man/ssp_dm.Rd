@@ -11,8 +11,8 @@ ssp_dm(
   obs_data = NULL,
   sigma = 1,
   t_max = 3,
-  dt = 0.001,
-  dx = 0.001,
+  dt = 0.005,
+  dx = 0.02,
   b_coding = NULL
 )
 }
@@ -21,8 +21,8 @@ ssp_dm(
 should have a variable non-decision time or starting point
 (see also \code{nt_uniform} and \code{x_uniform} in \link{component_shelf}}
 
-\item{instr}{optional string with additional "instructions", see
-\code{\link[=modify_flex_prms]{modify_flex_prms()}} and the Details below.}
+\item{instr}{optional string with "instructions", see
+\code{\link[=modify_flex_prms]{modify_flex_prms()}}.}
 
 \item{obs_data}{data.frame, an optional data.frame with the observed data.
 See \link{obs_data}.}
@@ -49,13 +49,13 @@ It has the following properties (see \link{component_shelf}):
 \itemize{
 \item a constant boundary (parameter \code{b})
 \item a constant starting point in between the decision boundaries
-\item an evidence accumulation process that is driven by an attentional
+\item an evidence accumulation process that is driven by an attention
 spotlight that covers both the flankers and the target. The area that covers
 the flankers and target is modeled by normal distribution with mean 0:
 \itemize{
 \item At the beginning of the trial attention is wide-spread, and the width
 at t=0 is the standard deviation \code{sd_0}
-\item As the trial progresses in time, the attentional spotlight narrows,
+\item As the trial progresses in time, the attention spotlight narrows,
 reflected by a linear decline of the standard deviation with rate \code{r}
 (to a minimum of 0.001).
 \item the attention attributed to both the flankers and the target is scaled
@@ -88,12 +88,8 @@ larger in \code{dRiftDM} than in the original publication.
 # the model with default settings
 my_model <- ssp_dm()
 
-# the model with a more coarse discretization
-my_model <- ssp_dm(
-  t_max = 1.5,
-  dx = .0025,
-  dt = .0025
-)
+# the model with a finer discretization
+my_model <- ssp_dm(dt = .0025, dx = .01)
 
 }
 \references{

@@ -20,6 +20,7 @@
       N Individuals: 3 
       Average Trial Numbers:
        168 trials comp; 168 trials incomp
+      Cost Function: neg_log_like
 
 # summary.fits_ids_dm (old) and print
 
@@ -33,6 +34,7 @@
                 muc     b non_dec
       mean    3.220 0.598   0.311
       std_err 0.131 0.008   0.002
+      
       
       Parameter Space:
             muc   b non_dec

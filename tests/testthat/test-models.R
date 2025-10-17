@@ -1,6 +1,6 @@
 test_that("testing DMC", {
   # get the component values
-  a_dmc_model <- dmc_dm()
+  a_dmc_model <- dmc_dm(dt = .001, dx = .001)
   all_comps <- comp_vals(a_dmc_model)
 
   a_dmc_model_im <- a_dmc_model
@@ -43,7 +43,7 @@ test_that("testing DMC", {
 
   ## DMC tests for drift
   # with a != 2
-  a_dmc_model <- dmc_dm(instr = "a ~ => 2.1")
+  a_dmc_model <- dmc_dm(instr = "a ~ => 2.1", dt = .001, dx = .001)
   all_comps <- comp_vals(a_dmc_model)
 
   # just to ensure comp_vals evaluates the integral
@@ -94,7 +94,7 @@ test_that("testing DMC", {
   expect_equal(
     all_comps$comp$x_vals,
     x_dirac_0(
-      NULL, a_dmc_model$prms_solve, seq(-1, 1, 0.001),
+      NULL, a_dmc_model$prms_solve, seq(-1, 1, 0.02),
       NULL, NULL
     )
   )
@@ -106,7 +106,7 @@ test_that("testing DMC", {
     nt_constant(
       c(non_dec = 0.3),
       a_dmc_model$prms_solve,
-      seq(0, 3, 0.001),
+      seq(0, 3, 0.0075),
       NULL, NULL
     )
   )
@@ -277,7 +277,7 @@ test_that("ratcliff_simple works as expected", {
 
 
 test_that("ratcliff with var. in non-dec or start point works as expected", {
-  a_model <- ratcliff_dm(var_non_dec = T)
+  a_model <- ratcliff_dm(var_non_dec = T, dx = .001, dt = .001)
 
   # test the drift rate
   mu_t <- a_model$comp_funs$mu_fun(
@@ -352,7 +352,7 @@ test_that("ratcliff with var. in non-dec or start point works as expected", {
 
 
   # NOW THE VARIABLE START POINT
-  a_model <- ratcliff_dm(var_start = T)
+  a_model <- ratcliff_dm(var_start = T, dx = .001, dt = .001)
 
   # test the drift rate
   mu_t <- a_model$comp_funs$mu_fun(
@@ -1533,7 +1533,7 @@ test_that("get_lower_upper returns expected bounds for Ratcliff components.", {
   expect_equal(res$upper[["range_start"]], 1.5)
 
   expect_equal(res$lower[["sd_muc"]], 0.01)
-  expect_equal(res$upper[["sd_muc"]], 2.20)
+  expect_equal(res$upper[["sd_muc"]], 3.00)
 
   # is lower < upper?
   expect_true(all(res$lower < res$upper))

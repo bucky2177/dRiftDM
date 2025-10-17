@@ -580,7 +580,7 @@ test_that("validate_models errs as expected", {
   )
 
   temp <- case_1
-  solver(temp$all_fits$`2`) <- "im_zero"
+  temp$all_fits$`2`$solver <- "im_zero"
   expect_error(
     validate_fits_ids(temp, progress = 0), "solver of individual 2"
   )

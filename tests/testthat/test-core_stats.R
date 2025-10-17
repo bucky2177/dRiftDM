@@ -164,7 +164,7 @@ test_that("basic_stats -> input checks", {
 
   # input checks
   expect_error(
-    calc_cafs(
+    calc_basic_stats(
       pdf_u = c(0, 1, 0), pdf_l = NULL, rts_u = NULL, rts_l = NULL,
       one_cond = "foo", b_coding = b_coding
     ),
@@ -172,7 +172,7 @@ test_that("basic_stats -> input checks", {
   )
 
   expect_error(
-    calc_cafs(
+    calc_basic_stats(
       pdf_u = NULL, pdf_l = NULL, rts_u = c(0, 1, 0), rts_l = NULL,
       one_cond = "foo", b_coding = b_coding
     ),
@@ -535,6 +535,14 @@ test_that("calc_quantiles -> input checks", {
     ),
     "both NULL or not"
   )
+
+  expect_error(
+    calc_quantiles(
+      pdf_u = c(1,1,1), pdf_l = c(1,1,1), one_cond = "foo", b_coding = b_coding,
+      probs = c(0, 2)
+    ),
+    "probs"
+  )
 })
 
 
@@ -719,6 +727,16 @@ test_that("calc_delta_funs -> input checks", {
   b_coding <- drift_dm_default_b_coding()
 
   # input checks
+
+  expect_error(
+    calc_delta_funs(
+      quantiles_dat = NULL,
+      minuends = c("incomp", "comp"),
+      subtrahends = c("comp"),
+      dvs = c("Quant_corr", "Quant_err"), b_coding = b_coding
+    ), "is not a data.frame"
+  )
+
   expect_error(
     calc_delta_funs(
       quantiles_dat = quantiles,
@@ -726,6 +744,26 @@ test_that("calc_delta_funs -> input checks", {
       subtrahends = c("comp"),
       dvs = c("Quant_corr", "Quant_err"), b_coding = b_coding
     ), "length of minuends and subtrahends"
+  )
+
+  expect_error(
+    calc_delta_funs(
+      quantiles_dat = quantiles,
+      minuends = c("incomp", "comp"),
+      subtrahends = c("comp", "incomp"),
+      dvs = c("Quant_corr", "Quant_err", "Quant_corr"), b_coding = b_coding
+    ), "several dvs"
+  )
+
+  tmp <- quantiles
+  tmp <- rbind(tmp[1,], tmp)
+  expect_error(
+    calc_delta_funs(
+      quantiles_dat = tmp,
+      minuends = c("incomp"),
+      subtrahends = c("comp"),
+      dvs = c("Quant_corr"), b_coding = b_coding
+    ), "uniquely code"
   )
 
   expect_warning(
@@ -889,9 +927,317 @@ test_that("fit_stats -> validate and aggregate work as expected", {
 })
 
 
+
+
+# DENSITIES ---------------------------------------------------------------
+
+test_that("calc_dens returns valid data.frame; t_max/discr and scale_mass", {
+
+  # prepare a dummy model and set uneven trial numbers to check scale_mass
+  model <- dmc_dummy
+  data <- dmc_synth_data
+  data <- data[1:400,]
+  obs_data(model) <- data
+
+  t_max <- 2.9
+  dt <- 0.01
+  prms_solve(model)[c("dx", "dt", "t_max")] <- c(0.01, dt, t_max)
+
+  # choose discr so that ceiling alignment is exercised
+  discr <- 0.075 # -> max should be ceiling(t_max / discr) * discr
+
+  out <- calc_stats(model, type = "dens", scale_mass = TRUE, discr = discr)
+
+  # structure
+  expect_s3_class(out, "data.frame")
+  expect_equal(
+    c("Source", "Cond", "Stat", "Time", "Dens_corr", "Dens_err"),
+    names(out)
+  )
+  expect_setequal(unique(out$Cond), c("comp", "incomp"))
+  expect_setequal(unique(out$Stat), c("hist", "kde", "pdf"))
+
+  # t_max got aligned to a multiple of discr, and is strictly > max(rt)
+  t_max_aligned <- ceiling(t_max / discr) * discr
+  expect_equal(t_max_aligned / discr, 39)
+
+  # HIST Stat integrates to the expected mixture weights
+  ns <- c(sum(data$Cond == "comp"), sum(data$Cond == "incomp"))
+  ws <- ns / (sum(ns) / length(ns))
+  ws_comp <- ws[1]
+  ws_incomp <- ws[2]
+
+  # comp
+  dens_hist_u_comp <- out$Dens_corr[out$Stat == "hist" & out$Cond == "comp"]
+  dens_hist_l_comp <- out$Dens_err[out$Stat == "hist" & out$Cond == "comp"]
+  n_comp_rtu <- sum(data$Cond == "comp"  & data$Error == 0)
+  n_comp_rtl <- sum(data$Cond == "comp"  & data$Error == 1)
+  w_rt_u_comp = n_comp_rtu / (n_comp_rtu + n_comp_rtl)
+  w_rt_l_comp = 1 - w_rt_u_comp
+
+  expect_equal(sum(dens_hist_u_comp * discr), w_rt_u_comp * ws_comp)
+  expect_equal(sum(dens_hist_l_comp * discr), w_rt_l_comp * ws_comp)
+
+  # incomp
+  dens_hist_u_incomp <- out$Dens_corr[out$Stat == "hist" & out$Cond == "incomp"]
+  dens_hist_l_incomp <- out$Dens_err[out$Stat == "hist" & out$Cond == "incomp"]
+  n_incomp_rtu <- sum(data$Cond == "incomp"  & data$Error == 0)
+  n_incomp_rtl <- sum(data$Cond == "incomp"  & data$Error == 1)
+  w_rt_u_incomp = n_incomp_rtu / (n_incomp_rtu + n_incomp_rtl)
+  w_rt_l_incomp = 1 - w_rt_u_incomp
+
+  expect_equal(sum(dens_hist_u_incomp * discr), w_rt_u_incomp * ws_incomp)
+  expect_equal(
+    sum(dens_hist_l_incomp * discr, na.rm = TRUE),
+    w_rt_l_incomp * ws_incomp
+  )
+
+
+  # KDE Stat integrates to the expected mixture weights
+  # comp
+  dens_kde_u_comp <- out$Dens_corr[out$Stat == "kde" & out$Cond == "comp"]
+  dens_kde_l_comp <- out$Dens_err[out$Stat == "kde" & out$Cond == "comp"]
+  expect_equal(sum(dens_kde_u_comp * discr), w_rt_u_comp * ws_comp)
+  expect_equal(sum(dens_kde_l_comp * discr), w_rt_l_comp * ws_comp)
+
+  # incomp
+  dens_kde_u_incomp <- out$Dens_corr[out$Stat == "kde" & out$Cond == "incomp"]
+  dens_kde_l_incomp <- out$Dens_err[out$Stat == "kde" & out$Cond == "incomp"]
+  expect_equal(sum(dens_kde_u_incomp * discr), w_rt_u_incomp * ws_incomp)
+  expect_equal(
+    sum(dens_kde_l_incomp * discr, na.rm = TRUE),
+    w_rt_l_incomp * ws_incomp
+  )
+
+  # PDFs integrate to the expected mixture weights
+  # comp
+  pdf_u_comp <- out$Dens_corr[out$Stat == "pdf" & out$Cond == "comp"]
+  pdf_l_comp <- out$Dens_err[out$Stat == "pdf" & out$Cond == "comp"]
+  expect_equal(sum(pdf_u_comp * dt) + sum(pdf_l_comp * dt), ws_comp)
+
+  # incomp
+  pdf_u_incomp <- out$Dens_corr[out$Stat == "pdf" & out$Cond == "incomp"]
+  pdf_l_incomp <- out$Dens_err[out$Stat == "pdf" & out$Cond == "incomp"]
+  expect_equal(sum(pdf_u_incomp * dt) + sum(pdf_l_incomp * dt), ws_incomp)
+
+
+  # check the time ticks
+  time_model <- seq(0, t_max, dt)
+  time_obs <- seq(0, round(t_max_aligned / discr) * discr, discr)
+  mids <- time_obs[-length(time_obs)] + diff(time_obs) / 2
+  # comp hist, incomp hist, comp kde, incomp kde, comp pdf, incomp pdf
+  time <- c(mids, mids, mids, mids, time_model, time_model)
+  expect_equal(out$Time, time)
+
+})
+
+test_that("calc_dens_obs handles degenerate samples for KDE (<= 1 value)", {
+  # One side with a single RT -> KDE returns NaNs; hist still defined
+  rts_u <- 0.3
+  rts_l <- rexp(50, rate = 3)
+  out <- calc_dens_obs(rts_u, rts_l, one_cond = "A", discr = 0.02)
+
+  kde_rows <- out[out$Stat == "kde", ]
+  expect_true(all(is.nan(kde_rows$Dens_U)))   # single-value KDE -> NaN
+  expect_false(any(is.nan(kde_rows$Dens_L)))  # enough values for KDE
+})
+
+test_that("calc_dens errors on inconsistent input pairs", {
+  bc <- drift_dm_default_b_coding()
+  tvec <- seq(0, 0.5, by = 0.01)
+  pdf_u <- dnorm(tvec, mean = 0.25, sd = 0.08)
+  pdf_l <- dnorm(tvec, mean = 0.25, sd = 0.08)
+
+  # only one of pdf_u/pdf_l -> error
+  expect_error(
+    calc_dens(pdf_u = pdf_u, pdf_l = NULL, t_vec = tvec, one_cond = "A", b_coding = bc),
+    "pdf_l and pdf_u either have to be both NULL or not"
+  )
+  # only one of rts_u/rts_l -> error
+  expect_error(
+    calc_dens(rts_u = 0.3, rts_l = NULL, one_cond = "A", b_coding = bc),
+    "rts_u and rts_l either have to be both NULL or not"
+  )
+})
+
+
+test_that("calc_dens -> validate and aggregate work as expected", {
+  data_id <- dRiftDM::ulrich_flanker_data
+  data_id <- data_id[data_id$ID == c(1,2),]
+  data_id <- data_id[data_id$Error == 0,]
+  obs_dens <- calc_stats(data_id, type = "dens")
+
+  test <- aggregate(cbind(Dens_corr, Dens_err) ~ Time + Stat + Cond + Source,
+                    obs_dens, mean, na.rm = T, na.action = na.pass
+  )
+  test$Dens_err <- NA_real_
+
+  # test what is returned
+  avg_dens <- calc_stats(data_id, type = "dens", level = "group")
+  expect_equal(avg_dens$Dens_corr, test$Dens_corr)
+  expect_equal(avg_dens$Dens_err, test$Dens_err)
+
+  expect_equal(
+    class(avg_dens),
+    c("densities", "sum_dist", "stats_dm", "data.frame")
+  )
+  expect_equal(attr(avg_dens, "b_coding"), drift_dm_default_b_coding())
+
+
+  # test of one data
+  dens_1 <- calc_stats(data_id[data_id$ID == 1, ], type = "dens")
+  obs_dens_1 <- obs_dens[obs_dens$ID == 1, ]
+  expect_equal(dens_1, obs_dens_1)
+
+
+  # input checks of validate
+  temp <- obs_dens
+  attr(temp, "b_coding") <- NULL
+  expect_error(validate_stats_dm(temp), "b_coding")
+
+  temp <- obs_dens
+  colnames(temp)[2] <- "foo"
+  expect_error(validate_stats_dm(temp), "Source")
+
+  temp <- obs_dens
+  colnames(temp)[3] <- "foo"
+  expect_error(validate_stats_dm(temp), "Cond")
+
+  temp <- obs_dens
+  colnames(temp)[4] <- "foo"
+  expect_error(validate_stats_dm(temp), "Stat")
+
+  temp <- obs_dens
+  colnames(temp)[5] <- "foo"
+  expect_error(validate_stats_dm(temp), "Time")
+
+  temp <- obs_dens
+  temp$Dens_corr <- NULL
+  expect_error(validate_stats_dm(temp), "Dens_")
+})
+
+
+
+# CALC_STATS_PRED_OBS -----------------------------------------------------
+
+test_that("calc_stats_pred_obs -> input checks for type and scale_mass", {
+
+  expect_error(
+    calc_stats_pred_obs(
+      type = c("foo", "bar"), b_coding = NULL, conds = "foo"
+    ), "type"
+  )
+
+  expect_error(
+    calc_stats_pred_obs(
+      type = "foo", b_coding = NULL, conds = "foo", scale_mass = 1
+    ), "scale_mass"
+  )
+})
+
+
+
+# DATA.FRAME --------------------------------------------------------------
+
+test_that("calc_stats.data.frame -> input validation of flags", {
+  some_data <- dRiftDM::dmc_synth_data
+
+  # invalid 'type' -> match.arg error
+  expect_error(
+    calc_stats(some_data, type = "not_a_type"),
+    "should be one of"
+  )
+
+  # 'resample' must be single logical
+  expect_error(
+    calc_stats(some_data, type = "quantiles", resample = 1:2),
+    "resample must be a single logical")
+
+  # 'progress' must be 0 or 1
+  expect_error(
+    calc_stats(some_data, type = "quantiles", progress = -1),
+    "progress must be 0 or 1"
+  )
+
+  # 'level' -> match.arg error
+  expect_error(
+    calc_stats(some_data, type = "quantiles", level = "foo"),
+    "should be one of"
+  )
+})
+
+test_that("calc_stats.data.frame -> deprecation of split_by_ID and average", {
+  some_data <- dRiftDM::ulrich_flanker_data
+  some_data <- some_data[some_data$ID %in% c(1,2),]
+
+  # split_by_ID = TRUE -> level becomes "individual"
+  lifecycle::expect_deprecated(
+    res_ind <- calc_stats(some_data, type = "quantiles", split_by_ID = TRUE),
+    "split_by_ID"
+  )
+  expect_true("ID" %in% names(res_ind))  # individual returns per-ID stats
+
+  # split_by_ID = FALSE -> level becomes "group"
+  lifecycle::expect_deprecated(
+    res_grp <- calc_stats(some_data, type = "quantiles", split_by_ID = FALSE),
+    "split_by_ID"
+  )
+  expect_false("ID" %in% names(res_grp)) # group-level has no ID column
+
+  # average mirrors the same mapping
+  lifecycle::expect_deprecated(
+    res_grp2 <- calc_stats(some_data, type = "quantiles", average = TRUE),
+    "average"
+  )
+  expect_false("ID" %in% names(res_grp2))
+
+  lifecycle::expect_deprecated(
+    res_ind2 <- calc_stats(some_data, type = "quantiles", average = FALSE),
+    "average"
+  )
+  expect_true("ID" %in% names(res_ind2))
+})
+
+test_that("calc_stats.data.frame -> group level requires ID column", {
+  # drop ID to trigger the error
+  some_data <- dRiftDM::dmc_synth_data
+  expect_error(
+    calc_stats(some_data, type = "quantiles", level = "group"),
+    "contains an 'ID' column"
+  )
+})
+
+
+# DRIFT_DM --------------------------------------------------------------
+
+test_that("calc_stats.drift_dm -> resampling not possible for fit_stats", {
+  model <- dmc_dummy
+  expect_warning(
+    res1 <- calc_stats(model, type = "fit_stats", resample = TRUE),
+    "setting `resampling = FALSE`"
+  )
+
+  # should be equal to setting resample = FALSE
+  res2 <- calc_stats(model, type = "fit_stats", resample = FALSE)
+  expect_identical(res1, res2)
+})
+
+test_that("calc_stats.drift_dm -> prob mass warning", {
+  model <- dmc_dummy
+  coef(model)["non_dec"] = 2.5
+  expect_warning(
+    res1 <- calc_stats(model, type = "fit_stats", resample = TRUE),
+    "setting `resampling = FALSE`"
+  )
+
+  # should be equal to setting resample = FALSE
+  res2 <- calc_stats(model, type = "fit_stats", resample = FALSE)
+  expect_identical(res1, res2)
+})
+
 # FITS_IDS_DM -----------------------------------------------------------
 
-test_that("fits_ids_dm calc_stats works as expected", {
+test_that("calc_stats.fits_ids_dm -> works as expected", {
   all_fits <- get_example_fits("fits_ids")
 
   all_stats <- calc_stats(all_fits, c("fit_stats", "cafs"), progress = 0)
@@ -916,4 +1262,279 @@ test_that("fits_ids_dm calc_stats works as expected", {
   agg_stats <- calc_stats(all_fits, c("fit_stats", "cafs"), level = "group")
   expect_equal(agg_stats$fit_stats, aggregate_stats(all_stats$fit_stats))
   expect_equal(agg_stats$cafs, aggregate_stats(all_stats$cafs))
+})
+
+
+test_that("calc_stats.fits_ids_dm -> validates conds and progress", {
+  fits_ids <- get_example_fits("fits_ids")
+
+  # invalid condition name -> match.arg error
+  expect_error(
+    calc_stats(fits_ids, type = "quantiles", conds = "definitely_not_a_cond"),
+    "should be one of"
+  )
+
+  # progress must be 0 or 1
+  expect_error(
+    calc_stats(fits_ids, type = "quantiles", progress = -1),
+    "progress must be 0 or 1"
+  )
+})
+
+
+test_that("calc_stats.fits_ids_dm -> resampling not possible for fit_stats", {
+  fits_ids <- get_example_fits("fits_ids")
+  expect_warning(
+    res1 <- calc_stats(fits_ids, type = "fit_stats", resample = TRUE),
+    "setting `resampling = FALSE`"
+  )
+
+  # should be equal to setting resample = FALSE
+  res2 <- calc_stats(fits_ids, type = "fit_stats", resample = FALSE)
+  expect_identical(res1, res2)
+})
+
+test_that("calc_stats.fits_ids_dm -> deprecation of average sets level", {
+  fits_ids <- get_example_fits("fits_ids")
+
+  # average = TRUE -> group
+  lifecycle::expect_deprecated(
+    res_grp <- calc_stats(fits_ids, type = "quantiles", average = TRUE),
+    "average"
+  )
+  expect_false("ID" %in% names(res_grp))
+
+  # average = FALSE -> individual
+  lifecycle::expect_deprecated(
+    res_ind <- calc_stats(fits_ids, type = "quantiles", average = FALSE),
+    "average"
+  )
+  expect_true("ID" %in% names(res_ind))
+})
+
+
+test_that("calc_stats.fits_ids_dm -> respects conds subset", {
+  fits_ids <- get_example_fits("fits_ids")
+  valid <- conds(fits_ids)
+  subset_conds <- valid[2]
+
+  # calculate for one condition
+  res1 <- calc_stats(fits_ids, type = "quantiles", conds = subset_conds,
+                    level = "individual", progress = 0)
+  expect_true(all(res1$Cond %in% subset_conds))
+
+  # calculate for both and check that the subset matches
+  res2 <- calc_stats(fits_ids, type = "quantiles", level = "individual",
+                    progress = 0)
+  res2 <- res2[res2$Cond == subset_conds,]
+  rownames(res2) <- NULL
+  expect_equal(res1, res2)
+})
+
+
+# FITS_AGG_DM -------------------------------------------------------------
+
+test_that("calc_stats.fits_agg_dm -> works as expected", {
+
+  # group-level
+  fits_agg <- get_example_fits("fits_agg_dm")
+  all_stats <- calc_stats(fits_agg, c("fit_stats", "cafs"), progress = 0)
+
+  # test cafs against direct call
+  exp_cafs_pred <- calc_stats(fits_agg$drift_dm_obj, "cafs")
+  is_cafs_pred <-  all_stats$cafs[all_stats$cafs$Source == "pred",]
+  rownames(is_cafs_pred) <- NULL
+  expect_equal(exp_cafs_pred, is_cafs_pred)
+
+  exp_cafs_obs <- calc_stats(fits_agg$obs_data_ids, "cafs", level = "group")
+  is_cafs_obs <-  all_stats$cafs[all_stats$cafs$Source == "obs",]
+  rownames(is_cafs_obs) <- NULL
+  expect_equal(exp_cafs_obs, is_cafs_obs)
+
+  # test fit_stats against direct call
+  exp_fit_stats <- calc_fit_stats(fits_agg$drift_dm_obj)
+  expect_identical(all_stats$fit_stats, exp_fit_stats)
+
+
+  # individual level
+  caf_stats <- calc_stats(fits_agg, "cafs", progress = 0, level = "individual")
+  expect_s3_class(caf_stats, "cafs")
+
+  # check structure and only NAs for ID when pred
+  expect_true("ID" %in% names(caf_stats))
+  expect_true(all(is.na(caf_stats$ID[caf_stats$Source == "pred"])))
+  expect_true(all(!is.na(caf_stats$ID[caf_stats$Source == "obs"])))
+
+  # check against one single subject
+  cafs_2 <- caf_stats[caf_stats$ID == 2 & caf_stats$Source == "obs", ]
+  rownames(cafs_2) <- NULL
+  data_2 = fits_agg$obs_data_ids[fits_agg$obs_data_ids $ID== 2,]
+  sep_2 <- calc_stats(data_2, type = "cafs")
+  expect_equal(class(cafs_2), class(sep_2))
+})
+
+
+test_that("calc_stats.fits_agg_dm -> validates conds and progress", {
+  fits_agg <- get_example_fits("fits_agg")
+
+  # invalid condition name -> match.arg error
+  expect_error(
+    calc_stats(fits_agg, type = "quantiles", conds = "definitely_not_a_cond"),
+    "should be"
+  )
+
+  # progress must be 0 or 1
+  expect_error(
+    calc_stats(fits_agg, type = "quantiles", progress = -1),
+    "progress must be 0 or 1"
+  )
+})
+
+
+test_that("calc_stats.fits_ids_dm -> resampling not possible for fit_stats", {
+  fits_agg <- get_example_fits("fits_agg")
+  expect_warning(
+    res1 <- calc_stats(fits_agg, type = "fit_stats", resample = TRUE),
+    "setting `resampling = FALSE`"
+  )
+
+  # should be equal to setting resample = FALSE
+  res2 <- calc_stats(fits_agg, type = "fit_stats", resample = FALSE)
+  expect_identical(res1, res2)
+})
+
+
+test_that("calc_stats.fits_agg_dm -> deprecation of average sets level", {
+  fits_agg <- get_example_fits("fits_agg")
+
+  # average = TRUE -> group
+  lifecycle::expect_deprecated(
+    res_grp <- calc_stats(fits_agg, type = "quantiles", average = TRUE),
+    "average"
+  )
+  expect_false("ID" %in% names(res_grp))
+
+  # average = FALSE -> individual
+  lifecycle::expect_deprecated(
+    res_ind <- calc_stats(fits_agg, type = "quantiles", average = FALSE),
+    "average"
+  )
+  expect_true("ID" %in% names(res_ind))
+})
+
+test_that("calc_stats.fits_agg_dm -> n_sim messages are correctly triggered", {
+  fits_agg <- get_example_fits("fits_agg")
+
+  local_mocked_bindings(
+    stats_resample_dm.drift_dm = function(...){list(...)$n_sim},
+    calc_stats.data.frame = function(...) NULL
+  )
+
+  # using the average trial
+  expect_message({
+    cafs <- calc_stats(fits_agg, "cafs", resample = TRUE)
+  }, "average trial"
+  )
+  expect_identical(as.numeric(cafs), 100)
+
+  # or some explicit value
+  expect_message({
+    cafs <- calc_stats(fits_agg, "cafs", resample = TRUE, n_sim = 50)
+  }, "specified by 'n_sim'"
+  )
+  expect_identical(as.numeric(cafs), 50)
+})
+
+
+
+# RESAMPLING --------------------------------------------------------------
+
+test_that("calc_stats.data.frame -> resampling at group level works", {
+  data <- dRiftDM::ulrich_flanker_data
+  withr::local_seed(1)
+  cafs <- calc_stats(
+    data, type = "cafs", resample = TRUE, progress = FALSE, R = 10,
+    level = "group"
+  )
+
+  # do it manually...
+  # get the cafs per subject
+  cafs_standard <- calc_stats(
+    data, type = "cafs", level = "individual"
+  )
+  cafs_split <- split(cafs_standard, cafs_standard$ID)
+  stopifnot(sapply(cafs_split, \(x) unique(x$ID)) == names(cafs_split))
+
+  # now do it manually
+  withr::local_seed(1)
+  pos_idxs = names(cafs_split)
+  idx_list = replicate(
+    n = 10, expr = sample(x = pos_idxs, size = length(pos_idxs), replace = TRUE),
+    simplify = FALSE
+  )
+
+  stats <- lapply(idx_list, \(one_set){
+    boot_cafs <- cafs_split[one_set]
+    boot_cafs <- do.call(rbind, boot_cafs)
+    aggregate_stats(boot_cafs)
+  })
+
+  # test for equality....
+  # no resampling and with resampling
+  agg_standard = aggregate_stats(cafs_standard)
+  expect_equal(agg_standard$P_corr, cafs$P_corr[cafs$Estimate == "orig"])
+
+  # for manual resampling
+  Ps_comp <- sapply(stats, \(x) x$P_corr) # rows are Ps, cols are runs
+  range <- apply(Ps_comp, 1, stats::quantile, probs = c(0.025, 0.975))
+  expect_equal(range[1,], cafs$P_corr[cafs$Estimate == "2.5%"])
+  expect_equal(range[2,], cafs$P_corr[cafs$Estimate == "97.5%"])
+})
+
+
+
+
+test_that("calc_stats.fits_ids_dm -> resampling at group level works", {
+  all_fits <- get_example_fits("fits_ids")
+  withr::local_seed(1)
+  cafs <- calc_stats(
+    all_fits, type = "cafs", level = "group", resample = TRUE, R = 10
+  )
+
+  # get the cafs per subject
+  cafs_per_subject <- calc_stats(
+    all_fits, type = "cafs", level = "individual"
+  )
+  cafs_split <- split(cafs_per_subject, cafs_per_subject$ID)
+  cafs_split <- lapply(cafs_split, \(x) x[x$Source == "pred",])
+  stopifnot(sapply(cafs_split, \(x) unique(x$ID)) == names(cafs_split))
+
+  # now do it manually; we have to run the index creation twice to have
+  # the same rng value (when calling resample, we no only perform resamples
+  # for the model preds but also for the obs!)
+  withr::local_seed(1)
+  pos_idxs = names(cafs_split)
+  idx_list = replicate(
+    n = 20, expr = sample(x = pos_idxs, size = length(pos_idxs), replace = TRUE),
+    simplify = FALSE
+  )
+  idx_list = idx_list[11:20]
+
+  stats <- lapply(idx_list, \(one_set){
+    boot_cafs <- cafs_split[one_set]
+    boot_cafs <- do.call(rbind, boot_cafs)
+    aggregate_stats(boot_cafs)
+  })
+
+  # test for equality....
+  # no resampling and with resampling
+  agg_standard = aggregate_stats(cafs_per_subject)
+  expect_equal(cafs$P_corr[cafs$Estimate == "orig"], agg_standard$P_corr)
+
+  # for manual resampling
+  Ps_comp <- sapply(stats, \(x) x$P_corr) # rows are Ps, cols are runs
+  range <- apply(Ps_comp, 1, stats::quantile, probs = c(0.025, 0.975))
+  cafs_pred <- cafs[cafs$Source == "pred",]
+  expect_equal(range[1,], cafs_pred$P_corr[cafs_pred$Estimate == "2.5%"])
+  expect_equal(range[2,], cafs_pred$P_corr[cafs_pred$Estimate == "97.5%"])
 })

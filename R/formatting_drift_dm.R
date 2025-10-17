@@ -194,13 +194,13 @@ print.summary.drift_dm <- function(x, ...,
 # HELPER FUNCTIONS --------------------------------------------------------
 
 print_deriving_pdfs = function(solver, prms_solve,
-                               header = "Deriving PDFS:") {
+                               header = "Deriving PDFS:", round_digits = 4) {
   cat(header)
   cat("\n  solver:", solver)
   to_str <- prms_to_str(
     x = names(prms_solve),
     prms = prms_solve,
-    sep = "=", collapse = ", "
+    sep = "=", collapse = ", ", round_digits = round_digits
   )
   cat("\n  values:", to_str)
   cat("\n")
@@ -220,7 +220,7 @@ print_cost_function = function(cost_function_label, header = "Cost Function:") {
 print_fit_stats = function(fit_stats, round_digits, header = "Fit Indices:") {
   cat(header)
   cat("\n")
-  print(fit_stats, digits = round_digits)
+  print(round(fit_stats, digits = round_digits))
 }
 
 

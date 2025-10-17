@@ -45,16 +45,17 @@ fitted.}
 
 \item{obs_data}{an optional \link{data.frame} (see also \link{obs_data}).
 If no \code{ID} column is present, a single-individual setup is assumed.
-If an \code{ID} column is present, the model is fitted separately for each individual.}
+If an \code{ID} column is present, the model is fitted separately for each
+individual.}
 
 \item{approach}{an optional character string, specifying the approach to
 fitting the model. Options are \code{"sep_c"}, \code{"agg_c"}, \code{"sep_b"}, \code{"hier_b"}
 (see the Details).}
 
 \item{optimizer}{a character string. For classical optimization, one of
-\code{"nmkb"}, \code{"Nelder-Mead"}, \code{"BFGS"}, \code{"L-BFGS-B"}, \code{"DEoptim"}. For the Bayesian
-framework, only \code{"DE-MCMC"} is currently supported. If \code{NULL} and if a
-classical optimization approach is used, defaults to \code{"DEoptim"} or
+\code{"nmkb"}, \code{"Nelder-Mead"}, \code{"BFGS"}, \code{"L-BFGS-B"}, \code{"DEoptim"}. For the
+Bayesian framework, only \code{"DE-MCMC"} is currently supported. If \code{NULL} and
+if a classical optimization approach is used, defaults to \code{"DEoptim"} or
 \code{"Nelder-Mead"}, depending on whether \code{lower/upper} are provided or not. If
 \code{NULL} and if a Bayesian framework is used, defaults to \verb{"DE-MCMC}.
 Note that \code{"BFGS"} and \code{"L-BFGS-B"} are often unstable.}
@@ -73,7 +74,7 @@ individual within the Bayesian framework).}
 is performed when fitting multiple individuals with the classical approach.
 If \code{1}, parallelization is across individuals. If \code{2}, parallelization is
 within individuals (currently only supported for \code{"DEoptim"}). Defaults to
-\code{2} if \code{optimizer = "DEoptim"}, otherwise to \code{1}.}
+\code{1}.}
 
 \item{lower, upper}{numeric vectors or lists, specifying the lower and upper
 bounds on each parameter to be optimized (see Details).}

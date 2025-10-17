@@ -174,7 +174,7 @@ calc_pdfs_heart <- function(comp_vals_one_cond, nt, nx, dt, dx, sigma, t_vec,
   pdf_l <- numeric(nt + 1)
 
   if (solver == "kfe") {
-    # # solve the pdfs with kfe
+    # solve the pdfs with kfe
     cpp_kfe_ada(
       pdf_u = pdf_u, pdf_l = pdf_l, xx = x_vals,
       nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,

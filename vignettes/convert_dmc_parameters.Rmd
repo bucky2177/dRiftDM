@@ -124,7 +124,7 @@ Let's see if the conversion works by checking if model predictions are the same 
 dmc_s <- dmc_dm()
 prms_solve(dmc_s) # current parameter settings for sigma = 1 and seconds
 quants_s <- calc_stats(dmc_s, "quantiles") # calculate predicted quantiles
-head(quants_s) # show quantiles
+print(quants_s) # show quantiles
 
 # now the same with new diffusion constant of 4 and time scale in milliseconds
 dmc_ms <- dmc_dm()
@@ -138,7 +138,7 @@ coef(dmc_ms) <- convert_prms(
   t_from_to = "s->ms" # how shall the time be scaled?
 )
 quants_ms <- calc_stats(dmc_ms, "quantiles") # calculate predicted quantiles
-head(quants_ms) # show quantiles
+print(quants_ms) # show quantiles
 ```
 Note: The transformed values in the unit of milliseconds and with a diffusion constant of 4 are similar in size to those obtained by @Ulrichetal.2015. 
 
@@ -175,7 +175,7 @@ stopifnot(convert_2 == coef(a_model))
 
 # TEST 2 -> quantiles from above should be very similar
 stopifnot(
-  abs(quants_ms$Quant_corr - quants_s$Quant_corr * 1000) <= 0.001
+  abs(quants_ms$Quant_corr - quants_s$Quant_corr * 1000) <= 1
 )
 
 

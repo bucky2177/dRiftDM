@@ -44,14 +44,9 @@
 #' # the model with default settings
 #' my_model <- ratcliff_dm()
 #'
-#' # the model with a variable non-decision time and with a more coarse
+#' # the model with a variable non-decision time and with finer space
 #' # discretization
-#' my_model <- ratcliff_dm(
-#'   var_non_dec = TRUE,
-#'   t_max = 1.5,
-#'   dx = .005,
-#'   dt = .005
-#' )
+#' my_model <- ratcliff_dm(var_non_dec = TRUE, dx = .01)
 #'
 #' @seealso [dRiftDM::component_shelf()], [dRiftDM::drift_dm()]
 #'
@@ -60,7 +55,7 @@
 #' @export
 ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
                         var_drift = FALSE, instr = NULL, obs_data = NULL,
-                        sigma = 1, t_max = 3, dt = .001, dx = .001,
+                        sigma = 1, t_max = 3, dt = .0075, dx = .02,
                         solver = "kfe", b_coding = NULL) {
   prms_model <- c(muc = 3, b = 0.6, non_dec = 0.3)
   if (var_non_dec) prms_model <- append(prms_model, c(range_non_dec = 0.05))
@@ -359,14 +354,7 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'   Defaults are `TRUE`. If `FALSE`, a constant non-decision time and
 #'   starting point is set (see `nt_constant` and `x_dirac_0` in
 #'   [dRiftDM::component_shelf]).
-#' @param instr optional string with additional "instructions", see
-#'   [dRiftDM::modify_flex_prms()] and the Details below.
-#' @param obs_data data.frame, an optional data.frame with the observed data.
-#' See [dRiftDM::obs_data].
-#' @param sigma,t_max,dt,dx numeric, providing the settings for the diffusion
-#' constant and discretization (see [dRiftDM::drift_dm])
-#' @param b_coding list, an optional list with the boundary encoding (see
-#' [dRiftDM::b_coding])
+#' @inheritParams ratcliff_dm
 #'
 #'
 #' @details
@@ -394,12 +382,13 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'
 #' Per default the shape parameter `a` is set to 2 and not allowed to
 #' vary. This is because the derivative of the scaled gamma-distribution
-#' function does not exist at `t = 0` for `a < 2`. We generally recommend keeping
-#' `a` fixed to 2 for several reasons. If users decide to set `a != 2`, then a
-#' small value of `0.0005` is added to the time vector `t_vec` before calculating
-#' the derivative of the scaled gamma-distribution as originally introduced by
-#' \insertCite{Ulrichetal.2015;textual}{dRiftDM}. This can lead to large
-#' numerical inaccuracies if `tau` is small and/or `dt` is large.
+#' function does not exist at `t = 0` for `a < 2`. Currently, we recommend
+#' keeping `a` fixed to 2. If users decide to set `a != 2`,
+#' then a small value of `1e-05` is added to the time vector `t_vec` before
+#' calculating the derivative of the scaled gamma-distribution as originally
+#' introduced by \insertCite{Ulrichetal.2015;textual}{dRiftDM}. Note that
+#' varying `a` can lead to large numerical inaccuracies if both `tau` and `a`
+#' are small and/or `dt` is large.
 #'
 #' The model assumes the amplitude `A` to be negative for
 #' incompatible trials. Also, the model contains the custom parameter
@@ -423,9 +412,9 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' # the model with default settings
 #' my_model <- dmc_dm()
 #'
-#' # the model with no variability in the starting point and a more coarse
+#' # the model with no variability in the starting point and a finer
 #' # discretization
-#' my_model <- dmc_dm(var_start = FALSE, t_max = 1.5,  dx = .01, dt = .005)
+#' my_model <- dmc_dm(var_start = FALSE, dt = .005, dx = .01)
 #'
 #' @references
 #' \insertRef{Ulrichetal.2015}{dRiftDM}
@@ -433,7 +422,7 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' @export
 dmc_dm <- function(var_non_dec = TRUE, var_start = TRUE, instr = NULL,
                    obs_data = NULL, sigma = 1, t_max = 3,
-                   dt = .001, dx = .001, b_coding = NULL) {
+                   dt = .0075, dx = .02, b_coding = NULL) {
   # get default instructions to setup the configuration of DMC
   default_instr <- "peak_l := (a-1) * tau
                    a <!>
@@ -524,7 +513,7 @@ mu_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
   # calculate the first derivative of the gamma-function
   if (a != 2) {
-    t_vec <- t_vec + 10^(-5) # general form can not be derived for t <= 0
+    t_vec <- t_vec + 1e-05 # general form can not be derived for t <= 0
     mua <- A * exp(-t_vec / tau) * ((t_vec * exp(1)) / ((a - 1) * tau))^(a - 1) *
       (((a - 1) / t_vec) - (1 / tau))
   } else {
@@ -678,14 +667,7 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #' @param var_non_dec,var_start logical, indicating whether the model
 #'   should have a variable non-decision time or starting point
 #'   (see also `nt_uniform` and `x_uniform` in [dRiftDM::component_shelf]
-#' @param instr optional string with additional "instructions", see
-#'   [dRiftDM::modify_flex_prms()] and the Details below.
-#' @param obs_data data.frame, an optional data.frame with the observed data.
-#' See [dRiftDM::obs_data].
-#' @param sigma,t_max,dt,dx numeric, providing the settings for the diffusion
-#' constant and discretization (see [dRiftDM::drift_dm])
-#' @param b_coding list, an optional list with the boundary encoding (see
-#' [dRiftDM::b_coding])
+#' @inheritParams ratcliff_dm
 #'
 #' @details
 #'
@@ -694,12 +676,12 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #' It has the following properties (see [dRiftDM::component_shelf]):
 #' - a constant boundary (parameter `b`)
 #' - a constant starting point in between the decision boundaries
-#' - an evidence accumulation process that is driven by an attentional
+#' - an evidence accumulation process that is driven by an attention
 #' spotlight that covers both the flankers and the target. The area that covers
 #' the flankers and target is modeled by normal distribution with mean 0:
 #'    - At the beginning of the trial attention is wide-spread, and the width
 #'    at t=0 is the standard deviation `sd_0`
-#'    - As the trial progresses in time, the attentional spotlight narrows,
+#'    - As the trial progresses in time, the attention spotlight narrows,
 #'    reflected by a linear decline of the standard deviation with rate `r`
 #'    (to a minimum of 0.001).
 #'    - the attention attributed to both the flankers and the target is scaled
@@ -738,12 +720,8 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #' # the model with default settings
 #' my_model <- ssp_dm()
 #'
-#' # the model with a more coarse discretization
-#' my_model <- ssp_dm(
-#'   t_max = 1.5,
-#'   dx = .0025,
-#'   dt = .0025
-#' )
+#' # the model with a finer discretization
+#' my_model <- ssp_dm(dt = .0025, dx = .01)
 #'
 #' @references
 #' \insertRef{Whiteetal.2011}{dRiftDM}
@@ -751,7 +729,7 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #'
 #' @export
 ssp_dm <- function(var_non_dec = TRUE, var_start = FALSE, instr = NULL,
-                   obs_data = NULL, sigma = 1, t_max = 3, dt = .001, dx = .001,
+                   obs_data = NULL, sigma = 1, t_max = 3, dt = .005, dx = .02,
                    b_coding = NULL) {
   # sign ~ ensures that sign is free, and thus avoids a message from
   # modify_flex_prms
@@ -1269,7 +1247,7 @@ get_lower_upper.drift_dm <- function(object, ..., warn = TRUE) {
   if (identical(all_comp_funs$mu_fun, mu_constant) &&
       ("sd_muc" %in% free_prms)) {
     prms_lower = c(prms_lower, sd_muc = 0.01)
-    prms_upper = c(prms_upper, sd_muc = 2.20)
+    prms_upper = c(prms_upper, sd_muc = 3.00)
   }
   diff_prms <- setdiff(free_prms, names(prms_lower))
   if (length(fails) == 0 & length(diff_prms) != 0) {

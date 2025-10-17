@@ -131,7 +131,7 @@ drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
                      b_coding = NULL) {
 
   # check the subclass label
-  if(!is.character(subclass) | length(subclass) != 1) {
+  if (!is.character(subclass) | length(subclass) != 1) {
     stop("subclass is not a single character string")
   }
   #.. don't allow users to create models with labels identical to the
@@ -153,15 +153,6 @@ drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
   flex_prms_obj <- flex_prms(object = prms_model, conds = conds, instr = instr)
 
 
-  # create the prms_solve vector
-  prms_solve <- c("sigma" = sigma, "t_max" = t_max, "dt" = dt, "dx" = dx)
-  # calculate the number of discretization steps
-  prms_solve["nt"] <- as.integer(
-    prms_solve[["t_max"]] / prms_solve[["dt"]] + 1.e-8
-  )
-  prms_solve["nx"] <- as.integer(2 / prms_solve["dx"] + 1.e-8)
-
-
   # match solver
   solver = match.arg(solver, c("kfe", "im_zero"))
 
@@ -174,11 +165,13 @@ drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
     dt_b_fun = dt_b_fun, nt_fun = nt_fun
   )
 
-
   # pass the arguments further down
   drift_dm_obj <- new_drift_dm(
     flex_prms_obj = flex_prms_obj,
-    prms_solve = prms_solve,
+    sigma = sigma,
+    t_max = t_max,
+    dt = dt,
+    dx = dx,
     solver = solver,
     comp_funs = comp_funs,
     cost_function = cost_function,
@@ -187,8 +180,7 @@ drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
     obs_data = obs_data
   )
 
-  # validate the model to ensure everything is as expected and pass back
-  drift_dm_obj <- validate_drift_dm(drift_dm_obj)
+  # and pass back
   return(drift_dm_obj)
 }
 
@@ -197,35 +189,55 @@ drift_dm <- function(prms_model, conds, subclass, instr = NULL, obs_data = NULL,
 
 # BACKEND FUNCTION FOR CREATING AND CHECKING DRIFT_DM OBJECT --------------
 
-#' Create A DDM model - Internal
+#' Create a DDM model --- internal
 #'
-#' This function takes all objects/vectors to create a ddm object
+#' This function assembles all components to create a `drift_dm` object.
 #'
-#' @param flex_prms_obj  flex_prms object
-#' @param prms_solve  vector with sigma, t_max, dt, dx, nt, nx
-#' @param solver  string (e.g., kfe)
-#' @param comp_funs a list of component functions
-#' @param subclass string with model info label set for child class
-#' @param b_coding optional list with b_coding (e.g., drift_dm_default_b_coding)
-#' @param obs_data optional data.frame
+#' @param flex_prms_obj  a flex_prms object.
+#' @param sigma  the diffusion noise (`sigma`).
+#' @param t_max  the maximum trial duration (`t_max`).
+#' @param dt  the temporal step size (`dt`).
+#' @param dx  the evidence step size (`dx`).
+#' @param solver  a string identifying the solver (e.g., `"kfe"`).
+#' @param comp_funs a list of component functions.
+#' @param cost_function  a string, defining how to compute the fit cost.
+#' @param subclass  a string with model info label set for the child class.
+#' @param b_coding  an optional list with boundary coding
+#'   (e.g., `drift_dm_default_b_coding()`).
+#' @param obs_data  an optional `data.frame` with observed data.
 #'
 #' @details
 #'
-#' This function does not perform any input checks and just assembles all
-#' arguments. Pre-wrangling of each argument is done in [dRiftDM::drift_dm()].
-#' Checks are done done with [dRiftDM::validate_drift_dm()], called in
-#' [dRiftDM::drift_dm()].
+#' We do not perform input checks here; we just assemble the object. Any
+#' pre-wrangling is done in [dRiftDM::drift_dm()]. Checks are performed by
+#' [dRiftDM::validate_drift_dm()], which is called indirectly via the
+#' setters (e.g., `prms_solve()` and `obs_data()`).
 #'
 #' @return
-#' List with flex_prms_obj, prms_solve, solver, comp_funs. Attributes: class
-#' info and b_encoding info. If obs_data is not null, then list of observed rts
-#' see [dRiftDM::obs_data()].
+#' A list with elements `flex_prms_obj`, `prms_solve`, `solver`, `comp_funs`,
+#' and `cost_function`. The object has class attributes
+#' `c(subclass, "drift_dm")` and an attribute `"b_coding"` containing the
+#' boundary coding. If `obs_data` is not `NULL`, the observed data are attached
+#' via [dRiftDM::obs_data()].
+#'
+#' @seealso [dRiftDM::drift_dm()], [dRiftDM::validate_drift_dm()],
+#' [dRiftDM::obs_data()], [dRiftDM::drift_dm_default_b_coding()],
+#' [dRiftDM::prms_solve()].
 #'
 #' @keywords internal
-#'
-new_drift_dm <- function(flex_prms_obj, prms_solve, solver, comp_funs,
+new_drift_dm <- function(flex_prms_obj, sigma, t_max, dt, dx, solver, comp_funs,
                          cost_function, subclass, b_coding = NULL,
                          obs_data = NULL) {
+
+
+  # create the prms_solve vector (with place-holder; prms_solve()<- is used
+  # below to ensure internal consistency of dx, dt, and t_max)
+  # -> the 50 is arbitrary and will be replaced
+  prms_solve <- c(
+    sigma = sigma, t_max = t_max, dt = t_max / 50L, dx = 2 / 50L,
+    nt = 51L, nx = 51L
+  )
+
   # add everything
   drift_dm_obj <- list(
     flex_prms_obj = flex_prms_obj, prms_solve = prms_solve, solver = solver,
@@ -234,9 +246,17 @@ new_drift_dm <- function(flex_prms_obj, prms_solve, solver, comp_funs,
   class(drift_dm_obj) <- c(subclass, "drift_dm")
 
   # set encoding
-  b_coding(drift_dm_obj) <- b_coding
+  if (is.null(b_coding)) {
+    b_coding <- drift_dm_default_b_coding()
+  }
+  attr(drift_dm_obj, "b_coding") <- check_b_coding(b_coding)
+
+  # update prms_solve while ensuring internal inconsistency
+  # -> calls validate_drift_dm
+  prms_solve(drift_dm_obj)[c("dt", "dx")] <- c(dt, dx)
 
   # add data if necessary
+  # -> calls validate_drift_dm
   if (!is.null(obs_data)) {
     obs_data(drift_dm_obj) <- obs_data
   }
@@ -323,7 +343,7 @@ validate_drift_dm <- function(drift_dm_obj) {
     max_rt <- max(unlist(drift_dm_obj$obs_data))
     if (max_rt > drift_dm_obj$prms_solve[["t_max"]]) {
       warning(
-        "RTs in obs_data are larger than the maximum time in prms_solve ",
+        "RTs in obs_data are larger than the maximum time in prms_solve. ",
         "Trying to fix this by adjusting t_max and nt. Please double-check ",
         "your data and your model!"
       )
@@ -1312,6 +1332,13 @@ set_one_solver_setting <- function(drift_dm_obj, name_prm_solve,
 
   # if desired, set solver
   if (name_prm_solve == "solver") {
+    if (value_prm_solve == "im_zero") {
+      warning(
+        "When solver = 'im_zero', use a small 'dt'; 'im_zero' does not yet ",
+        "support dynamic time stepping. It will usually run slower than the ",
+        "'kfe' solver."
+      )
+    }
     drift_dm_obj$solver <- value_prm_solve
   }
 

@@ -279,8 +279,6 @@ logLik.fits_ids_dm <- function(object, ...) {
     calc_stats(object, type = "fit_stats"),
     pattern = "Couldn't form .* bins from .* RTs"
   )
-
-  if (all(is.na(stats[["Log_Like"]]))) return(NULL)
   return(stats[c("ID", "Log_Like")])
 }
 
@@ -292,7 +290,6 @@ AIC.fits_ids_dm <- function(object, ..., k = 2) {
     calc_stats(object, type = "fit_stats", k = k),
     pattern = "Couldn't form .* bins from .* RTs"
   )
-  if (all(is.na(stats[["AIC"]]))) return(NULL)
   return(stats[c("ID", "AIC")])
 }
 
@@ -304,7 +301,6 @@ BIC.fits_ids_dm <- function(object, ...) {
     calc_stats(object, type = "fit_stats"),
     pattern = "Couldn't form .* bins from .* RTs"
   )
-  if (all(is.na(stats[["BIC"]]))) return(NULL)
   return(stats[c("ID", "BIC")])
 }
 
@@ -346,13 +342,13 @@ coef.fits_ids_dm <- function(object, ...) {
 coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
 
   # input checks and handling of the ids argument
-  if (!is.function(mean)) {
+  if (!is.function(.f)) {
     stop(".f argument must be a function")
   }
 
   hierarchical = attr(object, "hierarchical")
   if (!is.null(id) & hierarchical) {
-    if (is.na(id)) {
+    if (length(id) == 1 && is.na(id)) {
       id = dimnames(object[["theta"]])[[3]] # third dimension are the ids
     }
   }
@@ -385,7 +381,7 @@ coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
   # get the relevant chains
   chains = get_subset_chains(chains_obj = object, id = id)
   result = apply(chains, 1, FUN = .f, simplify = TRUE)
-  if (!(is.vector(result) | is.matrix(result))) {
+  if (is.list(result)) {
     stop("Function supplied as argument .f did not return either a single ",
          "value or a vector of always the same length")
   }
@@ -409,18 +405,9 @@ coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
 #'
 #' @keywords internal
 try_cast_integer <- function(values) {
-  if (!is.character(values)) {
-    return(values)
-  }
-
-  checks <- !grepl("\\D", values) # check each entry if only digits exist
-
-  # if each entry only contains digits, then cast to digit
-  if (all(checks)) {
-    values <- as.integer(values)
-  }
-
-  return(values)
+  if (!is.character(values)) return(values)
+  ok <- grepl("^[0-9]+$", values)
+  if (all(ok)) as.integer(values) else values
 }
 
 

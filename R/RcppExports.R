@@ -5,15 +5,7 @@ cpp_imzero <- function(pdf_u, pdf_l, nt, dt, sigma, b_vals, mu_vals, mu_int_vals
     .Call(`_dRiftDM_cpp_imzero`, pdf_u, pdf_l, nt, dt, sigma, b_vals, mu_vals, mu_int_vals, dt_b_vals, t_vec)
 }
 
-cpp_kfe <- function(pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec) {
-    .Call(`_dRiftDM_cpp_kfe`, pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec)
-}
-
 cpp_kfe_ada <- function(pdf_u, pdf_l, xx, nt, nx, dtbase, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec) {
     .Call(`_dRiftDM_cpp_kfe_ada`, pdf_u, pdf_l, xx, nt, nx, dtbase, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec)
-}
-
-cpp_kfe_simple <- function(pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec) {
-    .Call(`_dRiftDM_cpp_kfe_simple`, pdf_u, pdf_l, xx, nt, nx, dt, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec)
 }
 

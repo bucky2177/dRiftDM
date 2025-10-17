@@ -14,7 +14,8 @@ estimate_classical(
   verbose = NULL,
   de_n_cores = 1,
   control = list(),
-  round_digits = NULL
+  round_digits = NULL,
+  seed = NULL
 )
 }
 \arguments{
@@ -56,6 +57,8 @@ optimizer.}
 
 \item{round_digits}{an integer. Number of digits to round cost values in printed
 output. If \code{NULL}, defaults to \code{\link[=drift_dm_default_rounding]{drift_dm_default_rounding()}}.}
+
+\item{seed}{a seed, to make the results of DEoptim reproducible.}
 }
 \value{
 The updated \code{drift_dm_obj}, with optimized parameters.

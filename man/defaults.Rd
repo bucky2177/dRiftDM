@@ -49,14 +49,14 @@ These functions provide default values for various settings in the
 \item \code{drift_dm_approx_error()}: Returns the default approximation error
 for precise calculations (1e-20).
 \item \code{drift_dm_medium_approx_error()}: Returns a 'medium' level of approximation
-error (1e-04).
+error (1e-06).
 \item \code{drift_dm_small_approx_error()}: Returns a 'small' level of approximation
 error (.01).
 \item \code{drift_dm_rough_approx_error()}: Returns a rough level of approximation
 error (.1).
 \item \code{drift_dm_robust_prm()}: Returns a value that is added to the PDFs after
 convolution with the non-decision time to make parameter estimation and the
-evaluation of the log-likelihood more robust (1e-10).
+evaluation of the log-likelihood more robust (1e-8).
 \item \code{drift_dm_default_rounding()}: Returns the default rounding precision for
 numerical outputs (3).
 \item \code{drift_dm_default_probs()}: Returns the default sequence of probabilities

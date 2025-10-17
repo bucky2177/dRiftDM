@@ -622,14 +622,14 @@ trapz  <- function(x, y){
 #' - `drift_dm_approx_error()`: Returns the default approximation error
 #' for precise calculations (1e-20).
 #' - `drift_dm_medium_approx_error()`: Returns a 'medium' level of approximation
-#' error (1e-04).
+#' error (1e-06).
 #' - `drift_dm_small_approx_error()`: Returns a 'small' level of approximation
 #' error (.01).
 #' - `drift_dm_rough_approx_error()`: Returns a rough level of approximation
 #' error (.1).
 #' - `drift_dm_robust_prm()`: Returns a value that is added to the PDFs after
 #' convolution with the non-decision time to make parameter estimation and the
-#' evaluation of the log-likelihood more robust (1e-10).
+#' evaluation of the log-likelihood more robust (1e-8).
 #' - `drift_dm_default_rounding()`: Returns the default rounding precision for
 #' numerical outputs (3).
 #' - `drift_dm_default_probs()`: Returns the default sequence of probabilities
@@ -774,6 +774,9 @@ drift_dm_stats_types <- function(context = NULL) {
 #'
 #' @param class a string of either `"fits_ids_dm"`, `"fits_agg_dm"`, or
 #' `"mcmc_dm"` (can be abbreviated)
+#' @param hierarchical a logical, relevant when `class = "mcmc_dm"`. If `TRUE`,
+#' an object from a hierarchical fit is returned. If `FALSE`, an object from an
+#' individual fit is returned.
 #'
 #' @returns An object of type `fits_ids_dm`, `fits_agg_dm`, or `mcmc_dm`,
 #' mimicking a result from calling [dRiftDM::estimate_dm()].
@@ -787,35 +790,44 @@ drift_dm_stats_types <- function(context = NULL) {
 #' For `"fits_agg_dm"`, the returned object comprises the Ratcliff model
 #' (see [dRiftDM::ratcliff_dm()]) fitted to synthetic data of three participants.
 #'
-#' For `"mcmc_dm"`, the returned object comprises the Ratcliff model
-#' (see [dRiftDM::ratcliff_dm()]) fitted to synthetic data of one participant.
+#' For `"mcmc_dm"` and `hierarchical = FALSE`, the returned object comprises the
+#' Ratcliff model (see [dRiftDM::ratcliff_dm()]) fitted to synthetic data of one
+#' participant.
 #'
+#' For `"mcmc_dm"` and `hierarchical = TRUE`, the returned object comprises the
+#' Ratcliff model (see [dRiftDM::ratcliff_dm()]) fitted to synthetic data of ten
+#' participants.
 #'
 #' @examples
 #' get_example_fits(class = "fits_agg")
 #'
 #' @export
-get_example_fits = function(class) {
+get_example_fits = function(class, hierarchical = FALSE) {
   class = match.arg(class, c("fits_ids_dm", "fits_agg_dm", "mcmc_dm"))
-
+  sys_path <- system.file(package = "dRiftDM")
   if (class == "fits_ids_dm") {
     obj <- readRDS(
-      file = file.path(system.file(package = "dRiftDM"), "example_fits_ids.rds")
+      file = file.path(sys_path, "example_fits_ids.rds")
     )
   }
 
   if (class == "fits_agg_dm") {
     obj <- readRDS(
-      file = file.path(system.file(package = "dRiftDM"), "example_fits_agg.rds")
+      file = file.path(sys_path, "example_fits_agg.rds")
     )
   }
 
 
   if (class == "mcmc_dm") {
-    obj <- readRDS(
-      file = file.path(system.file(package = "dRiftDM"), "example_mcmc.rds")
-    )
+    if (!hierarchical) {
+      obj <- readRDS(
+        file = file.path(sys_path, "example_mcmc.rds")
+      )
+    } else {
+      obj <- readRDS(
+        file = file.path(sys_path, "example_mcmc_hier.rds")
+      )
+    }
   }
-
   return(obj)
 }

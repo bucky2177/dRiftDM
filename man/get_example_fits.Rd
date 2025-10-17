@@ -5,11 +5,15 @@
 \title{Auxiliary Function to load a \code{fits_ids_dm}, \code{fits_agg_dm}, or \code{mcmc_dm}
 object}
 \usage{
-get_example_fits(class)
+get_example_fits(class, hierarchical = FALSE)
 }
 \arguments{
 \item{class}{a string of either \code{"fits_ids_dm"}, \code{"fits_agg_dm"}, or
 \code{"mcmc_dm"} (can be abbreviated)}
+
+\item{hierarchical}{a logical, relevant when \code{class = "mcmc_dm"}. If \code{TRUE},
+an object from a hierarchical fit is returned. If \code{FALSE}, an object from an
+individual fit is returned.}
 }
 \value{
 An object of type \code{fits_ids_dm}, \code{fits_agg_dm}, or \code{mcmc_dm},
@@ -27,8 +31,13 @@ For \code{"fits_ids_dm"}, the returned object comprises DMC
 For \code{"fits_agg_dm"}, the returned object comprises the Ratcliff model
 (see \code{\link[=ratcliff_dm]{ratcliff_dm()}}) fitted to synthetic data of three participants.
 
-For \code{"mcmc_dm"}, the returned object comprises the Ratcliff model
-(see \code{\link[=ratcliff_dm]{ratcliff_dm()}}) fitted to synthetic data of one participant.
+For \code{"mcmc_dm"} and \code{hierarchical = FALSE}, the returned object comprises the
+Ratcliff model (see \code{\link[=ratcliff_dm]{ratcliff_dm()}}) fitted to synthetic data of one
+participant.
+
+For \code{"mcmc_dm"} and \code{hierarchical = TRUE}, the returned object comprises the
+Ratcliff model (see \code{\link[=ratcliff_dm]{ratcliff_dm()}}) fitted to synthetic data of ten
+participants.
 }
 \examples{
 get_example_fits(class = "fits_agg")

@@ -2,11 +2,14 @@
 % Please edit documentation in R/core_dm.R
 \name{new_drift_dm}
 \alias{new_drift_dm}
-\title{Create A DDM model - Internal}
+\title{Create a DDM model --- internal}
 \usage{
 new_drift_dm(
   flex_prms_obj,
-  prms_solve,
+  sigma,
+  t_max,
+  dt,
+  dx,
   solver,
   comp_funs,
   cost_function,
@@ -16,32 +19,48 @@ new_drift_dm(
 )
 }
 \arguments{
-\item{flex_prms_obj}{flex_prms object}
+\item{flex_prms_obj}{a flex_prms object.}
 
-\item{prms_solve}{vector with sigma, t_max, dt, dx, nt, nx}
+\item{sigma}{the diffusion noise (\code{sigma}).}
 
-\item{solver}{string (e.g., kfe)}
+\item{t_max}{the maximum trial duration (\code{t_max}).}
 
-\item{comp_funs}{a list of component functions}
+\item{dt}{the temporal step size (\code{dt}).}
 
-\item{subclass}{string with model info label set for child class}
+\item{dx}{the evidence step size (\code{dx}).}
 
-\item{b_coding}{optional list with b_coding (e.g., drift_dm_default_b_coding)}
+\item{solver}{a string identifying the solver (e.g., \code{"kfe"}).}
 
-\item{obs_data}{optional data.frame}
+\item{comp_funs}{a list of component functions.}
+
+\item{cost_function}{a string, defining how to compute the fit cost.}
+
+\item{subclass}{a string with model info label set for the child class.}
+
+\item{b_coding}{an optional list with boundary coding
+(e.g., \code{drift_dm_default_b_coding()}).}
+
+\item{obs_data}{an optional \code{data.frame} with observed data.}
 }
 \value{
-List with flex_prms_obj, prms_solve, solver, comp_funs. Attributes: class
-info and b_encoding info. If obs_data is not null, then list of observed rts
-see \code{\link[=obs_data]{obs_data()}}.
+A list with elements \code{flex_prms_obj}, \code{prms_solve}, \code{solver}, \code{comp_funs},
+and \code{cost_function}. The object has class attributes
+\code{c(subclass, "drift_dm")} and an attribute \code{"b_coding"} containing the
+boundary coding. If \code{obs_data} is not \code{NULL}, the observed data are attached
+via \code{\link[=obs_data]{obs_data()}}.
 }
 \description{
-This function takes all objects/vectors to create a ddm object
+This function assembles all components to create a \code{drift_dm} object.
 }
 \details{
-This function does not perform any input checks and just assembles all
-arguments. Pre-wrangling of each argument is done in \code{\link[=drift_dm]{drift_dm()}}.
-Checks are done done with \code{\link[=validate_drift_dm]{validate_drift_dm()}}, called in
-\code{\link[=drift_dm]{drift_dm()}}.
+We do not perform input checks here; we just assemble the object. Any
+pre-wrangling is done in \code{\link[=drift_dm]{drift_dm()}}. Checks are performed by
+\code{\link[=validate_drift_dm]{validate_drift_dm()}}, which is called indirectly via the
+setters (e.g., \code{prms_solve()} and \code{obs_data()}).
+}
+\seealso{
+\code{\link[=drift_dm]{drift_dm()}}, \code{\link[=validate_drift_dm]{validate_drift_dm()}},
+\code{\link[=obs_data]{obs_data()}}, \code{\link[=drift_dm_default_b_coding]{drift_dm_default_b_coding()}},
+\code{\link[=prms_solve]{prms_solve()}}.
 }
 \keyword{internal}

@@ -10,6 +10,9 @@ estimate_classical_wrapper(
   parallelization_strategy = NULL,
   progress = NULL,
   start_vals = NULL,
+  optimizer,
+  n_cores = NULL,
+  seed = NULL,
   ...
 )
 }
@@ -31,9 +34,11 @@ individuals (only supported for \code{"DEoptim"}). Default is \code{1}}
 individual. Must contain an \code{ID} column matching the IDs in
 \code{obs_data_ids}, and one column per parameter.}
 
+\item{seed}{an optional seed to make the results reproducible}
+
 \item{...}{further arguments passed to \code{\link[=estimate_classical]{estimate_classical()}}, including
-\code{optimizer}, \code{lower}, \code{upper}, \code{verbose}, \code{control}, \code{round_digits}, and
-\code{n_cores}. Note that the argument \code{return_runs} is not supported.}
+\code{lower}, \code{upper}, \code{verbose}, \code{control}, \code{round_digits}.
+Note that the argument \code{return_runs} is not supported.}
 }
 \value{
 an object of class \code{fits_ids_dm}, which is a list with two

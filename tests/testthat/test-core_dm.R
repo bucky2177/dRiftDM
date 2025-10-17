@@ -631,10 +631,11 @@ test_that("solver -> extractor and replacement works as expected", {
   a_model <- ratcliff_dummy
 
   expect_identical(solver(a_model), "kfe")
-  expect_identical(
+  expect_warning(
     solver(a_model) <- "im_zero",
-    "im_zero"
+    "small 'dt'"
   )
+  expect_identical(solver(a_model), "im_zero")
 
   expect_error(
     solver(a_model) <- "foo",

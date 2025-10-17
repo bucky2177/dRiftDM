@@ -63,6 +63,10 @@ test_that("input checks for draw_from_pdf", {
     draw_from_pdf(a_pdf = pdf, x_def = x_def, k = c(1, 1)),
     "single valid numeric"
   )
+  expect_identical(
+    draw_from_pdf(a_pdf = pdf, x_def = x_def, k = 0),
+    numeric()
+  )
   expect_error(
     draw_from_pdf(a_pdf = pdf, x_def = x_def, k = -1),
     "must be >= 0"
@@ -71,6 +75,18 @@ test_that("input checks for draw_from_pdf", {
   expect_error(
     draw_from_pdf(a_pdf = pdf, x_def = x_def, k = 3, seed = "1"),
     "must be a single numeric"
+  )
+
+  expect_error(
+    draw_from_pdf(a_pdf = pdf, x_def = x_def, k = 3, round_to = "1"),
+    "must be a single valid numeric"
+  )
+
+  tmp <- pdf
+  tmp[1] <- -tmp[1]
+  expect_warning(
+    draw_from_pdf(a_pdf = tmp, x_def = x_def, k = 3),
+    "negative pdf values"
   )
 
   run_1 <- draw_from_pdf(a_pdf = pdf, x_def = x_def, k = 3, seed = 1)
@@ -347,4 +363,85 @@ test_that("input checks for simulate_values", {
     "labels provided in means/sds don't match with lower/upper"
   )
 
+})
+
+
+
+
+test_that("check_discretization.drift_dm returns named numeric in [0,1]", {
+  model <- dmc_dummy
+  prms_solve(model)[c("dx", "dt")] <- .01
+
+  # defaults dt_ref=dx_ref=0.001
+  hs <- check_discretization(model, dt_ref = .005, dx_ref = .005)
+
+  expect_type(hs, "double")
+  expect_true(!is.null(names(hs)) && all(nzchar(names(hs))))
+  expect_true(all(hs >= 0) && all(hs <= 1))
+  # rounded to 5 digits by default
+  expect_identical(hs, round(hs, 5))
+})
+
+test_that("check_discretization.drift_dm respects round_digits", {
+  model <- ratcliff_dm()
+  hs_2  <- check_discretization(model, round_digits = 2)
+  hs_4  <- check_discretization(model, round_digits = 4)
+
+  expect_identical(hs_2, round(hs_2, 2))
+  expect_identical(hs_4, round(hs_4, 4))
+})
+
+test_that("check_discretization.drift_dm increases when we coarsen dt/dx (heuristic)", {
+  model <- ratcliff_dummy
+  prms_solve(ratcliff_dummy)[c("dx", "dt")] <- .001
+
+  # baseline against fine reference
+  base <- check_discretization(model)
+  expect_equal(unname(base), 0)
+
+  # coarsen the model grid -> distances should not decrease on average
+  prms_solve(model)["dt"] <- prms_solve(model)["dt"] * 2
+  prms_solve(model)["dx"] <- prms_solve(model)["dx"] * 2
+  coarse <- check_discretization(model)
+
+  # allow some fluctuations per condition; compare averages
+  expect_true(mean(coarse) > mean(base))
+})
+
+test_that("check_discretization.drift_dm errors as expected", {
+  model <- ratcliff_dummy
+
+  # Make model's dt finer than the default reference (so dt_model < dt_ref)
+  prms_solve(model)["dt"] <- 5e-4
+  expect_error(check_discretization(model), "smaller than 'dt_ref'")
+
+  # Reset and do the same for dx
+  prms_solve(model)["dt"] <- 0.1
+  prms_solve(model)["dx"] <- 5e-4
+  expect_error(check_discretization(model), "smaller than 'dx_ref'")
+})
+
+test_that("check_discretization delegates to respective methods", {
+  # fits_agg
+  fits_agg <- get_example_fits("fits_agg")
+  hs_agg <- check_discretization(fits_agg)
+  hs_direct <- check_discretization(fits_agg$drift_dm_obj)
+  expect_identical(hs_agg, hs_direct)
+
+  # fits_ids
+  fits_ids <- get_example_fits("fits_ids")
+  hs_ids <- check_discretization(fits_ids)
+
+  expect_s3_class(hs_ids, "data.frame")
+  expect_true("ID" %in% names(hs_ids))
+  expect_type(hs_ids$ID, "integer")
+  exp_conds <- c("comp", "incomp")
+  expect_equal(names(hs_ids)[c(2,3)], exp_conds)
+  expect_true(all(hs_ids[exp_conds] > 0 & hs_ids[exp_conds] < 1))
+  # IDs are sorted ascending
+  expect_identical(hs_ids$ID, sort(hs_ids$ID))
+
+  # check for one individual
+  hs_exp <- check_discretization(fits_ids$all_fits$`2`)
+  expect_identical(as.numeric(hs_ids[2,exp_conds]), unname(hs_exp))
 })

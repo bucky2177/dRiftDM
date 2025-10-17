@@ -12,8 +12,8 @@ ratcliff_dm(
   obs_data = NULL,
   sigma = 1,
   t_max = 3,
-  dt = 0.001,
-  dx = 0.001,
+  dt = 0.0075,
+  dx = 0.02,
   solver = "kfe",
   b_coding = NULL
 )
@@ -63,14 +63,9 @@ intensive). Important: Variable drift rate is only possible with dRiftDM's
 # the model with default settings
 my_model <- ratcliff_dm()
 
-# the model with a variable non-decision time and with a more coarse
+# the model with a variable non-decision time and with finer space
 # discretization
-my_model <- ratcliff_dm(
-  var_non_dec = TRUE,
-  t_max = 1.5,
-  dx = .005,
-  dt = .005
-)
+my_model <- ratcliff_dm(var_non_dec = TRUE, dx = .01)
 
 }
 \references{

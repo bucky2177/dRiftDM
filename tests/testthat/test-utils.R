@@ -395,6 +395,16 @@ test_that("get_example_fits", {
   expect_identical(
     class(attr(aux_fits, "data_model")), c("ratcliff_dm", "drift_dm")
   )
+
+  # mcmc - hierarchical
+  aux_fits <- get_example_fits("mcmc", hierarchical = TRUE)
+  expect_s3_class(aux_fits, "mcmc_dm")
+  data_models <- attr(aux_fits, "data_model")
+  expect_type(data_models, "list")
+  expect_identical(
+    class(data_models[[1]]), c("ratcliff_dm", "drift_dm")
+  )
+
 })
 
 

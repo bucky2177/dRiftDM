@@ -139,7 +139,8 @@ plot.traces_dm_list <- function(x, ..., conds = NULL, col = NULL, col_b = NULL,
   if (!is.null(dots$type)) {
     lifecycle::deprecate_warn(
       "0.3.0",
-      "dRiftDM::plot.traces_dm_list(type = )"
+      "dRiftDM::plot.traces_dm_list(type = )",
+      details = "the argument is no longer supported"
     )
   }
   if (!is.null(dots$legend_pos)) {
@@ -1019,9 +1020,9 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
       } else {
         lapply(id, function(one_id) {
           plot.densities(
-            x = x, id = one_id, conds = conds, col = col, xlim = xlim,
-            ylim = ylim, xlab = xlab, ylab = ylab, interval_obs = interval_obs,
-            interval_pred = interval_pred
+            x = x, ..., id = one_id, conds = conds, col = col, xlim = xlim,
+            ylim = ylim, xlab = xlab, ylab = ylab, obs_stats = obs_stats,
+            interval_obs = interval_obs, interval_pred = interval_pred
           )
         })
         return(invisible())
@@ -1045,7 +1046,7 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
 
   # Set axis limits
   max_dens <- sort(sapply(densities[dv], max, na.rm = TRUE))
-  y_r <- c(-max_dens[1] - diff(max_dens) / 5, max_dens[2] + diff(max_dens) / 5)
+  y_r <- c(-max_dens[1] - diff(max_dens) / 20, max_dens[2] + diff(max_dens) / 20)
   ylim <- ylim %||% y_r
 
   xlim <- xlim %||% range(densities$Time)
@@ -2278,7 +2279,8 @@ set_default_arguments <- function(dots, leg, id) {
 
   # main and family
   if (!is.null(id)) {
-    dots$main = paste(dots$main, id, sep = " - ")
+    if (is.null(dots$main)) dots$main = id
+    else dots$main = paste(dots$main, id, sep = " - ")
   }
   dots$family = if (is.null(dots$family)) "" else dots$family
 
@@ -2295,7 +2297,10 @@ set_default_arguments <- function(dots, leg, id) {
   dots$box.lty = if (is.null(dots$box.lty)) 1 else dots$box.lty
 
   # specific settings for the line legend
-  dots$lines.legend = if (is.null(dots$lines.legend)) NULL else dots$lines.legend
+  dots[["lines.legend"]] = if (is.null(dots[["lines.legend"]]))
+    NULL
+  else
+    dots[["lines.legend"]]
   dots$lines.legend.pos = if (is.null(dots$lines.legend.pos))
     "topright"
   else

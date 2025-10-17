@@ -30,9 +30,9 @@
       Convergence: TRUE
       
       Parameter Values:
-               muc     b non_dec sd_non_dec   tau a      A alpha
-      comp   4.731 0.438   0.344      0.033 0.028 2  0.107 6.504
-      incomp 4.731 0.438   0.344      0.033 0.028 2 -0.107 6.504
+             muc     b non_dec sd_non_dec   tau a      A alpha
+      comp   4.7 0.446   0.341      0.032 0.032 2  0.102 6.605
+      incomp 4.7 0.446   0.341      0.032 0.032 2 -0.102 6.605
       
       Parameter Settings:
              muc b non_dec sd_non_dec tau a A alpha
@@ -44,8 +44,8 @@
       
       Custom Parameters:
              peak_l
-      comp    0.028
-      incomp  0.028
+      comp    0.032
+      incomp  0.032
       
       Deriving PDFS:
         solver: kfe
@@ -78,7 +78,7 @@
       
       Fit Indices:
           Log_Like Neg_Log_Like          AIC          BIC       RMSE_s      RMSE_ms 
-          274.7254    -274.7254    -543.4507    -532.3394       0.0127      12.7273 
+           274.725     -274.725     -543.451     -532.339        0.013       12.727 
       
       -------
       Deriving PDFS:

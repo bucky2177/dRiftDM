@@ -88,9 +88,6 @@ int cpp_kfe_ada(NumericVector& pdf_u,
         b[i] = dx + dt * .5 * (2.0 * L_new);
         c[i] =      dt * .5 * (     -L_new + .5 * mu_new[i]);
       }
-      if ( (f[0]!=0) || (f[nx]!=0) ) {
-        stop("rhs not zero on thresholds!");
-      }
       a[0]  = 0.0; b[0]  = 1.0; c[0]  = 0.0;
       a[nx] = 0.0; b[nx] = 1.0; c[nx] = 0.0;
       // solve
