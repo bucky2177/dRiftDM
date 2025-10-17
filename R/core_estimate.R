@@ -1470,13 +1470,8 @@ estimate_classical_wrapper = function(
   if (parallelization_strategy == 1 & n_cores > 1) {
     cl <- parallel::makeCluster(n_cores)
     withr::defer(parallel::stopCluster(cl))
+    parallel::clusterCall(cl, function() { library("dRiftDM"); NULL })
     parallel::clusterSetRNGStream(cl, iseed = seed)
-    all_funs <- c("estimate_classical")
-    parallel::clusterExport(
-      cl,
-      varlist = all_funs,
-      envir = environment()
-    )
     dots$de_n_cores = 1 # to avoid that de_n_cores is larger than 1 for parstrat 1
   } else {
     dots$de_n_cores = n_cores

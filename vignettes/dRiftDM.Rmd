@@ -400,14 +400,18 @@ all_fits_nmkb <- estimate_dm(
 
 When you provide `lower/upper`, the default is actually not "nmkb", but "DEoptim". The ‘DE’ stands for Differential Evolution---a slower but very robust optimization algorithm. If runtime is not critical, we recommend using "DEoptim", since it performs reliably even when the cost function is complex (which is almost always the case with DDMs).
 
+Because DEoptim is more time costly, it is useful to use multiple cores:
+
 ```{r fit-model-4}
+tic()
 all_fits_deoptim <- estimate_dm(
   drift_dm_obj = ddm,
   obs_data = data,
   lower = l_u$lower,
   upper = l_u$upper,
-  n_cores = 1 # increase on your machine to speed-up
+  n_cores = 2 # to align with CRAN rules, I'll choose only 2 cores
 )
+toc()
 ```
 A common question concerns the number of cores to use. By default, `dRiftDM` (v.0.3.0) parallelizes across individuals---that is, one individual is fitted per core. Therefore, you should not specify more cores than there are individuals. In the present toy example, this limits the number of cores to four.
 
@@ -533,7 +537,7 @@ mcmc_list <- estimate_dm(
   upper = l_u$upper,
   verbose = 2,
   n_chains = 40,
-  n_cores = 1,
+  n_cores = 2,
   burn_in = 150, # for the demo, usually a bit higher
   samples = 150, # for the demo, usually a bit higher
   seed = 1
@@ -559,7 +563,7 @@ mcmc_hier <- estimate_dm(
   upper = l_u$upper,
   verbose = 2,
   n_chains = 40,
-  n_cores = 1,
+  n_cores = 2,
   burn_in = 150, # for the demo, usually way higher
   samples = 150, # for the demo, usually way higher
   seed = 1
