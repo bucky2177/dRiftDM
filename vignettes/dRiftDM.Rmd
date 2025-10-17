@@ -508,66 +508,6 @@ A neat summary of the model, the optimization routine, the data, and the paramet
 summary(all_fits)
 ```
 
-<!--
-## Experimental: Perform Bayesian Parameter Estimation
-
-Starting with `dRiftDM` v.0.3.0, there is also the option to perform Bayesian parameter estimation using DE-MCMC. Yet, this is currently at an experimental stage, and the returned `mcmc_dm` object type is not yet fully integrated within the remaining `dRiftDM` framework.
-
-we can request Bayesian parameter estimation using the argument `approach = "sep_b"` or `approach = "hier_b"`. In the former case, the model is fitted separately per participant, in the latter case, the model is fitted hierarchically.
-
-The prior distributions can be controlled using the arguments `lower`, `upper`, `means`, `sds`, `shapes`, and `rates` (see the documentation of `estimate_dm()`)
-
-```{r dmc-dm-3}
-# DMC without variability in the non-decision time;
-# makes it a bit easier to estimate, although it is still
-# difficult, because trial numbers are low in the sample data set :)
-ddm <- dmc_dm(var_non_dec = FALSE)
-
-# lower and upper boundary for the prior distributions
-l_u <- get_lower_upper(ddm)
-mcmc_list <- estimate_dm(
-  drift_dm_obj = ddm,
-  obs_data = data,
-  approach = "sep_b",
-  lower = l_u$lower,
-  upper = l_u$upper,
-  verbose = 2,
-  n_chains = 40,
-  n_cores = 2,
-  burn_in = 150, # for the demo, usually a bit higher
-  samples = 150, # for the demo, usually a bit higher
-  seed = 1
-)
-```
-This returns a list of `mcmc_dm` objects, one for each individual.
-
-```{r plot-results-7}
-one_mcmc <- mcmc_list[[1]]
-one_mcmc
-coef(one_mcmc)
-plot(one_mcmc, bundle_plots = FALSE)
-```
-
-It is also possible to request hierarchical estimation. Yet, be aware that it is not yet fully optimized in terms of performance. Fixing this will be the project for the next months :).
-
-```{r chunk-43}
-mcmc_hier <- estimate_dm(
-  drift_dm_obj = ddm,
-  obs_data = data,
-  approach = "hier_b",
-  lower = l_u$lower,
-  upper = l_u$upper,
-  verbose = 2,
-  n_chains = 40,
-  n_cores = 2,
-  burn_in = 150, # for the demo, usually way higher
-  samples = 150, # for the demo, usually way higher
-  seed = 1
-)
-print(mcmc_hier)
-coef(mcmc_hier)
-```
--->
 
 # Simulating Data
 
