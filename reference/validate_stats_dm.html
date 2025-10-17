@@ -15,7 +15,7 @@ method performs class-specific validation checks."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,6 +29,7 @@ method performs class-specific validation checks."><meta property="og:image" con
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -70,6 +71,9 @@ method performs class-specific validation checks.</p>
 <span><span class="co"># S3 method for class 'delta_funs'</span></span>
 <span><span class="fu">validate_stats_dm</span><span class="op">(</span><span class="va">stat_df</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># S3 method for class 'densities'</span></span>
+<span><span class="fu">validate_stats_dm</span><span class="op">(</span><span class="va">stat_df</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># S3 method for class 'sum_dist'</span></span>
 <span><span class="fu">validate_stats_dm</span><span class="op">(</span><span class="va">stat_df</span><span class="op">)</span></span>
 <span></span>
@@ -108,9 +112,15 @@ two columns prefixed with <code>"Quant_"</code></p></li>
 <li><p><strong><code>validate_stats_dm.delta_funs</code>:</strong> Ensures <code>"Prob"</code> exists, at least two
 columns prefixed with <code>"Quant_"</code>, and at least one column  each <code>Avg_</code>
 and <code>Delta_</code></p></li>
-<li><p><strong><code>validate_stats_dm.sum_dist</code>:</strong> Checks for a <code>"Source"</code> column.</p></li>
-<li><p><strong><code>validate_stats_dm.fit_stats</code>:</strong> Checks for <code>"Log_Like"</code>, <code>"AIC"</code>, and
-<code>"BIC"</code> columns.</p></li>
+<li><p><strong><code>validate_stats_dm.delta_funs</code>:</strong> Ensures <code>"Cond"</code>, <code>"Time"</code>, and
+<code>"Stat"</code> exists, and at least two column with <code>"Dens_"</code>.</p></li>
+<li><p><strong><code>validate_stats_dm.sum_dist</code>:</strong> Checks for a <code>"Source"</code> column. Here,
+it is also checked whether cell combinations appear equally often.</p></li>
+<li><p><strong><code>validate_stats_dm.fit_stats</code>:</strong> Checks for if the fit statistics
+summarize a log-likelihood cost function or the RMSE statistic. In the
+former case, the columns <code>"Log_Like"</code>, <code>"Neg_Log_Like"</code>, <code>"AIC"</code>, and <code>"BIC"</code>
+are expected. In the latter case, the columns <code>"RMSE_ms"</code> and <code>"RMSE_s"</code>
+are expected.</p></li>
 </ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -122,7 +132,7 @@ and <code>Delta_</code></p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

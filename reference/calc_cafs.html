@@ -11,7 +11,7 @@ and the data wrangling"><meta property="og:image" content="https://bucky2177.git
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,6 +25,7 @@ and the data wrangling"><meta property="og:image" content="https://bucky2177.git
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -53,6 +54,7 @@ and the data wrangling</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calc_cafs</span><span class="op">(</span></span>
 <span>  pdf_u <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pdf_l <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  t_vec <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  rts_u <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  rts_l <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">one_cond</span>,</span>
@@ -66,19 +68,23 @@ and the data wrangling</p>
 
 
 <dl><dt id="arg-pdf-u-pdf-l">pdf_u, pdf_l<a class="anchor" aria-label="anchor" href="#arg-pdf-u-pdf-l"></a></dt>
-<dd><p>either NULL or density vectors</p></dd>
+<dd><p>density values for the upper and lower boundary</p></dd>
+
+
+<dt id="arg-t-vec">t_vec<a class="anchor" aria-label="anchor" href="#arg-t-vec"></a></dt>
+<dd><p>the time space</p></dd>
 
 
 <dt id="arg-rts-u-rts-l">rts_u, rts_l<a class="anchor" aria-label="anchor" href="#arg-rts-u-rts-l"></a></dt>
-<dd><p>either NULL or RT vectors</p></dd>
+<dd><p>vectors of RTs for the upper and lower boundary</p></dd>
 
 
 <dt id="arg-one-cond">one_cond<a class="anchor" aria-label="anchor" href="#arg-one-cond"></a></dt>
-<dd><p>a label for the data.frame</p></dd>
+<dd><p>character label</p></dd>
 
 
 <dt id="arg-n-bins">n_bins<a class="anchor" aria-label="anchor" href="#arg-n-bins"></a></dt>
-<dd><p>the number of bins, default is 5</p></dd>
+<dd><p>number of bins to use for the CAFs</p></dd>
 
 
 <dt id="arg-b-coding">b_coding<a class="anchor" aria-label="anchor" href="#arg-b-coding"></a></dt>
@@ -111,7 +117,7 @@ the CAFs of type c("cafs", "sum_dist", "stats_dm", "data.frame")</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

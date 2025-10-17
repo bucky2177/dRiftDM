@@ -13,7 +13,7 @@ creating figures (see also plot.traces_dm_list)"><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,6 +27,7 @@ creating figures (see also plot.traces_dm_list)"><meta property="og:image" conte
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -70,6 +71,9 @@ creating figures (see also <a href="plot.traces_dm_list.html">plot.traces_dm_lis
 <span><span class="co"># S3 method for class 'fits_ids_dm'</span></span>
 <span><span class="fu">simulate_traces</span><span class="op">(</span><span class="va">object</span>, <span class="va">k</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># S3 method for class 'fits_agg_dm'</span></span>
+<span><span class="fu">simulate_traces</span><span class="op">(</span><span class="va">object</span>, <span class="va">k</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># S3 method for class 'traces_dm_list'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span>, round_digits <span class="op">=</span> <span class="fu"><a href="defaults.html">drift_dm_default_rounding</a></span><span class="op">(</span><span class="op">)</span>, print_steps <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
@@ -88,8 +92,8 @@ creating figures (see also <a href="plot.traces_dm_list.html">plot.traces_dm_lis
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>an object of type <a href="drift_dm.html">drift_dm</a> or <code>fits_ids_dm</code> (see
-<a href="load_fits_ids.html">load_fits_ids</a>).</p></dd>
+<dd><p>an object of type <a href="drift_dm.html">drift_dm</a>, <code>fits_ids_dm</code>, or
+<code>fits_agg_dm</code> (see <code><a href="estimate_dm.html">estimate_dm()</a></code>).</p></dd>
 
 
 <dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>
@@ -149,8 +153,9 @@ printing out traces (default is 4).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>simulate_traces()</code> returns either a list of type <code>traces_dm_list</code>, or
-directly the plain traces as matrices across conditions (if <code>unpack = TRUE</code>).
+    <p><code>simulate_traces()</code> returns either an object of type <code>traces_dm_list</code>, or
+directly a list of matrices across conditions, containing the traces
+(if <code>unpack = TRUE</code>).
 If the model has only one condition (and <code>unpack = TRUE</code>), then the matrix of
 traces for this one condition is directly returned.</p>
 <p>The returned list has as many entries as conditions requested. For example,
@@ -180,8 +185,10 @@ on the parameter values currently set (see
 all parameter values for all IDs (see <code><a href="coef.drift_dm.html">coef.fits_ids_dm()</a></code>).
 Subsequently, simulations are based on the averaged parameter values.</p>
 <p>The algorithm for simulating traces is forward euler. See
-Richteretal.2023;textualdRiftDM and
-Ulrichetal.2015;textualdRiftDM (Appendix A) for more
+Richter et al. (2023)
+ and
+Ulrich et al. (2015)
+ (Appendix A) for more
 information.</p>
     </div>
     <div class="section level2">
@@ -208,34 +215,34 @@ before passing them back.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Class(es): traces_dm_list</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Time space:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000, 0.001, 0.002, 0.003 ... 3.000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000, 0.007, 0.015, 0.022 ... 3.000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Condition: comp </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000, -0.009,  0.007, -0.009 ...  0.618 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000,  0.027,  0.107,  0.086 ...  0.677 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Condition: incomp </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000,  0.009,  0.048,  0.020 ...  0.632 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000,  0.143,  0.087,  0.061 ...  0.676 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># a method is also available for fits_ids_dm objects</span></span></span>
 <span class="r-in"><span><span class="co"># (see estimate_model_ids)</span></span></span>
 <span class="r-in"><span><span class="co"># get an exemplary fits_ids_dm object</span></span></span>
-<span class="r-in"><span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits.html">get_example_fits</a></span><span class="op">(</span><span class="st">"fits_ids_dm"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">some_traces</span> <span class="op">&lt;-</span> <span class="fu">simulate_traces</span><span class="op">(</span><span class="va">fits</span>, k <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">some_traces</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Class(es): traces_dm_list</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Time space:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000, 0.002, 0.004, 0.006 ... 1.500 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000, 0.010, 0.020, 0.030 ... 3.000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Condition: comp </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000, -0.007,  0.021,  0.004 ...  0.500 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000,  0.032,  0.135,  0.128 ...  0.538 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Condition: incomp </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000, -0.038, -0.093, -0.061 ...  0.492 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000, -0.097,  0.118,  0.106 ...  0.493 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># we can also print only the traces of one condition</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">some_traces</span><span class="op">$</span><span class="va">comp</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000, -0.007,  0.021,  0.004 ...  0.500 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000,  0.032,  0.135,  0.128 ...  0.538 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -248,7 +255,7 @@ before passing them back.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

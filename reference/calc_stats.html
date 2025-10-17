@@ -15,7 +15,7 @@ be aggregated across individuals."><meta property="og:image" content="https://bu
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,6 +29,7 @@ be aggregated across individuals."><meta property="og:image" content="https://bu
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -64,17 +65,37 @@ be aggregated across individuals.</p>
 <span>  <span class="va">type</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  conds <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  average <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  split_by_ID <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  resample <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  progress <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  level <span class="op">=</span> <span class="st">"individual"</span>,</span>
 <span>  b_coding <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'drift_dm'</span></span>
-<span><span class="fu">calc_stats</span><span class="op">(</span><span class="va">object</span>, <span class="va">type</span>, <span class="va">...</span>, conds <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu">calc_stats</span><span class="op">(</span><span class="va">object</span>, <span class="va">type</span>, <span class="va">...</span>, conds <span class="op">=</span> <span class="cn">NULL</span>, resample <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'fits_ids_dm'</span></span>
-<span><span class="fu">calc_stats</span><span class="op">(</span><span class="va">object</span>, <span class="va">type</span>, <span class="va">...</span>, verbose <span class="op">=</span> <span class="fl">1</span>, average <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu">calc_stats</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  <span class="va">type</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  conds <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  resample <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  progress <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  level <span class="op">=</span> <span class="st">"individual"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'fits_agg_dm'</span></span>
+<span><span class="fu">calc_stats</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  <span class="va">type</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  conds <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  resample <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  progress <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  level <span class="op">=</span> <span class="st">"group"</span>,</span>
+<span>  messaging <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'stats_dm'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
@@ -97,14 +118,15 @@ be aggregated across individuals.</p>
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
 <dd><p>an object for which statistics are calculated. This can be a
-<a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> of observed data, a <a href="drift_dm.html">drift_dm</a> object, or a
-<code>fits_ids_dm</code> object (see <a href="estimate_model_ids.html">estimate_model_ids</a>).</p></dd>
+<a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> of observed data, a <a href="drift_dm.html">drift_dm</a> object, a
+<code>fits_ids_dm</code> object, or a <code>fits_agg_dm</code> object (see
+<code><a href="estimate_dm.html">estimate_dm()</a></code>).</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>a character vector, specifying the statistics to calculate.
 Supported values include <code>"basic_stats"</code>, <code>"cafs"</code>, <code>"quantiles"</code>,
-<code>"delta_funs"</code>, and <code>"fit_stats"</code>.</p></dd>
+<code>"delta_funs"</code>, <code>"densities"</code>, and <code>"fit_stats"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -117,26 +139,32 @@ underlying calculation functions (see Details for mandatory arguments).</p></dd>
 Conditions must match those found in the <code>object</code>.</p></dd>
 
 
-<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dt id="arg-resample">resample<a class="anchor" aria-label="anchor" href="#arg-resample"></a></dt>
+<dd><p>logical. If <code>TRUE</code>, then data is (re-)sampled to create
+an uncertainty estimate for the requested summary statistic. See Details for
+more information. Default is <code>FALSE</code>. Note that resampling does not work with
+<code>type = "fit_stats"</code>.</p></dd>
+
+
+<dt id="arg-progress">progress<a class="anchor" aria-label="anchor" href="#arg-progress"></a></dt>
 <dd><p>integer, indicating if information about the progress
-should be displayed. 0 -&gt; no information, 1 -&gt; a progress bar. Default is 0.</p></dd>
+should be displayed. 0 -&gt; no information, 1 -&gt; a progress bar. Default is 1.</p></dd>
 
 
-<dt id="arg-average">average<a class="anchor" aria-label="anchor" href="#arg-average"></a></dt>
-<dd><p>logical. If <code>TRUE</code>, averages the statistics across individuals
-where applicable. Default is <code>FALSE</code>.</p></dd>
-
-
-<dt id="arg-split-by-id">split_by_ID<a class="anchor" aria-label="anchor" href="#arg-split-by-id"></a></dt>
-<dd><p>logical. If <code>TRUE</code>, statistics are calculated separately
-for each individual ID in <code>object</code> (when <code>object</code> is a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>). Default
-is <code>TRUE</code>.</p></dd>
+<dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
+<dd><p>a single character string, indicating at which "level" the
+statistic should be calculated. Options are <code>"group"</code> or <code>"individual"</code>. If
+<code>"individual"</code>, the returned <code>stats_dm</code> object contains an <code>"ID"</code> column.</p></dd>
 
 
 <dt id="arg-b-coding">b_coding<a class="anchor" aria-label="anchor" href="#arg-b-coding"></a></dt>
 <dd><p>a list for boundary coding (see <a href="b_coding.html">b_coding</a>). Only
 relevant when <code>object</code> is a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>. For other <code>object</code> types, the
 <code>b_coding</code> of the <code>object</code> is used.</p></dd>
+
+
+<dt id="arg-messaging">messaging<a class="anchor" aria-label="anchor" href="#arg-messaging"></a></dt>
+<dd><p>logical, if <code>FALSE</code>, no message is provided.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
@@ -188,17 +216,13 @@ invisibly return the supplied object <code>x</code>.</p>
     <p><code>calc_stats</code> is a generic function to handle the calculation of different
 statistics/metrics for the supported object types. Per default, it returns
 the requested statistics/metrics.</p><div class="section">
-<h3 id="basic-statistics">Basic Statistics<a class="anchor" aria-label="anchor" href="#basic-statistics"></a></h3>
+<h3 id="list-of-supported-statistics">List of Supported Statistics<a class="anchor" aria-label="anchor" href="#list-of-supported-statistics"></a></h3>
 
 
+<p><strong>Basic Statistics</strong></p>
 <p>With "basic statistics", we refer to a summary of the mean and standard
 deviation of response times, including a proportion of response choices.</p>
-</div>
-
-<div class="section">
-<h3 id="conditional-accuracy-function-cafs-">Conditional Accuracy Function (CAFs)<a class="anchor" aria-label="anchor" href="#conditional-accuracy-function-cafs-"></a></h3>
-
-
+<p><strong>Conditional Accuracy Function (CAFs)</strong></p>
 <p>CAFs are a way to quantify response accuracy against speed. To calculate
 CAFs, RTs (whether correct or incorrect) are first binned and then the
 percent correct responses per bin is calculated.</p>
@@ -209,23 +233,13 @@ the pdf associated with a correct response relative to the joint CDF is
 calculated.</p>
 <p>The number of bins can be controlled by passing the argument <code>n_bins</code>.
 The default is 5.</p>
-</div>
-
-<div class="section">
-<h3 id="quantiles">Quantiles<a class="anchor" aria-label="anchor" href="#quantiles"></a></h3>
-
-
+<p><strong>Quantiles</strong></p>
 <p>For observed response times, the function <a href="https://rdrr.io/r/stats/quantile.html" class="external-link">stats::quantile</a> is used with
 default settings.</p>
 <p>Which quantiles are calcuated can be controlled by providing the
 probabilites, <code>probs</code>, with values in \([0, 1]\). Default is
 <code>seq(0.1, 0.9, 0.1)</code>.</p>
-</div>
-
-<div class="section">
-<h3 id="delta-functions">Delta Functions<a class="anchor" aria-label="anchor" href="#delta-functions"></a></h3>
-
-
+<p><strong>Delta Functions</strong></p>
 <p>Delta functions calculate the difference between quantiles
 of two conditions against their mean:</p><ul><li><p>\(Delta_i = Q_{i,j} - Q_{i,k}\)</p></li>
 <li><p>\(Avg_i = 0.5 \cdot Q_{i,j} + 0.5 \cdot Q_{i,k}\)</p></li>
@@ -240,15 +254,78 @@ then minuends and subtrahends must have the same length,
 and matching occurs pairwise. In this case, if only one
 minuend/subtrahend is specified, minuend and subtrahend are recycled to
 the necessary length.</p></li>
+<li><p>specifying <code>probs</code> is possible (see Quantiles)</p></li>
+</ul><p><strong>Densities</strong></p>
+<p>With "densities", we refer to a summary of the distribution of observed
+or predicted data. For observed data, histogram values and kernel density
+estimates are provided. For predicted data, the model's predicted PDFs are
+provided.</p>
+<p>Optional arguments are:</p><ul><li><p><code>discr</code>: numeric, the band-width when calculating the histogram or the
+kernel density estimates. Defaults to <code>0.015</code> seconds</p></li>
+<li><p><code>t_max</code>: numeric, the maximum time window when calculating the distribution
+summaries of observe data. Defaults to the longest RT (for observed data)
+or the maximum of the time domain of a model (which is the preferred choice,
+if possible). If necessary, <code>t_max</code> is slightly adjusted to match with
+<code>discr</code>.</p></li>
+<li><p><code>scale_mass</code>: logical, only relevant if observed data is available. If
+<code>TRUE</code>, density masses are scaled proportional to the number of trials per
+condition.</p></li>
+</ul><p><strong>Fit Statistics</strong></p>
+<p>Calculates the Log-Likelihood, Akaike and Bayesian Information Criteria,
+and root-mean squared-error statistic.</p>
+<p>Optional arguments are:</p><ul><li><p><code>k</code>: numeric, for penalizing the AIC statistic (see also <a href="https://rdrr.io/r/stats/AIC.html" class="external-link">stats::AIC</a>
+and <a href="logLik.fits_ids_dm.html">AIC.fits_ids_dm</a>).</p></li>
+<li><p><code>n_bins</code>, <code>probs</code>: numeric vectors, see the section on CAFs and Quantiles
+above</p></li>
+<li><p><code>weight_err</code>: numeric scalar, determines how CAFs and quantiles are
+weighted. Default is <code>1.5</code>.</p></li>
 </ul></div>
 
 <div class="section">
-<h3 id="fit-statistics">Fit Statistics<a class="anchor" aria-label="anchor" href="#fit-statistics"></a></h3>
+<h3 id="resampling">Resampling<a class="anchor" aria-label="anchor" href="#resampling"></a></h3>
 
 
-<p>Calculates the Akaike and Bayesian Information Criteria (AIC and BIC). Users
-can provide a <code>k</code> argument to penalize the AIC statistic (see <a href="https://rdrr.io/r/stats/AIC.html" class="external-link">stats::AIC</a>
-and <a href="logLik.fits_ids_dm.html">AIC.fits_ids_dm</a>)</p>
+<p>When <code>resampling = TRUE</code>, an uncertainty interval is provided via simulation.
+The default number of iterations is <code>R = 100</code>, which can be changed by
+passing the optional argument <code>R</code>.</p>
+<p>If resampling is requested, the returned <code>stats_dm</code> object contains the
+column <code>"Estimate"</code>, coding the interval. The interval width is controlled
+via the optional argument <code>interval_level</code>, a single numeric value between
+0 and 1 (default: <code>0.95</code>). The interpretation of this interval depends on
+the specific situation (see below).</p>
+<p><strong>Resampling at the Individual Level</strong></p>
+<p>If <code>object</code> is a <code>drift_dm</code> object (i.e., a single model created by
+<code><a href="drift_dm.html">drift_dm()</a></code>), synthetic data are simulated under the model, and
+for each synthetic data set the requested statistic is calculated. The
+interval then reflects the range of these simulated statistics. To determine
+the number of trials for each synthetic data set, dRiftDM either uses the
+observed data attached to the model (if available) or the optional argument
+<code>n_sim</code> (passed to <code><a href="simulate_data.html">simulate_data()</a></code>). Note that <code>n_sim</code> must be
+provided if no observed data are available, and that <code>n_sim</code> always has
+priority.</p>
+<p>If <code>object</code> is a <code>drift_dm</code> object with attached observed data, resampling
+is also performed for the observed data. In this case, trials are
+bootstrapped, and for each bootstrap sample the requested statistic is
+calculated.</p>
+<p>If <code>object</code> is a <code>data.frame</code>, <code>fits_agg_dm</code>, or <code>fits_ids_dm</code> object,
+resampling is performed for each individual if <code>level = "individual"</code>. For
+both models and observed data, synthetic or bootstrapped data sets are
+generated as described above.</p>
+<p><strong>Resampling at the Group Level</strong></p>
+<p>Group-level resampling is possible only if <code>object</code> is a <code>data.frame</code>
+(with an <code>"ID"</code> column), <code>fits_agg_dm</code>, or <code>fits_ids_dm</code> object. To request
+this, set <code>level = "group"</code>. Participants are then bootstrapped, and
+for each bootstrapped sample the aggregated statistic is calculated.</p>
+<p><strong>Interpretation of Intervals</strong></p>
+<p>For <code>level = "group"</code>, intervals represent bootstrapped confidence intervals
+For <code>level = "individual"</code>, intervals represent the variability in the
+statistic when data for a single participant are resampled or simulated
+under the model.</p>
+<p><strong>Note</strong></p>
+<p>For objects of type <code>fits_agg_dm</code>, which contain a mixture of group- and
+individual-level information, the <code>level</code> argument only affects resampling
+for the observed data. For the model itself, resampling is always performed
+under the fitted model, in the same way as for a <code>drift_dm</code> object.</p>
 </div>
 
     </div>
@@ -277,8 +354,8 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3    pred   comp   3  0.981</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4    pred   comp   4  0.981</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5    pred   comp   5  0.981</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    pred incomp   1  0.672</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7    pred incomp   2  0.928</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    pred incomp   1  0.678</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    pred incomp   2  0.926</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8    pred incomp   3  0.960</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9    pred incomp   4  0.973</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10   pred incomp   5  0.979</span>
@@ -287,16 +364,16 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
 <span class="r-out co"><span class="r-pr">#&gt;</span> Element 2, contains quantiles</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Source   Cond Prob Quant_corr Quant_err</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    pred   comp  0.1      0.363     0.363</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    pred   comp  0.2      0.382     0.382</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    pred   comp  0.3      0.401     0.401</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    pred   comp  0.4      0.421     0.421</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    pred   comp  0.5      0.443     0.443</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    pred   comp  0.6      0.469     0.469</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7    pred   comp  0.7      0.502     0.502</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8    pred   comp  0.8      0.547     0.547</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9    pred   comp  0.9      0.626     0.626</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10   pred incomp  0.1      0.408     0.347</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    pred   comp  0.1      0.362     0.362</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    pred   comp  0.2      0.383     0.383</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    pred   comp  0.3      0.403     0.403</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    pred   comp  0.4      0.422     0.422</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    pred   comp  0.5      0.444     0.444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    pred   comp  0.6      0.470     0.470</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    pred   comp  0.7      0.503     0.503</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8    pred   comp  0.8      0.549     0.549</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    pred   comp  0.9      0.627     0.627</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   pred incomp  0.1      0.408     0.344</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (extract the list's elements as usual, e.g., with $cafs)</span>
@@ -316,17 +393,17 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type of Statistic: delta_funs</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Source Prob Quant_corr_comp Quant_corr_incomp Delta_incomp_comp</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   pred  0.1           0.363             0.408             0.045</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   pred  0.2           0.382             0.436             0.054</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   pred  0.3           0.401             0.461             0.060</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   pred  0.4           0.421             0.486             0.065</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   pred  0.5           0.443             0.512             0.069</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   pred  0.1           0.362             0.408             0.045</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   pred  0.2           0.383             0.437             0.053</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   pred  0.3           0.403             0.462             0.060</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   pred  0.4           0.422             0.487             0.065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   pred  0.5           0.444             0.514             0.069</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Avg_incomp_comp</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1           0.385</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2           0.409</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3           0.431</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4           0.453</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5           0.477</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2           0.410</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3           0.432</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4           0.455</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5           0.479</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (access the data.frame's columns/rows as usual)</span>
@@ -334,7 +411,7 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 3: Calculate Quantiles from a fits_ids_dm object -----------------</span></span></span>
 <span class="r-in"><span><span class="co"># get an auxiliary fits_ids_dm object</span></span></span>
-<span class="r-in"><span><span class="va">all_fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">all_fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits.html">get_example_fits</a></span><span class="op">(</span><span class="st">"fits_ids_dm"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">some_stats</span> <span class="op">&lt;-</span> <span class="fu">calc_stats</span><span class="op">(</span><span class="va">all_fits</span>, type <span class="op">=</span> <span class="st">"quantiles"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">some_stats</span>, print_rows <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="co"># note the ID column</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type of Statistic: quantiles</span>
@@ -353,6 +430,9 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu">calc_stats</span><span class="op">(</span><span class="va">all_fits</span>, type <span class="op">=</span> <span class="st">"quantiles"</span>, average <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The `average` argument of `calc_stats.data.frame()` is deprecated as of dRiftDM</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> 0.3.0.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use the `level` argument instead.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type of Statistic: quantiles</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Source   Cond Prob Quant_corr Quant_err</span>
@@ -381,7 +461,7 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

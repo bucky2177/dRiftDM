@@ -11,7 +11,7 @@ sampling."><meta property="og:image" content="https://bucky2177.github.io/dRiftD
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,6 +25,7 @@ sampling."><meta property="og:image" content="https://bucky2177.github.io/dRiftD
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -57,12 +58,13 @@ sampling.</p>
 <span>  <span class="va">object</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  <span class="va">n</span>,</span>
+<span>  conds <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  k <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  lower <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  upper <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  df_prms <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="fl">1</span></span>
+<span>  progress <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -75,11 +77,14 @@ sampling.</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>further arguments passed on to other functions, including the
-function <a href="simulate_values.html">simulate_values</a>. If users want to use a different
-distribution than uniform for <a href="simulate_values.html">simulate_values</a>, they must provide
-the additional arguments (e.g., <code>means</code> and <code>sds</code>) in a format like
-<code>lower/upper</code>.</p></dd>
+<dd><p>further arguments passed on to other functions, i.e.,
+<code><a href="simulate_values.html">simulate_values()</a></code> and <code><a href="simulate_one_data_set.html">simulate_one_data_set()</a></code>. This
+allows users to control the distribution from which original parameter
+values are drawn (if <code>k</code> &gt; 0) and the number of decimal places that the
+simulated RTs should have. If users want to use a different distribution than
+uniform for
+<code><a href="simulate_values.html">simulate_values()</a></code>, they must provide the additional arguments
+(e.g., <code>means</code> and <code>sds</code>) in a format like <code>lower/upper</code>.</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
@@ -89,10 +94,14 @@ vector with the same length as there are conditions to allow a different
 number of trials per condition.</p></dd>
 
 
+<dt id="arg-conds">conds<a class="anchor" aria-label="anchor" href="#arg-conds"></a></dt>
+<dd><p>character vector, specifying the conditions to sample from.
+Default <code>NULL</code> is equivalent to <code>conds(object)</code>.</p></dd>
+
+
 <dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>
 <dd><p>numeric larger than 0, indicating how many data sets shall
-be simulated. If &gt; 1, then it is only effective when specifying
-<code>lower/upper</code>.</p></dd>
+be simulated. If &gt; 1, users must specify <code>lower/upper</code>.</p></dd>
 
 
 <dt id="arg-lower-upper">lower, upper<a class="anchor" aria-label="anchor" href="#arg-lower-upper"></a></dt>
@@ -111,7 +120,7 @@ names matching with (<code>coef(object, select_unique = TRUE)</code>), plus a co
 <dd><p>a single numeric, an optional seed for reproducible sampling</p></dd>
 
 
-<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dt id="arg-progress">progress<a class="anchor" aria-label="anchor" href="#arg-progress"></a></dt>
 <dd><p>an integer, indicating if information about the progress
 should be displayed. 0 -&gt; no information, 1 -&gt; a progress bar.
 Default is 1. Only effective when <code>k &gt; 1</code>.</p></dd>
@@ -177,7 +186,7 @@ the parameters.</p>
 <p>Users have three options to specify the simulation space:</p><ul><li><p>Plain numeric vectors (not very much recommended). In this case,
 <code>lower/upper</code> must be sorted in accordance with the free parameters in the
 <code>flex_prms_obj</code> object (call <code>print(&lt;model&gt;)</code> and have a look at the
-<code>Unique Parameters</code> output)</p></li>
+<code>Parameter Settings</code> output)</p></li>
 <li><p>Named numeric vectors. In this case <code>lower/upper</code> have to provide labels
 in accordance with the parameters that are considered "free" at least once
 across conditions.</p></li>
@@ -210,16 +219,16 @@ to the specified parameters in the respective condition.</p></li>
 <span class="r-in"><span><span class="co"># now simulate 5 data sets with each 100 trials</span></span></span>
 <span class="r-in"><span><span class="va">data_prms</span> <span class="op">&lt;-</span> <span class="fu">simulate_data</span><span class="op">(</span><span class="va">a_model</span>,</span></span>
 <span class="r-in"><span>  n <span class="op">=</span> <span class="fl">100</span>, k <span class="op">=</span> <span class="fl">5</span>, lower <span class="op">=</span> <span class="va">lower</span>,</span></span>
-<span class="r-in"><span>  upper <span class="op">=</span> <span class="va">upper</span>, seed <span class="op">=</span> <span class="fl">1</span>, verbose <span class="op">=</span> <span class="fl">0</span></span></span>
+<span class="r-in"><span>  upper <span class="op">=</span> <span class="va">upper</span>, seed <span class="op">=</span> <span class="fl">1</span>, progress <span class="op">=</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_prms</span><span class="op">$</span><span class="va">synth_data</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      RT Error Cond ID</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.595     0 null  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1.290     0 null  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.597     0 null  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1.291     0 null  1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.415     0 null  1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.650     0 null  1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.915     0 null  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.350     0 null  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.352     0 null  1</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_prms</span><span class="op">$</span><span class="va">prms</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ID      muc         b   non_dec</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 2.327543 0.8491948 0.1823898</span>
@@ -231,7 +240,7 @@ to the specified parameters in the respective condition.</p></li>
 <span class="r-in"><span><span class="co"># Example 2 ----------------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co"># more flexibility when defining lists for lower and upper</span></span></span>
 <span class="r-in"><span><span class="co"># get a pre-built model, and allow muc to vary across conditions</span></span></span>
-<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span>t_max <span class="op">=</span> <span class="fl">1.5</span>, dx <span class="op">=</span> <span class="fl">.005</span>, dt <span class="op">=</span> <span class="fl">.005</span>, instr <span class="op">=</span> <span class="st">"muc ~ "</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span>t_max <span class="op">=</span> <span class="fl">1.5</span>, dx <span class="op">=</span> <span class="fl">.01</span>, dt <span class="op">=</span> <span class="fl">.005</span>, instr <span class="op">=</span> <span class="st">"muc ~ "</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># define a lower and upper simulation space</span></span></span>
 <span class="r-in"><span><span class="co"># let muc vary between 2 and 6, but in incomp conditions, let it vary</span></span></span>
@@ -255,7 +264,7 @@ to the specified parameters in the respective condition.</p></li>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">data_prms</span> <span class="op">&lt;-</span> <span class="fu">simulate_data</span><span class="op">(</span><span class="va">a_model</span>,</span></span>
 <span class="r-in"><span>  n <span class="op">=</span> <span class="fl">100</span>, k <span class="op">=</span> <span class="fl">5</span>, lower <span class="op">=</span> <span class="va">lower</span>,</span></span>
-<span class="r-in"><span>  upper <span class="op">=</span> <span class="va">upper</span>, seed <span class="op">=</span> <span class="fl">1</span>, verbose <span class="op">=</span> <span class="fl">0</span></span></span>
+<span class="r-in"><span>  upper <span class="op">=</span> <span class="va">upper</span>, seed <span class="op">=</span> <span class="fl">1</span>, progress <span class="op">=</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">data_prms</span><span class="op">$</span><span class="va">prms</span><span class="op">$</span><span class="va">muc.comp</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.806728 5.632831</span>
@@ -273,7 +282,7 @@ to the specified parameters in the respective condition.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

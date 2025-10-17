@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -183,10 +184,12 @@ apply to all DDMs, only to DMC&lt;/p&gt;"><sup>2</sup></a></p>
 <span><span class="co"># named_values: a named numeric vector</span></span>
 <span><span class="co"># sigma_old, sigma_new: the previous and target diffusion constants</span></span>
 <span><span class="co"># t_from_to: scaling of time (options: ms-&gt;s, s-&gt;ms, or none)</span></span>
-<span><span class="va">convert_prms</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">named_values</span>,</span>
-<span>                         <span class="va">sigma_old</span> <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>                         <span class="va">sigma_new</span> <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                         <span class="va">t_from_to</span> <span class="op">=</span> <span class="st">"ms-&gt;s"</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="va">convert_prms</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
+<span>  <span class="va">named_values</span>,</span>
+<span>  <span class="va">sigma_old</span> <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  <span class="va">sigma_new</span> <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  <span class="va">t_from_to</span> <span class="op">=</span> <span class="st">"ms-&gt;s"</span></span>
+<span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Some rough input checks</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">named_values</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">is.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">named_values</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">sigma_old</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">sigma_new</span><span class="op">)</span><span class="op">)</span></span>
@@ -207,13 +210,23 @@ apply to all DDMs, only to DMC&lt;/p&gt;"><sup>2</sup></a></p>
 <span>    <span class="co"># 2. scale for the time</span></span>
 <span>    <span class="co"># determine the scaling per parameter (assuming s-&gt;ms)</span></span>
 <span>    <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"non_dec"</span>, <span class="st">"sd_non_dec"</span>, <span class="st">"tau"</span><span class="op">)</span><span class="op">)</span> <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"b"</span>, <span class="st">"A"</span><span class="op">)</span><span class="op">)</span> <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"muc"</span><span class="op">)</span><span class="op">)</span> <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1000</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"non_dec"</span>, <span class="st">"sd_non_dec"</span>, <span class="st">"tau"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span>    <span class="op">}</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"b"</span>, <span class="st">"A"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"muc"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1000</span></span>
+<span>    <span class="op">}</span></span>
 <span></span>
 <span>    <span class="co"># adapt, depending on the t_from_to argument</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">t_from_to</span> <span class="op">==</span> <span class="st">"ms-&gt;s"</span><span class="op">)</span> <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">scale</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">t_from_to</span> <span class="op">==</span> <span class="st">"none"</span><span class="op">)</span> <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">t_from_to</span> <span class="op">==</span> <span class="st">"ms-&gt;s"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">scale</span></span>
+<span>    <span class="op">}</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">t_from_to</span> <span class="op">==</span> <span class="st">"none"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">scale</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span>    <span class="op">}</span></span>
 <span></span>
 <span>    <span class="va">value</span> <span class="op">&lt;-</span> <span class="va">value</span> <span class="op">*</span> <span class="va">scale</span></span>
 <span>  <span class="op">}</span></span>
@@ -228,19 +241,24 @@ are the same before and after scaling:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dmc_s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">dmc_s</span><span class="op">)</span> <span class="co"># current parameter settings for sigma = 1 and seconds</span></span>
-<span><span class="co">#&gt; sigma t_max    dt    dx    nt    nx </span></span>
-<span><span class="co">#&gt; 1e+00 3e+00 1e-03 1e-03 3e+03 2e+03</span></span>
+<span><span class="co">#&gt;   sigma   t_max      dt      dx      nt      nx </span></span>
+<span><span class="co">#&gt; 1.0e+00 3.0e+00 7.5e-03 2.0e-02 4.0e+02 1.0e+02</span></span>
 <span><span class="va">quants_s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span><span class="va">dmc_s</span>, <span class="st">"quantiles"</span><span class="op">)</span> <span class="co"># calculate predicted quantiles</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">quants_s</span><span class="op">)</span> <span class="co"># show quantiles</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">quants_s</span><span class="op">)</span> <span class="co"># show quantiles</span></span>
 <span><span class="co">#&gt; Type of Statistic: quantiles</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Source Cond Prob Quant_corr Quant_err</span></span>
-<span><span class="co">#&gt; 1   pred comp  0.1      0.325     0.321</span></span>
-<span><span class="co">#&gt; 2   pred comp  0.2      0.345     0.342</span></span>
-<span><span class="co">#&gt; 3   pred comp  0.3      0.363     0.360</span></span>
-<span><span class="co">#&gt; 4   pred comp  0.4      0.383     0.378</span></span>
-<span><span class="co">#&gt; 5   pred comp  0.5      0.406     0.397</span></span>
-<span><span class="co">#&gt; 6   pred comp  0.6      0.433     0.417</span></span>
+<span><span class="co">#&gt;    Source   Cond Prob Quant_corr Quant_err</span></span>
+<span><span class="co">#&gt; 1    pred   comp  0.1      0.325     0.321</span></span>
+<span><span class="co">#&gt; 2    pred   comp  0.2      0.346     0.343</span></span>
+<span><span class="co">#&gt; 3    pred   comp  0.3      0.364     0.362</span></span>
+<span><span class="co">#&gt; 4    pred   comp  0.4      0.384     0.380</span></span>
+<span><span class="co">#&gt; 5    pred   comp  0.5      0.406     0.398</span></span>
+<span><span class="co">#&gt; 6    pred   comp  0.6      0.433     0.419</span></span>
+<span><span class="co">#&gt; 7    pred   comp  0.7      0.465     0.443</span></span>
+<span><span class="co">#&gt; 8    pred   comp  0.8      0.507     0.476</span></span>
+<span><span class="co">#&gt; 9    pred   comp  0.9      0.574     0.531</span></span>
+<span><span class="co">#&gt; 10   pred incomp  0.1      0.352     0.301</span></span>
+<span><span class="co">#&gt; ...</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; (access the data.frame's columns/rows as usual)</span></span>
 <span></span>
@@ -256,16 +274,21 @@ are the same before and after scaling:</p>
 <span>  t_from_to <span class="op">=</span> <span class="st">"s-&gt;ms"</span> <span class="co"># how shall the time be scaled?</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">quants_ms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span><span class="va">dmc_ms</span>, <span class="st">"quantiles"</span><span class="op">)</span> <span class="co"># calculate predicted quantiles</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">quants_ms</span><span class="op">)</span> <span class="co"># show quantiles</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">quants_ms</span><span class="op">)</span> <span class="co"># show quantiles</span></span>
 <span><span class="co">#&gt; Type of Statistic: quantiles</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Source Cond Prob Quant_corr Quant_err</span></span>
-<span><span class="co">#&gt; 1   pred comp  0.1    324.669   320.577</span></span>
-<span><span class="co">#&gt; 2   pred comp  0.2    344.790   341.971</span></span>
-<span><span class="co">#&gt; 3   pred comp  0.3    363.447   360.496</span></span>
-<span><span class="co">#&gt; 4   pred comp  0.4    383.498   378.302</span></span>
-<span><span class="co">#&gt; 5   pred comp  0.5    406.315   396.636</span></span>
-<span><span class="co">#&gt; 6   pred comp  0.6    433.033   416.879</span></span>
+<span><span class="co">#&gt;    Source   Cond Prob Quant_corr Quant_err</span></span>
+<span><span class="co">#&gt; 1    pred   comp  0.1    325.168   321.132</span></span>
+<span><span class="co">#&gt; 2    pred   comp  0.2    345.277   342.566</span></span>
+<span><span class="co">#&gt; 3    pred   comp  0.3    363.914   361.111</span></span>
+<span><span class="co">#&gt; 4    pred   comp  0.4    383.934   378.931</span></span>
+<span><span class="co">#&gt; 5    pred   comp  0.5    406.706   397.280</span></span>
+<span><span class="co">#&gt; 6    pred   comp  0.6    433.356   417.546</span></span>
+<span><span class="co">#&gt; 7    pred   comp  0.7    465.710   441.869</span></span>
+<span><span class="co">#&gt; 8    pred   comp  0.8    508.140   474.759</span></span>
+<span><span class="co">#&gt; 9    pred   comp  0.9    575.097   530.647</span></span>
+<span><span class="co">#&gt; 10   pred incomp  0.1    352.047   300.528</span></span>
+<span><span class="co">#&gt; ...</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; (access the data.frame's columns/rows as usual)</span></span></code></pre></div>
 <p>Note: The transformed values in the unit of milliseconds and with a
@@ -310,7 +333,7 @@ Tasks: Superimposed Diffusion Processes and Delta Functions.”</span>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

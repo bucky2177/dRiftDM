@@ -13,7 +13,7 @@ returned list."><meta property="og:image" content="https://bucky2177.github.io/d
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,6 +27,7 @@ returned list."><meta property="og:image" content="https://bucky2177.github.io/d
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -141,8 +142,8 @@ functions display the summary in a formatted way.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Summary of First Passage Times:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         mean    sd p_corr p_err</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> comp   0.104 0.061      1     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> incomp 0.143 0.058      1     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> comp   0.102 0.109      1     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> incomp 0.177 0.117      1     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Orginal Parameter Values:</span>
@@ -154,9 +155,9 @@ functions display the summary in a formatted way.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Original Model Class(es): dmc_dm, drift_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Settings:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        sigma t_max    dt    dx   nt   nx</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> comp       1     3 0.001 0.001 3000 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> incomp     1     3 0.001 0.001 3000 2000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        sigma t_max    dt   dx  nt  nx</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> comp       1     3 0.007 0.02 400 100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> incomp     1     3 0.007 0.02 400 100</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get a single traces object</span></span></span>
@@ -168,7 +169,7 @@ functions display the summary in a formatted way.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Summary of First Passage Times:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   mean     sd p_corr  p_err </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.104  0.061  1.000  0.000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.102  0.109  1.000  0.000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Orginal Parameter Values:</span>
@@ -179,7 +180,7 @@ functions display the summary in a formatted way.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Original Model Class(es): dmc_dm, drift_dm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Settings: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Settings: sigma=1, t_max=3, dt=0.007, dx=0.02, nt=400, nx=100</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -192,7 +193,7 @@ functions display the summary in a formatted way.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

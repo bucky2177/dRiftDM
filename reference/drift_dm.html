@@ -15,7 +15,7 @@ vignette("dRiftDM", "dRiftDM").'><meta property="og:image" content="https://buck
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,6 +29,7 @@ vignette("dRiftDM", "dRiftDM").'><meta property="og:image" content="https://buck
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -67,6 +68,7 @@ the backbone of the dRiftDM package. For a list of all pre-built models, see
 <span>  dt <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>  dx <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>  solver <span class="op">=</span> <span class="st">"kfe"</span>,</span>
+<span>  cost_function <span class="op">=</span> <span class="st">"neg_log_like"</span>,</span>
 <span>  mu_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mu_int_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  x_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -98,7 +100,7 @@ deriving the model's predictions.</p></dd>
 
 <dt id="arg-subclass">subclass<a class="anchor" aria-label="anchor" href="#arg-subclass"></a></dt>
 <dd><p>a character string, with a name for the newly created
-diffusion model (e.g., <code>dmc_dm</code>). This will be the child class.</p></dd>
+diffusion model (e.g., <code>my_dmc_dm</code>). This will be the child class.</p></dd>
 
 
 <dt id="arg-instr">instr<a class="anchor" aria-label="anchor" href="#arg-instr"></a></dt>
@@ -128,8 +130,16 @@ users can increase the discretization.</p></dd>
 
 <dt id="arg-solver">solver<a class="anchor" aria-label="anchor" href="#arg-solver"></a></dt>
 <dd><p>a character string, specifying which approach to use for
-deriving the first passage time. Default is <code>kfe</code>, which provides access to
-the numerical discretization of the Kolmogorov Forward Equation.</p></dd>
+deriving the first passage time. Options are <code>kfe</code> or <code>im_zero</code>. Default is
+<code>kfe</code>, which provides access to the numerical discretization of the
+Kolmogorov Forward Equation.</p></dd>
+
+
+<dt id="arg-cost-function">cost_function<a class="anchor" aria-label="anchor" href="#arg-cost-function"></a></dt>
+<dd><p>a character string, specifying the cost function used
+during estimation. Options are <code>neg_log_like</code> (negative log-likelihood),
+<code>rmse</code> (root-mean-squared error). Default is
+<code>neg_log_like</code>.</p></dd>
 
 
 <dt id="arg-mu-fun-mu-int-fun-x-fun-b-fun-dt-b-fun-nt-fun">mu_fun, mu_int_fun, x_fun, b_fun, dt_b_fun, nt_fun<a class="anchor" aria-label="anchor" href="#arg-mu-fun-mu-int-fun-x-fun-b-fun-dt-b-fun-nt-fun"></a></dt>
@@ -170,8 +180,10 @@ containing the diffusion constant (<code>sigma</code>), the maximum of the time 
 (<code>t_max</code>), the evidence and space discretization (<code>dt</code> and <code>dx</code>,
 respectively), and the resulting number of steps for the time and evidence
 space discretization (<code>nt</code> and <code>nx</code>, respectively).</p></li>
-<li><p>A character string <code>solver</code>, indicating the method for deriving the model
+<li><p>A character string <a href="solver.html">solver</a>, indicating the method for deriving the model
 predictions.</p></li>
+<li><p>A character string <a href="cost_function.html">cost_function</a>, indicating the cost function
+used for model estimation.</p></li>
 <li><p>A list of functions called <a href="comp_funs.html">comp_funs</a>, providing the components
 of the diffusion model (i.e., <code>mu_fun</code>, <code>mu_int_fun</code>, <code>x_fun</code>, <code>b_fun</code>,
 <code>dt_b_fun</code>, <code>nt_fun</code>). These functions are called in the depths of the
@@ -179,13 +191,20 @@ package and will determine the behavior of the model</p></li>
 </ul><p>If (optional) observed data were passed via <code><a href="obs_data.html">obs_data()</a></code>,
 the list will contain an entry <code>obs_data</code>. This is a (nested) list with
 stored response times for the upper and lower boundary and with respect to
-each condition.</p>
+each condition. If the cost function is a summary statistic requiring
+quantiles, CAFs, etc., the model also contains the entries <code>stats_agg</code> and
+<code>stats_agg_info</code>. The former is a (nested) list with descriptive statistics.
+The latter contains information about the descriptive statistics (e.g., the
+quantile levels).</p>
 <p>If the model has been evaluated (see <code><a href="re_evaluate_model.html">re_evaluate_model()</a></code>), the
-list will contain...</p><ul><li><p>... the log likelihood; can be addressed via <code><a href="logLik.drift_dm.html">logLik.drift_dm()</a></code>.</p></li>
+list will contain...</p><ul><li><p>... the cost value; can be addressed via <code><a href="cost_function.html">cost_value()</a></code>.</p></li>
 <li><p>... the PDFs of the first passage time; can be addressed via
 <code><a href="pdfs.html">pdfs()</a></code>.</p></li>
-</ul><p>Finally, if arbitrary R objects were passed via <code><a href="ddm_opts.html">ddm_opts()</a></code>, to
-access these objects when evaluating the component functions, the list will
+</ul><p>If the model was estimated (which includes its evaluation), the list
+will contain <code>estimate_info</code>. This entry contains a convergence flag
+(<code>conv_flag</code>, logical) and the <code>optimizer</code> (a string).</p>
+<p>Finally, if arbitrary R objects were passed via <code><a href="ddm_opts.html">ddm_opts()</a></code> (to
+access these objects when evaluating the component functions) the list will
 contain an entry <code>ddm_opts</code>.</p>
 <p>Every model also has the attribute <a href="b_coding.html">b_coding</a>, which summarizes how
 the boundaries are labeled.</p>
@@ -217,21 +236,24 @@ the <code><a href="modify_flex_prms.html">modify_flex_prms()</a></code> method (
 <span class="r-in"><span><span class="co"># comp_funs())</span></span></span>
 <span class="r-in"><span><span class="va">my_model</span> <span class="op">&lt;-</span> <span class="fu">drift_dm</span><span class="op">(</span>prms_model <span class="op">=</span> <span class="va">prms</span>, conds <span class="op">=</span> <span class="va">conds</span>, subclass <span class="op">=</span> <span class="st">"example"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Class(es): example, drift_dm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class(es) example, drift_dm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (model has not been estimated yet)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Current Parameter Matrix:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Values:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     muc   b</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> one   4 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> two   4 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Unique Parameters:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Settings:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     muc b</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> one   1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> two   1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Deriving PDFs:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Deriving PDFS:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   solver: kfe</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   values: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cost Function: neg_log_like</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Observed Data: NULL</span>
 <span class="r-in"><span></span></span>
@@ -246,7 +268,7 @@ the <code><a href="modify_flex_prms.html">modify_flex_prms()</a></code> method (
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

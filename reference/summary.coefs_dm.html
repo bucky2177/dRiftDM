@@ -11,7 +11,7 @@ calling coef() with an object of type fits_ids_dm)."><meta property="og:image" c
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,6 +25,7 @@ calling coef() with an object of type fits_ids_dm)."><meta property="og:image" c
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -99,26 +100,26 @@ number of unique IDs (<code>n_ids</code>).</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># get a fits_ids object for demonstration purpose</span></span></span>
-<span class="r-in"><span><span class="va">fits_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fits_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits.html">get_example_fits</a></span><span class="op">(</span><span class="st">"fits_ids_dm"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fits_ids</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">coefs</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Object Type: coefs_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameters:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       muc             b           non_dec       sd_non_dec          tau        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Min.   :4.70   Min.   :0.40   Min.   :0.30   Min.   :0.0100   Min.   :0.0400  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1st Qu.:5.05   1st Qu.:0.42   1st Qu.:0.31   1st Qu.:0.0200   1st Qu.:0.0450  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Median :5.40   Median :0.44   Median :0.32   Median :0.0300   Median :0.0500  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean   :5.30   Mean   :0.48   Mean   :0.32   Mean   :0.0267   Mean   :0.0667  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3rd Qu.:5.60   3rd Qu.:0.52   3rd Qu.:0.33   3rd Qu.:0.0350   3rd Qu.:0.0800  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   :5.80   Max.   :0.60   Max.   :0.34   Max.   :0.0400   Max.   :0.1100  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        A             alpha     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Min.   :0.090   Min.   :3.00  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1st Qu.:0.095   1st Qu.:3.35  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Median :0.100   Median :3.70  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean   :0.127   Mean   :4.57  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3rd Qu.:0.145   3rd Qu.:5.35  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   :0.190   Max.   :7.00  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       muc             b            non_dec        sd_non_dec    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Min.   :4.70   Min.   :0.391   Min.   :0.297   Min.   :0.0120  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1st Qu.:4.70   1st Qu.:0.418   1st Qu.:0.307   1st Qu.:0.0221  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Median :4.70   Median :0.446   Median :0.318   Median :0.0323  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean   :5.12   Mean   :0.488   Mean   :0.319   Mean   :0.0285  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3rd Qu.:5.33   3rd Qu.:0.536   3rd Qu.:0.330   3rd Qu.:0.0368  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   :5.96   Max.   :0.626   Max.   :0.341   Max.   :0.0413  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tau               A              alpha     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Min.   :0.0322   Min.   :0.0893   Min.   :3.33  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1st Qu.:0.0667   1st Qu.:0.0956   1st Qu.:4.19  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Median :0.1012   Median :0.1019   Median :5.04  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean   :0.0812   Mean   :0.1286   Mean   :4.99  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3rd Qu.:0.1056   3rd Qu.:0.1483   3rd Qu.:5.82  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   :0.1101   Max.   :0.1947   Max.   :6.61  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> N IDs: 3 </span>
 <span class="r-in"><span></span></span>
@@ -133,7 +134,7 @@ number of unique IDs (<code>n_ids</code>).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

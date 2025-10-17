@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,6 +21,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -61,7 +62,13 @@
         <dd>Calculate Statistics</dd>
       </dl><dl><dt>
 
-          <code><a href="coef.drift_dm.html">`coef&lt;-`()</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;drift_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;fits_ids_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">print(<i>&lt;coefs_dm&gt;</i>)</a></code>
+          <code><a href="check_discretization.html">check_discretization()</a></code>
+
+        </dt>
+        <dd>Check time/space discretization via reference comparison</dd>
+      </dl><dl><dt>
+
+          <code><a href="coef.drift_dm.html">`coef&lt;-`()</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;drift_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;fits_agg_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;fits_ids_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;mcmc_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">print(<i>&lt;coefs_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Access Coefficients of a Model</dd>
@@ -83,6 +90,12 @@
 
         </dt>
         <dd>The Conditions of an Object</dd>
+      </dl><dl><dt>
+
+          <code><a href="cost_function.html">`cost_function&lt;-`()</a></code> <code><a href="cost_function.html">cost_function()</a></code> <code><a href="cost_function.html">cost_value()</a></code>
+
+        </dt>
+        <dd>Access/Replace the Cost Function Label and Access the Cost Function Value</dd>
       </dl><dl><dt>
 
           <code><a href="ddm_opts.html">`ddm_opts&lt;-`()</a></code> <code><a href="ddm_opts.html">ddm_opts()</a></code>
@@ -109,14 +122,20 @@
         <dd>Create a drift_dm object</dd>
       </dl><dl><dt>
 
-          <code><a href="estimate_model.html">estimate_model()</a></code>
+          <code><a href="estimate_dm.html">estimate_dm()</a></code> <code><a href="estimate_dm.html">print(<i>&lt;fits_agg_dm&gt;</i>)</a></code> <code><a href="estimate_dm.html">print(<i>&lt;fits_ids_dm&gt;</i>)</a></code> <code><a href="estimate_dm.html">print(<i>&lt;mcmc_dm&gt;</i>)</a></code>
 
+        </dt>
+        <dd>Fit a DDM to Observed Data</dd>
+      </dl><dl><dt>
+
+          <code><a href="estimate_model.html">estimate_model()</a></code>
+          <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Estimate the Parameters of a drift_dm Model</dd>
       </dl><dl><dt>
 
           <code><a href="estimate_model_ids.html">estimate_model_ids()</a></code>
-
+          <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Fit Multiple Individuals and Save Results</dd>
       </dl><dl><dt>
@@ -127,10 +146,16 @@
         <dd>Flex_Prms</dd>
       </dl><dl><dt>
 
-          <code><a href="get_example_fits_ids.html">get_example_fits_ids()</a></code>
+          <code><a href="get_example_fits.html">get_example_fits()</a></code>
 
         </dt>
-        <dd>Auxiliary Function to create a fits_ids object</dd>
+        <dd>Auxiliary Function to load a <code>fits_ids_dm</code>, <code>fits_agg_dm</code>, or <code>mcmc_dm</code> object</dd>
+      </dl><dl><dt>
+
+          <code><a href="get_lower_upper.html">get_lower_upper()</a></code>
+
+        </dt>
+        <dd>Get Default Parameter Ranges for a Model</dd>
       </dl><dl><dt>
 
           <code><a href="hist.coefs_dm.html">hist(<i>&lt;coefs_dm&gt;</i>)</a></code>
@@ -139,8 +164,8 @@
         <dd>Plot Parameter Distribution(s)</dd>
       </dl><dl><dt>
 
-          <code><a href="load_fits_ids.html">load_fits_ids()</a></code> <code><a href="load_fits_ids.html">print(<i>&lt;fits_ids_dm&gt;</i>)</a></code>
-
+          <code><a href="load_fits_ids.html">load_fits_ids()</a></code>
+          <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Load Estimates of a Fit Procedure</dd>
       </dl><dl><dt>
@@ -193,16 +218,28 @@
         <dd>Plot Delta Functions</dd>
       </dl><dl><dt>
 
+          <code><a href="plot.densities.html">plot(<i>&lt;densities&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot Distributions of Predicted and Observed Data</dd>
+      </dl><dl><dt>
+
           <code><a href="plot.drift_dm.html">plot(<i>&lt;drift_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Plot Components of a Drift Diffusion Model</dd>
       </dl><dl><dt>
 
+          <code><a href="plot.mcmc_dm.html">plot(<i>&lt;mcmc_dm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot MCMC Results and Diagnostics <code>mcmc_dm</code> Objects</dd>
+      </dl><dl><dt>
+
           <code><a href="plot.quantiles.html">plot(<i>&lt;quantiles&gt;</i>)</a></code>
 
         </dt>
-        <dd>Plot Quantiles</dd>
+        <dd>Plot Response Time Quantiles</dd>
       </dl><dl><dt>
 
           <code><a href="plot.stats_dm_list.html">plot(<i>&lt;stats_dm_list&gt;</i>)</a></code>
@@ -277,6 +314,12 @@
         <dd>Create the Shrinking Spotlight Model</dd>
       </dl><dl><dt>
 
+          <code><a href="ssp_synth_data.html">ssp_synth_data</a></code>
+
+        </dt>
+        <dd>A synthetic data set with two conditions</dd>
+      </dl><dl><dt>
+
           <code><a href="summary.coefs_dm.html">summary(<i>&lt;coefs_dm&gt;</i>)</a></code> <code><a href="summary.coefs_dm.html">print(<i>&lt;summary.coefs_dm&gt;</i>)</a></code>
 
         </dt>
@@ -286,7 +329,13 @@
           <code><a href="summary.drift_dm.html">summary(<i>&lt;drift_dm&gt;</i>)</a></code> <code><a href="summary.drift_dm.html">print(<i>&lt;summary.drift_dm&gt;</i>)</a></code>
 
         </dt>
-        <dd>Summary for <code>drift_dm</code> Objects</dd>
+        <dd>Summary for <code>drift_dm</code> objects</dd>
+      </dl><dl><dt>
+
+          <code><a href="summary.fits_agg_dm.html">print(<i>&lt;summary.fits_agg_dm&gt;</i>)</a></code> <code><a href="summary.fits_agg_dm.html">summary(<i>&lt;fits_agg_dm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Summary and Printing for <code>fits_agg_dm</code> Objects</dd>
       </dl><dl><dt>
 
           <code><a href="summary.fits_ids_dm.html">print(<i>&lt;summary.fits_ids_dm&gt;</i>)</a></code> <code><a href="summary.fits_ids_dm.html">summary(<i>&lt;fits_ids_dm&gt;</i>)</a></code>
@@ -299,6 +348,12 @@
 
         </dt>
         <dd>Summarizing Flex Parameters</dd>
+      </dl><dl><dt>
+
+          <code><a href="summary.mcmc_dm.html">summary(<i>&lt;mcmc_dm&gt;</i>)</a></code> <code><a href="summary.mcmc_dm.html">print(<i>&lt;summary.mcmc_dm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Summary for <code>mcmc_dm</code> Objects</dd>
       </dl><dl><dt>
 
           <code><a href="summary.stats_dm.html">summary(<i>&lt;stats_dm&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;basic_stats&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;cafs&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;quantiles&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;delta_funs&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;fit_stats&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;sum_dist&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;stats_dm_list&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.stats_dm&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.basic_stats&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.cafs&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.quantiles&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.delta_funs&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.fit_stats&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.sum_dist&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.stats_dm_list&gt;</i>)</a></code>
@@ -344,7 +399,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

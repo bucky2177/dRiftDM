@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,6 +21,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -55,6 +56,9 @@
 <span><span class="fu">conds</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'fits_ids_dm'</span></span>
+<span><span class="fu">conds</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'fits_agg_dm'</span></span>
 <span><span class="fu">conds</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'data.frame'</span></span>
@@ -102,8 +106,8 @@ column).</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>conds()</code> is a generic accessor function and <code>conds&lt;-()</code> is a
 generic replacement function. The replacement method currently only supports
-<a href="drift_dm.html">drift_dm</a> objects. The default methods get and set the conditions of an
-object.</p>
+<a href="drift_dm.html">drift_dm</a> objects. The default methods get and set the conditions
+of an object.</p>
 <p>When replacing the conditions of a <a href="drift_dm.html">drift_dm</a> object, a
 new <a href="flex_prms.html">flex_prms</a> object is created and then set to the model,
 resetting all parameter specifications and setting all parameter
@@ -133,7 +137,7 @@ behavior are displayed per default.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "comp"   "incomp"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get an exemplary fits_ids_dm object (see estimate_model_ids)</span></span></span>
-<span class="r-in"><span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits.html">get_example_fits</a></span><span class="op">(</span><span class="st">"fits_ids_dm"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">conds</span><span class="op">(</span><span class="va">fits</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "comp"   "incomp"</span>
 <span class="r-in"><span></span></span>
@@ -152,7 +156,7 @@ behavior are displayed per default.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

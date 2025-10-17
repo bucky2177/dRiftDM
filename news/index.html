@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,6 +21,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -38,16 +39,53 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="driftdm-development-version">dRiftDM (development version)<a class="anchor" aria-label="anchor" href="#driftdm-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.0" id="driftdm-030">dRiftDM 0.3.0<a class="anchor" aria-label="anchor" href="#driftdm-030"></a></h2>
 <div class="section level3">
-<h3 id="new-features-development-version">New features:<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
-<ul><li>
-<code><a href="../reference/calc_stats.html">calc_stats()</a></code> gains the option <code>basic_stats</code> for the <code>type</code> argument. This allows you to request means, standard deviations, and a ratio of response choices.</li>
+<h3 id="important-notes-for-users-0-3-0">Important notes for users<a class="anchor" aria-label="anchor" href="#important-notes-for-users-0-3-0"></a></h3>
+<ul><li>The workflow for estimating a model has changed with the introduction of <code><a href="../reference/estimate_dm.html">estimate_dm()</a></code>. From this version onward, fits are not automatically saved to the file system to be reloaded later. Instead, <code><a href="../reference/estimate_dm.html">estimate_dm()</a></code> returns fitted objects directly, and you save the results yourselves.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="minor-development-version">Minor:<a class="anchor" aria-label="anchor" href="#minor-development-version"></a></h3>
+<h3 id="major-and-new-features-0-3-0">Major and new features<a class="anchor" aria-label="anchor" href="#major-and-new-features-0-3-0"></a></h3>
+<ul><li><p><code>dRiftDM</code> now uses an adaptive time-stepping scheme for deriving PDFs — substantially increasing speed.</p></li>
+<li><p>We now support variability in the drift rate for the constant drift-rate component (not only for the Ratcliff DDM).</p></li>
+<li><p><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> methods were redesigned to avoid argument clashes and to provide more customization options.</p></li>
+<li><p><code><a href="../reference/drift_dm.html">drift_dm()</a></code> objects gain a new entry <code>cost_function</code>. This lets us use the <code>"rmse"</code> statistic or full-range maximum likelihood, and it enables fitting aggregated data via <code>"rmse"</code>.</p></li>
+<li><p>The <code>neg_log_like</code> entry of a <code>drift_dm</code> object has been replaced by the more general <code>cost_value</code>.</p></li>
+<li><p><code><a href="../reference/cost_function.html">cost_function()</a></code> accessor and replacement methods have been introduced.</p></li>
+<li><p><code><a href="../reference/cost_function.html">cost_value()</a></code> accessor and replacement methods have been introduced.</p></li>
+<li><p><code><a href="../reference/estimate_dm.html">estimate_dm()</a></code> has been introduced.</p></li>
+<li><p><code><a href="../reference/estimate_model.html">estimate_model()</a></code> has been deprecated and superseded by <code><a href="../reference/estimate_dm.html">estimate_dm()</a></code>.</p></li>
+<li><p><code><a href="../reference/estimate_model_ids.html">estimate_model_ids()</a></code> has been deprecated. Use <code><a href="../reference/estimate_dm.html">estimate_dm()</a></code>, which does not save individual fits to the file system — ensuring more consistent behavior across fitting modes.</p></li>
+<li><p><code><a href="../reference/get_lower_upper.html">get_lower_upper()</a></code> has been introduced. It provides default upper and lower parameter ranges for pre-built models and their components.</p></li>
+<li><p>Hierarchical and non-hierarchical Bayesian parameter estimation is now possible via <code><a href="../reference/estimate_dm.html">estimate_dm()</a></code>! This is still experimental, and the returned <code>mcmc_dm</code> type is not fully integrated yet (currently: diagnostic checks and parameter extraction is supported).</p></li>
+<li><p><code><a href="../reference/calc_stats.html">calc_stats()</a></code> gains <code>basic_stats</code> and <code>densities</code> options for <code>type</code>. <code>basic_stats</code> returns means, standard deviations, and choice proportions; <code>densities</code> returns density values.</p></li>
+<li><p><code><a href="../reference/calc_stats.html">calc_stats()</a></code> gains a <code>resample</code> option to quantify variability in model predictions. We can resample for a given model or a single individual, or bootstrap an entire sample.</p></li>
+<li><p><code><a href="../reference/calc_stats.html">calc_stats()</a></code> arguments <code>split_by_ID</code> and <code>average</code> have been superseded by the more general <code>level</code> argument.</p></li>
+<li><p><code><a href="../reference/simulate_data.html">simulate_data()</a></code> no longer returns RTs restricted to the time grid (step size <code>dt</code>). PDFs are linearly interpolated for inverse transform sampling. We can control RT decimal places via <code>round_to</code>.</p></li>
+<li><p><code><a href="../reference/simulate_data.html">simulate_data()</a></code> now supports the <code>conds</code> argument.</p></li>
+<li><p><code><a href="../reference/ssp_dm.html">ssp_dm()</a></code> gains <code>var_non_dec</code> and <code>var_start</code> to toggle variability in non-decision time and starting point.</p></li>
+<li><p><code><a href="../reference/ssp_dm.html">ssp_dm()</a></code> now uses uniform variability in non-decision time, aligning more closely with the original publication.</p></li>
+<li><p><code><a href="../reference/ssp_dm.html">ssp_dm()</a></code> default <code>dx</code> and <code>dt</code> increase computation speed while balancing numerical error for many parameter values.</p></li>
+<li><p><code><a href="../reference/dmc_dm.html">dmc_dm()</a></code> default <code>dx</code> and <code>dt</code> increase computation speed while balancing numerical error for many parameter values.</p></li>
+<li><p><code><a href="../reference/ratcliff_dm.html">ratcliff_dm()</a></code> default <code>dx</code> and <code>dt</code> increase computation speed while balancing numerical error for many parameter values.</p></li>
+<li><p><code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> now support the <code>mcmc_dm</code> object type.</p></li>
+<li><p><code><a href="../reference/check_discretization.html">check_discretization()</a></code> has been introduced. This function helps us assess the loss in precision when increasing <code>dt</code> and <code>dx</code>.</p></li>
+<li><p><code>get_example_fits_ids()</code> was removed.</p></li>
+<li><p><code><a href="../reference/get_example_fits.html">get_example_fits()</a></code> has been introduced to obtain <code>fits_ids_dm</code>, <code>fits_agg_dm</code>, or <code>mcmc_dm</code> objects.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-0-3-0">Minor<a class="anchor" aria-label="anchor" href="#minor-0-3-0"></a></h3>
+<ul><li><p><code><a href="../reference/nt_constant.html">nt_constant()</a></code> now uses <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> instead of <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer()</a></code> to locate the Dirac delta index, reducing bias in non-decision time estimates.</p></li>
+<li><p><code><a href="../reference/pdfs.html">pdfs()</a></code> now also returns a vector of the time domain.</p></li>
+<li><p>The <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method now supports <code>mcmc_dm</code> objects.</p></li>
+<li><p>The <code>progress</code> argument replaces <code>verbose</code> in <code>calc_stats</code> (default: 1).</p></li>
+<li><p>The <code>"fit_stats"</code> option for <code><a href="../reference/calc_stats.html">calc_stats()</a></code> now returns multiple fit statistics, including log-likelihood, AIC, BIC, and root-mean-squared error.</p></li>
+<li><p><code>simulate_traces</code> now properly considers trial-by-trial variability in the drift rate.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-and-code-fixes-0-3-0">Bug and code fixes<a class="anchor" aria-label="anchor" href="#bug-and-code-fixes-0-3-0"></a></h3>
 <ul><li>
-<code><a href="../reference/nt_constant.html">nt_constant()</a></code> now uses <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> instead of <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer()</a></code> to get the index for the dirac delta. This reduces the bias in non-decision time estimates.</li>
+<code><a href="../reference/calc_stats.html">calc_stats()</a></code> is now more precise due to proper numerical integration.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -79,7 +117,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

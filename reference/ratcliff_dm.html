@@ -9,7 +9,7 @@ basic Ratcliff Diffusion Model"><meta property="og:image" content="https://bucky
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@ basic Ratcliff Diffusion Model"><meta property="og:image" content="https://bucky
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -55,8 +56,8 @@ basic Ratcliff Diffusion Model</p>
 <span>  obs_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sigma <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  t_max <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  dt <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  dx <span class="op">=</span> <span class="fl">0.001</span>,</span>
+<span>  dt <span class="op">=</span> <span class="fl">0.0075</span>,</span>
+<span>  dx <span class="op">=</span> <span class="fl">0.02</span>,</span>
 <span>  solver <span class="op">=</span> <span class="st">"kfe"</span>,</span>
 <span>  b_coding <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -68,9 +69,9 @@ basic Ratcliff Diffusion Model</p>
 
 <dl><dt id="arg-var-non-dec-var-start-var-drift">var_non_dec, var_start, var_drift<a class="anchor" aria-label="anchor" href="#arg-var-non-dec-var-start-var-drift"></a></dt>
 <dd><p>logical, indicating whether the model
-should have a (uniform) variable non-decision time, starting point, or
-(normally-distributed) variable drift rate.
-(see also <code>nt_uniform</code> and <code>x_uniform</code> in <a href="component_shelf.html">component_shelf</a>)</p></dd>
+should have a variable non-decision time , starting point (uniform), or
+drift rate (normally-distributed).  (see also <code>nt_uniform</code> and <code>x_uniform</code>
+in <a href="component_shelf.html">component_shelf</a>)</p></dd>
 
 
 <dt id="arg-instr">instr<a class="anchor" aria-label="anchor" href="#arg-instr"></a></dt>
@@ -118,7 +119,11 @@ intensive). Important: Variable drift rate is only possible with dRiftDM's
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Ratcliff1978dRiftDM</p>
+    <p>Ratcliff R (1978).
+“A theory of memory retrieval.”
+<em>Psychological Review</em>, <b>85</b>(2), 59–108.
+<a href="https://doi.org/10.1037/0033-295X.85.2.59" class="external-link">doi:10.1037/0033-295X.85.2.59</a>
+.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -130,14 +135,9 @@ intensive). Important: Variable drift rate is only possible with dRiftDM's
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># the model with default settings</span></span></span>
 <span class="r-in"><span><span class="va">my_model</span> <span class="op">&lt;-</span> <span class="fu">ratcliff_dm</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># the model with a variable non-decision time and with a more coarse</span></span></span>
+<span class="r-in"><span><span class="co"># the model with a variable non-decision time and with finer space</span></span></span>
 <span class="r-in"><span><span class="co"># discretization</span></span></span>
-<span class="r-in"><span><span class="va">my_model</span> <span class="op">&lt;-</span> <span class="fu">ratcliff_dm</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  var_non_dec <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>  t_max <span class="op">=</span> <span class="fl">1.5</span>,</span></span>
-<span class="r-in"><span>  dx <span class="op">=</span> <span class="fl">.005</span>,</span></span>
-<span class="r-in"><span>  dt <span class="op">=</span> <span class="fl">.005</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">my_model</span> <span class="op">&lt;-</span> <span class="fu">ratcliff_dm</span><span class="op">(</span>var_non_dec <span class="op">=</span> <span class="cn">TRUE</span>, dx <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -150,7 +150,7 @@ intensive). Important: Variable drift rate is only possible with dRiftDM's
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

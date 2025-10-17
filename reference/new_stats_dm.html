@@ -9,7 +9,7 @@ store necessary attributes for the custom methods (such as plot_*)"><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@ store necessary attributes for the custom methods (such as plot_*)"><meta proper
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -80,8 +81,8 @@ depending on <code>type</code>.</p>
     <p><code>new_stats_dm</code> sets up the <code>stat_df</code> object by assigning it the class
 <code>stats_dm</code>, along with additional classes based on the specified <code>type</code>.
 For "basic_stats", "cafs", "quantiles", "delta_funs", this will be
-c(<code>&lt;type&gt;</code>, "sum_dist", "stats_dm", "data.frame")". For "fit_stats", this
-will be c("<type>", "stats_dm", "data.frame")".</type></p>
+c(<code>type</code>, "sum_dist", "stats_dm", "data.frame")". For "fit_stats", this
+will be c(<code>type</code>, "stats_dm", "data.frame")".</p>
 <p>For basic stats, Conditional Accuracy Functions (CAFs), Quantiles, and
 Delta Functions, the function requires a <code>b_coding</code> argument, which specifies
 boundary coding details and is set as an attribute.</p>
@@ -98,7 +99,7 @@ ensure that the <code>stats_dm</code> object is well formatted.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

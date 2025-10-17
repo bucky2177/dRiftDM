@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -91,7 +92,8 @@ list:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># some model</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">a_model</span><span class="op">)</span> <span class="co"># the entries of the underlying list</span></span>
-<span><span class="co">#&gt; [1] "flex_prms_obj" "prms_solve"    "solver"        "comp_funs"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "flex_prms_obj" "prms_solve"    "solver"        "comp_funs"    </span></span>
+<span><span class="co">#&gt; [5] "cost_function"</span></span></code></pre></div>
 <p>With the <code>flex_prms</code> object (stored as the first entry),
 we can specify the parameters of the model and also control how each
 parameter relates across conditions. For example, we could specify that
@@ -137,12 +139,12 @@ with the generic <code><a href="../reference/flex_prms.html">flex_prms()</a></co
 <code class="sourceCode R"><span><span class="co"># Create a model (here the Diffusion Model for Conflict Tasks, DMC)</span></span>
 <span><span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/flex_prms.html">flex_prms</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Current Parameter Matrix:</span></span>
+<span><span class="co">#&gt; Parameter Values:</span></span>
 <span><span class="co">#&gt;        muc   b non_dec sd_non_dec  tau a    A alpha</span></span>
 <span><span class="co">#&gt; comp     4 0.6     0.3       0.02 0.04 2  0.1     4</span></span>
 <span><span class="co">#&gt; incomp   4 0.6     0.3       0.02 0.04 2 -0.1     4</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Unique Parameters:</span></span>
+<span><span class="co">#&gt; Parameter Settings:</span></span>
 <span><span class="co">#&gt;        muc b non_dec sd_non_dec tau a A alpha</span></span>
 <span><span class="co">#&gt; comp   1   2 3       4          5   0 6 7    </span></span>
 <span><span class="co">#&gt; incomp 1   2 3       4          5   0 d 7    </span></span>
@@ -158,15 +160,15 @@ with the generic <code><a href="../reference/flex_prms.html">flex_prms()</a></co
 (see also the first print statement in
 <code><a href="../articles/dRiftDM.html">vignette("dRiftDM", "dRiftDM")</a></code> for more information):</p>
 <ul>
-<li><p>The <strong>Current Parameter Matrix</strong> shows you the
-current parameter values for all conditions.</p></li>
-<li><p>The <strong>Unique Parameters</strong> show how each parameter
+<li><p>The <strong>Parameter Values</strong> shows you the current
+parameter values for all conditions.</p></li>
+<li><p>The <strong>Parameter Settings</strong> show how each parameter
 behaves across conditions.</p></li>
 </ul>
 <div class="section level3">
 <h3 id="modifying-how-each-parameter-behaves-across-conditions">Modifying How Each Parameter Behaves Across Conditions<a class="anchor" aria-label="anchor" href="#modifying-how-each-parameter-behaves-across-conditions"></a>
 </h3>
-<p>The <strong>Unique Parameters</strong> are relevant to model
+<p>The <strong>Parameter Settings</strong> are relevant to model
 customization, and we can change them with the
 <code><a href="../reference/modify_flex_prms.html">modify_flex_prms()</a></code> method. The function takes a model and a
 set of <strong>instructions</strong> as a string. For example, if we
@@ -177,12 +179,12 @@ want <code>muc</code> to vary freely across conditions, we can write</p>
 <span>  instr <span class="op">=</span> <span class="st">"muc ~"</span> <span class="co"># an instructions in a formula-like format</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/flex_prms.html">flex_prms</a></span><span class="op">(</span><span class="va">ddm_free_muc</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Current Parameter Matrix:</span></span>
+<span><span class="co">#&gt; Parameter Values:</span></span>
 <span><span class="co">#&gt;        muc   b non_dec sd_non_dec  tau a    A alpha</span></span>
 <span><span class="co">#&gt; comp     4 0.6     0.3       0.02 0.04 2  0.1     4</span></span>
 <span><span class="co">#&gt; incomp   4 0.6     0.3       0.02 0.04 2 -0.1     4</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Unique Parameters:</span></span>
+<span><span class="co">#&gt; Parameter Settings:</span></span>
 <span><span class="co">#&gt;        muc b non_dec sd_non_dec tau a A alpha</span></span>
 <span><span class="co">#&gt; comp   1   3 4       5          6   0 7 8    </span></span>
 <span><span class="co">#&gt; incomp 2   3 4       5          6   0 d 8    </span></span>
@@ -195,7 +197,7 @@ want <code>muc</code> to vary freely across conditions, we can write</p>
 <span><span class="co">#&gt; comp     0.04</span></span>
 <span><span class="co">#&gt; incomp   0.04</span></span></code></pre></div>
 <p>Since there are now two numbers for <code>muc</code> under
-<strong>Unique parameters</strong>, this parameter can take different
+<strong>Parameter Settings</strong>, this parameter can take different
 values for different conditions. This is also why <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>
 now provides two (modifiable) values for <code>muc</code> per
 condition:</p>
@@ -260,13 +262,13 @@ longer the negative of <code>A</code> in the <code>comp</code>
 condition):</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/flex_prms.html">flex_prms</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Current Parameter Matrix:</span></span>
+<span><span class="co">#&gt; Parameter Values:</span></span>
 <span><span class="co">#&gt;         muc   b non_dec sd_non_dec  tau a   A alpha</span></span>
 <span><span class="co">#&gt; comp      4 0.6     0.3       0.02 0.04 2 0.1     4</span></span>
 <span><span class="co">#&gt; neutral   4 0.6     0.3       0.02 0.04 2 0.1     4</span></span>
 <span><span class="co">#&gt; incomp    4 0.6     0.3       0.02 0.04 2 0.1     4</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Unique Parameters:</span></span>
+<span><span class="co">#&gt; Parameter Settings:</span></span>
 <span><span class="co">#&gt;         muc b non_dec sd_non_dec tau a A alpha</span></span>
 <span><span class="co">#&gt; comp      1 2       3          4   5 6 7     8</span></span>
 <span><span class="co">#&gt; neutral   1 2       3          4   5 6 7     8</span></span>
@@ -292,15 +294,16 @@ for the new <code>neutral</code> condition. We might also want to keep
 <span>  instr <span class="op">=</span> <span class="va">instructions</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Class(es): dmc_dm, drift_dm</span></span>
+<span><span class="co">#&gt; Class(es) dmc_dm, drift_dm</span></span>
+<span><span class="co">#&gt; (model has not been estimated yet)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Current Parameter Matrix:</span></span>
+<span><span class="co">#&gt; Parameter Values:</span></span>
 <span><span class="co">#&gt;         muc   b non_dec sd_non_dec  tau a    A alpha</span></span>
 <span><span class="co">#&gt; comp      4 0.6     0.3       0.02 0.04 2  0.1     4</span></span>
 <span><span class="co">#&gt; neutral   4 0.6     0.3       0.02 0.04 2  0.0     4</span></span>
 <span><span class="co">#&gt; incomp    4 0.6     0.3       0.02 0.04 2 -0.1     4</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Unique Parameters:</span></span>
+<span><span class="co">#&gt; Parameter Settings:</span></span>
 <span><span class="co">#&gt;         muc b non_dec sd_non_dec tau a A alpha</span></span>
 <span><span class="co">#&gt; comp    1   2 3       4          5   0 6 7    </span></span>
 <span><span class="co">#&gt; neutral 1   2 3       4          5   0 0 7    </span></span>
@@ -309,9 +312,11 @@ for the new <code>neutral</code> condition. We might also want to keep
 <span><span class="co">#&gt; Special Dependencies:</span></span>
 <span><span class="co">#&gt; A ~ incomp == -(A ~ comp)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Deriving PDFs:</span></span>
+<span><span class="co">#&gt; Deriving PDFS:</span></span>
 <span><span class="co">#&gt;   solver: kfe</span></span>
-<span><span class="co">#&gt;   values: sigma=1, t_max=3, dt=0.001, dx=0.001, nt=3000, nx=2000</span></span>
+<span><span class="co">#&gt;   values: sigma=1, t_max=3, dt=0.0075, dx=0.02, nt=400, nx=100</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Cost Function: neg_log_like</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Observed Data: NULL</span></span></code></pre></div>
 </div>
@@ -340,7 +345,7 @@ returns the (upper) boundary and its derivative, respectively.</p></li>
 <li><p>Finally, <code>nt_fun()</code> returns the density of the
 non-decision time.</p></li>
 </ul>
-<p>A number of predefined component functions are available via
+<p>A number of predefined component functions are already available via
 <code><a href="../reference/component_shelf.html">component_shelf()</a></code> (see the documentation for a description
 of each function):</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -364,18 +369,18 @@ declaration:</p>
 <ul>
 <li>
 <code>prms_model</code> is a named numeric vector and is identical
-to a row of the <strong>Current Parameter Matrix</strong> stored within
-the <code>flex_prms</code> object of a model (see the first part of the
+to a row of the <strong>Parameter Values</strong> stored within the
+<code>flex_prms</code> object of a model (see the first part of the
 following output).</li>
 </ul>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/flex_prms.html">flex_prms</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Current Parameter Matrix:</span></span>
+<span><span class="co">#&gt; Parameter Values:</span></span>
 <span><span class="co">#&gt;        muc   b non_dec sd_non_dec  tau a    A alpha</span></span>
 <span><span class="co">#&gt; comp     4 0.6     0.3       0.02 0.04 2  0.1     4</span></span>
 <span><span class="co">#&gt; incomp   4 0.6     0.3       0.02 0.04 2 -0.1     4</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Unique Parameters:</span></span>
+<span><span class="co">#&gt; Parameter Settings:</span></span>
 <span><span class="co">#&gt;        muc b non_dec sd_non_dec tau a A alpha</span></span>
 <span><span class="co">#&gt; comp   1   2 3       4          5   0 6 7    </span></span>
 <span><span class="co">#&gt; incomp 1   2 3       4          5   0 d 7    </span></span>
@@ -395,8 +400,8 @@ to:</li>
 </ul>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
-<span><span class="co">#&gt; sigma t_max    dt    dx    nt    nx </span></span>
-<span><span class="co">#&gt; 1e+00 3e+00 1e-03 1e-03 3e+03 2e+03</span></span></code></pre></div>
+<span><span class="co">#&gt;   sigma   t_max      dt      dx      nt      nx </span></span>
+<span><span class="co">#&gt; 1.0e+00 3.0e+00 7.5e-03 2.0e-02 4.0e+02 1.0e+02</span></span></code></pre></div>
 <ul>
 <li>
 <code>t_vec</code> is a numeric vector, representing the time space.
@@ -407,13 +412,13 @@ It is constructed from <code>dt</code> and <code>t_max</code>:</li>
 <span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span></span>
 <span><span class="va">t_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">t_max</span>, <span class="va">dt</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">t_vec</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.000 0.001 0.002 0.003 0.004 0.005</span></span>
+<span><span class="co">#&gt; [1] 0.0000 0.0075 0.0150 0.0225 0.0300 0.0375</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">t_vec</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 2.995 2.996 2.997 2.998 2.999 3.000</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 2.9625 2.9700 2.9775 2.9850 2.9925 3.0000</span></span></code></pre></div>
 <ul>
 <li><p><code>one_cond</code> is the label of the current condition for
 which the model is being evaluated (i.e., a row name of the
-<strong>Current Parameter Matrix</strong>).</p></li>
+<strong>Parameter Values</strong>).</p></li>
 <li><p><code>ddm_opts</code> is taken directly from the model. It is
 used as a backdoor to inject arbitrary <code>R</code> objects (see the
 final comments below for an example)</p></li>
@@ -513,7 +518,9 @@ by modifying the parameter settings with
 <code class="sourceCode R"><span><span class="va">cust_model</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># define all parameters and conditions</span></span>
 <span>  <span class="va">prms_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    muc <span class="op">=</span> <span class="fl">3</span>, mua <span class="op">=</span> <span class="fl">1</span>, sign <span class="op">=</span> <span class="fl">1</span>, <span class="co"># parameters for the custom drift rate function</span></span>
+<span>    muc <span class="op">=</span> <span class="fl">3</span>, <span class="co"># parameters for the custom drift rate function</span></span>
+<span>    mua <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    sign <span class="op">=</span> <span class="fl">1</span>, </span>
 <span>    b <span class="op">=</span> <span class="fl">.6</span>, <span class="co"># parameter for a time-independent boundary "b"</span></span>
 <span>    non_dec <span class="op">=</span> <span class="fl">.2</span> <span class="co"># parameter for a non-decision time "non_dec"</span></span>
 <span>  <span class="op">)</span></span>
@@ -539,15 +546,19 @@ by modifying the parameter settings with
 <span>  <span class="co"># modify the flex_prms object to achieve the desired behavior of 'sign'</span></span>
 <span>  <span class="co"># -&gt; don't consider 'sign' a free parameter to estimate and set it to -1</span></span>
 <span>  <span class="co"># for incompatible conditions</span></span>
-<span>  <span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/modify_flex_prms.html">modify_flex_prms</a></span><span class="op">(</span><span class="va">ddm</span>, instr <span class="op">=</span> <span class="st">"sign &lt;!&gt;</span></span>
-<span><span class="st">                                        sign ~ incomp =&gt; -1"</span><span class="op">)</span></span>
+<span>  <span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/modify_flex_prms.html">modify_flex_prms</a></span><span class="op">(</span></span>
+<span>    <span class="va">ddm</span>,</span>
+<span>    instr <span class="op">=</span> <span class="st">"sign &lt;!&gt;</span></span>
+<span><span class="st">                                        sign ~ incomp =&gt; -1"</span></span>
+<span>  <span class="op">)</span></span>
 <span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu">cust_model</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>If we want to use the “im_zero” method to derive model predictions,
-we also need to write a function for the integral of the drift rate:</p>
+we also need to write a function for the integral of the drift rate:<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The “im_zero” method is provided for backward
+compatibility, the default “kfe” method is recommended.&lt;/p&gt;"><sup>2</sup></a></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cust_mu_int</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">prms_model</span>, <span class="va">prms_solve</span>, <span class="va">t_vec</span>, <span class="va">one_cond</span>, <span class="va">ddm_opts</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># extract all parameters (one row of the parameter matrix)</span></span>
@@ -628,7 +639,10 @@ point distribution might look like this:</p>
 </h3>
 <p>Remark: This example shows a reimplementation of the already
 pre-built <code><a href="../reference/b_hyperbol.html">b_hyperbol()</a></code> and <code><a href="../reference/b_hyperbol.html">dt_b_hyperbol()</a></code>
-component functions (see <code><a href="../reference/component_shelf.html">component_shelf()</a></code>.</p>
+component functions (see <code><a href="../reference/component_shelf.html">component_shelf()</a></code>). If you want a
+model with a collapsing boundary, just jump to the
+<code>cust_model</code> R chunk below and plug in the respective
+pre-built component functions.</p>
 <p>Suppose we want collapsing boundaries. The formula for the upper
 boundary should be
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>κ</mi><mo>⋅</mo><mfrac><mi>t</mi><mrow><mi>t</mi><mo>+</mo><msub><mi>t</mi><mn>0.5</mn></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mo>,</mo></mrow><annotation encoding="application/x-tex">b(t) = b_0 \left(1-\kappa\cdot \frac{t}{t+t_{0.5}}\right)\,,</annotation></semantics></math>
@@ -676,7 +690,8 @@ derivative of the boundary:
 <span>    non_dec <span class="op">=</span> <span class="fl">.2</span> <span class="co"># parameter for a non-decision time "non_dec"</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span>  <span class="co"># each model must have a condition (in this example it is not relevant, so we just call it "foo")</span></span>
+<span>  <span class="co"># each model must have a condition </span></span>
+<span>  <span class="co"># (in this example it is not relevant, so we just call it "foo")</span></span>
 <span>  <span class="va">conds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"foo"</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># get access to pre-built component functions</span></span>
@@ -732,7 +747,8 @@ parameters <code>non_dec</code> and <code>range_non_dec</code>:</p>
 <span>    b <span class="op">=</span> <span class="fl">.6</span> <span class="co"># parameter for a time-independent boundary</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span>  <span class="co"># each model must have a condition (in this example it is not relevant, so we just call it "foo")</span></span>
+<span>  <span class="co"># each model must have a condition</span></span>
+<span>  <span class="co"># (in this example it is not relevant, so we just call it "foo")</span></span>
 <span>  <span class="va">conds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"foo"</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># get access to pre-built component functions</span></span>
@@ -771,7 +787,7 @@ Alternatively, you can access the source code from R like this:</p>
 <code class="sourceCode R"><span><span class="va">all_funs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/component_shelf.html">component_shelf</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># all functions</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/View.html" class="external-link">View</a></span><span class="op">(</span><span class="va">all_funs</span><span class="op">$</span><span class="va">x_uniform</span><span class="op">)</span> <span class="co"># see the code for x_uniform</span></span></code></pre></div>
 <p><strong>How do I check that the model is working as
-intended?</strong> There are two ways to perform sanity checks. First,
+intended?</strong> There are three ways to perform sanity checks. First,
 to check the boundary and drift rate, you can plot the expected time
 course of your diffusion model:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
@@ -783,8 +799,53 @@ course of your diffusion model:</p>
 function by passing the model object to the generic <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
 method:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ddm</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"green"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="customize_ddms_files/figure-html/unnamed-chunk-36-1.png" width="700"><img src="customize_ddms_files/figure-html/unnamed-chunk-36-2.png" width="700"><img src="customize_ddms_files/figure-html/unnamed-chunk-36-3.png" width="700"><img src="customize_ddms_files/figure-html/unnamed-chunk-36-4.png" width="700"><img src="customize_ddms_files/figure-html/unnamed-chunk-36-5.png" width="700"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ddm</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"green"</span>, <span class="st">"red"</span><span class="op">)</span>, bundle_plots <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="customize_ddms_files/figure-html/unnamed-chunk-35-1.png" width="700"><img src="customize_ddms_files/figure-html/unnamed-chunk-35-2.png" width="700"><img src="customize_ddms_files/figure-html/unnamed-chunk-35-3.png" width="700"><img src="customize_ddms_files/figure-html/unnamed-chunk-35-4.png" width="700"><img src="customize_ddms_files/figure-html/unnamed-chunk-35-5.png" width="700"></p>
+<p>Finally, if you know what the model predictions should look like, you
+can request these model predictions using the <code><a href="../reference/calc_stats.html">calc_stats()</a></code>
+function.</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span><span class="va">ddm</span>, type <span class="op">=</span> <span class="st">"quantiles"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span></code></pre></div>
+<p><img src="customize_ddms_files/figure-html/unnamed-chunk-36-1.png" width="700"></p>
+<p><strong>How do I choose values for <code>dt</code> and
+<code>dx</code>?</strong></p>
+<p>By default, <code>dRiftDM</code> sets <code>dt</code> and
+<code>dx</code> to 0.001, which is very conservative — we don’t know
+which models you will create, so we’d rather be safe than sorry. In many
+cases, though, these settings are unnecessarily small, leading to slow
+evaluations and high computational burden. For the pre-built models, we
+therefore use larger <code>dt</code> and <code>dx</code> values chosen
+after extensive model simulations.</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="fu"><a href="../reference/dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   sigma   t_max      dt      dx      nt      nx </span></span>
+<span><span class="co">#&gt; 1.0e+00 3.0e+00 7.5e-03 2.0e-02 4.0e+02 1.0e+02</span></span></code></pre></div>
+<p>To help choose discretization settings, we provide
+<code><a href="../reference/check_discretization.html">check_discretization()</a></code>. It derives model predictions under
+the current discretization and compares them to predictions obtained
+under a fine discretization (with <code>dx</code> = <code>dt</code> =
+0.001), separately for each condition, using the Hellinger distance.</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cust_model</span> <span class="op">&lt;-</span> <span class="fu">cust_model</span><span class="op">(</span><span class="op">)</span> <span class="co"># some custom model</span></span>
+<span><span class="co"># set the intended discretization setting</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">cust_model</span><span class="op">)</span><span class="op">[</span><span class="st">"dx"</span><span class="op">]</span> <span class="op">=</span> <span class="fl">.01</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">cust_model</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">=</span> <span class="fl">.005</span></span>
+<span></span>
+<span><span class="co"># compare to a precise solution</span></span>
+<span><span class="fu"><a href="../reference/check_discretization.html">check_discretization</a></span><span class="op">(</span><span class="va">cust_model</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     foo </span></span>
+<span><span class="co">#&gt; 0.00859</span></span></code></pre></div>
+<p>The result is a per-condition deviance measure. If the predictions
+match exactly under both coarse and fine discretizations, the value is
+0; if they are completely different, the value is 1. As a rule of thumb,
+we recommend keeping the deviance well below 5% for the parameter values
+that matter.</p>
+<p>With <code><a href="../reference/check_discretization.html">check_discretization()</a></code> in hand, it’s
+straightforward to write small loops to explore parameter values and
+discretization settings.</p>
+<p>In addition, we can run small model-recovery studies to assess how
+discretization affects the reliability of parameter estimates.</p>
 <p><strong>What if I need to access an arbitrary R object within a
 component function?</strong> Since each component function is called by
 <code>dRiftDM</code> at runtime, users don’t have direct control over
@@ -798,7 +859,7 @@ this.</p>
 “Hello World” to a model via the <code><a href="../reference/ddm_opts.html">ddm_opts()</a></code> method, set the
 custom component function, and see the corresponding console output
 after calling <code>re_evaluate()</code>.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cust_mu</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">prms_model</span>, <span class="va">prms_solve</span>, <span class="va">t_vec</span>, <span class="va">one_cond</span>, <span class="va">ddm_opts</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ddm_opts</span><span class="op">)</span> <span class="co"># print out the values of ddm_opts</span></span>
 <span>  <span class="va">muc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">prms_model</span><span class="op">[[</span><span class="st">"muc"</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">t_vec</span><span class="op">)</span><span class="op">)</span></span>
@@ -818,6 +879,77 @@ functions to the model via <code>ddm_opts</code> and thereby make them
 available within our custom component functions.</p>
 </div>
 </div>
+<div class="section level2">
+<h2 id="remark-trial-by-trial-variability-in-the-drift-rate">Remark: Trial-by-Trial Variability in the Drift Rate<a class="anchor" aria-label="anchor" href="#remark-trial-by-trial-variability-in-the-drift-rate"></a>
+</h2>
+<p>dRiftDM supports trial-by-trial variability in the drift rate for
+models with a time-independent (within-trial) drift rate. Its
+implementation is slightly different, however, as there is no dedicated
+model component for this feature. Instead, while solving the model,
+dRiftDM systematically increases and decreases the drift rate parameter
+to derive the first-passage-time distribution five times with different
+drift rates, and then averages across these distributions. As a
+consequence, we should expect computation time to increase by roughly a
+factor of five.</p>
+<p><strong>Two ingredients are required:</strong></p>
+<ol style="list-style-type: decimal">
+<li>we need a model with the <code>mu_constant</code> component
+function<br>
+</li>
+<li>we need to add the parameter <code>sd_muc</code> to the model. This
+internally triggers trial-by-trial variability in the drift rate</li>
+</ol>
+<p>The following code shows how to create such a model. We can replace
+any of the component functions or parameters, except those related to
+<code>mu_constant</code> and <code>mu_int_constant</code>.</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cust_model</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># define all parameters and conditions</span></span>
+<span>  <span class="va">prms_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    non_dec <span class="op">=</span> <span class="fl">.2</span>, <span class="co"># parameters for the non-decision time</span></span>
+<span>    muc <span class="op">=</span> <span class="fl">3</span>, <span class="co"># parameter for a time-independent drift rate</span></span>
+<span>    sd_muc <span class="op">=</span> <span class="fl">1.2</span>, <span class="co"># will trigger trial-by-trial variability in the drift rate!</span></span>
+<span>    b <span class="op">=</span> <span class="fl">.4</span> <span class="co"># parameter for a time-independent boundary</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># each model must have a condition</span></span>
+<span>  <span class="co"># (in this example it is not relevant, so we just call it "foo")</span></span>
+<span>  <span class="va">conds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"foo"</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># get access to pre-built component functions</span></span>
+<span>  <span class="va">comps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/component_shelf.html">component_shelf</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># call the drift_dm function which is the backbone of dRiftDM</span></span>
+<span>  <span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/drift_dm.html">drift_dm</a></span><span class="op">(</span></span>
+<span>    prms_model <span class="op">=</span> <span class="va">prms_model</span>,</span>
+<span>    conds <span class="op">=</span> <span class="va">conds</span>,</span>
+<span>    subclass <span class="op">=</span> <span class="st">"my_custom_model"</span>,</span>
+<span>    mu_fun <span class="op">=</span> <span class="va">comps</span><span class="op">$</span><span class="va">mu_constant</span>, <span class="co"># time-independent drift rate with parameter muc</span></span>
+<span>    mu_int_fun <span class="op">=</span> <span class="va">comps</span><span class="op">$</span><span class="va">mu_int_constant</span>, <span class="co"># respective integral of the drift rate</span></span>
+<span>    x_fun <span class="op">=</span> <span class="va">comps</span><span class="op">$</span><span class="va">x_dirac_0</span>, <span class="co"># dirac delta on zero</span></span>
+<span>    b_fun <span class="op">=</span> <span class="va">comps</span><span class="op">$</span><span class="va">b_constant</span>, <span class="co"># time-independent boundary b</span></span>
+<span>    dt_b_fun <span class="op">=</span> <span class="va">comps</span><span class="op">$</span><span class="va">dt_b_constant</span>, <span class="co"># respective derivative of the boundary</span></span>
+<span>    nt_fun <span class="op">=</span> <span class="va">comps</span><span class="op">$</span><span class="va">nt_constant</span> <span class="co"># time-independent non-decision time</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">ddm</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">my_model</span> <span class="op">&lt;-</span> <span class="fu">cust_model</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># simulate some traces</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="va">my_model</span>, k <span class="op">=</span> <span class="fl">10</span>, sigma <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="customize_ddms_files/figure-html/unnamed-chunk-40-1.png" width="700"></p>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># visualize the effect of trial-by-trial variability: slow errors</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span><span class="va">my_model</span>, type <span class="op">=</span> <span class="st">"cafs"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="customize_ddms_files/figure-html/unnamed-chunk-40-2.png" width="700"></p>
+</div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -830,7 +962,7 @@ available within our custom component functions.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

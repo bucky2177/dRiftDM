@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -66,7 +67,7 @@
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>additional arguments</p></dd>
+<dd><p>additional arguments (currently not used)</p></dd>
 
 
 <dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>
@@ -78,7 +79,8 @@ Defaults to 2 (standard AIC).</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of type <code>fit_stats</code> containing the respective statistic in
 one column (named <code>Log_Like</code>, <code>AIC</code>, or <code>BIC</code>) and a corresponding <code>ID</code>
-column.</p>
+column. If any of the statistics can't be calculated, the function returns
+<code>NULL</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -95,16 +97,16 @@ for <code>ID</code> and the required statistic.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># get an auxiliary fits_ids object for demonstration purpose;</span></span></span>
 <span class="r-in"><span><span class="co"># such an object results from calling load_fits_ids</span></span></span>
-<span class="r-in"><span><span class="va">all_fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">all_fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits.html">get_example_fits</a></span><span class="op">(</span><span class="st">"fits_ids_dm"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># AICs</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type of Statistic: fit_stats</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ID      AIC</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 -804.341</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2 -750.480</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3 -926.449</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 -785.129</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2 -741.929</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3 -931.496</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (access the data.frame's columns/rows as usual)</span>
 <span class="r-in"><span></span></span>
@@ -113,9 +115,9 @@ for <code>ID</code> and the required statistic.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type of Statistic: fit_stats</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ID      BIC</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 -777.621</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2 -723.802</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3 -899.729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 -758.410</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2 -715.251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3 -904.776</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (access the data.frame's columns/rows as usual)</span>
 <span class="r-in"><span></span></span>
@@ -124,9 +126,9 @@ for <code>ID</code> and the required statistic.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type of Statistic: fit_stats</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ID Log_Like</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1  409.170</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2  382.240</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3  470.224</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1  399.565</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2  377.965</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3  472.748</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (access the data.frame's columns/rows as usual)</span>
 <span class="r-in"><span></span></span>
@@ -134,10 +136,10 @@ for <code>ID</code> and the required statistic.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Object Type: coefs_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ID muc    b non_dec sd_non_dec  tau    A alpha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 4.7 0.44    0.34       0.03 0.04 0.10   7.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2 5.4 0.40    0.30       0.04 0.05 0.09   3.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3 5.8 0.60    0.32       0.01 0.11 0.19   3.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ID   muc     b non_dec sd_non_dec   tau     A alpha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 4.700 0.446   0.341      0.032 0.032 0.102 6.605</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2 4.696 0.391   0.297      0.041 0.101 0.089 5.038</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3 5.960 0.626   0.318      0.012 0.110 0.195 3.334</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (access the data.frame's columns/rows as usual)</span>
 <span class="r-in"><span></span></span>
@@ -145,13 +147,13 @@ for <code>ID</code> and the required statistic.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">all_fits</span>, select_unique <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Object Type: coefs_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ID   Cond muc    b non_dec sd_non_dec  tau a     A alpha peak_l</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1   comp 4.7 0.44    0.34       0.03 0.04 2  0.10   7.0   0.04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  1 incomp 4.7 0.44    0.34       0.03 0.04 2 -0.10   7.0   0.04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  2   comp 5.4 0.40    0.30       0.04 0.05 2  0.09   3.0   0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  2 incomp 5.4 0.40    0.30       0.04 0.05 2 -0.09   3.0   0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  3   comp 5.8 0.60    0.32       0.01 0.11 2  0.19   3.7   0.11</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  3 incomp 5.8 0.60    0.32       0.01 0.11 2 -0.19   3.7   0.11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ID   Cond   muc     b non_dec sd_non_dec   tau a      A alpha peak_l</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1   comp 4.700 0.446   0.341      0.032 0.032 2  0.102 6.605  0.032</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  1 incomp 4.700 0.446   0.341      0.032 0.032 2 -0.102 6.605  0.032</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  2   comp 4.696 0.391   0.297      0.041 0.101 2  0.089 5.038  0.101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  2 incomp 4.696 0.391   0.297      0.041 0.101 2 -0.089 5.038  0.101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  3   comp 5.960 0.626   0.318      0.012 0.110 2  0.195 3.334  0.110</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  3 incomp 5.960 0.626   0.318      0.012 0.110 2 -0.195 3.334  0.110</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (access the data.frame's columns/rows as usual)</span>
 <span class="r-in"><span></span></span>
@@ -166,7 +168,7 @@ for <code>ID</code> and the required statistic.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

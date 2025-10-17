@@ -9,7 +9,7 @@ resulting from a call to coef.fits_ids_dm."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@ resulting from a call to coef.fits_ids_dm."><meta property="og:image" content="h
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -51,11 +52,13 @@ resulting from a call to <a href="coef.drift_dm.html">coef.fits_ids_dm</a>.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  separate_plots <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  main <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  colors <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="st">"values"</span></span>
+<span>  conds <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  col <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  xlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"value"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  bundle_plots <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -68,34 +71,37 @@ resulting from a call to <a href="coef.drift_dm.html">coef.fits_ids_dm</a>.</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>additional arguments passed to the <a href="https://rdrr.io/r/graphics/hist.html" class="external-link">graphics::hist</a> function.</p></dd>
+<dd><p>additional graphical arguments passed to <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">graphics::hist()</a></code>.
+Not supported are the <code>plot</code> and <code>probability</code> arguments
+(the latter can be controlled via the supported <code>freq</code> argument).
+For further plotting arguments, see also <code><a href="set_default_arguments.html">set_default_arguments()</a></code>.</p></dd>
 
 
-<dt id="arg-separate-plots">separate_plots<a class="anchor" aria-label="anchor" href="#arg-separate-plots"></a></dt>
+<dt id="arg-conds">conds<a class="anchor" aria-label="anchor" href="#arg-conds"></a></dt>
+<dd><p>a character vector specifying the conditions to plot.
+Defaults to all available conditions.</p></dd>
+
+
+<dt id="arg-col">col<a class="anchor" aria-label="anchor" href="#arg-col"></a></dt>
+<dd><p>character vector, specifying colors for each condition, if
+conditions are present.</p></dd>
+
+
+<dt id="arg-xlim">xlim<a class="anchor" aria-label="anchor" href="#arg-xlim"></a></dt>
+<dd><p>a numeric vector of length 2, specifying the x-axis limits.</p></dd>
+
+
+<dt id="arg-ylim">ylim<a class="anchor" aria-label="anchor" href="#arg-ylim"></a></dt>
+<dd><p>a numeric vector of length 2, specifying the y-axis limits.</p></dd>
+
+
+<dt id="arg-xlab-ylab">xlab, ylab<a class="anchor" aria-label="anchor" href="#arg-xlab-ylab"></a></dt>
+<dd><p>character strings for the x- and y-axis labels.</p></dd>
+
+
+<dt id="arg-bundle-plots">bundle_plots<a class="anchor" aria-label="anchor" href="#arg-bundle-plots"></a></dt>
 <dd><p>logical, indicating whether to display separate panels
-for each parameter in a single plot layout (<code>TRUE</code>), or to plot them
-sequentially (<code>FALSE</code>).</p></dd>
-
-
-<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>numeric, specifying the transparency level for histogram colors
-when conditions are present, with values between 0 (fully transparent) and
-1 (fully opaque).</p></dd>
-
-
-<dt id="arg-main">main<a class="anchor" aria-label="anchor" href="#arg-main"></a></dt>
-<dd><p>character vector, specifying titles for each parameter histogram.
-Defaults to parameter names.</p></dd>
-
-
-<dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
-<dd><p>character vector, specifying colors for each condition if
-conditions are present. Defaults to a rainbow color palette.
-If <code>NULL</code> and no conditions are present, the default color is <code>"skyblue"</code>.</p></dd>
-
-
-<dt id="arg-xlab">xlab<a class="anchor" aria-label="anchor" href="#arg-xlab"></a></dt>
-<dd><p>character, specifying the label for the x-axis.</p></dd>
+in a single plot layout (<code>FALSE</code>), or to plot them separately (<code>TRUE</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -105,23 +111,43 @@ If <code>NULL</code> and no conditions are present, the default color is <code>"
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The <code>hist.coefs_dm</code> function is designed for visualizing parameter
-distributions for a single fit procedure.</p>
+distributions.</p>
 <p>If multiple conditions are present, it overlays histograms for each condition
 with adjustable transparency.</p>
-<p>When <code>separate_plots</code> is set to <code>TRUE</code>, histograms for each parameter are
+<p>When <code>bundle_plots</code> is set to <code>TRUE</code>, histograms for each parameter are
 displayed in a grid layout within a single graphics device.</p>
+<p>This function has some customization options, but they are limited. If you
+want to have a highly customized histogram, it is best to create it on your
+own using R's <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">graphics::hist()</a></code> function (see the examples below).</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># get an auxiliary fit procedure result (see the function load_fits_ids)</span></span></span>
-<span class="r-in"><span><span class="va">all_fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits_ids.html">get_example_fits_ids</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span><span class="op">)</span> <span class="co"># only three participants in this fit_ids object</span></span></span>
+<span class="r-in"><span><span class="va">all_fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_fits.html">get_example_fits</a></span><span class="op">(</span><span class="st">"fits_ids"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">coefs</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Object Type: coefs_dm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ID   muc     b non_dec sd_non_dec   tau     A alpha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 4.700 0.446   0.341      0.032 0.032 0.102 6.605</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2 4.696 0.391   0.297      0.041 0.101 0.089 5.038</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3 5.960 0.626   0.318      0.012 0.110 0.195 3.334</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (access the data.frame's columns/rows as usual)</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">coefs</span>, bundle_plots <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co"># calls hist.coefs_dm method of dRiftDM</span></span></span>
 <span class="r-plt img"><img src="hist.coefs_dm-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># allows for some customization</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span>, colors <span class="op">=</span> <span class="st">"lightgreen"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="hist.coefs_dm-2.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="hist.coefs_dm-3.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="hist.coefs_dm-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="hist.coefs_dm-5.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="hist.coefs_dm-6.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="hist.coefs_dm-7.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># how to fall back to R's hist() function for heavy customization</span></span></span>
+<span class="r-in"><span><span class="va">coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="unpack_obj.html">unpack_obj</a></span><span class="op">(</span><span class="va">coefs</span><span class="op">)</span> <span class="co"># provides the plain data.frame</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">coefs</span><span class="op">$</span><span class="va">muc</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">mu</span><span class="op">[</span><span class="va">c</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="co"># calls graphics::hist()</span></span></span>
+<span class="r-plt img"><img src="hist.coefs_dm-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -134,7 +160,7 @@ displayed in a grid layout within a single graphics device.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
