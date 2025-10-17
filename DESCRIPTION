@@ -28,6 +28,7 @@ Imports:
     withr,
     parallel,
     pbapply,
+    mirai,
     purrr,
     DEoptim,
     dfoptim,

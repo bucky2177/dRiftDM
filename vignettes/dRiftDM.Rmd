@@ -405,9 +405,12 @@ all_fits_deoptim <- estimate_dm(
   drift_dm_obj = ddm,
   obs_data = data,
   lower = l_u$lower,
-  upper = l_u$upper
+  upper = l_u$upper,
+  n_cores = 1 # you might want to increase this 
 )
 ```
+Because DEoptim is time-consuming, it is recommended to use multiple cores. You can set the desired number of cores using the `n_cores` argument.^[The reason we do not use multiple cores here is related to how this vignette is built on GitHub, but regular users should increase this value.] To get the number of available cores, use `parallel::detectCores()`.
+
 A common question concerns the number of cores to use. By default, `dRiftDM` (v.0.3.0) parallelizes across individuals---that is, one individual is fitted per core. Therefore, you should not specify more cores than there are individuals. In the present toy example, this limits the number of cores to four.
 
 Additionally, the fitting process runs in batches. For instance, if there are two cores and four individuals, `dRiftDM` first fits the first two individuals and then the remaining two. In practice, it is thus often convenient to choose a number of cores that divides the number of individuals evenly (e.g., six cores for 18 individuals, 50 cores for 200 individuals).
@@ -506,6 +509,65 @@ A neat summary of the model, the optimization routine, the data, and the paramet
 
 ```{r chunk-40}
 summary(all_fits)
+```
+
+
+## Experimental: Perform Bayesian Parameter Estimation
+
+Starting with `dRiftDM` v.0.3.0, there is also the option to perform Bayesian parameter estimation using DE-MCMC. Yet, this is currently at an experimental stage, and the returned `mcmc_dm` object type is not yet fully integrated within the remaining `dRiftDM` framework.
+
+We can request Bayesian parameter estimation using the argument `approach = "sep_b"` or `approach = "hier_b"`. In the former case, the model is fitted separately per participant, in the latter case, the model is fitted hierarchically.
+
+The prior distributions can be parameterized using the arguments `lower`, `upper`, `means`, `sds`, `shapes`, and `rates` (see the documentation of `estimate_dm()`)
+
+```{r dmc-dm-3}
+# DMC without variability in the non-decision time;
+# makes it a bit easier to estimate, although it is still
+# difficult, because trial numbers are low in the sample data set :)
+ddm <- dmc_dm(var_non_dec = FALSE)
+
+# lower and upper boundary for the prior distributions
+l_u <- get_lower_upper(ddm)
+mcmc_list <- estimate_dm(
+  drift_dm_obj = ddm,
+  obs_data = data,
+  approach = "sep_b",
+  lower = l_u$lower,
+  upper = l_u$upper,
+  verbose = 2,
+  n_chains = 40,
+  n_cores = 1,   # increase to parallelize
+  burn_in = 150, # for the demo, usually a bit higher
+  samples = 150, # for the demo, usually a bit higher
+  seed = 1
+)
+```
+
+This returns a list of `mcmc_dm` objects, one for each individual.
+
+```{r plot-results-7}
+one_mcmc <- mcmc_list[[1]]
+one_mcmc
+coef(one_mcmc)
+plot(one_mcmc, bundle_plots = FALSE)
+```
+
+It is also possible to request hierarchical estimation.
+
+```{r chunk-43, eval = FALSE}
+mcmc_hier <- estimate_dm(
+  drift_dm_obj = ddm,
+  obs_data = data,
+  approach = "hier_b",
+  lower = l_u$lower,
+  upper = l_u$upper,
+  verbose = 2,
+  n_chains = 40,
+  n_cores = 1, # increase for speed-up
+  burn_in = 150, # for the demo, usually way higher
+  samples = 150, # for the demo, usually way higher
+  seed = 1
+)
 ```
 
 

@@ -704,7 +704,7 @@ estimate_dm <- function(
       # prepare cluster
       cl <- NULL
       if (n_cores > 1) {
-        cl <- parallel::makeCluster(n_cores)
+        cl <- mirai::make_cluster(n_cores)
         withr::defer(parallel::stopCluster(cl))
         parallel::clusterSetRNGStream(cl, iseed = seed)
         parallel::clusterExport(
@@ -1178,17 +1178,11 @@ estimate_classical <- function(
     # create clusters
     cl <- NULL
     if (de_n_cores > 1) {
-      all_funs <- c(
-        "goal_wrapper",
-        "re_evaluate_model",
-        "prms_to_str",
-        "x2prms_vals"
-      )
-      cl <- parallel::makeCluster(de_n_cores)
+      cl <- mirai::make_cluster(de_n_cores)
       withr::defer(parallel::stopCluster(cl))
       parallel::clusterExport(
         cl = cl,
-        varlist = as.list(all_funs),
+        varlist = c("goal_wrapper"),
         envir = environment()
       )
     }
@@ -1468,7 +1462,7 @@ estimate_classical_wrapper = function(
   # Cluster Setup
   cl <- NULL
   if (parallelization_strategy == 1 & n_cores > 1) {
-    cl <- parallel::makeCluster(n_cores)
+    cl <- mirai::make_cluster(n_cores)
     withr::defer(parallel::stopCluster(cl))
     parallel::clusterSetRNGStream(cl, iseed = seed)
     parallel::clusterExport(

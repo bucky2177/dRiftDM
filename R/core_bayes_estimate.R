@@ -1073,22 +1073,11 @@ estimate_bayes_h <- function(
   temperatures = create_temperatures(n_chains, sampler)
 
   # turn on parallel engine
-  cl <- parallel::makeCluster(n_cores)
+  cl <- mirai::make_cluster(n_cores)
   withr::defer(parallel::stopCluster(cl))
   parallel::clusterExport(
     cl,
     varlist = c(
-      "full_crossover",
-      "call_log_posterior_m",
-      "crossover",
-      "migration_crossover",
-      "log_posterior_lower",
-      "re_evaluate_model",
-      "prms_to_str",
-      "x2prms_vals",
-      "update_special_values",
-      "drift_dm_default_rounding",
-      "drift_dm_supr_warn",
       "data_model",
       "theta_names",
       "n_chains",
@@ -1270,7 +1259,6 @@ estimate_bayes_h <- function(
       envir = environment()
     )
 
-    # TODO: Reduce the Overhead
     new_thetas_and_pis <- parallel::parLapply(cl, subj_names, function(j) {
       # get previous thetas and pis
       prev_prms_across_chains <- prev_prms_across_chains_subj[,, j]
