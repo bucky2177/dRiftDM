@@ -1470,19 +1470,12 @@ estimate_classical_wrapper = function(
   if (parallelization_strategy == 1 & n_cores > 1) {
     cl <- parallel::makeCluster(n_cores)
     withr::defer(parallel::stopCluster(cl))
-    # CHAT-GPT?!
-    parallel::clusterCall(cl, function(paths, pkg) {
-      # make workers use the same libraries as the master (temp check lib included)
-      .libPaths(unique(c(paths, .libPaths())))
-      # ensure the package is available and attach it
-      if (!requireNamespace(pkg, quietly = TRUE)) {
-        stop(sprintf("there is no package called '%s' on worker; .libPaths(): %s",
-                     pkg, paste(.libPaths(), collapse = "; ")))
-      }
-      library(pkg, character.only = TRUE)
-      NULL
-    }, .libPaths(), "dRiftDM")
     parallel::clusterSetRNGStream(cl, iseed = seed)
+    parallel::clusterExport(
+      cl,
+      varlist = c("estimate_classical"),
+      envir = environment()
+    )
     dots$de_n_cores = 1 # to avoid that de_n_cores is larger than 1 for parstrat 1
   } else {
     dots$de_n_cores = n_cores
