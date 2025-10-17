@@ -533,7 +533,7 @@ mcmc_list <- estimate_dm(
   upper = l_u$upper,
   verbose = 2,
   n_chains = 40,
-  n_cores = 2,
+  n_cores = 1,
   burn_in = 150, # for the demo, usually a bit higher
   samples = 150, # for the demo, usually a bit higher
   seed = 1
@@ -559,7 +559,7 @@ mcmc_hier <- estimate_dm(
   upper = l_u$upper,
   verbose = 2,
   n_chains = 40,
-  n_cores = 2,
+  n_cores = 1,
   burn_in = 150, # for the demo, usually way higher
   samples = 150, # for the demo, usually way higher
   seed = 1
