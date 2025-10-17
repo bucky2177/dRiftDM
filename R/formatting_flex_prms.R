@@ -57,7 +57,6 @@ summary.flex_prms <- function(object, ...) {
     flex_prms_obj$linear_internal_list
   )
 
-
   # special dependency strings -> re-built from the expressions
   depend_strings <- NULL
   for (prm in names(flex_prms_obj$internal_list)) {
@@ -66,7 +65,8 @@ summary.flex_prms <- function(object, ...) {
       if (is.expression(cur_val)) {
         cur_val <- as.character(cur_val)
         cur_val <- gsub(
-          'prms_matrix\\["(\\w+)",\\s*"(\\w+)"\\]', "\\2 ~ \\1",
+          'prms_matrix\\["(\\w+)",\\s*"(\\w+)"\\]',
+          "\\2 ~ \\1",
           cur_val
         )
         depend_strings <- append(
@@ -93,19 +93,21 @@ summary.flex_prms <- function(object, ...) {
 
 #' @rdname summary.flex_prms
 #' @export
-print.summary.flex_prms <- function(x, ...,
-                                    round_digits = drift_dm_default_rounding(),
-                                    dependencies = TRUE,
-                                    cust_parameters = TRUE) {
+print.summary.flex_prms <- function(
+  x,
+  ...,
+  round_digits = drift_dm_default_rounding(),
+  dependencies = TRUE,
+  cust_parameters = TRUE
+) {
   summary_obj <- x
 
-  cat("Current Parameter Matrix:\n")
+  cat("Parameter Values:\n")
   prm_mat <- summary_obj$prms_matrix
   print(round(prm_mat, round_digits))
   cat("\n")
 
-
-  cat("Unique Parameters:\n")
+  cat("Parameter Settings:\n")
   unique_mat <- summary_obj$unique_matrix
   print(noquote(unique_mat))
   cat("\n")
@@ -116,7 +118,6 @@ print.summary.flex_prms <- function(x, ...,
     cat(noquote(depend_string))
     cat("\n\n")
   }
-
 
   cust_prms_matrix <- summary_obj$cust_prms_matrix
   if (cust_parameters & !is.null(cust_prms_matrix)) {
@@ -131,10 +132,16 @@ print.summary.flex_prms <- function(x, ...,
 
 #' @rdname flex_prms
 #' @export
-print.flex_prms <- function(x, ..., round_digits = drift_dm_default_rounding(),
-                            dependencies = TRUE, cust_parameters = TRUE) {
+print.flex_prms <- function(
+  x,
+  ...,
+  round_digits = drift_dm_default_rounding(),
+  dependencies = TRUE,
+  cust_parameters = TRUE
+) {
   flex_prms_obj <- x
-  print(summary(flex_prms_obj),
+  print(
+    summary(flex_prms_obj),
     round_digits = round_digits,
     dependencies = dependencies,
     cust_parameters = cust_parameters

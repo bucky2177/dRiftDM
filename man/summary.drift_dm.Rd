@@ -3,64 +3,69 @@
 \name{summary.drift_dm}
 \alias{summary.drift_dm}
 \alias{print.summary.drift_dm}
-\title{Summary for \code{drift_dm} Objects}
+\title{Summary for \code{drift_dm} objects}
 \usage{
 \method{summary}{drift_dm}(object, ...)
 
 \method{print}{summary.drift_dm}(x, ..., round_digits = drift_dm_default_rounding())
 }
 \arguments{
-\item{object}{an object of class \code{drift_dm}}
+\item{object}{an object of class \code{drift_dm}.}
 
-\item{...}{additional arguments passed forward.}
+\item{...}{additional arguments passed forward (currently not used).}
 
-\item{x}{an object of type \code{summary.drift_dm}}
+\item{x}{an object of class \code{summary.drift_dm}.}
 
 \item{round_digits}{integer, specifying the number of decimal places for
 rounding in the printed summary. Default is 3.}
 }
 \value{
-\code{summary.drift_dm()} returns a list of class \code{summary.drift_dm} (see the
-Details section summarizing each entry of this list).
+\code{summary.drift_dm()} returns a list of class \code{summary.drift_dm} (see details
+for the entries).
 
 \code{print.summary.drift_dm()} returns invisibly the \code{summary.drift_dm} object.
 }
 \description{
-Summary and corresponding printing methods for objects of the class
-\code{drift_dm}, resulting from a call to \code{\link[=drift_dm]{drift_dm()}}.
+summary and corresponding printing methods for objects of class \code{drift_dm},
+created by a call to \code{\link[=drift_dm]{drift_dm()}}.
 }
 \details{
-The \code{summary.drift_dm()} function constructs a summary list with detailed
-information about the \code{drift_dm} object, including:
+\code{summary.drift_dm()} constructs a summary list with information about the
+\code{drift_dm} object. The returned list has class \code{summary.drift_dm} and can
+include the following entries:
 \itemize{
-\item \strong{class}: The class type of the \code{drift_dm} object.
-\item \strong{summary_flex_prms}: A summary of the \link{flex_prms} object in the
+\item \strong{class}: Class vector of the \code{drift_dm} object.
+\item \strong{summary_flex_prms}: Summary of the \link{flex_prms} object in the
 model (see \link{summary.flex_prms}).
 \item \strong{prms_solve}: Parameters used for solving the model (see
 \link{prms_solve}).
-\item \strong{solver}: The solver used for model fitting.
-\item \strong{b_coding}: The boundary coding for the model (see \link{b_coding}).
-\item \strong{obs_data}: A summary table of observed response time data, if available,
-by response type (upper/lower boundary responses). Includes sample size,
-mean, and quantiles.
-\item \strong{fit_stats}: Fit statistics, if available, including log-likelihood,
-AIC, and BIC values.
+\item \strong{solver}: Solver used for generating model predictions.
+\item \strong{b_coding}: Boundary coding for the model (see \link{b_coding}).
+\item \strong{obs_data}: Summary table of observed response time data, if available,
+by response type (upper/lower boundary). rows correspond to upper first
+then lower responses; row names are prefixed by the boundary names from
+\code{b_coding}. columns (all lower-case) are: \code{min}, \verb{1st qu.}, \code{median},
+\code{mean}, \verb{3rd qu.}, \code{max}, and \code{n}.
+\item \strong{cost_function}: Name (or descriptor) of the cost function used during
+estimation.
+\item \strong{fit_stats}: Fit statistics, if available. we return a named atomic
+vector created via \code{unlist(unpack_obj(calc_stats(..., type = "fit_stats")))}.
+\item \strong{estimate_info}: Additional information about the estimation procedure.
 }
 
-The \code{print.summary.drift_dm()} function displays this summary in a formatted
-way.
+\code{print.summary.drift_dm()} displays this summary in a formatted way.
 }
 \examples{
-# get a pre-built model for demonstration purpose
-a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+# get a pre-built model for demonstration
+a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 sum_obj <- summary(a_model)
 print(sum_obj, round_digits = 2)
 
 # more information is provided when we add data to the model
-obs_data(a_model) <- dmc_synth_data # (data set comes with dRiftDM)
+obs_data(a_model) <- dmc_synth_data  # (data set comes with dRiftDM)
 summary(a_model)
 
-# finally: fit indices are provided once we evaluate the model
+# fit indices are added once we evaluate the model
 a_model <- re_evaluate_model(a_model)
 summary(a_model)
 

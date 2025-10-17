@@ -12,11 +12,17 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   obs_data(a_model) <- id_1
   a_model <- modify_flex_prms(a_model, instr = "b + non_dec <!>")
 
+  # wrapper to suppress lifecycle warning
+  w_estimate_model_ids <- function(...) {
+    suppress_lifecycle_deprecated(estimate_model_ids(...))
+  }
+
   expect_warning(
-    estimate_model_ids(
+    w_estimate_model_ids(
       drift_dm_obj = a_model,
       obs_data_ids = data_both,
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_procedure_name = "test_case_1",
       seed = 1,
@@ -24,17 +30,17 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
       force_refit = TRUE,
       verbose = 0,
       progress = 0,
-    ), "obs_data in drift_dm_obj will be ignored"
+    ),
+    "obs_data in drift_dm_obj will be ignored"
   )
-
 
   a_model$obs_data <- NULL
 
-
-  estimate_model_ids(
+  w_estimate_model_ids(
     drift_dm_obj = a_model,
     obs_data_ids = data_both,
-    lower = c(1), upper = c(5),
+    lower = c(1),
+    upper = c(5),
     fit_path = tempdir(),
     fit_procedure_name = "test_case_2",
     folder_name = "test_case_no_2",
@@ -47,9 +53,11 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
 
   # input checks
   expect_error(
-    estimate_model_ids("wrong_input",
+    w_estimate_model_ids(
+      "wrong_input",
       obs_data_ids = data_both,
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
       fit_procedure_name = "test"
@@ -58,20 +66,24 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
 
   expect_error(
-    estimate_model_ids(a_model,
+    w_estimate_model_ids(
+      a_model,
       obs_data_ids = as.matrix(data_both),
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
       fit_procedure_name = "test"
     ),
-    "obs_data_ids is not a data.frame"
+    "obs_data argument is not a data frame"
   )
 
   expect_error(
-    estimate_model_ids(a_model,
+    w_estimate_model_ids(
+      a_model,
       obs_data_ids = data_both[, c(1, 2, 3)],
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
       fit_procedure_name = "test"
@@ -82,7 +94,7 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   temp_model <- a_model
   prms_solve(temp_model)["t_max"] <- 0.5
   expect_error(
-    estimate_model_ids(
+    w_estimate_model_ids(
       temp_model,
       obs_data_ids = data_both,
       lower = c(1),
@@ -101,25 +113,27 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
   temp_data <- temp_data[temp_data$ID == 2, ]
   expect_warning(
-    estimate_model_ids(
+    w_estimate_model_ids(
       a_model,
       obs_data_ids = temp_data,
       lower = c(1),
       upper = c(5),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
-      fit_procedure_name = "test", progress = 0
+      fit_procedure_name = "test",
+      progress = 0
     ),
     "This condition will be dropped"
   )
   unlink(file.path(tempdir(), "temp_fits", "test"), recursive = T)
 
-
   expect_error(
-    estimate_model_ids(a_model,
+    w_estimate_model_ids(
+      a_model,
       obs_data_ids = data_both,
       seed = NA,
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
       fit_procedure_name = "test"
@@ -127,9 +141,11 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
     "seed must be a single numeric"
   )
   expect_error(
-    estimate_model_ids(a_model,
+    w_estimate_model_ids(
+      a_model,
       obs_data_ids = data_both,
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
       fit_procedure_name = NA
@@ -138,9 +154,11 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
 
   expect_error(
-    estimate_model_ids(a_model,
+    w_estimate_model_ids(
+      a_model,
       obs_data_ids = data_both,
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
       fit_procedure_name = ""
@@ -148,9 +166,11 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
     "empty name"
   )
   expect_error(
-    estimate_model_ids(a_model,
+    w_estimate_model_ids(
+      a_model,
       obs_data_ids = data_both,
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
       fit_procedure_name = "",
@@ -160,7 +180,7 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
 
   expect_error(
-    estimate_model_ids(
+    w_estimate_model_ids(
       a_model,
       obs_data_ids = data_both,
       lower = c(1),
@@ -174,9 +194,11 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
 
   expect_error(
-    estimate_model_ids(a_model,
+    w_estimate_model_ids(
+      a_model,
       obs_data_ids = data_both,
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_procedure_name = "test",
       fit_dir = NA
@@ -185,7 +207,7 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
 
   expect_error(
-    estimate_model_ids(
+    w_estimate_model_ids(
       a_model,
       obs_data_ids = data_both,
       lower = c(1),
@@ -198,7 +220,7 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
 
   expect_error(
-    estimate_model_ids(
+    w_estimate_model_ids(
       a_model,
       obs_data_ids = data_both,
       lower = c(1),
@@ -211,9 +233,11 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
 
   expect_error(
-    estimate_model_ids(a_model,
+    w_estimate_model_ids(
+      a_model,
       obs_data_ids = data_both,
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
       fit_procedure_name = "test",
@@ -223,7 +247,7 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
 
   expect_error(
-    estimate_model_ids(
+    w_estimate_model_ids(
       a_model,
       obs_data_ids = data_both,
       lower = c(1),
@@ -236,17 +260,15 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
     "progress must be numeric"
   )
 
-
-
   # vp is called like the info file
   temp_data <- data_both
-  temp_data$ID <- ifelse(data_both$ID == 1, "drift_dm_fit_info",
-    data_both$ID
-  )
+  temp_data$ID <- ifelse(data_both$ID == 1, "drift_dm_fit_info", data_both$ID)
   expect_error(
-    estimate_model_ids(a_model,
+    w_estimate_model_ids(
+      a_model,
       obs_data_ids = temp_data,
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
       fit_procedure_name = "id_fail",
@@ -257,13 +279,14 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   )
   unlink(file.path(tempdir(), "temp_fits", "id_fail"), recursive = T)
 
-
   # lower-level error by estimate_model
   temp_data <- data_both[data_both$ID == 1, ]
   expect_warning(
-    estimate_model_ids(a_model,
+    w_estimate_model_ids(
+      a_model,
       obs_data_ids = temp_data,
-      lower = c(1), upper = c(5, 2),
+      lower = c(1),
+      upper = c(5, 2),
       fit_path = tempdir(),
       fit_dir = "temp_fits",
       fit_procedure_name = "lower_fail",
@@ -273,7 +296,6 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
     "Happened when fitting individual 1"
   )
   unlink(file.path(tempdir(), "temp_fits", "lower_fail"), recursive = T)
-
 
   # ensure that everything is skipped, tested below when loading data
   id_1 <- simulate_data(a_model, n = 300, seed = 1)
@@ -285,10 +307,11 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
   data_all <- rbind(id_1, id_2, id_3)
 
   expect_message(
-    estimate_model_ids(
+    w_estimate_model_ids(
       drift_dm_obj = a_model,
       obs_data_ids = data_all,
-      lower = c(1), upper = c(5),
+      lower = c(1),
+      upper = c(5),
       fit_path = tempdir(),
       fit_procedure_name = "test_case_2",
       folder_name = "test_case_no_2",
@@ -297,17 +320,32 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
       fit_dir = "temp_fits",
       verbose = 0,
       progress = 0,
-    ), "Skipping individuals"
+    ),
+    "Skipping individuals"
   )
 
   #### NOW THE LOADING
 
+  # deprecation
+  lifecycle::expect_deprecated(
+    load_fits_ids(
+      file.path(tempdir(), "temp_fits"),
+      fit_procedure_name = "test_case_1",
+      progress = 0
+    )
+  )
+
+  # wrapper to suppress lifecycle warning
+  w_load_fits_ids <- function(...) {
+    suppress_lifecycle_deprecated(load_fits_ids(..., progress = 0))
+  }
+
   # wrong path
-  expect_error(load_fits_ids("falkenhorst"), "no directory")
+  expect_error(w_load_fits_ids("falkenhorst"), "no directory")
 
   # wrong identifier
   expect_error(
-    load_fits_ids(
+    w_load_fits_ids(
       path = file.path(tempdir(), "temp_fits"),
       fit_procedure_name = "test_cas_e1"
     ),
@@ -316,15 +354,16 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
 
   # load one case
   expect_warning(
-    load_fits_ids(
+    w_load_fits_ids(
       path = file.path(tempdir(), "temp_fits"),
       fit_procedure_name = "test_case_2"
-    ), "data of individual 2"
+    ),
+    "data of individual 2"
   )
 
   # load one case
   loaded_data <- suppressWarnings(
-    load_fits_ids(
+    w_load_fits_ids(
       path = file.path(tempdir(), "temp_fits"),
       fit_procedure_name = "test_case_2"
     )
@@ -339,43 +378,58 @@ test_that("estimate_model_ids and load_fits_ids works as expected", {
 
   ## additional input checks for load_fits_ids
   expect_error(
-    load_fits_ids(
+    w_load_fits_ids(
       path = NA,
       fit_procedure_name = "test_case_2"
-    ), "not a character vector"
+    ),
+    "not a character vector"
   )
 
   expect_error(
-    load_fits_ids(
+    w_load_fits_ids(
       path = file.path(tempdir(), "temp_fits"),
       fit_procedure_name = NA
-    ), "not a character vector"
+    ),
+    "not a character vector"
   )
 
   expect_error(
-    load_fits_ids(
+    w_load_fits_ids(
       path = file.path(tempdir(), "temp_fits"),
-      fit_procedure_name = "test_case_1", detailed_info = "NA"
-    ), "not logical"
+      fit_procedure_name = "test_case_1",
+      detailed_info = "NA"
+    ),
+    "not logical"
   )
 
   expect_error(
-    load_fits_ids(
+    w_load_fits_ids(
       path = file.path(tempdir(), "temp_fits"),
-      fit_procedure_name = "test_case_1", check_data = "NA"
-    ), "not logical"
+      fit_procedure_name = "test_case_1",
+      check_data = "NA"
+    ),
+    "not logical"
   )
 
-  expect_error(
-    load_fits_ids(
-      path = file.path(tempdir(), "temp_fits"),
-      fit_procedure_name = "test_case_1", progress = "doo"
-    ), "must be 0, 1, or 2"
+  lifecycle::expect_deprecated(
+    expect_error(
+      load_fits_ids(
+        path = file.path(tempdir(), "temp_fits"),
+        fit_procedure_name = "test_case_1",
+        progress = "doo"
+      ),
+      "must be 0, 1, or 2"
+    )
   )
 })
 
 
 test_that("load_fits_ids menu and errors work as expected", {
+  # wrapper to suppress lifecycle warning
+  w_load_fits_ids <- function(...) {
+    suppress_lifecycle_deprecated(load_fits_ids(..., progress = 0))
+  }
+
   local({
     # Here, we override the menu function to force expected choice
     suppressWarnings(
@@ -385,16 +439,15 @@ test_that("load_fits_ids menu and errors work as expected", {
       )
     )
 
-    case_1 <- load_fits_ids(
+    case_1 <- w_load_fits_ids(
       path = file.path(tempdir(), "temp_fits"),
       fit_procedure_name = "test_case_1"
     )
-    case_1_menu <- load_fits_ids(
+    case_1_menu <- w_load_fits_ids(
       path = file.path(tempdir(), "temp_fits"),
       fit_procedure_name = "",
       check_data = F,
-      detailed_info = T,
-      progress = 0
+      detailed_info = T
     )
 
     expect_equal(
@@ -402,7 +455,6 @@ test_that("load_fits_ids menu and errors work as expected", {
       case_1
     )
   })
-
 
   # option 0
   local({
@@ -414,36 +466,46 @@ test_that("load_fits_ids menu and errors work as expected", {
       )
     )
 
-    expect_message(expect_equal(
-      load_fits_ids(
-        path = file.path(tempdir(), "temp_fits"),
-        check_data = F, progress = 0
+    expect_message(
+      expect_equal(
+        w_load_fits_ids(
+          path = file.path(tempdir(), "temp_fits"),
+          check_data = F
+        ),
+        NULL
       ),
-      NULL
-    ), "exiting selection")
+      "exiting selection"
+    )
   })
 })
 
 
 test_that("validate_models errs as expected", {
+  # wrapper to suppress lifecycle warning
+  w_load_fits_ids <- function(...) {
+    suppress_lifecycle_deprecated(load_fits_ids(..., progress = 0))
+  }
+
   # requires estimate_model_id and load_fits_ids works as expected
-  case_1 <- load_fits_ids(
+  case_1 <- w_load_fits_ids(
     path = file.path(tempdir(), "temp_fits"),
     fit_procedure_name = "test_case_1",
-    check_data = F, progress = 1
+    check_data = F
   )
 
   temp <- case_1
   class(temp) <- "foo"
   expect_error(
-    validate_fits_ids(temp, progress = 0), "not of type fits_ids_dm"
+    validate_fits_ids(temp, progress = 0),
+    "not of type fits_ids_dm"
   )
 
   # wrong entries
   temp <- case_1
   temp$drift_dm_fit_info$bar <- 5
   expect_error(
-    validate_fits_ids(temp, progress = 0), "unexpected info entries"
+    validate_fits_ids(temp, progress = 0),
+    "unexpected info entries"
   )
 
   temp <- case_1
@@ -457,23 +519,24 @@ test_that("validate_models errs as expected", {
   temp <- case_1
   temp$drift_dm_fit_info$time_call <- 20
   expect_error(
-    validate_fits_ids(temp, progress = 0), "time_call"
+    validate_fits_ids(temp, progress = 0),
+    "time_call"
   )
 
   # lower an upper
   temp <- case_1
   temp$drift_dm_fit_info$upper <- NA
   expect_error(
-    validate_fits_ids(temp, progress = 0), "valid numeric values"
+    validate_fits_ids(temp, progress = 0),
+    "valid numeric values"
   )
 
   temp <- case_1
   temp$drift_dm_fit_info$lower <- NA
   expect_error(
-    validate_fits_ids(temp, progress = 0), "valid numeric values"
+    validate_fits_ids(temp, progress = 0),
+    "valid numeric values"
   )
-
-
 
   # seed
   temp <- case_1
@@ -487,13 +550,15 @@ test_that("validate_models errs as expected", {
   temp <- case_1
   temp$drift_dm_fit_info$obs_data_ids <- "foo"
   expect_error(
-    validate_fits_ids(temp, progress = 0), "obs_data_ids is not a data.frame"
+    validate_fits_ids(temp, progress = 0),
+    "obs_data_ids is not a data.frame"
   )
 
   temp <- case_1
   temp$drift_dm_fit_info$obs_data_ids$ID <- NULL
   expect_error(
-    validate_fits_ids(temp, progress = 0), "no column ID"
+    validate_fits_ids(temp, progress = 0),
+    "no column ID"
   )
 
   # fit procedure name
@@ -508,75 +573,87 @@ test_that("validate_models errs as expected", {
   temp <- case_1
   temp$all_fits$`2`$flex_prms_obj$linear_internal_list$muc$null <- 2
   expect_error(
-    validate_fits_ids(temp, progress = 0), "linear_list of individual 2"
+    validate_fits_ids(temp, progress = 0),
+    "linear_list of individual 2"
   )
 
   temp <- case_1
   temp$all_fits$`1`$flex_prms_obj$internal_list$muc$null <- 2
   expect_error(
-    validate_fits_ids(temp, progress = 0), "internal_list of individual 1"
+    validate_fits_ids(temp, progress = 0),
+    "internal_list of individual 1"
   )
 
   temp <- case_1
   rownames(temp$all_fits$`1`$flex_prms_obj$prms_matrix) <- c("foo")
   expect_error(
-    validate_fits_ids(temp, progress = 0), "row_names of individual 1"
+    validate_fits_ids(temp, progress = 0),
+    "row_names of individual 1"
   )
 
   temp <- case_1
   colnames(temp$all_fits$`1`$flex_prms_obj$prms_matrix) <- c("muc", "b", "foo")
   expect_error(
-    validate_fits_ids(temp, progress = 0), "col_names of individual 1"
+    validate_fits_ids(temp, progress = 0),
+    "col_names of individual 1"
   )
 
   temp <- case_1
   class(temp$all_fits$`2`) <- c("dmc_dm", "drift_dm")
   expect_error(
-    validate_fits_ids(temp, progress = 0), "class of individual 2"
+    validate_fits_ids(temp, progress = 0),
+    "class of individual 2"
   )
-
 
   temp <- case_1
   prms_solve(temp$all_fits$`2`)["sigma"] <- 2
   expect_error(
-    validate_fits_ids(temp, progress = 0), "prms_solve of individual 2"
+    validate_fits_ids(temp, progress = 0),
+    "prms_solve of individual 2"
   )
 
   temp <- case_1
-  solver(temp$all_fits$`2`) <- "im_zero"
+  temp$all_fits$`2`$solver <- "im_zero"
   expect_error(
-    validate_fits_ids(temp, progress = 0), "solver of individual 2"
+    validate_fits_ids(temp, progress = 0),
+    "solver of individual 2"
   )
 
   temp <- case_1
   temp$all_fits$`1`$flex_prms_obj$prms_matrix[1, 1] <- 0.5
   expect_error(
-    validate_fits_ids(temp, progress = 0), "that are smaller than"
+    validate_fits_ids(temp, progress = 0),
+    "that are smaller than"
   )
-
 
   temp <- case_1
   temp$all_fits$`1`$flex_prms_obj$prms_matrix[1, 1] <- Inf
   expect_error(
-    validate_fits_ids(temp, progress = 0), "that are larger than"
+    validate_fits_ids(temp, progress = 0),
+    "that are larger than"
   )
 
-
   temp <- case_1
-  temp$all_fits$`2`$comp_funs$x_fun <- function(prms_model, prms_solve,
-                                                x_vec, one_cond, ddm_opts) {
+  temp$all_fits$`2`$comp_funs$x_fun <- function(
+    prms_model,
+    prms_solve,
+    x_vec,
+    one_cond,
+    ddm_opts
+  ) {
     return(stats::dbeta(x_vec, 1, 1))
   }
   expect_warning(
-    validate_fits_ids(temp, progress = 0), "comp_funs"
+    validate_fits_ids(temp, progress = 0),
+    "comp_funs"
   )
 
   temp <- case_1
   b_coding(temp$all_fits$`1`)["column"] <- "Correct"
   expect_error(
-    validate_fits_ids(temp, progress = 0), "individual 1 provided a b_coding"
+    validate_fits_ids(temp, progress = 0),
+    "individual 1 provided a b_coding"
   )
-
 
   # modify the data
   temp <- case_1
@@ -595,7 +672,6 @@ test_that("validate_models errs as expected", {
     "doesn't match with the expected data"
   )
 
-
   # modify the ddm_opts
   temp <- case_1
   ddm_opts(temp$drift_dm_fit_info$drift_dm_obj) <- "foo"
@@ -609,19 +685,30 @@ test_that("validate_models errs as expected", {
 
 
 test_that("start_vals work as expected", {
+  # wrapper to suppress lifecycle warning
+  w_estimate_model_ids <- function(...) {
+    suppress_lifecycle_deprecated(estimate_model_ids(...))
+  }
+
   a_model <- ratcliff_dm(t_max = 1, dt = 0.01, dx = 0.1)
-  flex_prms(a_model) <- flex_prms(c(muc = 2, b = 0.5, non_dec = 0.3),
+  flex_prms(a_model) <- flex_prms(
+    c(muc = 2, b = 0.5, non_dec = 0.3),
     conds = c("comp", "incomp"),
     instr = "b ~"
   )
   id_1 <- simulate_data(a_model, n = 100, seed = 1)
   id_1$ID <- 1
   start_vals <- data.frame(
-    ID = 1, muc = 5, b.comp = 0.4, b.incomp = 0.5,
+    ID = 1,
+    muc = 5,
+    b.comp = 0.4,
+    b.incomp = 0.5,
     non_dec = 0.2
   )
   expect_warning(
-    estimate_model_ids(a_model, id_1,
+    w_estimate_model_ids(
+      a_model,
+      id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_path = tempdir(),
@@ -634,18 +721,24 @@ test_that("start_vals work as expected", {
   )
   unmodifed <- readRDS(file.path(tempdir(), "temp", "foo", "1.rds"))
   expect_true(
-    all(unmodifed$flex_prms_obj$prms_matrix[1, ] ==
-      start_vals[c("muc", "b.comp", "non_dec")])
+    all(
+      unmodifed$flex_prms_obj$prms_matrix[1, ] ==
+        start_vals[c("muc", "b.comp", "non_dec")]
+    )
   )
   expect_true(
-    all(unmodifed$flex_prms_obj$prms_matrix[2, ] ==
-      start_vals[c("muc", "b.incomp", "non_dec")])
+    all(
+      unmodifed$flex_prms_obj$prms_matrix[2, ] ==
+        start_vals[c("muc", "b.incomp", "non_dec")]
+    )
   )
   unlink(file.path(tempdir(), "temp"), recursive = T)
 
   # default
   expect_warning(
-    estimate_model_ids(a_model, id_1,
+    w_estimate_model_ids(
+      a_model,
+      id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_path = tempdir(),
@@ -662,7 +755,9 @@ test_that("start_vals work as expected", {
 
   # wrong input
   expect_error(
-    estimate_model_ids(a_model, id_1,
+    w_estimate_model_ids(
+      a_model,
+      id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_path = tempdir(),
@@ -674,10 +769,11 @@ test_that("start_vals work as expected", {
     "must be a data.frame"
   )
 
-
   temp_start <- start_vals[, names(start_vals) != "ID"]
   expect_error(
-    estimate_model_ids(a_model, id_1,
+    w_estimate_model_ids(
+      a_model,
+      id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_path = tempdir(),
@@ -690,7 +786,9 @@ test_that("start_vals work as expected", {
   )
 
   expect_error(
-    estimate_model_ids(a_model, id_1,
+    w_estimate_model_ids(
+      a_model,
+      id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_path = tempdir(),
@@ -704,7 +802,9 @@ test_that("start_vals work as expected", {
 
   test_starts <- cbind(start_vals, bla = 3)
   expect_error(
-    estimate_model_ids(a_model, id_1,
+    w_estimate_model_ids(
+      a_model,
+      id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_path = tempdir(),
@@ -719,7 +819,9 @@ test_that("start_vals work as expected", {
   test_starts <- rbind(start_vals, start_vals)
   test_starts$ID <- c(1, 2)
   expect_error(
-    estimate_model_ids(a_model, id_1,
+    w_estimate_model_ids(
+      a_model,
+      id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_path = tempdir(),
@@ -734,7 +836,7 @@ test_that("start_vals work as expected", {
   temp_data <- rbind(id_1, id_1)
   temp_data$ID[(nrow(temp_data) / 2 + 1):nrow(temp_data)] <- 2
   expect_error(
-    estimate_model_ids(
+    w_estimate_model_ids(
       a_model,
       temp_data,
       lower = c(2, 0.2, 0.1),
@@ -748,15 +850,11 @@ test_that("start_vals work as expected", {
     "different number of individuals "
   )
 
-
-
-
-
-
-
   test_starts$ID <- c(1, 1)
   expect_error(
-    estimate_model_ids(a_model, id_1,
+    w_estimate_model_ids(
+      a_model,
+      id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_path = tempdir(),
@@ -770,11 +868,16 @@ test_that("start_vals work as expected", {
 
   # wrong order relative to free_prms should not matter
   start_vals <- data.frame(
-    ID = 1, b.incomp = 1, b.comp = 0.5, muc = 2,
+    ID = 1,
+    b.incomp = 1,
+    b.comp = 0.5,
+    muc = 2,
     non_dec = 3
   )
   expect_warning(
-    estimate_model_ids(a_model, id_1,
+    w_estimate_model_ids(
+      a_model,
+      id_1,
       lower = c(2, 0.2, 0.1),
       upper = c(6, 0.8, 0.4),
       fit_path = tempdir(),

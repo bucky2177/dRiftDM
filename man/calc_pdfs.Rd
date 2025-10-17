@@ -2,13 +2,10 @@
 % Please edit documentation in R/core_solve.R
 \name{calc_pdfs}
 \alias{calc_pdfs}
-\alias{calc_pdfs.ratcliff_dm}
 \alias{calc_pdfs.drift_dm}
 \title{Calculate the PDFs}
 \usage{
 calc_pdfs(drift_dm_obj, x_vec, t_vec, prms_solve)
-
-\method{calc_pdfs}{ratcliff_dm}(drift_dm_obj, x_vec, t_vec, prms_solve)
 
 \method{calc_pdfs}{drift_dm}(drift_dm_obj, x_vec, t_vec, prms_solve)
 }
@@ -34,12 +31,7 @@ depths of the package and the generic method is not exported.
 }
 \details{
 calc_pdfs is a generic method which dispatches the function call (not
-exported).
-
-calc_pdfs.ratcliff_dm, is a specific method that checks for the presence of
-the parameter \code{sd_muc}, and, if present, calls the calc_pdfs.drift_dm
-function multiple times with different value for \code{muc} to approximate the
-variable drift rate.
+exported). Currently, the method only considers objects of type drift_dm.
 
 calc_pdfs.drift_dm is the function that will be called for all models.
 It evaluates the different components of a model, and subsequently calls

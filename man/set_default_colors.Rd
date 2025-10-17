@@ -4,23 +4,19 @@
 \alias{set_default_colors}
 \title{Set Default Colors}
 \usage{
-set_default_colors(colors, unique_conds, default_colors)
+set_default_colors(colors, n)
 }
 \arguments{
-\item{colors}{character vector, specifying colors for conditions. If NULL,
-\code{default_colors} is used.}
+\item{colors}{character vector, specifying colors for conditions. If \code{NULL},
+default colors are used.}
 
-\item{unique_conds}{character vector, listing unique conditions to match
-color assignments (only the length counts).}
-
-\item{default_colors}{character vector, default colors to use if \code{colors} is
-not provided.}
+\item{n}{}
 }
 \value{
-A character vector of colors, matching the length of \code{unique_conds}.
+A character vector of colors of length \code{n}.
 }
 \description{
 This function assigns default colors if none are provided or adjusts the
-color vector to match the number of conditions.
+color vector to match the number \code{n}
 }
 \keyword{internal}

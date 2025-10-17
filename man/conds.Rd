@@ -6,6 +6,7 @@
 \alias{conds}
 \alias{conds.drift_dm}
 \alias{conds.fits_ids_dm}
+\alias{conds.fits_agg_dm}
 \alias{conds.data.frame}
 \alias{conds.traces_dm_list}
 \title{The Conditions of an Object}
@@ -19,6 +20,8 @@ conds(object, ...)
 \method{conds}{drift_dm}(object, ...)
 
 \method{conds}{fits_ids_dm}(object, ...)
+
+\method{conds}{fits_agg_dm}(object, ...)
 
 \method{conds}{data.frame}(object, ...)
 
@@ -51,8 +54,8 @@ Extract the conditions from a (supported) object.
 \details{
 \code{conds()} is a generic accessor function and \verb{conds<-()} is a
 generic replacement function. The replacement method currently only supports
-\link{drift_dm} objects. The default methods get and set the conditions of an
-object.
+\link{drift_dm} objects. The default methods get and set the conditions
+of an object.
 
 When replacing the conditions of a \link{drift_dm} object, a
 new \link{flex_prms} object is created and then set to the model,
@@ -75,7 +78,7 @@ some_traces <- simulate_traces(my_model, k = 1)
 conds(some_traces)
 
 # get an exemplary fits_ids_dm object (see estimate_model_ids)
-fits <- get_example_fits_ids()
+fits <- get_example_fits("fits_ids_dm")
 conds(fits)
 
 # also works with data.frames that have a "Cond" column

@@ -2,7 +2,7 @@
 ^\.Rproj\.user$
 ^data-raw$
 ^LICENSE\.md$
-^playground\.R$
+^playground.*\.R$
 ^.*\.Rprofile
 ^README\.Rmd$
 ^tutorial$
@@ -18,3 +18,7 @@
 ^doc$
 ^Meta$
 ^vignettes/pictograms.pptx
+^inst-data$
+^revdep$
+^[.]?air[.]toml$
+^\.vscode$

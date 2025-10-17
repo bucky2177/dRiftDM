@@ -3,26 +3,36 @@
 \name{pdfs}
 \alias{pdfs}
 \alias{pdfs.drift_dm}
+\alias{pdfs.fits_agg_dm}
 \title{Access the Probability Density Functions of a Model}
 \usage{
 pdfs(object, ...)
 
 \method{pdfs}{drift_dm}(object, ...)
+
+\method{pdfs}{fits_agg_dm}(object, ...)
 }
 \arguments{
-\item{object}{an object of type \link{drift_dm}.}
+\item{object}{an object of type \link{drift_dm} or
+\code{fits_agg_dm} (see \code{\link[=estimate_dm]{estimate_dm()}}).}
 
 \item{...}{additional arguments passed down to the specific method.}
 }
 \value{
-A list with named elements corresponding to the conditions of a model (see
-\code{\link[=conds]{conds()}}). Each of these elements is another list, containing the
-entries \code{pdf_u} and \code{pdf_l}, which are numeric vectors for the PDFs of the
-upper and lower boundary, respectively.
+A list with the entries:
+\itemize{
+\item \code{pdfs}, contains another named list with entries corresponding to the
+conditions of the model (see \code{\link[=conds]{conds()}}). Each of these elements
+is another named list, containing the entries \code{pdf_u} and \code{pdf_l}, which
+are numeric vectors for the PDFs of the upper and lower boundary,
+respectively.
+\item \code{t_vec}, containing a numeric vector of the time domain.
+}
 }
 \description{
 Functions to obtain the probability density functions (PDFs) of a model.
-These PDFs represent the first-passage-time.
+These PDFs represent the convolution of the first-passage-time (decision
+time) with the non-decision time.
 }
 \details{
 If the model has not been evaluated, \code{\link[=re_evaluate_model]{re_evaluate_model()}} is
@@ -30,7 +40,7 @@ called before returning the PDFs.
 }
 \examples{
 # get a pre-built model for demonstration purpose
-a_model <- dmc_dm(dx = .0025, dt = .0025)
+a_model <- dmc_dm(dx = .01, dt = .005)
 str(pdfs(a_model))
 
 }

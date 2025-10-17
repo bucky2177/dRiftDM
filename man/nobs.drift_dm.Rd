@@ -7,14 +7,15 @@
 \method{nobs}{drift_dm}(object, ...)
 }
 \arguments{
-\item{object}{a \link{drift_dm} object, which contains the observed data
-in \code{object$obs_data}.}
+\item{object}{a \link{drift_dm} object, which potentially contains the
+observed data in \code{object$obs_data}.}
 
 \item{...}{additional arguments}
 }
 \value{
 An integer representing the total number of observations across
-all conditions in \code{object$obs_data}.
+all conditions in \code{object$obs_data}.  If \code{obs_data} doesn't exist, the
+function returns 0
 }
 \description{
 This method retrieves the total number of observations in the \code{obs_data}

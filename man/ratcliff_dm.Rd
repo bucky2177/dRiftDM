@@ -12,17 +12,17 @@ ratcliff_dm(
   obs_data = NULL,
   sigma = 1,
   t_max = 3,
-  dt = 0.001,
-  dx = 0.001,
+  dt = 0.0075,
+  dx = 0.02,
   solver = "kfe",
   b_coding = NULL
 )
 }
 \arguments{
 \item{var_non_dec, var_start, var_drift}{logical, indicating whether the model
-should have a (uniform) variable non-decision time, starting point, or
-(normally-distributed) variable drift rate.
-(see also \code{nt_uniform} and \code{x_uniform} in \link{component_shelf})}
+should have a variable non-decision time , starting point (uniform), or
+drift rate (normally-distributed).  (see also \code{nt_uniform} and \code{x_uniform}
+in \link{component_shelf})}
 
 \item{instr}{optional string with "instructions", see
 \code{\link[=modify_flex_prms]{modify_flex_prms()}}.}
@@ -63,14 +63,9 @@ intensive). Important: Variable drift rate is only possible with dRiftDM's
 # the model with default settings
 my_model <- ratcliff_dm()
 
-# the model with a variable non-decision time and with a more coarse
+# the model with a variable non-decision time and with finer space
 # discretization
-my_model <- ratcliff_dm(
-  var_non_dec = TRUE,
-  t_max = 1.5,
-  dx = .005,
-  dt = .005
-)
+my_model <- ratcliff_dm(var_non_dec = TRUE, dx = .01)
 
 }
 \references{

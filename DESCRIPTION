@@ -1,7 +1,7 @@
 Type: Package
 Package: dRiftDM
 Title: Estimating (Time-Dependent) Drift Diffusion Models
-Version: 0.2.2.9000
+Version: 0.3.0
 Authors@R: c(
     person("Valentin", "Koob", 
     email = "v.koob@web.de",
@@ -22,18 +22,22 @@ Suggests:
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Imports: 
     withr,
     parallel,
+    pbapply,
+    mirai,
+    purrr,
     DEoptim,
     dfoptim,
     Rcpp,
     Rdpack,
     progress,
     stats,
-    lifecycle
+    lifecycle, 
+    coda
 LinkingTo: Rcpp
 Depends: 
     R (>= 4.1.0)

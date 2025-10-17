@@ -109,7 +109,7 @@ class(some_stats)
 class(unpack_obj(some_stats))
 
 # get some parameters ...
-some_coefs <- coef(get_example_fits_ids())
+some_coefs <- coef(get_example_fits("fits_ids_dm"))
 class(some_coefs)
 class(unpack_obj(some_coefs))
 

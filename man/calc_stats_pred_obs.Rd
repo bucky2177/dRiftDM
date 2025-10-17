@@ -4,13 +4,14 @@
 \alias{calc_stats_pred_obs}
 \title{Calculate Statistics for Model Prediction and/or Observed Data}
 \usage{
-calc_stats_pred_obs(type, b_coding, conds, ...)
+calc_stats_pred_obs(type, b_coding, conds, ..., scale_mass = FALSE)
 }
 \arguments{
 \item{type}{character string, specifying the type of statistic to calculate.
-Available options are \code{"cafs"}, \code{"quantiles"}, and \code{"delta_funs"}.}
+Available options are \code{"basic_stats"}, \code{"cafs"}, \code{"quantiles"},
+\code{"delta_funs"}, and \code{"densities"}.}
 
-\item{b_coding}{list for boundary coding (see \link{b_coding}).}
+\item{b_coding}{list for the boundary coding (see \link{b_coding}).}
 
 \item{conds}{character vector, specifying the conditions to include in
 calculations (used for labeling and subsetting the model PDFs and the
@@ -18,6 +19,10 @@ observed data).}
 
 \item{...}{Additional parameters passed on to the specific statistic
 calculation function (see Details).}
+
+\item{scale_mass}{a single logical, only relevant for density estimation.
+If \code{TRUE}, PDF masses are scaled proportional to the number of trials per
+condition.}
 }
 \value{
 A data frame with the calculated statistic across \code{conds}
@@ -34,11 +39,12 @@ Supported statistics currently include:
 \item Conditional Accuracy Functions (CAFs; \code{\link[=calc_cafs]{calc_cafs()}})
 \item Quantiles (\code{\link[=calc_quantiles]{calc_quantiles()}})
 \item Delta Functions (\code{\link[=calc_delta_funs]{calc_delta_funs()}}).
+\item Density Estimates (\code{\link[=calc_dens]{calc_dens()}}).
 }
 }
 \details{
 When calling this function the arguments \code{all_rts_u}/\code{all_rts_l} and/or
-\code{all_pdfs} must be specified (see
+\code{all_pdfs} must always be specified (see
 \link{re_evaluate_model}, \link{obs_data}). Otherwise, the backend
 functions won't work properly. Further arguments are:
 \itemize{
@@ -46,12 +52,14 @@ functions won't work properly. Further arguments are:
 \item for Quantiles and Delta Functions: \code{probs} controls the quantiles to
 calculate. Default is \code{seq(0.1, 0.9, 0.1)}
 (see \code{\link[=drift_dm_default_probs]{drift_dm_default_probs()}}).
-\item For basic summary satistics, Quantiles, and Delta Function:
+\item for basic summary satistics, Quantiles, and Delta Function:
 \code{skip_if_contr_low} controls if quantiles and means are calculated for PDFs
 with very small contribution (see also
 \code{\link[=drift_dm_skip_if_contr_low]{drift_dm_skip_if_contr_low()}}).
+\item for densities: \code{discr} controls the bin width for the observed data.
+Default is 0.015 seconds
 }
 
-This function gets called by \link{calc_stats}
+This function gets called by \code{\link[=calc_stats]{calc_stats()}}
 }
 \keyword{internal}

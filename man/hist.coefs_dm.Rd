@@ -7,34 +7,37 @@
 \method{hist}{coefs_dm}(
   x,
   ...,
-  separate_plots = TRUE,
-  alpha = 0.5,
-  main = NULL,
-  colors = NULL,
-  xlab = "values"
+  conds = NULL,
+  col = NULL,
+  xlim = NULL,
+  ylim = NULL,
+  xlab = "value",
+  ylab = NULL,
+  bundle_plots = TRUE
 )
 }
 \arguments{
 \item{x}{an object of class \code{coefs_dm} (see \link{coef.fits_ids_dm})}
 
-\item{...}{additional arguments passed to the \link[graphics:hist]{graphics::hist} function.}
+\item{...}{additional graphical arguments passed to \code{\link[graphics:hist]{graphics::hist()}}.
+Not supported are the \code{plot} and \code{probability} arguments
+(the latter can be controlled via the supported \code{freq} argument).
+For further plotting arguments, see also \code{\link[=set_default_arguments]{set_default_arguments()}}.}
 
-\item{separate_plots}{logical, indicating whether to display separate panels
-for each parameter in a single plot layout (\code{TRUE}), or to plot them
-sequentially (\code{FALSE}).}
+\item{conds}{a character vector specifying the conditions to plot.
+Defaults to all available conditions.}
 
-\item{alpha}{numeric, specifying the transparency level for histogram colors
-when conditions are present, with values between 0 (fully transparent) and
-1 (fully opaque).}
+\item{col}{character vector, specifying colors for each condition, if
+conditions are present.}
 
-\item{main}{character vector, specifying titles for each parameter histogram.
-Defaults to parameter names.}
+\item{xlim}{a numeric vector of length 2, specifying the x-axis limits.}
 
-\item{colors}{character vector, specifying colors for each condition if
-conditions are present. Defaults to a rainbow color palette.
-If \code{NULL} and no conditions are present, the default color is \code{"skyblue"}.}
+\item{ylim}{a numeric vector of length 2, specifying the y-axis limits.}
 
-\item{xlab}{character, specifying the label for the x-axis.}
+\item{xlab, ylab}{character strings for the x- and y-axis labels.}
+
+\item{bundle_plots}{logical, indicating whether to display separate panels
+in a single plot layout (\code{FALSE}), or to plot them separately (\code{TRUE}).}
 }
 \value{
 Nothing (\code{NULL}; invisibly)
@@ -45,20 +48,27 @@ resulting from a call to \link{coef.fits_ids_dm}.
 }
 \details{
 The \code{hist.coefs_dm} function is designed for visualizing parameter
-distributions for a single fit procedure.
+distributions.
 
 If multiple conditions are present, it overlays histograms for each condition
 with adjustable transparency.
 
-When \code{separate_plots} is set to \code{TRUE}, histograms for each parameter are
+When \code{bundle_plots} is set to \code{TRUE}, histograms for each parameter are
 displayed in a grid layout within a single graphics device.
+
+This function has some customization options, but they are limited. If you
+want to have a highly customized histogram, it is best to create it on your
+own using R's \code{\link[graphics:hist]{graphics::hist()}} function (see the examples below).
 }
 \examples{
 # get an auxiliary fit procedure result (see the function load_fits_ids)
-all_fits <- get_example_fits_ids()
-hist(coef(all_fits)) # only three participants in this fit_ids object
+all_fits <- get_example_fits("fits_ids")
+coefs <- coef(all_fits)
+print(coefs)
+hist(coefs, bundle_plots = FALSE) # calls hist.coefs_dm method of dRiftDM
 
-# allows for some customization
-hist(coef(all_fits), colors = "lightgreen")
+# how to fall back to R's hist() function for heavy customization
+coefs <- unpack_obj(coefs) # provides the plain data.frame
+hist(coefs$muc, main = expression(mu[c])) # calls graphics::hist()
 
 }

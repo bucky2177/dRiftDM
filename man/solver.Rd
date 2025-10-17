@@ -6,6 +6,7 @@
 \alias{solver}
 \alias{solver.drift_dm}
 \alias{solver.fits_ids_dm}
+\alias{solver.fits_agg_dm}
 \title{The Solver for Deriving Model Predictions}
 \usage{
 solver(object, ...) <- value
@@ -17,10 +18,12 @@ solver(object, ...)
 \method{solver}{drift_dm}(object, ...)
 
 \method{solver}{fits_ids_dm}(object, ...)
+
+\method{solver}{fits_agg_dm}(object, ...)
 }
 \arguments{
-\item{object}{an object of type \link{drift_dm} or \code{fits_ids_dm}
-(see \link{load_fits_ids}).}
+\item{object}{an object of type \link{drift_dm}, \code{fits_ids_dm}, or
+\code{fits_agg_dm} (see \code{\link[=estimate_dm]{estimate_dm()}}).}
 
 \item{...}{additional arguments (i.e., \code{eval_model}).}
 
@@ -67,7 +70,7 @@ solver(my_model)
 # accessor method also available for fits_ids_dm objects
 # (see estimate_model_ids)
 # get an exemplary fits_ids_dm object
-fits <- get_example_fits_ids()
+fits <- get_example_fits("fits_ids_dm")
 solver(fits)
 
 }

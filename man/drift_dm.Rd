@@ -16,6 +16,7 @@ drift_dm(
   dt = 0.001,
   dx = 0.001,
   solver = "kfe",
+  cost_function = "neg_log_like",
   mu_fun = NULL,
   mu_int_fun = NULL,
   x_fun = NULL,
@@ -37,7 +38,7 @@ values within \code{conds} will be used when addressing the data and when
 deriving the model's predictions.}
 
 \item{subclass}{a character string, with a name for the newly created
-diffusion model (e.g., \code{dmc_dm}). This will be the child class.}
+diffusion model (e.g., \code{my_dmc_dm}). This will be the child class.}
 
 \item{instr}{an optional character string, providing "instructions" for the
 underlying \link{flex_prms} object.}
@@ -55,8 +56,14 @@ Note that these values are set conservatively per default. In many cases,
 users can increase the discretization.}
 
 \item{solver}{a character string, specifying which approach to use for
-deriving the first passage time. Default is \code{kfe}, which provides access to
-the numerical discretization of the Kolmogorov Forward Equation.}
+deriving the first passage time. Options are \code{kfe} or \code{im_zero}. Default is
+\code{kfe}, which provides access to the numerical discretization of the
+Kolmogorov Forward Equation.}
+
+\item{cost_function}{a character string, specifying the cost function used
+during estimation. Options are \code{neg_log_like} (negative log-likelihood),
+\code{rmse} (root-mean-squared error). Default is
+\code{neg_log_like}.}
 
 \item{mu_fun, mu_int_fun, x_fun, b_fun, dt_b_fun, nt_fun}{Optional custom
 functions defining the components of a diffusion model. See
@@ -87,8 +94,10 @@ containing the diffusion constant (\code{sigma}), the maximum of the time space
 (\code{t_max}), the evidence and space discretization (\code{dt} and \code{dx},
 respectively), and the resulting number of steps for the time and evidence
 space discretization (\code{nt} and \code{nx}, respectively).
-\item A character string \code{solver}, indicating the method for deriving the model
+\item A character string \link{solver}, indicating the method for deriving the model
 predictions.
+\item A character string \link{cost_function}, indicating the cost function
+used for model estimation.
 \item A list of functions called \link{comp_funs}, providing the components
 of the diffusion model (i.e., \code{mu_fun}, \code{mu_int_fun}, \code{x_fun}, \code{b_fun},
 \code{dt_b_fun}, \code{nt_fun}). These functions are called in the depths of the
@@ -98,18 +107,26 @@ package and will determine the behavior of the model
 If (optional) observed data were passed via \code{\link[=obs_data]{obs_data()}},
 the list will contain an entry \code{obs_data}. This is a (nested) list with
 stored response times for the upper and lower boundary and with respect to
-each condition.
+each condition. If the cost function is a summary statistic requiring
+quantiles, CAFs, etc., the model also contains the entries \code{stats_agg} and
+\code{stats_agg_info}. The former is a (nested) list with descriptive statistics.
+The latter contains information about the descriptive statistics (e.g., the
+quantile levels).
 
 If the model has been evaluated (see \code{\link[=re_evaluate_model]{re_evaluate_model()}}), the
 list will contain...
 \itemize{
-\item ... the log likelihood; can be addressed via \code{\link[=logLik.drift_dm]{logLik.drift_dm()}}.
+\item ... the cost value; can be addressed via \code{\link[=cost_value]{cost_value()}}.
 \item ... the PDFs of the first passage time; can be addressed via
 \code{\link[=pdfs]{pdfs()}}.
 }
 
-Finally, if arbitrary R objects were passed via \code{\link[=ddm_opts]{ddm_opts()}}, to
-access these objects when evaluating the component functions, the list will
+If the model was estimated (which includes its evaluation), the list
+will contain \code{estimate_info}. This entry contains a convergence flag
+(\code{conv_flag}, logical) and the \code{optimizer} (a string).
+
+Finally, if arbitrary R objects were passed via \code{\link[=ddm_opts]{ddm_opts()}} (to
+access these objects when evaluating the component functions) the list will
 contain an entry \code{ddm_opts}.
 
 Every model also has the attribute \link{b_coding}, which summarizes how

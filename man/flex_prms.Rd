@@ -175,6 +175,7 @@ print(flex_prms(my_model))
 dmc_model <- dmc_dm() # another, more complex, model; comes with dRiftDM
 print(flex_prms(dmc_model), round_digits = 1, cust_parameters = FALSE)
 
+
 }
 \seealso{
 \code{\link[=estimate_model_ids]{estimate_model_ids()}}, \code{\link[=drift_dm]{drift_dm()}},

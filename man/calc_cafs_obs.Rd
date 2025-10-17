@@ -7,7 +7,7 @@
 \usage{
 calc_cafs_obs(rts_u, rts_l, one_cond, n_bins)
 
-calc_cafs_pred(pdf_u, pdf_l, one_cond, n_bins)
+calc_cafs_pred(pdf_u, pdf_l, t_vec, one_cond, n_bins)
 }
 \arguments{
 \item{rts_u, rts_l}{vectors of RTs for the upper and lower boundary}
@@ -17,6 +17,8 @@ calc_cafs_pred(pdf_u, pdf_l, one_cond, n_bins)
 \item{n_bins}{number of bins to use for the CAFs}
 
 \item{pdf_u, pdf_l}{density values for the upper and lower boundary}
+
+\item{t_vec}{the time space}
 }
 \value{
 a data.frame with the "Cond" label, the "Bin"s and "P_U" for

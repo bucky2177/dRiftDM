@@ -26,7 +26,8 @@ Takes a data.frame with columns RT, Cond, and \code{column} matching with
 \link{b_coding}, and disassembles it into a list of rts
 }
 \details{
-performs checks on \code{b_coding} (\link{check_b_coding}) and
-\code{obs_data} (\link{check_raw_data}) before disassembling the data set.
+performs checks on \code{b_coding} (\link{check_b_coding}) and checks/reduces
+\code{obs_data} (\link{check_reduce_raw_data}) before disassembling the data
+set.
 }
 \keyword{internal}

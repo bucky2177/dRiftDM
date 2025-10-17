@@ -7,6 +7,7 @@
 calc_cafs(
   pdf_u = NULL,
   pdf_l = NULL,
+  t_vec = NULL,
   rts_u = NULL,
   rts_l = NULL,
   one_cond,
@@ -15,13 +16,15 @@ calc_cafs(
 )
 }
 \arguments{
-\item{pdf_u, pdf_l}{either NULL or density vectors}
+\item{pdf_u, pdf_l}{density values for the upper and lower boundary}
 
-\item{rts_u, rts_l}{either NULL or RT vectors}
+\item{t_vec}{the time space}
 
-\item{one_cond}{a label for the data.frame}
+\item{rts_u, rts_l}{vectors of RTs for the upper and lower boundary}
 
-\item{n_bins}{the number of bins, default is 5}
+\item{one_cond}{character label}
+
+\item{n_bins}{number of bins to use for the CAFs}
 
 \item{b_coding}{used for accessing the upper boundary label, determines
 the corresponding column of the returned data.frame (e.g., P_\code{corr}).}

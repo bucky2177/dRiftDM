@@ -1,13 +1,16 @@
 # print functions ---------------------------------------------------------
 
-
-
 #' @rdname calc_stats
 #' @export
-print.stats_dm <- function(x, ...,
-                           round_digits = drift_dm_default_rounding(),
-                           print_rows = 10, some = FALSE,
-                           show_header = TRUE, show_note = TRUE) {
+print.stats_dm <- function(
+  x,
+  ...,
+  round_digits = drift_dm_default_rounding(),
+  print_rows = 10,
+  some = FALSE,
+  show_header = TRUE,
+  show_note = TRUE
+) {
   if (show_header) {
     cat("Type of Statistic:", class(x)[1])
     cat("\n\n")
@@ -19,7 +22,8 @@ print.stats_dm <- function(x, ...,
   # stats_dm objects are always of type data.frame
   idx_numeric <- sapply(stats_dm_obj, is.numeric)
   stats_dm_obj[idx_numeric] <- lapply(
-    stats_dm_obj[idx_numeric], round,
+    stats_dm_obj[idx_numeric],
+    round,
     digits = round_digits
   )
 
@@ -28,7 +32,6 @@ print.stats_dm <- function(x, ...,
     idxs <- sort(sample(x = n_row, size = min(print_rows, n_row)))
     stats_dm_obj <- stats_dm_obj[idxs, , drop = FALSE]
   }
-
 
   # print the result
   print.data.frame(utils::head(stats_dm_obj, n = print_rows))
@@ -44,7 +47,6 @@ print.stats_dm <- function(x, ...,
 
   invisible(x)
 }
-
 
 
 #' Print Functions for Stats Objects
@@ -103,7 +105,6 @@ print.sum_dist <- function(x, ...) {
 }
 
 
-
 #' @rdname calc_stats
 #' @export
 print.stats_dm_list <- function(x, ...) {
@@ -122,7 +123,6 @@ print.stats_dm_list <- function(x, ...) {
     cat("\n")
     if (idx != length(stats_dm_list_obj)) cat("\n")
   }
-
 
   cat("(extract the list's elements as usual, ")
   cat("e.g., with $", names(stats_dm_list_obj)[1], ")", sep = "")
@@ -195,7 +195,7 @@ print.stats_dm_list <- function(x, ...) {
 #'
 #' @examples
 #' # get a model with data for demonstration purpose
-#' a_model <- dmc_dm(dx = .0025, dt = .0025, t_max = 2)
+#' a_model <- dmc_dm(t_max = 2.0, dx = .01, dt = .005)
 #' obs_data(a_model) <- dmc_synth_data
 #'
 #' # now get some statistics and call the summary functions
@@ -204,13 +204,17 @@ print.stats_dm_list <- function(x, ...) {
 #' summary(some_stats$quantiles) # summary.quantiles
 #'
 #' @export
-summary.stats_dm <- function(object, ...,
-                             round_digits = drift_dm_default_rounding()) {
+summary.stats_dm <- function(
+  object,
+  ...,
+  round_digits = drift_dm_default_rounding()
+) {
   stats_dm_obj <- object
   ans <- list()
 
   ans$type <- class(stats_dm_obj)[1]
-  ans$summary_dataframe <- summary.data.frame(stats_dm_obj,
+  ans$summary_dataframe <- summary.data.frame(
+    stats_dm_obj,
     digits = round_digits
   )
 
@@ -221,7 +225,6 @@ summary.stats_dm <- function(object, ...,
   class(ans) <- "summary.stats_dm"
   return(ans)
 }
-
 
 
 #' @rdname summary.stats_dm
@@ -250,7 +253,6 @@ summary.cafs <- function(object, ...) {
 }
 
 
-
 #' @rdname summary.stats_dm
 #' @export
 summary.quantiles <- function(object, ...) {
@@ -277,9 +279,6 @@ summary.delta_funs <- function(object, ...) {
   class(ans) <- "summary.delta_funs"
   return(ans)
 }
-
-
-
 
 
 #' @rdname summary.stats_dm
@@ -315,14 +314,15 @@ summary.stats_dm_list <- function(object, ...) {
 
 # print.summary functions -------------------------------------------------
 
-
 #' @rdname summary.stats_dm
 #' @export
-print.summary.stats_dm <- function(x, ...,
-                                   show_header = TRUE,
-                                   drop_cols = NULL) {
+print.summary.stats_dm <- function(
+  x,
+  ...,
+  show_header = TRUE,
+  drop_cols = NULL
+) {
   summary_obj <- x
-
 
   if (show_header) {
     cat("Type of Statistic:", summary_obj$type)
@@ -357,8 +357,10 @@ print.summary.basic_stats <- function(x, ...) {
   summary_obj <- x
 
   # call the higher-order sum_dist printing function, and drop cond and bin
-  print.summary.sum_dist(summary_obj, ...,
-                         drop_cols = c("ID", "Source", "Cond")
+  print.summary.sum_dist(
+    summary_obj,
+    ...,
+    drop_cols = c("ID", "Source", "Cond")
   )
 
   # print cafs specific information
@@ -374,15 +376,15 @@ print.summary.cafs <- function(x, ...) {
   summary_obj <- x
 
   # call the higher-order sum_dist printing function, and drop cond and bin
-  print.summary.sum_dist(summary_obj, ...,
+  print.summary.sum_dist(
+    summary_obj,
+    ...,
     drop_cols = c("ID", "Source", "Cond", "Bin")
   )
 
   # print cafs specific information
   cat("Conditions:", paste(summary_obj$conds, collapse = ", "), "\n")
   cat("Bins:", paste(summary_obj$bins, collapse = ", "), "\n")
-
-
 
   invisible(x)
 }
@@ -393,15 +395,15 @@ print.summary.quantiles <- function(x, ...) {
   summary_obj <- x
 
   # call the higher-order sum_dist printing function, and drop cond and probs
-  print.summary.sum_dist(summary_obj, ...,
+  print.summary.sum_dist(
+    summary_obj,
+    ...,
     drop_cols = c("ID", "Source", "Cond", "Prob")
   )
 
   # print quantiles specific information
   cat("Conditions:", paste(summary_obj$conds, collapse = ", "), "\n")
   cat("Probs:", paste(summary_obj$probs, collapse = ", "), "\n")
-
-
 
   invisible(x)
 }
@@ -412,7 +414,9 @@ print.summary.delta_funs <- function(x, ...) {
   summary_obj <- x
 
   # call the higher-order sum_dist printing function, and drop probs
-  print.summary.sum_dist(summary_obj, ...,
+  print.summary.sum_dist(
+    summary_obj,
+    ...,
     drop_cols = c("ID", "Source", "Prob")
   )
 
@@ -432,7 +436,6 @@ print.summary.fit_stats <- function(x, ...) {
   print.summary.stats_dm(summary_obj, ..., drop_cols = "ID")
   invisible(x)
 }
-
 
 
 #' @rdname summary.stats_dm

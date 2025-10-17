@@ -6,6 +6,7 @@
 \alias{prms_solve}
 \alias{prms_solve.drift_dm}
 \alias{prms_solve.fits_ids_dm}
+\alias{prms_solve.fits_agg_dm}
 \title{The Parameters for Deriving Model Predictions}
 \usage{
 prms_solve(object, ...) <- value
@@ -17,10 +18,12 @@ prms_solve(object, ...)
 \method{prms_solve}{drift_dm}(object, ...)
 
 \method{prms_solve}{fits_ids_dm}(object, ...)
+
+\method{prms_solve}{fits_agg_dm}(object, ...)
 }
 \arguments{
-\item{object}{an object of type \link{drift_dm} or \code{fits_ids_dm}
-(see \link{load_fits_ids}).}
+\item{object}{an object of type \link{drift_dm}, \code{fits_ids_dm}, or
+\code{fits_agg_dm} (see \code{\link[=estimate_dm]{estimate_dm()}}).}
 
 \item{...}{additional arguments (i.e., \code{eval_model}).}
 
@@ -52,7 +55,7 @@ allowed! Any attempts to modify the respective entries will silently fail
 }
 \note{
 There is only a replacement function for \link{drift_dm} objects. This is
-because replacing the solver settings after the model has been fitted (i.e.,
+because replacing the solver settings after the model has been fitted (e.g.,
 for a \code{fits_ids_dm} object) doesn't make sense.
 }
 \examples{
@@ -67,7 +70,7 @@ prms_solve(my_model)
 # accessor method also available for fits_ids_dm objects
 # (see estimate_model_ids)
 # get an exemplary fits_ids_dm object
-fits <- get_example_fits_ids()
+fits <- get_example_fits("fits_ids_dm")
 prms_solve(fits)
 
 }

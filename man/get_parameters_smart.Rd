@@ -7,9 +7,10 @@
 get_parameters_smart(
   drift_dm_obj,
   input_a,
-  input_b,
+  input_b = NULL,
   labels = TRUE,
-  is_l_u = TRUE
+  is_l_u = TRUE,
+  fill_up_with = NULL
 )
 }
 \arguments{
@@ -24,17 +25,23 @@ the unique parameter labels according to \link{prm_cond_combo_2_labels}.}
 \item{is_l_u}{optional logical, if \code{TRUE}, a warning is thrown when
 \code{input_a} leads to larger values than \code{input_b}. Useful when \code{input_a} and
 \code{input_b} span a (search) space.}
+
+\item{fill_up_with}{optional values used to fill up the returned vectors
+for all parameters that are not specified in \code{input_a} or \code{input_b} (requires
+at least one parameter to specified).}
 }
 \value{
-a list with two vectors named \code{vec_a/vec_b}. Usually, those will be
-the search space or simulation space. The length and names (if requested)
-matches with coef(model, select_unique = TRUE).
+a list with two entries named \code{vec_a/vec_b}. The length and names
+(if requested) matches with coef(model, select_unique = TRUE). When
+\code{input_a} and/or \code{input_b} is \code{NULL}, the respective entry for
+\code{vec_a}/\code{vec_b} will be \code{NULL} as well.
 }
 \description{
 The function is used in the depths to map parameter inputs to the parameters
-of a model. Most of the time, it is used to get the search space as
-a vector, matching with the free parameters of a model.
-Only relevant when users use the "default parameters" approach where they
+of a model. One application is to get the search space as a vector, matching
+with the free parameters of a model. Other applications map, for example,
+mean values to the free parameters of a model.
+Relevant when users use the "default parameters" approach where they
 only specify the parameter labels and assume the package figures out
 how each parameter relates across conditions (see \link{simulate_data}).
 This comes in handy, when freeing a parameter across conditions, while the

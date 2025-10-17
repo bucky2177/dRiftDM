@@ -1,5 +1,5 @@
 test_that("print.traces_dm_list works as expected", {
-  a_model <- readRDS(test_path("fixtures", "ssp.rds"))
+  a_model <- ssp_dummy
   traces <- simulate_traces(a_model, k = 2, seed = 1)
 
   expect_snapshot(
@@ -9,7 +9,7 @@ test_that("print.traces_dm_list works as expected", {
 
 
 test_that("print.traces_dm works as expected", {
-  a_model <- readRDS(test_path("fixtures", "ssp.rds"))
+  a_model <- ssp_dummy
   traces <- simulate_traces(a_model, k = 5, seed = 1)
   traces <- unpack_obj(traces, unpack_elements = F, conds = "comp")
 
@@ -19,12 +19,11 @@ test_that("print.traces_dm works as expected", {
 })
 
 
-
 test_that("summary.traces_dm works as expected", {
   withr::local_preserve_seed()
   set.seed(1)
 
-  some_model <- dmc_dm()
+  some_model <- dmc_dummy
   traces_dm_obj <- simulate_traces(some_model, k = 10)$comp
   summary_traces <- summary(traces_dm_obj)
 
@@ -43,7 +42,9 @@ test_that("summary.traces_dm works as expected", {
 
   # Check first passage time statistics
   idx_fpt <- apply(traces_dm_obj, 1, function(x) max(which(!is.na(x))))
-  t_vec <- seq(0, some_model$prms_solve["t_max"],
+  t_vec <- seq(
+    0,
+    some_model$prms_solve["t_max"],
     length.out = some_model$prms_solve["nt"] + 1
   )
   ts_fpt <- t_vec[idx_fpt]
@@ -69,18 +70,19 @@ test_that("summary.traces_dm works as expected", {
 })
 
 
-
 test_that("summary.traces_dm_list works as expected", {
-  some_model <- dmc_dm(dt = .005, dx = .005)
+  some_model <- dmc_dummy
+  prms_solve(some_model)[c("dx", "dt")] <- 0.005
+
   withr::local_preserve_seed()
   set.seed(1)
-  traces_dm_list_obj <- simulate_traces(some_model,
+  traces_dm_list_obj <- simulate_traces(
+    some_model,
     k = c(5, 10),
     add_x = c(TRUE, FALSE),
     sigma = c(0, 1)
   )
   summary_traces_list <- summary(traces_dm_list_obj)
-
 
   # Check class
   expect_s3_class(summary_traces_list, "summary.traces_dm_list")

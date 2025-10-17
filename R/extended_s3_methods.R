@@ -1,17 +1,17 @@
 # FOR DRIFT_DM OBJECTS ----------------------------------------------------
 
-
 #' Get the Number of Observations for a drift_dm Object
 #'
 #' This method retrieves the total number of observations in the `obs_data`
 #' list of a `drift_dm` object.
 #'
-#' @param object a [dRiftDM::drift_dm] object, which contains the observed data
-#' in `object$obs_data`.
+#' @param object a [dRiftDM::drift_dm] object, which potentially contains the
+#' observed data in `object$obs_data`.
 #' @param ... additional arguments
 #'
 #' @return An integer representing the total number of observations across
-#' all conditions in `object$obs_data`.
+#' all conditions in `object$obs_data`.  If `obs_data` doesn't exist, the
+#' function returns 0
 #'
 #' @details The function iterates over each element in `object$obs_data`, counts
 #' the entries in each nested component, and returns the cumulative sum as the
@@ -36,14 +36,17 @@
 #'
 #' @export
 nobs.drift_dm <- function(object, ...) {
+  if (is.null(object$obs_data)) {
+    return(0L)
+  }
   return(sum(sapply(object$obs_data, lengths)))
 }
 
 
 #' Extract Log-Likelihood for a drift_dm Object
 #'
-#' This method extracts the log-likelihood for a `drift_dm` object, ensuring
-#' data is available and evaluating the model if necessary.
+#' This method extracts the log-likelihood for a `drift_dm` object if
+#' possible.
 #'
 #' @param object a [dRiftDM::drift_dm] object containing observed data
 #' @param ... additional arguments
@@ -52,31 +55,32 @@ nobs.drift_dm <- function(object, ...) {
 #' [dRiftDM::drift_dm] object. This value has attributes for the number of
 #' observations (`nobs`) and the number of model parameters (`df`).
 #'
-#' Returns `NULL` if observed data is not available.
+#' Returns `NULL` if the log-likelihood is not available (e.g., when the model
+#' has no observed data attached).
 #'
 #' @importFrom stats logLik
 #'
 #' @examples
 #' # get a pre-built model and a data set for demonstration purpose
 #' # (when creating the model, set the discretization to reasonable values)
-#' a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 #' obs_data(a_model) <- dmc_synth_data
-#'
-#' # calculate the log-likelihood
 #' logLik(a_model)
 #'
 #' @export
 logLik.drift_dm <- function(object, ...) {
-  # check if data is supplied and maybe re_evaluate
-  if (is.null(object$obs_data)) {
-    warning("No data in model. Returning NULL")
+  stats <- with_muffled_warning(
+    calc_fit_stats(object, ...),
+    pattern = "Couldn't form .* bins from .* RTs"
+  )
+  val <- stats[["Log_Like"]]
+
+  # extract cost value (if NA return NULL)
+  if (is.na(val)) {
     return(NULL)
   }
-  if (is.null(object$log_like_val)) {
-    object <- re_evaluate_model(object)
-  }
 
-  val <- object$log_like_val
+  # otherwise proceed with creating the log-likelihood object
   class(val) <- "logLik"
   attr(val, "nobs") <- nobs(object)
   attr(val, "df") <- get_number_prms(object$flex_prms_obj)
@@ -86,13 +90,13 @@ logLik.drift_dm <- function(object, ...) {
 
 #' Access Coefficients of a Model
 #'
-#' Extract or set the coefficients/parameters of [dRiftDM::drift_dm] or
-#' `fits_ids_dm` objects
+#' Extract or set the coefficients/parameters objects supported by [dRiftDM].
 #'
-#' @param object an object of type [dRiftDM::drift_dm] or `fits_ids_dm`
-#'  (see [dRiftDM::load_fits_ids]).
+#' @param object an object of type [dRiftDM::drift_dm], `fits_agg_dm`,
+#' `fits_ids_dm` (see also [dRiftDM::estimate_dm()]), or `mcmc_dm`.
 #'
-#' @param ... additional arguments passed to the respective method.
+#' @param ... additional arguments passed forward (to `coef.drift_dm()` for
+#' objects of type `fits_agg_dm`; to `.f` for objects of type `mcmc_dm`.
 #'
 #' @param eval_model logical, indicating if the model should be re-evaluated or
 #'  not when updating the parameters (see [dRiftDM::re_evaluate_model]).
@@ -102,25 +106,36 @@ logLik.drift_dm <- function(object, ...) {
 #'  returned that are considered unique (e.g., when a parameter is set to be
 #'  identical across three conditions, then the parameter is only returned once).
 #'  Default is `TRUE`. This will also return only those parameters that are
-#'  estimated.
+#'  estimated. The argument is currently not supported for objects of type
+#'  `mcmc_dm`.
 #' @param select_custom_prms logical, indicating if custom parameters shall be
 #'  returned as well. Only has an effect if `select_unique = FALSE`.
+#'  The argument is currently not supported for objects of type
+#'  `mcmc_dm`.
 #' @param value numerical, a vector with valid values to update the model's
 #' parameters. Must match with the number of (unique and free) parameters.
 #' @inheritParams print.stats_dm
 #' @param x an object of type `coefs_dm`, as returned by the function
 #' `coef()` when supplied with a `fits_ids_dm` object.
+#' @param .f the function to be applied to each parameter of a chain. Must
+#' either return a single value or a vector (with always the same length).
+#' Default is `mean` (i.e., the mean function).
+#' @param id an optional numeric or character vector specifying the IDs of
+#' participants from whom to summarize samples. Only applicable when the model was
+#' estimated hierarchically. Use `id = NA` as a shorthand to summarize samples
+#' for all individuals in the chain object.
+#'
 #'
 #' @details
-#' `coef()` are methods for the generic `coef` function; `coefs<-()` is a
-#'  generic replacement function, currently supporting objects of type
+#' `coef.*()` are methods for the generic [stats::coef()] function; `coefs<-()`
+#'  is a generic replacement function, currently supporting objects of type
 #'  [dRiftDM::drift_dm].
 #'
 #'  The argument `value` supplied to the `coefs<-()` function must match with
 #'  the vector returned from `coef(<object>)`. It is possible to
 #'  update just part of the (unique) parameters.
 #'
-#'  Whenever the argument `select_unique = TRUE`, dRiftDM tries to provide
+#'  Whenever the argument `select_unique` is `TRUE`, `dRiftDM` tries to provide
 #'  unique parameter labels.
 #'
 #' @returns
@@ -139,20 +154,41 @@ logLik.drift_dm <- function(object, ...) {
 #'  label `coefs_dm` to easily plot histograms for each parameter
 #'  (see [dRiftDM::hist.coefs_dm]).
 #'
-#' @seealso [dRiftDM::drift_dm()]
+#'  For objects of type `fits_agg_dm`, returns the same as `coef.drift_dm()`
+#'  (i.e., as if calling `coef()` with an object of type `drift_dm`)
+#'
+#' For objects of type `mcmc_dm`, the return type depends on the model structure
+#' and the `.f` output:
+#'
+#' - If the model is non-hierarchical or `id` is a single value (not `NA`),
+#'   the function returns either a `vector` or a `matrix`, depending on whether
+#'   `.f` returns a single value or a vector.
+#'
+#' - In the hierarchical case, when `id` is a vector or `NA`, the function
+#'   returns a `data.frame`. If `.f` returns a single value, the `data.frame`
+#'   will contain one row per participant (with an `ID` column and one column
+#'   per parameter). If `.f` returns a vector, the `data.frame` will include
+#'   an additional column `.f_out`, coding the output of `.f` in long
+#'   format.
 #'
 #' @importFrom stats coef
+#'
+#' @seealso [dRiftDM::drift_dm()]
 #'
 #' @examples
 #' # get a pre-built model and a data set for demonstration purpose
 #' # (when creating the model, set the discretization to reasonable values)
-#' a_model <- dmc_dm(t_max = 1.5, dx = .0025, dt = .0025)
+#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
 #' coef(a_model) # gives the free and unique parameters
 #' coef(a_model, select_unique = FALSE) # gives the entire parameter matrix
 #'
 #' @export
-coef.drift_dm <- function(object, ..., select_unique = TRUE,
-                          select_custom_prms = TRUE) {
+coef.drift_dm <- function(
+  object,
+  ...,
+  select_unique = TRUE,
+  select_custom_prms = TRUE
+) {
   # if unique, get labels for prm cond combos, extract the respective
   # values from the parameter matrix, and simplify parameter.cond labels
   # if cond is the same
@@ -181,8 +217,19 @@ coef.drift_dm <- function(object, ..., select_unique = TRUE,
 }
 
 
-# FOR FITS_IDS_DM ---------------------------------------------------------
+# FOR FITS_AGG_DM ---------------------------------------------------------
 
+# logLik, AIC, BIC etc. is not yet supported (because fits_agg_dm currently
+# only works with RMSE)
+
+#' @rdname coef.drift_dm
+#' @export
+coef.fits_agg_dm <- function(object, ...) {
+  coef(object$drift_dm_obj, ...)
+}
+
+
+# FOR FITS_IDS_DM ---------------------------------------------------------
 
 #' Extract Model Statistics for fits_ids_dm Object
 #'
@@ -192,11 +239,12 @@ coef.drift_dm <- function(object, ..., select_unique = TRUE,
 #' @param object a `fits_ids_dm` object (see [dRiftDM::estimate_model_ids])
 #' @param k numeric; penalty parameter for the AIC calculation.
 #' Defaults to 2 (standard AIC).
-#' @param ... additional arguments
+#' @param ... additional arguments (currently not used)
 #'
 #' @return An object of type `fit_stats` containing the respective statistic in
 #' one column (named `Log_Like`, `AIC`, or `BIC`) and a corresponding `ID`
-#' column.
+#' column. If any of the statistics can't be calculated, the function returns
+#' `NULL`.
 #'
 #' @details
 #'
@@ -208,7 +256,7 @@ coef.drift_dm <- function(object, ..., select_unique = TRUE,
 #' @examples
 #' # get an auxiliary fits_ids object for demonstration purpose;
 #' # such an object results from calling load_fits_ids
-#' all_fits <- get_example_fits_ids()
+#' all_fits <- get_example_fits("fits_ids_dm")
 #'
 #' # AICs
 #' AIC(all_fits)
@@ -229,7 +277,10 @@ coef.drift_dm <- function(object, ..., select_unique = TRUE,
 #'
 #' @export
 logLik.fits_ids_dm <- function(object, ...) {
-  stats <- calc_stats(object, type = "fit_stats")
+  stats <- with_muffled_warning(
+    calc_stats(object, type = "fit_stats"),
+    pattern = "Couldn't form .* bins from .* RTs"
+  )
   return(stats[c("ID", "Log_Like")])
 }
 
@@ -237,7 +288,10 @@ logLik.fits_ids_dm <- function(object, ...) {
 #' @importFrom stats AIC
 #' @export
 AIC.fits_ids_dm <- function(object, ..., k = 2) {
-  stats <- calc_stats(object, type = "fit_stats", k = k)
+  stats <- with_muffled_warning(
+    calc_stats(object, type = "fit_stats", k = k),
+    pattern = "Couldn't form .* bins from .* RTs"
+  )
   return(stats[c("ID", "AIC")])
 }
 
@@ -245,7 +299,10 @@ AIC.fits_ids_dm <- function(object, ..., k = 2) {
 #' @importFrom stats BIC
 #' @export
 BIC.fits_ids_dm <- function(object, ...) {
-  stats <- calc_stats(object, type = "fit_stats")
+  stats <- with_muffled_warning(
+    calc_stats(object, type = "fit_stats"),
+    pattern = "Couldn't form .* bins from .* RTs"
+  )
   return(stats[c("ID", "BIC")])
 }
 
@@ -261,7 +318,8 @@ coef.fits_ids_dm <- function(object, ...) {
       return_val <- data.frame(ID = x, one_coef)
     } else {
       return_val <- cbind(
-        ID = x, Cond = rownames(one_coef),
+        ID = x,
+        Cond = rownames(one_coef),
         data.frame(one_coef)
       )
     }
@@ -276,6 +334,67 @@ coef.fits_ids_dm <- function(object, ...) {
   return(all_coefs)
 }
 
+
+# FOR MCMC_DM OBJECTS -----------------------------------------------------
+
+#' @rdname coef.drift_dm
+#' @export
+coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
+  # input checks and handling of the ids argument
+  if (!is.function(.f)) {
+    stop(".f argument must be a function")
+  }
+
+  hierarchical = attr(object, "hierarchical")
+  if (!is.null(id) & hierarchical) {
+    if (length(id) == 1 && is.na(id)) {
+      id = dimnames(object[["theta"]])[[3]] # third dimension are the ids
+    }
+  }
+
+  if (!is.null(id) & !hierarchical) {
+    stop(
+      "Specifying `id` doesn't make sense in the non-hierarchical case, ",
+      "because the chain object refers to only a single participant."
+    )
+  }
+
+  # call coef recursively with multiple ids are requested
+  if (length(id) > 1) {
+    results = lapply(
+      id,
+      \(one_id) coef.mcmc_dm(object, ..., .f = .f, id = one_id)
+    )
+    results <- lapply(seq_along(id), \(id_idx) {
+      x = results[[id_idx]]
+      if (is.matrix(x)) {
+        x = cbind(`.f_out` = rownames(x), x)
+      }
+      if (is.vector(x)) {
+        x = t(as.matrix(x))
+      }
+      x = as.data.frame(x)
+      x = cbind(ID = id[id_idx], x)
+      return(x)
+    })
+    results = do.call(rbind, results)
+    results$ID = try_cast_integer(results$ID)
+    results <- results[order(results$ID), ]
+    rownames(results) <- NULL
+    return(results)
+  }
+
+  # get the relevant chains
+  chains = get_subset_chains(chains_obj = object, id = id)
+  result = apply(chains, 1, FUN = .f, simplify = TRUE)
+  if (is.list(result)) {
+    stop(
+      "Function supplied as argument .f did not return either a single ",
+      "value or a vector of always the same length"
+    )
+  }
+  return(result)
+}
 
 
 # HELPER FUNCTION ---------------------------------------------------------
@@ -296,17 +415,9 @@ try_cast_integer <- function(values) {
   if (!is.character(values)) {
     return(values)
   }
-
-  checks <- !grepl("\\D", values) # check each entry if only digits exist
-
-  # if each entry only contains digits, then cast to digit
-  if (all(checks)) {
-    values <- as.integer(values)
-  }
-
-  return(values)
+  ok <- grepl("^[0-9]+$", values)
+  if (all(ok)) as.integer(values) else values
 }
-
 
 
 # UNPACK METHODS ----------------------------------------------------------

@@ -1,12 +1,13 @@
 # print traces_dm_list and traces_dm ----------------------------------------
 
-
-
 #' @rdname simulate_traces
 #' @export
-print.traces_dm_list <- function(x, ...,
-                                 round_digits = drift_dm_default_rounding(),
-                                 print_steps = 5) {
+print.traces_dm_list <- function(
+  x,
+  ...,
+  round_digits = drift_dm_default_rounding(),
+  print_steps = 5
+) {
   traces_dm_list_obj <- x
 
   # print class
@@ -16,16 +17,17 @@ print.traces_dm_list <- function(x, ...,
   )
   cat("\n")
 
-
   # print out time space
   cat("\nTime space:\n")
   t_vec <- attr(traces_dm_list_obj, "t_vec")
-  first_steps <- formatC(t_vec[1:(print_steps - 1)],
+  first_steps <- formatC(
+    t_vec[1:(print_steps - 1)],
     format = "f",
     digits = round_digits
   )
   first_steps <- paste(first_steps, collapse = ", ")
-  last_step <- formatC(t_vec[length(t_vec)],
+  last_step <- formatC(
+    t_vec[length(t_vec)],
     format = "f",
     digits = round_digits
   )
@@ -37,11 +39,14 @@ print.traces_dm_list <- function(x, ...,
     cat("\nCondition:", one_cond, "\n")
     one_trace_obj <- unpack_obj(
       traces_dm_list_obj,
-      unpack_elements = FALSE, conds = one_cond
+      unpack_elements = FALSE,
+      conds = one_cond
     )
-    print(one_trace_obj,
+    print(
+      one_trace_obj,
       round_digits = round_digits,
-      print_steps = print_steps, ...
+      print_steps = print_steps,
+      ...
     )
   }
 
@@ -51,46 +56,58 @@ print.traces_dm_list <- function(x, ...,
 
 #' @rdname simulate_traces
 #' @export
-print.traces_dm <- function(x, ...,
-                            round_digits = drift_dm_default_rounding(),
-                            print_steps = 5, print_k = 4) {
+print.traces_dm <- function(
+  x,
+  ...,
+  round_digits = drift_dm_default_rounding(),
+  print_steps = 5,
+  print_k = 4
+) {
   traces_dm_obj <- x
 
   # get all traces for one cond
   e_samples <- unpack_obj(object = traces_dm_obj, unpack_elements = TRUE)
 
-
   # find how many steps and rows to print
   k <- nrow(e_samples)
-  if (k < print_k) print_k <- k
+  if (k < print_k) {
+    print_k <- k
+  }
 
   w <- ncol(e_samples)
-  if (w < print_steps) print_steps <- w
+  if (w < print_steps) {
+    print_steps <- w
+  }
 
   # print each trace
   for (i in 1:print_k) {
     one_trace <- e_samples[i, ]
 
-    first_steps <- formatC(one_trace[1:(print_steps - 1)],
+    first_steps <- formatC(
+      one_trace[1:(print_steps - 1)],
       format = "f",
-      digits = round_digits, flag = " "
+      digits = round_digits,
+      flag = " "
     )
     first_steps <- paste(first_steps, collapse = ", ")
     n_not_na <- sum(!is.na(one_trace))
-    last_step <- formatC(one_trace[n_not_na],
+    last_step <- formatC(
+      one_trace[n_not_na],
       format = "f",
-      digits = round_digits, flag = " "
+      digits = round_digits,
+      flag = " "
     )
     all_steps <- paste("~>", first_steps, "...", last_step)
     cat(all_steps, "\n")
   }
 
   # if traces were omitted, show that
-  if (k > print_k) cat("...\n")
+  if (k > print_k) {
+    cat("...\n")
+  }
 
   invisible(x)
 }
-
 
 
 # summary traces_dm_list and traces_dm ------------------------------------
@@ -171,14 +188,23 @@ summary.traces_dm <- function(object, ...) {
   ans$k <- dim(traces)[1]
 
   attrbs <- attributes(traces)
-  ans <- c(ans, attrbs[c(
-    "add_x", "orig_model_class", "orig_prms",
-    "prms_solve"
-  )])
+  ans <- c(
+    ans,
+    attrbs[c(
+      "add_x",
+      "orig_model_class",
+      "orig_prms",
+      "prms_solve"
+    )]
+  )
 
   # first passage times
   idx_fpt <- apply(traces, 1, \(x) max(which(!is.na(x))))
-  t_vec <- seq(0, ans$prms_solve["t_max"], length.out = ans$prms_solve["nt"] + 1)
+  t_vec <- seq(
+    0,
+    ans$prms_solve["t_max"],
+    length.out = ans$prms_solve["nt"] + 1
+  )
   ts_fpt <- t_vec[idx_fpt]
   resp <- sapply(seq_along(idx_fpt), \(i) sign(traces[i, idx_fpt[i]]))
 
@@ -187,7 +213,8 @@ summary.traces_dm <- function(object, ...) {
   p_u <- mean(resp == 1)
   fpt_desc <- c(mean(ts_fpt), stats::sd(ts_fpt), p_u, 1 - p_u)
   names(fpt_desc) <- c(
-    "mean", "sd",
+    "mean",
+    "sd",
     paste0("p_", names(b_coding$u_name_value)),
     paste0("p_", names(b_coding$l_name_value))
   )
@@ -199,11 +226,13 @@ summary.traces_dm <- function(object, ...) {
 }
 
 
-
 #' @rdname summary.traces_dm
 #' @export
-print.summary.traces_dm <- function(x, ...,
-                                    round_digits = drift_dm_default_rounding()) {
+print.summary.traces_dm <- function(
+  x,
+  ...,
+  round_digits = drift_dm_default_rounding()
+) {
   summary_obj <- x
 
   bool <- ifelse(summary_obj$add_x, "yes", "no")
@@ -217,7 +246,6 @@ print.summary.traces_dm <- function(x, ...,
   print(round(summary_obj$fpt_desc, round_digits))
   cat("\n")
 
-
   cat("\nOrginal Parameter Values:\n")
   print(summary_obj$orig_prms)
   cat("\n-------")
@@ -230,11 +258,11 @@ print.summary.traces_dm <- function(x, ...,
   to_str <- prms_to_str(
     x = names(summary_obj$prms_solve),
     prms = round(summary_obj$prms_solve, round_digits),
-    sep = "=", collapse = ", "
+    sep = "=",
+    collapse = ", "
   )
   cat("\nSettings:", to_str)
   cat("\n")
-
 
   invisible(x)
 }
@@ -267,11 +295,9 @@ summary.traces_dm_list <- function(object, ...) {
   prms_solve <- sapply(summaries, \(x) x[["prms_solve"]])
   ans$prms_solve <- t(prms_solve)
 
-
   # fpt summaries
   fpt_desc <- sapply(summaries, \(x) x[["fpt_desc"]])
   ans$fpt_desc <- t(fpt_desc)
-
 
   # pass back
   class(ans) <- "summary.traces_dm_list"
@@ -281,8 +307,11 @@ summary.traces_dm_list <- function(object, ...) {
 
 #' @rdname summary.traces_dm
 #' @export
-print.summary.traces_dm_list <- function(x, ...,
-                                         round_digits = drift_dm_default_rounding()) {
+print.summary.traces_dm_list <- function(
+  x,
+  ...,
+  round_digits = drift_dm_default_rounding()
+) {
   summary_obj <- x
 
   bool <- ifelse(summary_obj$add_x, "yes", "no")
@@ -298,7 +327,6 @@ print.summary.traces_dm_list <- function(x, ...,
   print(round(summary_obj$fpt_desc, round_digits))
   cat("\n")
 
-
   cat("\nOrginal Parameter Values:\n")
   print(round(summary_obj$orig_prms, round_digits))
   cat("\n-------")
@@ -312,7 +340,6 @@ print.summary.traces_dm_list <- function(x, ...,
   cat("\nSettings:\n")
   print(round(summary_obj$prms_solve, round_digits))
   cat("\n")
-
 
   invisible(x)
 }

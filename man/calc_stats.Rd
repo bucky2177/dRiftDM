@@ -5,6 +5,7 @@
 \alias{calc_stats.data.frame}
 \alias{calc_stats.drift_dm}
 \alias{calc_stats.fits_ids_dm}
+\alias{calc_stats.fits_agg_dm}
 \alias{print.stats_dm}
 \alias{print.stats_dm_list}
 \title{Calculate Statistics}
@@ -16,15 +17,34 @@ calc_stats(object, type, ...)
   type,
   ...,
   conds = NULL,
-  verbose = 0,
-  average = FALSE,
-  split_by_ID = TRUE,
+  resample = FALSE,
+  progress = 1,
+  level = "individual",
   b_coding = NULL
 )
 
-\method{calc_stats}{drift_dm}(object, type, ..., conds = NULL)
+\method{calc_stats}{drift_dm}(object, type, ..., conds = NULL, resample = FALSE)
 
-\method{calc_stats}{fits_ids_dm}(object, type, ..., verbose = 1, average = FALSE)
+\method{calc_stats}{fits_ids_dm}(
+  object,
+  type,
+  ...,
+  conds = NULL,
+  resample = FALSE,
+  progress = 1,
+  level = "individual"
+)
+
+\method{calc_stats}{fits_agg_dm}(
+  object,
+  type,
+  ...,
+  conds = NULL,
+  resample = FALSE,
+  progress = 1,
+  level = "group",
+  messaging = TRUE
+)
 
 \method{print}{stats_dm}(
   x,
@@ -40,12 +60,13 @@ calc_stats(object, type, ...)
 }
 \arguments{
 \item{object}{an object for which statistics are calculated. This can be a
-\link{data.frame} of observed data, a \link{drift_dm} object, or a
-\code{fits_ids_dm} object (see \link{estimate_model_ids}).}
+\link{data.frame} of observed data, a \link{drift_dm} object, a
+\code{fits_ids_dm} object, or a \code{fits_agg_dm} object (see
+\code{\link[=estimate_dm]{estimate_dm()}}).}
 
 \item{type}{a character vector, specifying the statistics to calculate.
 Supported values include \code{"basic_stats"}, \code{"cafs"}, \code{"quantiles"},
-\code{"delta_funs"}, and \code{"fit_stats"}.}
+\code{"delta_funs"}, \code{"densities"}, and \code{"fit_stats"}.}
 
 \item{...}{additional arguments passed to the respective method and the
 underlying calculation functions (see Details for mandatory arguments).}
@@ -53,19 +74,23 @@ underlying calculation functions (see Details for mandatory arguments).}
 \item{conds}{optional character vector specifying conditions to include.
 Conditions must match those found in the \code{object}.}
 
-\item{verbose}{integer, indicating if information about the progress
-should be displayed. 0 -> no information, 1 -> a progress bar. Default is 0.}
+\item{resample}{logical. If \code{TRUE}, then data is (re-)sampled to create
+an uncertainty estimate for the requested summary statistic. See Details for
+more information. Default is \code{FALSE}. Note that resampling does not work with
+\code{type = "fit_stats"}.}
 
-\item{average}{logical. If \code{TRUE}, averages the statistics across individuals
-where applicable. Default is \code{FALSE}.}
+\item{progress}{integer, indicating if information about the progress
+should be displayed. 0 -> no information, 1 -> a progress bar. Default is 1.}
 
-\item{split_by_ID}{logical. If \code{TRUE}, statistics are calculated separately
-for each individual ID in \code{object} (when \code{object} is a \link{data.frame}). Default
-is \code{TRUE}.}
+\item{level}{a single character string, indicating at which "level" the
+statistic should be calculated. Options are \code{"group"} or \code{"individual"}. If
+\code{"individual"}, the returned \code{stats_dm} object contains an \code{"ID"} column.}
 
 \item{b_coding}{a list for boundary coding (see \link{b_coding}). Only
 relevant when \code{object} is a \link{data.frame}. For other \code{object} types, the
 \code{b_coding} of the \code{object} is used.}
+
+\item{messaging}{logical, if \code{FALSE}, no message is provided.}
 
 \item{x}{an object of type \code{stats_dm} or \code{stats_dm_list}, as returned by
 the function \code{calc_stats()}.}
@@ -111,13 +136,14 @@ be aggregated across individuals.
 \code{calc_stats} is a generic function to handle the calculation of different
 statistics/metrics for the supported object types. Per default, it returns
 the requested statistics/metrics.
-\subsection{Basic Statistics}{
+\subsection{List of Supported Statistics}{
+
+\strong{Basic Statistics}
 
 With "basic statistics", we refer to a summary of the mean and standard
 deviation of response times, including a proportion of response choices.
-}
 
-\subsection{Conditional Accuracy Function (CAFs)}{
+\strong{Conditional Accuracy Function (CAFs)}
 
 CAFs are a way to quantify response accuracy against speed. To calculate
 CAFs, RTs (whether correct or incorrect) are first binned and then the
@@ -131,9 +157,8 @@ calculated.
 
 The number of bins can be controlled by passing the argument \code{n_bins}.
 The default is 5.
-}
 
-\subsection{Quantiles}{
+\strong{Quantiles}
 
 For observed response times, the function \link[stats:quantile]{stats::quantile} is used with
 default settings.
@@ -141,9 +166,8 @@ default settings.
 Which quantiles are calcuated can be controlled by providing the
 probabilites, \code{probs}, with values in \eqn{[0, 1]}. Default is
 \code{seq(0.1, 0.9, 0.1)}.
-}
 
-\subsection{Delta Functions}{
+\strong{Delta Functions}
 
 Delta functions calculate the difference between quantiles
 of two conditions against their mean:
@@ -166,14 +190,100 @@ then minuends and subtrahends must have the same length,
 and matching occurs pairwise. In this case, if only one
 minuend/subtrahend is specified, minuend and subtrahend are recycled to
 the necessary length.
+\item specifying \code{probs} is possible (see Quantiles)
+}
+
+\strong{Densities}
+
+With "densities", we refer to a summary of the distribution of observed
+or predicted data. For observed data, histogram values and kernel density
+estimates are provided. For predicted data, the model's predicted PDFs are
+provided.
+
+Optional arguments are:
+\itemize{
+\item \code{discr}: numeric, the band-width when calculating the histogram or the
+kernel density estimates. Defaults to \code{0.015} seconds
+\item \code{t_max}: numeric, the maximum time window when calculating the distribution
+summaries of observe data. Defaults to the longest RT (for observed data)
+or the maximum of the time domain of a model (which is the preferred choice,
+if possible). If necessary, \code{t_max} is slightly adjusted to match with
+\code{discr}.
+\item \code{scale_mass}: logical, only relevant if observed data is available. If
+\code{TRUE}, density masses are scaled proportional to the number of trials per
+condition.
+}
+
+\strong{Fit Statistics}
+
+Calculates the Log-Likelihood, Akaike and Bayesian Information Criteria,
+and root-mean squared-error statistic.
+
+Optional arguments are:
+\itemize{
+\item \code{k}: numeric, for penalizing the AIC statistic (see also \link[stats:AIC]{stats::AIC}
+and \link{AIC.fits_ids_dm}).
+\item \code{n_bins}, \code{probs}: numeric vectors, see the section on CAFs and Quantiles
+above
+\item \code{weight_err}: numeric scalar, determines how CAFs and quantiles are
+weighted. Default is \code{1.5}.
 }
 }
 
-\subsection{Fit Statistics}{
+\subsection{Resampling}{
 
-Calculates the Akaike and Bayesian Information Criteria (AIC and BIC). Users
-can provide a \code{k} argument to penalize the AIC statistic (see \link[stats:AIC]{stats::AIC}
-and \link{AIC.fits_ids_dm})
+When \code{resampling = TRUE}, an uncertainty interval is provided via simulation.
+The default number of iterations is \code{R = 100}, which can be changed by
+passing the optional argument \code{R}.
+
+If resampling is requested, the returned \code{stats_dm} object contains the
+column \code{"Estimate"}, coding the interval. The interval width is controlled
+via the optional argument \code{interval_level}, a single numeric value between
+0 and 1 (default: \code{0.95}). The interpretation of this interval depends on
+the specific situation (see below).
+
+\strong{Resampling at the Individual Level}
+
+If \code{object} is a \code{drift_dm} object (i.e., a single model created by
+\code{\link[=drift_dm]{drift_dm()}}), synthetic data are simulated under the model, and
+for each synthetic data set the requested statistic is calculated. The
+interval then reflects the range of these simulated statistics. To determine
+the number of trials for each synthetic data set, dRiftDM either uses the
+observed data attached to the model (if available) or the optional argument
+\code{n_sim} (passed to \code{\link[=simulate_data]{simulate_data()}}). Note that \code{n_sim} must be
+provided if no observed data are available, and that \code{n_sim} always has
+priority.
+
+If \code{object} is a \code{drift_dm} object with attached observed data, resampling
+is also performed for the observed data. In this case, trials are
+bootstrapped, and for each bootstrap sample the requested statistic is
+calculated.
+
+If \code{object} is a \code{data.frame}, \code{fits_agg_dm}, or \code{fits_ids_dm} object,
+resampling is performed for each individual if \code{level = "individual"}. For
+both models and observed data, synthetic or bootstrapped data sets are
+generated as described above.
+
+\strong{Resampling at the Group Level}
+
+Group-level resampling is possible only if \code{object} is a \code{data.frame}
+(with an \code{"ID"} column), \code{fits_agg_dm}, or \code{fits_ids_dm} object. To request
+this, set \code{level = "group"}. Participants are then bootstrapped, and
+for each bootstrapped sample the aggregated statistic is calculated.
+
+\strong{Interpretation of Intervals}
+
+For \code{level = "group"}, intervals represent bootstrapped confidence intervals
+For \code{level = "individual"}, intervals represent the variability in the
+statistic when data for a single participant are resampled or simulated
+under the model.
+
+\strong{Note}
+
+For objects of type \code{fits_agg_dm}, which contain a mixture of group- and
+individual-level information, the \code{level} argument only affects resampling
+for the observed data. For the model itself, resampling is always performed
+under the fitted model, in the same way as for a \code{drift_dm} object.
 }
 }
 \note{
@@ -206,7 +316,7 @@ print(some_stats, print_rows = 5)
 
 # Example 3: Calculate Quantiles from a fits_ids_dm object -----------------
 # get an auxiliary fits_ids_dm object
-all_fits <- get_example_fits_ids()
+all_fits <- get_example_fits("fits_ids_dm")
 some_stats <- calc_stats(all_fits, type = "quantiles")
 print(some_stats, print_rows = 5) # note the ID column
 

@@ -15,18 +15,31 @@
 #' @param k a single integer specifying the number of samples to generate.
 #' @param seed an optional single integer value used to set the seed for random
 #' number generation, allowing for reproducibility of results.
+#' @param round_to an optional integer, indicating the number of digits to
+#' which the result should be rounded.
+#' @param method a single character string. If "discr", then simulated values
+#' match `x_def`. If "linear", `x_def` and `a_pdf` are linearly interpolated,
+#' so that the simulated values can lay in between the discrete values of
+#' `x_def`.
 #'
 #' @details
 #' This function implements inverse transform sampling by first constructing a
-#' cumulative distribution function (CDF) from the given PDF. A uniform random
-#' variable is then sampled for each of the `k` samples, and the corresponding
-#' value in `x_def` is selected by locating the appropriate interval in the CDF.
+#' cumulative distribution function (CDF) from the given PDF. Then `k` values
+#' between zero and one are sampled from a uniform distribution, and
+#' the corresponding values are mapped to `x_def` using linear interpolation.
 #'
 #' @returns A numeric vector of length `k` containing the sampled values from
 #' the specified PDF. If `k` is 0, an empty numeric vector is returned.
 #'
 #' @keywords internal
-draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
+draw_from_pdf <- function(
+  a_pdf,
+  x_def,
+  k,
+  seed = NULL,
+  round_to = NULL,
+  method = "discr"
+) {
   if (!is_numeric(a_pdf) | length(a_pdf) < 1) {
     stop("a_pdf must provide a valid numeric vector of length > 0")
   }
@@ -40,7 +53,9 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
   if (!is_numeric(k) | length(k) != 1) {
     stop("k must be a single valid numeric")
   }
-  if (k < 0) stop("k must be >= 0")
+  if (k < 0) {
+    stop("k must be >= 0")
+  }
 
   if (k == 0) {
     return(numeric())
@@ -54,6 +69,13 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
     set.seed(seed)
   }
 
+  if (!is.null(round_to)) {
+    if (!is_numeric(round_to) | length(round_to) != 1) {
+      stop("round_to must be a single valid numeric")
+    }
+  }
+
+  method = match.arg(method, choices = c("discr", "linear"))
 
   if (min(a_pdf) < 0) {
     warning(
@@ -62,16 +84,30 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
     )
   }
 
-  cdf <- cumsum(a_pdf) # 'integrate' the cdf from the pdf
+  # create the cdf
+  if (method == "discr") {
+    cdf <- cumsum(a_pdf)
+  } else {
+    cdf <- cumtrapz(x = x_def, y = a_pdf)
+  }
   cdf <- cdf / max(cdf) # normalize
 
+  # draw values between zero and one and then map it to the cdf
   u <- stats::runif(k)
-  indices <- sapply(u, function(one_u) which.max((cdf - one_u) > 0))
-  samples <- x_def[indices]
+  if (method == "discr") {
+    indices <- sapply(u, function(one_u) which.max((cdf - one_u) > 0))
+    samples <- x_def[indices]
+  } else {
+    samples <- stats::approx(x = cdf, y = x_def, xout = u)$y
+  }
+
+  # round if requested
+  if (!is.null(round_to)) {
+    samples <- round(samples, digits = round_to)
+  }
 
   return(samples)
 }
-
 
 
 # FUNCTIONS FOR SIMULATING PRMS --------------------------------------------
@@ -152,10 +188,16 @@ draw_from_pdf <- function(a_pdf, x_def, k, seed = NULL) {
 #' quantile(values$c, probs = c(0.025, 0.5, 0.975))
 #'
 #' @export
-simulate_values <- function(lower, upper, k, distr = NULL,
-                            cast_to_data_frame = TRUE,
-                            add_id_column = "numeric",
-                            seed = NULL, ...) {
+simulate_values <- function(
+  lower,
+  upper,
+  k,
+  distr = NULL,
+  cast_to_data_frame = TRUE,
+  add_id_column = "numeric",
+  seed = NULL,
+  ...
+) {
   dotdot <- list(...)
 
   # input checks
@@ -191,7 +233,9 @@ simulate_values <- function(lower, upper, k, distr = NULL,
     stop("cast_to_data_frame must be a single logical value")
   }
 
-  if (is.logical(add_id_column) && !add_id_column) add_id_column <- "none"
+  if (is.logical(add_id_column) && !add_id_column) {
+    add_id_column <- "none"
+  }
   add_id_column <- match.arg(add_id_column, c("numeric", "character", "none"))
 
   if (!is.null(seed)) {
@@ -218,7 +262,9 @@ simulate_values <- function(lower, upper, k, distr = NULL,
       stop("tnorm was requested but no sds argument provided")
     }
     if (!is_numeric(means) | length(means) != n_prms) {
-      stop("means is not a valid numeric vector with length equal to lower/upper")
+      stop(
+        "means is not a valid numeric vector with length equal to lower/upper"
+      )
     }
     if (!is_numeric(sds) | length(sds) != n_prms) {
       stop("sds is not a valid numeric vector with length equal to lower/upper")
@@ -233,20 +279,27 @@ simulate_values <- function(lower, upper, k, distr = NULL,
     }
 
     prms <- lapply(1:n_prms, function(i) {
-      cdf_val_l <- stats::pnorm(q = lower[i], mean = means[i], sd = sds[i])
-      cdf_val_u <- stats::pnorm(q = upper[i], mean = means[i], sd = sds[i])
-      cdf_vals <- stats::runif(n = k, min = cdf_val_l, max = cdf_val_u)
-      stats::qnorm(p = cdf_vals, mean = means[i], sd = sds[i])
+      rtnorm(
+        n = k,
+        mean = means[i],
+        sd = sds[i],
+        lower = lower[i],
+        upper = upper[i]
+      )
     })
   }
   prms <- do.call("cbind", prms)
 
   # wrangle and pass back
   col_names <- paste0("V", 1:length(upper))
-  if (!is.null(names_upper)) col_names <- names_upper
+  if (!is.null(names_upper)) {
+    col_names <- names_upper
+  }
   colnames(prms) <- col_names
 
-  if (cast_to_data_frame) prms <- as.data.frame(prms)
+  if (cast_to_data_frame) {
+    prms <- as.data.frame(prms)
+  }
 
   ids <- 1:k
   if (add_id_column == "numeric") {
@@ -255,7 +308,191 @@ simulate_values <- function(lower, upper, k, distr = NULL,
     prms <- cbind(prms, ID = as.character(ids))
   }
 
-
-
   return(prms)
+}
+
+
+# FUNCTIONS FOR DX AND DT SETTINGS ----------------------------------------
+
+#' Check time/space discretization via reference comparison
+#'
+#' @description
+#'
+#' `check_discretization()` helps you choose or check time (`dt`) and space
+#' (`dx`) discretization settings. It computes a high-precision *reference*
+#' solution of the model's PDFs with `dt_ref`/`dx_ref`, and then compares the
+#' reference PDFs to the discretization settings of the supplied object, using
+#' the Hellinger distance per condition. Smaller distances indicate closer
+#' agreement with the reference --- i.e., a sufficiently fine grid.
+#'
+#' There are not yet overall and officially published recommendations on how
+#' large the Hellinger distance can be without affecting model precision, and
+#' this might even depend on the model itself. Based on some preliminary
+#' simulations we would recommend trying to keep the Hellinger Distance between
+#' below 5 percent on average.
+#'
+#' @param object a [dRiftDM::drift_dm], `fits_agg_dm`, or `fits_ids_dm` object.
+#'   (the latter two are returned by [dRiftDM::estimate_dm()])
+#' @param dt_ref,dx_ref numeric scalars, providing a fine time or space step
+#'   size for the reference solution. Defaults to `0.001`.
+#' @param round_digits number of decimal places to which the final Hellinger
+#'   distances are rounded (default: `5`).
+#' @param ... further arguments passed forward to the respective method.
+#'
+#' @return a named numeric vector of Hellinger distances (one per condition)
+#'   if `object` is of type [dRiftDM::drift_dm] or `fits_agg_dm`. A [data.frame]
+#'   of Hellinger distances across IDs and conditions if `object` is of type
+#'   `fits_ids_dm`. Hellinger distances are in `[0, 1]`, where `0` means
+#'   identical to the reference.
+#'
+#' @details
+#' Under the hood, for each condition, we concatenate the lower- and upper-
+#' boundary PDFs (`pdf_l`, `pdf_u`), interpolate the model PDFs to a time space
+#' matching with the reference PDFs, and then compute the Hellinger distance:
+#' \eqn{H(p,q) = \sqrt{1 - \int \sqrt{p(t)\,q(t)}\,dt}}
+#'
+#' There are not yet overall, officially published recommendations on how large
+#' the Hellinger distance can be without affecting model precision, and this may
+#' even depend on the specific model. Based on preliminary simulations, we
+#' recommend trying to keep the average Hellinger distance below 5\%.
+#'
+#' The reference discretizations (`dt_ref/dx_ref`) must be at least as fine as
+#' the object's current discretization settings (`dt_model/dx_model`). If
+#' `dt_model < dt_ref` or `dx_model < dx_ref`, an error is raised because the
+#' “reference” would not be the finest solution.
+#'
+#' @examples
+#' # Example:
+#' my_model <- ratcliff_dm()
+#'
+#' # Assess current (dt=0.0075, dx=0.02) against a fine reference:
+#' check_discretization(my_model)
+#'
+#' # If distances are near zero across conditions, the current grid is adequate.
+#'
+#' @seealso [dRiftDM::estimate_dm()], [dRiftDM::trapz()]
+#' @export
+check_discretization <- function(object, ...) {
+  UseMethod("check_discretization")
+}
+
+#' @rdname check_discretization
+#' @export
+check_discretization.drift_dm <- function(
+  object,
+  ...,
+  dt_ref = 0.001,
+  dx_ref = 0.001,
+  round_digits = 5
+) {
+  drift_dm_obj <- object
+
+  # basic input checks
+  stopifnot(is.numeric(dt_ref), length(dt_ref) == 1)
+  stopifnot(is.numeric(dx_ref), length(dx_ref) == 1)
+  dt_model <- prms_solve(drift_dm_obj)["dt"]
+  dx_model <- prms_solve(drift_dm_obj)["dx"]
+  t_max = prms_solve(drift_dm_obj)["t_max"]
+  if (dt_model < dt_ref) {
+    stop(
+      "the model's 'dt' is smaller than 'dt_ref'. The reference should be ",
+      "finer (smaller dt) than the model."
+    )
+  }
+  if (dx_model < dx_ref) {
+    stop(
+      "the model's 'dx' is smaller than 'dx_ref'. The reference should be ",
+      "finer (smaller dx) than the model."
+    )
+  }
+
+  # create the common time space
+  time_pm = c(seq(-t_max - dt_ref, 0 - dt_ref, dt_ref), seq(0, t_max, dt_ref))
+
+  ###
+  # interim: define helper functions to calculate the distance between two
+  # pdfs
+  hellinger_dist <- function(pdf_a, pdf_b, x) {
+    pdf_a <- pdf_a / trapz(x = x, y = pdf_a)
+    pdf_b <- pdf_b / trapz(x = x, y = pdf_b)
+    dist <- sqrt(max(0.0, 1 - trapz(x = x, sqrt(pdf_a * pdf_b))))
+    round(dist, round_digits)
+  }
+
+  # paste pdf_u and pdf_l together
+  interp_pdf <- function(pdfs_one_cond, dt) {
+    # unpack the pdfs
+    pdf_u = pdfs_one_cond$pdf_u
+    pdf_l = pdfs_one_cond$pdf_l
+    stopifnot(length(pdf_u) == length(pdf_l))
+    stopifnot(length(pdf_u) == (t_max / dt) + 1)
+
+    # create new time space (negative and positive)
+    x = c(seq(-t_max - dt, 0 - dt, dt), seq(0, t_max, dt))
+
+    # paste the pdfs together and interpolate to common time_space
+    pdf <- c(rev(pdf_l), pdf_u)
+    pdf <- stats::approx(x = x, y = pdf, xout = time_pm)$y
+    return(pdf)
+  }
+
+  # wraps around the model, returns the interpolated pdfs per condition as a
+  # list
+  pdfs_by_dx_dt <- function(model, one_dt = NULL, one_dx = NULL) {
+    stopifnot(!xor(is.null(one_dt), is.null(one_dx)))
+    if (!is.null(one_dt) & !is.null(one_dx)) {
+      prms_solve(model)[c("dt", "dx")] = c(one_dt, one_dx)
+    }
+    pdfs_per_cond = pdfs(model)$pdfs
+    sapply(
+      pdfs_per_cond,
+      \(x) interp_pdf(x, prms_solve(model)["dt"]),
+      simplify = FALSE,
+      USE.NAMES = TRUE
+    )
+  }
+  ###
+
+  # calculate the reference and model
+  pdfs_ref = pdfs_by_dx_dt(
+    model = drift_dm_obj,
+    one_dt = dt_ref,
+    one_dx = dx_ref
+  )
+  pdfs_model = pdfs_by_dx_dt(model = drift_dm_obj)
+
+  # iterate over all conditions and calculate the hellinger distance
+  conds = names(pdfs_ref)
+  hs <- vapply(
+    conds,
+    \(one_cond) {
+      hellinger_dist(
+        pdf_a = pdfs_ref[[one_cond]],
+        pdf_b = pdfs_model[[one_cond]],
+        x = time_pm
+      )
+    },
+    FUN.VALUE = numeric(1)
+  )
+
+  return(hs)
+}
+
+#' @rdname check_discretization
+#' @export
+check_discretization.fits_ids_dm <- function(object, ...) {
+  hs <- sapply(object$all_fits, \(x) check_discretization(x, ...))
+  hs <- t(hs)
+  ids <- rownames(hs)
+  hs = cbind(ID = ids, as.data.frame(hs))
+  row.names(hs) <- NULL
+  hs$ID = try_cast_integer(hs$ID)
+  hs = hs[order(hs$ID), ]
+  return(hs)
+}
+
+#' @rdname check_discretization
+#' @export
+check_discretization.fits_agg_dm <- function(object, ...) {
+  check_discretization(object$drift_dm_obj, ...)
 }

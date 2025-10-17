@@ -11,8 +11,8 @@ dmc_dm(
   obs_data = NULL,
   sigma = 1,
   t_max = 3,
-  dt = 0.001,
-  dx = 0.001,
+  dt = 0.0075,
+  dx = 0.02,
   b_coding = NULL
 )
 }
@@ -25,8 +25,8 @@ Defaults are \code{TRUE}. If \code{FALSE}, a constant non-decision time and
 starting point is set (see \code{nt_constant} and \code{x_dirac_0} in
 \link{component_shelf}).}
 
-\item{instr}{optional string with additional "instructions", see
-\code{\link[=modify_flex_prms]{modify_flex_prms()}} and the Details below.}
+\item{instr}{optional string with "instructions", see
+\code{\link[=modify_flex_prms]{modify_flex_prms()}}.}
 
 \item{obs_data}{data.frame, an optional data.frame with the observed data.
 See \link{obs_data}.}
@@ -73,29 +73,33 @@ assumed (i.e., a dirac delta over 0).
 
 Per default the shape parameter \code{a} is set to 2 and not allowed to
 vary. This is because the derivative of the scaled gamma-distribution
-function does not exist at \code{t = 0} for \code{a < 2}. We generally recommend keeping
-\code{a} fixed to 2 for several reasons. If users decide to set \code{a != 2}, then a
-small value of \code{0.0005} is added to the time vector \code{t_vec} before calculating
-the derivative of the scaled gamma-distribution as originally introduced by
-\insertCite{Ulrichetal.2015;textual}{dRiftDM}. This can lead to large
-numerical inaccuracies if \code{tau} is small and/or \code{dt} is large.
+function does not exist at \code{t = 0} for \code{a < 2}. Currently, we recommend
+keeping \code{a} fixed to 2. If users decide to set \code{a != 2},
+then a small value of \code{1e-05} is added to the time vector \code{t_vec} before
+calculating the derivative of the scaled gamma-distribution as originally
+introduced by \insertCite{Ulrichetal.2015;textual}{dRiftDM}. Note that
+varying \code{a} can lead to large numerical inaccuracies if both \code{tau} and \code{a}
+are small and/or \code{dt} is large.
 
 The model assumes the amplitude \code{A} to be negative for
 incompatible trials. Also, the model contains the custom parameter
 \code{peak_l}, containing the peak latency (\code{(a-2)*tau}).
 }
+\note{
+The scaling of the parameters in \code{dRiftDM} is different to
+\insertCite{Ulrichetal.2015;textual}{dRiftDM}. This is because \code{dRiftDM}
+works in seconds and with a diffusion constant of 1, while the original
+DMC parameterization is in milliseconds and with a diffusion constant of 4.
+We describe how to convert the parameters on our
+\href{https://bucky2177.github.io/dRiftDM/articles/convert_dmc_parameters.html}{website}.
+}
 \examples{
 # the model with default settings
 my_model <- dmc_dm()
 
-# the model with no variability in the starting point and with a more coarse
+# the model with no variability in the starting point and a finer
 # discretization
-my_model <- dmc_dm(
-  var_start = FALSE,
-  t_max = 1.5,
-  dx = .0025,
-  dt = .0025
-)
+my_model <- dmc_dm(var_start = FALSE, dt = .005, dx = .01)
 
 }
 \references{

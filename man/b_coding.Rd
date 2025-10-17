@@ -6,6 +6,7 @@
 \alias{b_coding}
 \alias{b_coding.drift_dm}
 \alias{b_coding.fits_ids_dm}
+\alias{b_coding.fits_agg_dm}
 \title{The Coding of the Boundaries}
 \usage{
 b_coding(object, ...) <- value
@@ -17,10 +18,12 @@ b_coding(object, ...)
 \method{b_coding}{drift_dm}(object, ...)
 
 \method{b_coding}{fits_ids_dm}(object, ...)
+
+\method{b_coding}{fits_agg_dm}(object, ...)
 }
 \arguments{
-\item{object}{an object of type \link{drift_dm} or \code{fits_ids_dm}
-(see \link{load_fits_ids}).}
+\item{object}{an object of type \link{drift_dm}, \code{fits_ids_dm}, or
+\code{fits_agg_dm} (see \code{\link[=estimate_dm]{estimate_dm()}}).}
 
 \item{...}{additional arguments.}
 
@@ -77,7 +80,7 @@ b_coding(my_model)[["column"]] <- "Response"
 
 # accessor method also available for fits_ids_dm objects
 # get an exemplary fits_ids_dm object (see estimate_model_ids)
-fits <- get_example_fits_ids()
+fits <- get_example_fits("fits_ids_dm")
 names(b_coding(fits))
 
 }

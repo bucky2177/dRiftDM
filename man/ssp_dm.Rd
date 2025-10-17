@@ -5,18 +5,24 @@
 \title{Create the Shrinking Spotlight Model}
 \usage{
 ssp_dm(
+  var_non_dec = TRUE,
+  var_start = FALSE,
   instr = NULL,
   obs_data = NULL,
   sigma = 1,
   t_max = 3,
-  dt = 0.001,
-  dx = 0.001,
+  dt = 0.005,
+  dx = 0.02,
   b_coding = NULL
 )
 }
 \arguments{
-\item{instr}{optional string with additional "instructions", see
-\code{\link[=modify_flex_prms]{modify_flex_prms()}} and the Details below.}
+\item{var_non_dec, var_start}{logical, indicating whether the model
+should have a variable non-decision time or starting point
+(see also \code{nt_uniform} and \code{x_uniform} in \link{component_shelf}}
+
+\item{instr}{optional string with "instructions", see
+\code{\link[=modify_flex_prms]{modify_flex_prms()}}.}
 
 \item{obs_data}{data.frame, an optional data.frame with the observed data.
 See \link{obs_data}.}
@@ -43,13 +49,13 @@ It has the following properties (see \link{component_shelf}):
 \itemize{
 \item a constant boundary (parameter \code{b})
 \item a constant starting point in between the decision boundaries
-\item an evidence accumulation process that is driven by an attentional
+\item an evidence accumulation process that is driven by an attention
 spotlight that covers both the flankers and the target. The area that covers
 the flankers and target is modeled by normal distribution with mean 0:
 \itemize{
 \item At the beginning of the trial attention is wide-spread, and the width
 at t=0 is the standard deviation \code{sd_0}
-\item As the trial progresses in time, the attentional spotlight narrows,
+\item As the trial progresses in time, the attention spotlight narrows,
 reflected by a linear decline of the standard deviation with rate \code{r}
 (to a minimum of 0.001).
 \item the attention attributed to both the flankers and the target is scaled
@@ -66,16 +72,24 @@ Per default, the parameter \code{r} is assumed to be fixed (i.e., is not estimat
 freely). The model also contains the custom parameter \code{interf_t}, quantifying
 the interference time (\code{sd_0 / r}).
 }
+\note{
+The parameters of SSP in \code{dRiftDM} differ in their size from the original
+publication of \insertCite{Whiteetal.2011;textual}{dRiftDM}. \code{dRiftDM}
+uses symmetrical boundaries around zero and a diffusion constant of 1.
+In the original publication, SSP was parameterized with boundaries ranging
+from zero to \code{a} and a diffusion constant of 0.1.
+
+Thus, in \code{dRiftDM}, the boundary \code{b} corresponds to \eqn{b = a/2 \cdot 10}.
+Additionally, \code{p} in \code{dRiftDM} is 10 times larger than \code{p} in the original
+publication. Finally, \code{r} is expressed in seconds, and thus \code{r} is 1000 times
+larger in \code{dRiftDM} than in the original publication.
+}
 \examples{
 # the model with default settings
 my_model <- ssp_dm()
 
-# the model with a more coarse discretization
-my_model <- ssp_dm(
-  t_max = 1.5,
-  dx = .0025,
-  dt = .0025
-)
+# the model with a finer discretization
+my_model <- ssp_dm(dt = .0025, dx = .01)
 
 }
 \references{

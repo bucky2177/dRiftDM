@@ -11,31 +11,37 @@ simulate_data(object, ...)
   object,
   ...,
   n,
+  conds = NULL,
   k = 1,
   lower = NULL,
   upper = NULL,
   df_prms = NULL,
   seed = NULL,
-  verbose = 1
+  progress = 1
 )
 }
 \arguments{
 \item{object}{an object inheriting from \link{drift_dm}.}
 
-\item{...}{further arguments passed on to other functions, including the
-function \link{simulate_values}. If users want to use a different
-distribution than uniform for \link{simulate_values}, they must provide
-the additional arguments (e.g., \code{means} and \code{sds}) in a format like
-\code{lower/upper}.}
+\item{...}{further arguments passed on to other functions, i.e.,
+\code{\link[=simulate_values]{simulate_values()}} and \code{\link[=simulate_one_data_set]{simulate_one_data_set()}}. This
+allows users to control the distribution from which original parameter
+values are drawn (if \code{k} > 0) and the number of decimal places that the
+simulated RTs should have. If users want to use a different distribution than
+uniform for
+\code{\link[=simulate_values]{simulate_values()}}, they must provide the additional arguments
+(e.g., \code{means} and \code{sds}) in a format like \code{lower/upper}.}
 
 \item{n}{numeric, the number of trials per condition to draw. If a single
 numeric, then each condition will have \code{n} trials. Can be a (named) numeric
 vector with the same length as there are conditions to allow a different
 number of trials per condition.}
 
+\item{conds}{character vector, specifying the conditions to sample from.
+Default \code{NULL} is equivalent to \code{conds(object)}.}
+
 \item{k}{numeric larger than 0, indicating how many data sets shall
-be simulated. If > 1, then it is only effective when specifying
-\code{lower/upper}.}
+be simulated. If > 1, users must specify \code{lower/upper}.}
 
 \item{lower, upper}{vectors or a list, specifying the simulation space for
 each parameter of the model (see Details). Only relevant for \code{k > 1}}
@@ -47,7 +53,7 @@ names matching with (\code{coef(object, select_unique = TRUE)}), plus a column
 
 \item{seed}{a single numeric, an optional seed for reproducible sampling}
 
-\item{verbose}{an integer, indicating if information about the progress
+\item{progress}{an integer, indicating if information about the progress
 should be displayed. 0 -> no information, 1 -> a progress bar.
 Default is 1. Only effective when \code{k > 1}.}
 }
@@ -120,7 +126,7 @@ Users have three options to specify the simulation space:
 \item Plain numeric vectors (not very much recommended). In this case,
 \code{lower/upper} must be sorted in accordance with the free parameters in the
 \code{flex_prms_obj} object (call \verb{print(<model>)} and have a look at the
-\verb{Unique Parameters} output)
+\verb{Parameter Settings} output)
 \item Named numeric vectors. In this case \code{lower/upper} have to provide labels
 in accordance with the parameters that are considered "free" at least once
 across conditions.
@@ -150,7 +156,7 @@ upper <- c(6, 0.9, 0.5)
 # now simulate 5 data sets with each 100 trials
 data_prms <- simulate_data(a_model,
   n = 100, k = 5, lower = lower,
-  upper = upper, seed = 1, verbose = 0
+  upper = upper, seed = 1, progress = 0
 )
 head(data_prms$synth_data)
 head(data_prms$prms)
@@ -158,7 +164,7 @@ head(data_prms$prms)
 # Example 2 ----------------------------------------------------------------
 # more flexibility when defining lists for lower and upper
 # get a pre-built model, and allow muc to vary across conditions
-a_model <- dmc_dm(t_max = 1.5, dx = .005, dt = .005, instr = "muc ~ ")
+a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005, instr = "muc ~ ")
 
 # define a lower and upper simulation space
 # let muc vary between 2 and 6, but in incomp conditions, let it vary
@@ -182,7 +188,7 @@ upper <- list(
 
 data_prms <- simulate_data(a_model,
   n = 100, k = 5, lower = lower,
-  upper = upper, seed = 1, verbose = 0
+  upper = upper, seed = 1, progress = 0
 )
 range(data_prms$prms$muc.comp)
 range(data_prms$prms$muc.incomp)

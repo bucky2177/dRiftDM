@@ -17,7 +17,7 @@ dmc_synth_data
 }
 \description{
 This dataset was simulated by using the Diffusion Model for Conflict tasks
-(see  \code{\link[=dmc_dm]{dmc_dm()}}) with parameter settings that are typical for a
+(see \code{\link[=dmc_dm]{dmc_dm()}}) with parameter settings that are typical for a
 Simon task.
 }
 \keyword{datasets}

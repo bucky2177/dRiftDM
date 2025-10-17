@@ -6,6 +6,7 @@
 \alias{validate_stats_dm.cafs}
 \alias{validate_stats_dm.quantiles}
 \alias{validate_stats_dm.delta_funs}
+\alias{validate_stats_dm.densities}
 \alias{validate_stats_dm.sum_dist}
 \alias{validate_stats_dm.fit_stats}
 \alias{validate_stats_dm.stats_dm}
@@ -20,6 +21,8 @@ validate_stats_dm(stat_df)
 \method{validate_stats_dm}{quantiles}(stat_df)
 
 \method{validate_stats_dm}{delta_funs}(stat_df)
+
+\method{validate_stats_dm}{densities}(stat_df)
 
 \method{validate_stats_dm}{sum_dist}(stat_df)
 
@@ -57,9 +60,15 @@ two columns prefixed with \code{"Quant_"}
 \item \strong{\code{validate_stats_dm.delta_funs}:} Ensures \code{"Prob"} exists, at least two
 columns prefixed with \code{"Quant_"}, and at least one column  each \code{Avg_}
 and \code{Delta_}
-\item \strong{\code{validate_stats_dm.sum_dist}:} Checks for a \code{"Source"} column.
-\item \strong{\code{validate_stats_dm.fit_stats}:} Checks for \code{"Log_Like"}, \code{"AIC"}, and
-\code{"BIC"} columns.
+\item \strong{\code{validate_stats_dm.delta_funs}:} Ensures \code{"Cond"}, \code{"Time"}, and
+\code{"Stat"} exists, and at least two column with \code{"Dens_"}.
+\item \strong{\code{validate_stats_dm.sum_dist}:} Checks for a \code{"Source"} column. Here,
+it is also checked whether cell combinations appear equally often.
+\item \strong{\code{validate_stats_dm.fit_stats}:} Checks for if the fit statistics
+summarize a log-likelihood cost function or the RMSE statistic. In the
+former case, the columns \code{"Log_Like"}, \code{"Neg_Log_Like"}, \code{"AIC"}, and \code{"BIC"}
+are expected. In the latter case, the columns \code{"RMSE_ms"} and \code{"RMSE_s"}
+are expected.
 }
 }
 \keyword{internal}

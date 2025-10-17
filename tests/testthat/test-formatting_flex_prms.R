@@ -1,12 +1,14 @@
 test_that("summary.flex_prms and corresponding print works as expected", {
-  a_flex_prms <- flex_prms(c(a = 2, b = 3, c = 4),
+  a_flex_prms <- flex_prms(
+    c(a = 2, b = 3, c = 4),
     conds = c("foo", "bar", "ho"),
     instr = "a ~
                           b ~ bar == ((a ~ foo) + -(c ~ bar))
                           b ~ ho == -(a ~ foo)
                           c <!> foo
                           lorem := (a + 2) * b / c
-                          c ~ bar => 10", messaging = F
+                          c ~ bar => 10",
+    messaging = F
   )
 
   sum_obj <- summary(a_flex_prms)
@@ -45,7 +47,6 @@ test_that("summary.flex_prms and corresponding print works as expected", {
       as.numeric(sum_obj$cust_prms_matrix),
       c(3, -3.2, -2)
     )
-
 
   ## here prints
   expect_snapshot(
