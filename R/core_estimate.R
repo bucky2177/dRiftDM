@@ -1478,7 +1478,11 @@ estimate_classical_wrapper = function(
       "estimate_classical",
       "is_numeric",
       "get_parameters_smart",
+      "cost_function",
       "cost_function.drift_dm",
+      "coef",
+      "coef.drift_dm",
+      "coef<-",
       "coef<-.drift_dm"
     )
     parallel::clusterExport(
