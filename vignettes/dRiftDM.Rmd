@@ -403,7 +403,6 @@ When you provide `lower/upper`, the default is actually not "nmkb", but "DEoptim
 Because DEoptim is more time costly, it is useful to use multiple cores:
 
 ```{r fit-model-4}
-tic()
 all_fits_deoptim <- estimate_dm(
   drift_dm_obj = ddm,
   obs_data = data,
@@ -411,7 +410,6 @@ all_fits_deoptim <- estimate_dm(
   upper = l_u$upper,
   n_cores = 2 # to align with CRAN rules, I'll choose only 2 cores
 )
-toc()
 ```
 A common question concerns the number of cores to use. By default, `dRiftDM` (v.0.3.0) parallelizes across individuals---that is, one individual is fitted per core. Therefore, you should not specify more cores than there are individuals. In the present toy example, this limits the number of cores to four.
 
