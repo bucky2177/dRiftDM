@@ -44,8 +44,6 @@ calc_pdfs <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
 #' @rdname calc_pdfs
 #' @export
 calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
-
-
   # unpack parameters and conditions
   nt <- prms_solve[["nt"]]
   dt <- prms_solve[["dt"]]
@@ -71,8 +69,10 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
     }
 
     # or its integral
-    if (drift_dm_obj$solver == "im_zero" &&
-        !identical(drift_dm_obj$comp_funs$mu_int_fun, mu_int_constant)) {
+    if (
+      drift_dm_obj$solver == "im_zero" &&
+        !identical(drift_dm_obj$comp_funs$mu_int_fun, mu_int_constant)
+    ) {
       stop(
         "Ratcliff DDM with variable drift rate requires dRiftDM's",
         " mu_int_constant function"
@@ -85,43 +85,62 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
     }
   }
 
-
   # get the component values
   comp_vals <- comp_vals(
-    drift_dm_obj = drift_dm_obj, x_vec = x_vec,
-    t_vec = t_vec, nt = nt, dt = dt, nx = nx, dx = dx,
-    prms_solve = prms_solve, solver = solver,
+    drift_dm_obj = drift_dm_obj,
+    x_vec = x_vec,
+    t_vec = t_vec,
+    nt = nt,
+    dt = dt,
+    nx = nx,
+    dx = dx,
+    prms_solve = prms_solve,
+    solver = solver,
     prms_matrix = prms_matrix
   )
 
   # calculate the pdfs
-  pdfs <- sapply(conds, function(one_cond) {
+  pdfs <- sapply(
+    conds,
+    function(one_cond) {
+      if (var_drift) {
+        pdfs_one_cond <- calc_pdfs_var_drift(
+          sd_muc_one_cond = prms_matrix[one_cond, "sd_muc"],
+          comp_vals_one_cond = comp_vals[[one_cond]],
+          nt = nt,
+          nx = nx,
+          dt = dt,
+          dx = dx,
+          sigma = sigma,
+          x_vec = x_vec,
+          t_vec = t_vec,
+          solver = solver
+        )
+      } else {
+        pdfs_one_cond <- calc_pdfs_heart(
+          comp_vals_one_cond = comp_vals[[one_cond]],
+          nt = nt,
+          nx = nx,
+          dt = dt,
+          dx = dx,
+          sigma = sigma,
+          x_vec = x_vec,
+          t_vec = t_vec,
+          solver = solver
+        )
+      }
 
-    if (var_drift) {
-      pdfs_one_cond <- calc_pdfs_var_drift(
-        sd_muc_one_cond = prms_matrix[one_cond, "sd_muc"],
-        comp_vals_one_cond = comp_vals[[one_cond]],
-        nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma, x_vec = x_vec,
-        t_vec = t_vec, solver = solver
-      )
-    } else {
-      pdfs_one_cond <- calc_pdfs_heart(
-        comp_vals_one_cond = comp_vals[[one_cond]],
-        nt = nt, nx = nx, dt = dt, dx = dx, sigma = sigma, x_vec = x_vec,
-        t_vec = t_vec, solver = solver
-      )
-    }
-
-    return(pdfs_one_cond)
-  }, simplify = FALSE, USE.NAMES = TRUE)
-
+      return(pdfs_one_cond)
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
 
   return(pdfs)
 }
 
 # outsourced, for easier looping across calc_pdfs_heart
 calc_pdfs_var_drift <- function(sd_muc_one_cond, comp_vals_one_cond, ...) {
-
   # do the quadrature
   X <- c(-2.02018287, -0.95857246, 0., 0.95857246, 2.02018287) * sqrt(2.0)
   W <- c(0.01995324, 0.39361932, 0.94530872, 0.39361932, 0.01995324)
@@ -129,7 +148,6 @@ calc_pdfs_var_drift <- function(sd_muc_one_cond, comp_vals_one_cond, ...) {
 
   # iterate multiple times over calc_pdfs_heart
   all_pdfs <- lapply(X, \(one_x) {
-
     # create a copy of x_vals (because Thomas' cpp modifies in place)
     copy_comp_vals <- comp_vals_one_cond
     copy_comp_vals$x_vals <- copy_comp_vals$x_vals + 0
@@ -143,11 +161,11 @@ calc_pdfs_var_drift <- function(sd_muc_one_cond, comp_vals_one_cond, ...) {
   })
 
   # add up
-  pdf_u <- rowSums(sapply(1:length(all_pdfs), \(idx){
+  pdf_u <- rowSums(sapply(1:length(all_pdfs), \(idx) {
     all_pdfs[[idx]]$pdf_u * wgts[idx]
   }))
 
-  pdf_l <- rowSums(sapply(1:length(all_pdfs), \(idx){
+  pdf_l <- rowSums(sapply(1:length(all_pdfs), \(idx) {
     all_pdfs[[idx]]$pdf_l * wgts[idx]
   }))
 
@@ -158,9 +176,17 @@ calc_pdfs_var_drift <- function(sd_muc_one_cond, comp_vals_one_cond, ...) {
 
 # outsourced, for easier looping; prepares a call to the cpp functions
 # and the convolution
-calc_pdfs_heart <- function(comp_vals_one_cond, nt, nx, dt, dx, sigma, t_vec,
-                            x_vec, solver) {
-
+calc_pdfs_heart <- function(
+  comp_vals_one_cond,
+  nt,
+  nx,
+  dt,
+  dx,
+  sigma,
+  t_vec,
+  x_vec,
+  solver
+) {
   # unpack component values
   x_vals <- comp_vals_one_cond$x_vals
   b_vals <- comp_vals_one_cond$b_vals
@@ -176,23 +202,36 @@ calc_pdfs_heart <- function(comp_vals_one_cond, nt, nx, dt, dx, sigma, t_vec,
   if (solver == "kfe") {
     # solve the pdfs with kfe
     cpp_kfe_ada(
-      pdf_u = pdf_u, pdf_l = pdf_l, xx = x_vals,
-      nt = nt, nx = nx, dtbase = dt, dx = dx, sigma = sigma,
-      b_vals = b_vals, mu_vals = mu_vals,
-      dt_b_vals = dt_b_vals, x_vec = x_vec
+      pdf_u = pdf_u,
+      pdf_l = pdf_l,
+      xx = x_vals,
+      nt = nt,
+      nx = nx,
+      dtbase = dt,
+      dx = dx,
+      sigma = sigma,
+      b_vals = b_vals,
+      mu_vals = mu_vals,
+      dt_b_vals = dt_b_vals,
+      x_vec = x_vec
     )
   } else if (solver == "im_zero") {
     # solve the pdfs with integral approach
     cpp_imzero(
-      pdf_u = pdf_u, pdf_l = pdf_l, nt = nt, dt = dt,
-      sigma = sigma, b_vals = b_vals, mu_vals = mu_vals,
-      mu_int_vals = mu_int_vals, dt_b_vals = dt_b_vals,
+      pdf_u = pdf_u,
+      pdf_l = pdf_l,
+      nt = nt,
+      dt = dt,
+      sigma = sigma,
+      b_vals = b_vals,
+      mu_vals = mu_vals,
+      mu_int_vals = mu_int_vals,
+      dt_b_vals = dt_b_vals,
       t_vec = t_vec
     )
   } else {
     stop("solver '", solver, "' not implemented yet!")
   }
-
 
   # Omit all states that did not reach a threshold
   scale <- sum(pdf_u) * dt + sum(pdf_l) * dt
@@ -201,9 +240,12 @@ calc_pdfs_heart <- function(comp_vals_one_cond, nt, nx, dt, dx, sigma, t_vec,
 
   #  add residual time ...
   pdfs_one_cond <- add_residual(
-    pdf_nt = nt_vals, pdf_u = pdf_u, pdf_l = pdf_l, dt = dt, nt = nt
+    pdf_nt = nt_vals,
+    pdf_u = pdf_u,
+    pdf_l = pdf_l,
+    dt = dt,
+    nt = nt
   )
-
 }
 
 
@@ -229,14 +271,15 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
     stop("pdf_l and pdf_nt don't have the same length!")
   }
 
-  if (abs(sum(pdf_nt) * dt - (sum(pdf_l) * dt + sum(pdf_u) * dt)) >
-      drift_dm_medium_approx_error()) {
+  if (
+    abs(sum(pdf_nt) * dt - (sum(pdf_l) * dt + sum(pdf_u) * dt)) >
+      drift_dm_medium_approx_error()
+  ) {
     warning(
       "pdf of the non-dec-time and pdf_l/pdf_u don't integrate to the",
       " same value"
     )
   }
-
 
   # convolute
   pdf_u <- stats::convolve(pdf_nt, rev(pdf_u), type = "open") * dt
@@ -246,7 +289,6 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
   pdf_l <- pdf_l[1:(nt + 1)]
 
   stopifnot(length(pdf_u) == length(pdf_nt) & length(pdf_l) == length(pdf_nt))
-
 
   # add robustness prm
   eps <- drift_dm_robust_prm()
@@ -258,7 +300,6 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
   pdf_u <- pdf_u / scale
   pdf_l <- pdf_l / scale
 
-
   if (min(pdf_u) < 0 | min(pdf_l) < 0) {
     warning(
       "subst. negative density values encountered when calculating",
@@ -268,7 +309,3 @@ add_residual <- function(pdf_nt, pdf_u, pdf_l, dt, nt) {
 
   return(list(pdf_u = pdf_u, pdf_l = pdf_l))
 }
-
-
-
-

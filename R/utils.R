@@ -45,9 +45,13 @@ is_numeric <- function(x) {
 #' - Optional absence of non-word names if `allow_non_word_chars` is FALSE
 #'
 #' @keywords internal
-check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
-                                          length = NULL,
-                                          allow_non_word_chars = FALSE) {
+check_if_named_numeric_vector <- function(
+  x,
+  var_name,
+  labels = NULL,
+  length = NULL,
+  allow_non_word_chars = FALSE
+) {
   if (!is.numeric(x)) {
     stop(var_name, " is not a (named) numeric vector")
   }
@@ -67,7 +71,6 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
     stop(var_name, " does not provide a name for each entry")
   }
 
-
   if (anyDuplicated(names(x)) > 0) {
     stop("there are duplicate names in ", var_name)
   }
@@ -78,12 +81,18 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
 
   if (!is.null(labels) && !all(names(x) %in% labels)) {
     stop(
-      "the entries of ", var_name, " can not be adressed by ",
+      "the entries of ",
+      var_name,
+      " can not be adressed by ",
       paste(labels, collapse = ", ")
     )
   }
-  if (any(is.na(x))) stop(var_name, " contains NAs")
-  if (any(is.infinite(x))) warning(var_name, " contains infinite values")
+  if (any(is.na(x))) {
+    stop(var_name, " contains NAs")
+  }
+  if (any(is.infinite(x))) {
+    warning(var_name, " contains infinite values")
+  }
 
   if (!allow_non_word_chars) {
     given_names <- names(x)
@@ -93,8 +102,6 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
     }
   }
 }
-
-
 
 
 #' Format Parameters as String
@@ -115,8 +122,13 @@ check_if_named_numeric_vector <- function(x, var_name, labels = NULL,
 #' vector provided by this call is used when `x` is of type [dRiftDM::drift_dm]
 #'
 #' @keywords internal
-prms_to_str <- function(x, prms = NULL, round_digits = NULL,
-                        sep = "=>", collapse = "\n") {
+prms_to_str <- function(
+  x,
+  prms = NULL,
+  round_digits = NULL,
+  sep = "=>",
+  collapse = "\n"
+) {
   if (inherits(x, "drift_dm")) {
     prms <- coef(x, select_unique = TRUE)
     names_prms <- names(prms)
@@ -125,7 +137,6 @@ prms_to_str <- function(x, prms = NULL, round_digits = NULL,
     names_prms <- x
   }
 
-
   if (is.null(round_digits)) {
     round_digits <- drift_dm_default_rounding()
   }
@@ -133,7 +144,6 @@ prms_to_str <- function(x, prms = NULL, round_digits = NULL,
   if (!is_numeric(round_digits)) {
     stop("round_digits is not a valid numeric vector")
   }
-
 
   if (!is.character(names_prms)) {
     stop("names_prms argument not of type character")
@@ -155,15 +165,10 @@ prms_to_str <- function(x, prms = NULL, round_digits = NULL,
     stop("sep or collapse argument not of type character")
   }
 
-  current_prms <- paste(names_prms,
-    round(prms, round_digits),
-    sep = sep
-  )
+  current_prms <- paste(names_prms, round(prms, round_digits), sep = sep)
   current_prms <- paste(current_prms, collapse = collapse)
   return(current_prms)
 }
-
-
 
 
 #' Generate Parameter-Condition Labels
@@ -203,8 +208,6 @@ prm_cond_combo_2_labels <- function(prms_cond_combo, sep = ".") {
 
   return(labels)
 }
-
-
 
 
 #' Create a matrix for lower and upper
@@ -249,11 +252,12 @@ prm_cond_combo_2_labels <- function(prms_cond_combo, sep = ".") {
 #'
 #' @keywords internal
 create_matrix_smart <- function(input, conds, prm_labels = NULL) {
-  if (is.null(input)) return(NULL)
+  if (is.null(input)) {
+    return(NULL)
+  }
   if (!is.character(conds) | length(conds) == 0) {
     stop("conds must be a character vector")
   }
-
 
   # if it is a list, extract default values and keep the rest
   # otherwise, just use the vector directly
@@ -280,8 +284,10 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
     names_input = names(input)
     if (!is.null(names_input)) {
       if (any(names_input == "")) {
-        stop("Parameter labels must be specified for each element of your ",
-             "input vector. Check your arguments!")
+        stop(
+          "Parameter labels must be specified for each element of your ",
+          "input vector. Check your arguments!"
+        )
       }
       if (any(duplicated(names_input))) {
         stop("Parameter labels must be unique! Check your input.")
@@ -307,7 +313,6 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
     stop("illegal data type for (values in) input")
   }
 
-
   # if there are no parameter names coming with the default values,
   # use the supplied argument
   if (is.null(names(def_values))) {
@@ -318,10 +323,14 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
     if (length(def_values) != length(prm_labels)) {
       stop(
         "The input (e.g., for lower, upper, means) specified ",
-        length(def_values), " parameter values, ",
-        "which doesn't match with the ", length(prm_labels), " parameters ",
+        length(def_values),
+        " parameter values, ",
+        "which doesn't match with the ",
+        length(prm_labels),
+        " parameters ",
         "of the model that are considered free in at least one condition (",
-        paste(prm_labels, collapse = ","), "). Double-check your arguments!"
+        paste(prm_labels, collapse = ","),
+        "). Double-check your arguments!"
       )
     }
     names(def_values) <- prm_labels
@@ -329,9 +338,10 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
 
   # create a matrix of default values
   check_if_named_numeric_vector(x = def_values, var_name = "default_values")
-  result <- do.call(rbind, replicate(length(conds), def_values,
-    simplify = FALSE
-  ))
+  result <- do.call(
+    rbind,
+    replicate(length(conds), def_values, simplify = FALSE)
+  )
   rownames(result) <- conds
 
   # if there is a remaining list, then fill in the specific input values
@@ -370,7 +380,6 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
 
   return(result)
 }
-
 
 
 #' Turn default/special parameter specifications to vectors
@@ -413,9 +422,14 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
 #' `vec_a`/`vec_b` will be `NULL` as well.
 #'
 #' @keywords internal
-get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
-                                 labels = TRUE, is_l_u = TRUE,
-                                 fill_up_with = NULL) {
+get_parameters_smart <- function(
+  drift_dm_obj,
+  input_a,
+  input_b = NULL,
+  labels = TRUE,
+  is_l_u = TRUE,
+  fill_up_with = NULL
+) {
   # input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -429,24 +443,34 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
 
   # get the upper and lower matrices (might return NULL if input is NULL)
   matrix_a <- create_matrix_smart(
-    input = input_a, conds = conds, prm_labels = prm_labels
+    input = input_a,
+    conds = conds,
+    prm_labels = prm_labels
   )
   matrix_b <- create_matrix_smart(
-    input = input_b, conds = conds, prm_labels = prm_labels
+    input = input_b,
+    conds = conds,
+    prm_labels = prm_labels
   )
-
 
   # fill up with default parameter settings
   fill_up = function(matrix_x) {
-    if (is.null(matrix_x)) return(NULL) # no matrix provided
-    if (is.null(fill_up_with)) return(matrix_x) # no fill_up requested
+    if (is.null(matrix_x)) {
+      return(NULL)
+    } # no matrix provided
+    if (is.null(fill_up_with)) {
+      return(matrix_x)
+    } # no fill_up requested
 
     # create a matrix with default values for parameters that were not
     # specified in input_x (if there are no missing parameters, then this will
     # return matrix_x unmodified)
     missing_prms = prm_labels[!(prm_labels %in% colnames(matrix_x))]
-    missing_mat = matrix(data = fill_up_with, nrow = nrow(matrix_x),
-                         ncol = length(missing_prms))
+    missing_mat = matrix(
+      data = fill_up_with,
+      nrow = nrow(matrix_x),
+      ncol = length(missing_prms)
+    )
     colnames(missing_mat) <- missing_prms
     return(cbind(matrix_x, missing_mat))
   }
@@ -454,22 +478,23 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
   matrix_a = fill_up(matrix_a)
   matrix_b = fill_up(matrix_b)
 
-
   # check if all parameters are there (or additional parameters that are )
   diff_a = setdiff(prm_labels, colnames(matrix_a))
   if (!is.null(matrix_a) && length(diff_a) > 0) {
     stop(
       "Some free model parameters are missing input values. ",
       "Please check your arguments (e.g., lower, upper, means) and provide ",
-      "values for the following parameters: ", paste(diff_a, collapse = ", ")
+      "values for the following parameters: ",
+      paste(diff_a, collapse = ", ")
     )
   }
   diff_b = setdiff(prm_labels, colnames(matrix_b))
-  if (!is.null(matrix_b) && !all(prm_labels %in%  colnames(matrix_b))) {
+  if (!is.null(matrix_b) && !all(prm_labels %in% colnames(matrix_b))) {
     stop(
       "Some free model parameters are missing input values. ",
       "Please check your arguments (e.g., lower, upper, means) and provide ",
-      "values for the following parameters: ", paste(diff_a, collapse = ", ")
+      "values for the following parameters: ",
+      paste(diff_a, collapse = ", ")
     )
   }
 
@@ -477,7 +502,8 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
   if (!is.null(matrix_a) && length(diff_a) > 0) {
     warning(
       "Parameter values (e.g., for lower, upper, means) were provided ",
-      "for the following parameters: ", paste(diff_a, collapse = ", "),
+      "for the following parameters: ",
+      paste(diff_a, collapse = ", "),
       ". These parameters are not 'free' or not part of the model and will be ",
       "ignored."
     )
@@ -486,7 +512,8 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
   if (!is.null(matrix_b) && length(diff_b) > 0) {
     warning(
       "Parameter values (e.g., for lower, upper, means) were provided ",
-      "for the following parameters: ", paste(diff_b, collapse = ", "),
+      "for the following parameters: ",
+      paste(diff_b, collapse = ", "),
       ". These parameters are not 'free' or not part of the model and will be ",
       "ignored."
     )
@@ -494,22 +521,30 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
 
   # turn the matrix to a vector (which works with unsorted matrices)
   map_to_vec = function(matrix_x) {
-    if (is.null(matrix_x)) return(NULL)
+    if (is.null(matrix_x)) {
+      return(NULL)
+    }
     sapply(1:ncol(prm_cond_combo), function(idx) {
       prm <- prm_cond_combo[1, idx]
       cond <- prm_cond_combo[2, idx]
-      prm_is_unique = sum(prm_cond_combo[1,] == prm) == 1
-      vals_are_unique = length(unique(matrix_x[,prm])) == 1
+      prm_is_unique = sum(prm_cond_combo[1, ] == prm) == 1
+      vals_are_unique = length(unique(matrix_x[, prm])) == 1
       if (prm_is_unique && !vals_are_unique) {
-        stop("Condition-specific input found for parameter '", prm,
-             "', but this parameter is identical across conditions.")
+        stop(
+          "Condition-specific input found for parameter '",
+          prm,
+          "', but this parameter is identical across conditions."
+        )
       }
       tryCatch(
         matrix_x[cond, prm],
         error = function(e) {
-          stop("Couldn't map the input to the model parameters.",
-          " Did you forget to list all the model parameters that are 'free'?")
-        })
+          stop(
+            "Couldn't map the input to the model parameters.",
+            " Did you forget to list all the model parameters that are 'free'?"
+          )
+        }
+      )
     })
   }
 
@@ -518,16 +553,19 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
 
   # label (of requested)
   names_prms <- prm_cond_combo_2_labels(prm_cond_combo)
-  if (!is.null(vec_a) && labels) names(vec_a) <- names_prms
-  if (!is.null(vec_b) && labels) names(vec_b) <- names_prms
-
+  if (!is.null(vec_a) && labels) {
+    names(vec_a) <- names_prms
+  }
+  if (!is.null(vec_b) && labels) {
+    names(vec_b) <- names_prms
+  }
 
   # will not be thrown when vec_a or vec_b are NULL
   if (is_l_u && any(vec_a > vec_b)) {
     warning(
       "values in the created vec_a (e.g., lower) vector are sometimes larger",
       " than in the created vec_b (e.g., upper) vector. This likely isn't",
-        "intended."
+      "intended."
     )
   }
 
@@ -536,14 +574,16 @@ get_parameters_smart <- function(drift_dm_obj, input_a, input_b = NULL,
 
 
 with_muffled_warning <- function(expr, pattern, ignore.case = FALSE) {
-
-  withCallingHandlers({
-    eval(expr)
-  }, warning = function(w) {
-    if (grepl(pattern, conditionMessage(w), ignore.case = ignore.case)) {
-      invokeRestart("muffleWarning")
+  withCallingHandlers(
+    {
+      eval(expr)
+    },
+    warning = function(w) {
+      if (grepl(pattern, conditionMessage(w), ignore.case = ignore.case)) {
+        invokeRestart("muffleWarning")
+      }
     }
-  })
+  )
 }
 
 
@@ -551,14 +591,19 @@ with_muffled_warning <- function(expr, pattern, ignore.case = FALSE) {
 
 #' @rdname trapz
 internal_trapz <- function(x, y, return_cumsum = FALSE) {
-
-  if (length(x) != length(y)) stop("'x' and 'y' must have the same length")
+  if (length(x) != length(y)) {
+    stop("'x' and 'y' must have the same length")
+  }
   n <- length(x)
-  if (n < 2L) stop("need at least two points")
-  if (!is_numeric(x) || !is_numeric(y)){
+  if (n < 2L) {
+    stop("need at least two points")
+  }
+  if (!is_numeric(x) || !is_numeric(y)) {
     stop("'x' and 'y' must be valid numerics")
   }
-  if (any(diff(x) <= 0)) stop("'x' must be strictly increasing")
+  if (any(diff(x) <= 0)) {
+    stop("'x' must be strictly increasing")
+  }
 
   dx <- diff(x)
   mid_heights <- (y[-n] + y[-1]) / 2.0
@@ -571,7 +616,7 @@ internal_trapz <- function(x, y, return_cumsum = FALSE) {
 }
 
 #' @rdname trapz
-cumtrapz <- function(x, y){
+cumtrapz <- function(x, y) {
   internal_trapz(x, y, TRUE)
 }
 
@@ -602,7 +647,7 @@ cumtrapz <- function(x, y){
 #' - `internal_trapz()`: either of the above, depending on `return_cumsum`
 #'
 #' @keywords internal
-trapz  <- function(x, y){
+trapz <- function(x, y) {
   internal_trapz(x, y, FALSE)
 }
 
@@ -701,7 +746,7 @@ drift_dm_default_b_coding <- function() {
 
 #' @rdname defaults
 drift_dm_skip_if_contr_low <- function() {
- return(0.0001)
+  return(0.0001)
 }
 
 
@@ -732,7 +777,6 @@ drift_dm_cost_functions <- function() {
 }
 
 
-
 #' Available types of statistics
 #'
 #' Internal helper to return supported statistic types depending on the
@@ -747,12 +791,18 @@ drift_dm_stats_types <- function(context = NULL) {
   sum_dist <- c("basic_stats", "cafs", "quantiles", "delta_funs", "densities")
   all_stats <- c(sum_dist, "fit_stats")
 
-  if (is.null(context)) return(all_stats)
+  if (is.null(context)) {
+    return(all_stats)
+  }
 
   context <- match.arg(
     context,
     choices = c(
-      "data.frame", "drift_dm","fits_ids_dm", "fits_agg_dm", "sum_dist"
+      "data.frame",
+      "drift_dm",
+      "fits_ids_dm",
+      "fits_agg_dm",
+      "sum_dist"
     )
   )
 
@@ -816,7 +866,6 @@ get_example_fits = function(class, hierarchical = FALSE) {
       file = file.path(sys_path, "example_fits_agg.rds")
     )
   }
-
 
   if (class == "mcmc_dm") {
     if (!hierarchical) {

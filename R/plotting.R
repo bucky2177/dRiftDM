@@ -1,19 +1,33 @@
 # FUNCTION FOR PLOTTING TRACES ---------------------------------------------
 
-
 # Core plotting function to handle trace and boundary plotting
-plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
-                            ylim, new_plot, ...) {
-
+plot_one_traces <- function(
+  traces_obj,
+  col,
+  col_b,
+  xlab,
+  ylab,
+  xlim,
+  ylim,
+  new_plot,
+  ...
+) {
   # set_default_arguments() was already called from plot.traces_dm_list
   dots = list(...)
 
   # Initialize plot
   if (new_plot) {
     plot(
-      c(1, 2) ~ c(1, 1), col = "white", xlab = xlab, ylab = ylab,
-      xlim = xlim, ylim = ylim, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
-      cex.main = dots$cex.main, main = dots$main
+      c(1, 2) ~ c(1, 1),
+      col = "white",
+      xlab = xlab,
+      ylab = ylab,
+      xlim = xlim,
+      ylim = ylim,
+      cex.axis = dots$cex.axis,
+      cex.lab = dots$cex.lab,
+      cex.main = dots$cex.main,
+      main = dots$main
     )
     graphics::abline(h = 0, col = dots$horiz.col, lwd = dots$horiz.lwd)
   }
@@ -25,17 +39,28 @@ plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
   for (i in 1:nrow(e_samples)) {
     one_trace <- e_samples[i, ]
     graphics::points(
-      one_trace ~ t_vec, col = col, type = "l",
-      lty = dots$pred.lty, lwd = dots$pred.lwd
+      one_trace ~ t_vec,
+      col = col,
+      type = "l",
+      lty = dots$pred.lty,
+      lwd = dots$pred.lwd
     )
   }
 
   b_vals <- attr(traces_obj, "b_vals")
   graphics::points(
-    b_vals ~ t_vec, type = "l", col = col_b, lwd = dots$b.lwd, lty = dots$b.lty
+    b_vals ~ t_vec,
+    type = "l",
+    col = col_b,
+    lwd = dots$b.lwd,
+    lty = dots$b.lty
   )
   graphics::points(
-    -b_vals ~ t_vec, type = "l", col = col_b, lwd = dots$b.lwd, lty = dots$b.lty
+    -b_vals ~ t_vec,
+    type = "l",
+    col = col_b,
+    lwd = dots$b.lwd,
+    lty = dots$b.lty
   )
 }
 
@@ -108,17 +133,24 @@ plot_one_traces <- function(traces_obj, col, col_b, xlab, ylab, xlim,
 #' @seealso [dRiftDM::simulate_traces]
 #'
 #' @export
-plot.traces_dm_list <- function(x, ..., conds = NULL, col = NULL, col_b = NULL,
-                                xlim = NULL, ylim = NULL, xlab = "Time",
-                                ylab = "Evidence") {
-
+plot.traces_dm_list <- function(
+  x,
+  ...,
+  conds = NULL,
+  col = NULL,
+  col_b = NULL,
+  xlim = NULL,
+  ylim = NULL,
+  xlab = "Time",
+  ylab = "Evidence"
+) {
   # input handling
   all_conds <- names(x)
   conds <- conds %||% all_conds
   conds <- match.arg(arg = conds, choices = all_conds, several.ok = TRUE)
 
   t_vec <- attr(x, "t_vec")
-  dots <-  list(...)
+  dots <- list(...)
 
   dots <- set_default_arguments(dots = dots, conds, NULL)
 
@@ -152,7 +184,6 @@ plot.traces_dm_list <- function(x, ..., conds = NULL, col = NULL, col_b = NULL,
     )
   }
 
-
   # Set defaults for colors, x/y limits, and legend
   col <- set_default_colors(colors = col, n = length(all_conds))
   col <- col[which(all_conds %in% conds)]
@@ -161,7 +192,7 @@ plot.traces_dm_list <- function(x, ..., conds = NULL, col = NULL, col_b = NULL,
   col_b <- set_default_colors(colors = col_b, n = length(all_conds))
   col_b <- col_b[which(all_conds %in% conds)]
 
-  xlim <- xlim %||%  c(0, max(t_vec) / 4)
+  xlim <- xlim %||% c(0, max(t_vec) / 4)
   all_vals <- unlist(x[conds])
   ylim <- ylim %||% c(-max(all_vals, na.rm = TRUE), max(all_vals, na.rm = TRUE))
 
@@ -170,8 +201,14 @@ plot.traces_dm_list <- function(x, ..., conds = NULL, col = NULL, col_b = NULL,
     new_plot = if (i == 1) TRUE else FALSE
 
     requ_args <- list(
-      traces_obj = x[[i]], col = col[i], col_b = col_b[i], xlab = xlab,
-      ylab = ylab, xlim = xlim, ylim = ylim, new_plot = new_plot
+      traces_obj = x[[i]],
+      col = col[i],
+      col_b = col_b[i],
+      xlab = xlab,
+      ylab = ylab,
+      xlim = xlim,
+      ylim = ylim,
+      new_plot = new_plot
     )
 
     do.call(plot_one_traces, args = c(requ_args, dots))
@@ -188,9 +225,17 @@ plot.traces_dm_list <- function(x, ..., conds = NULL, col = NULL, col_b = NULL,
 
   if (all(!is.na(dots$legend)) && length(dots$legend) >= 1) {
     graphics::legend(
-      x = x_leg, y = y_leg, legend = dots$legend, col = col, lwd = dots$pred.lwd,
-      lty = dots$pred.lty, bg = dots$legend.bg, bty = dots$bty,
-      box.lwd = dots$box.lwd, box.col = dots$box.col, cex = dots$cex.legend,
+      x = x_leg,
+      y = y_leg,
+      legend = dots$legend,
+      col = col,
+      lwd = dots$pred.lwd,
+      lty = dots$pred.lty,
+      bg = dots$legend.bg,
+      bty = dots$bty,
+      box.lwd = dots$box.lwd,
+      box.col = dots$box.col,
+      cex = dots$cex.legend,
       box.lty = dots$box.lty
     )
   }
@@ -200,7 +245,6 @@ plot.traces_dm_list <- function(x, ..., conds = NULL, col = NULL, col_b = NULL,
 #' @rdname plot.traces_dm_list
 #' @export
 plot.traces_dm <- function(x, ...) {
-
   # create a pseudo traces_dm_list object
   tmp <- list(dummy_cond = x)
   attr(tmp, "t_vec") <- attr(x, "t_vec")
@@ -215,9 +259,7 @@ plot.traces_dm <- function(x, ...) {
 }
 
 
-
 # FUNCTIONS FOR PLOTTING STATISTICS ---------------------------------------
-
 
 #' Plot Conditional Accuracy Functions (CAFs)
 #'
@@ -281,20 +323,30 @@ plot.traces_dm <- function(x, ...) {
 #' plot(cafs)
 #'
 #' @export
-plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
-                      ylim = c(0, 1), xlab = "Bins", ylab = NULL,
-                      interval_obs = TRUE, interval_pred = TRUE) {
+plot.cafs <- function(
+  x,
+  ...,
+  id = NULL,
+  conds = NULL,
+  col = NULL,
+  xlim = NULL,
+  ylim = c(0, 1),
+  xlab = "Bins",
+  ylab = NULL,
+  interval_obs = TRUE,
+  interval_pred = TRUE
+) {
   cafs <- x
   caf_name <- grep("^P_", colnames(cafs), value = TRUE)
 
   # get the data to plot
   if (!is.null(cafs$ID) && length(unique(cafs$ID)) > 1) {
-
     if (!is.null(id)) {
       if (!all(id %in% unique(cafs$ID))) {
         mis_ids <- setdiff(id, unique(cafs$ID))
         stop(
-          "The following IDs were not found: ", paste(mis_ids, collapse = ", ")
+          "The following IDs were not found: ",
+          paste(mis_ids, collapse = ", ")
         )
       }
 
@@ -303,8 +355,16 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
       } else {
         lapply(id, function(one_id) {
           plot.cafs(
-            x = x, ..., id = one_id, conds = conds, col = col, xlim = xlim,
-            ylim = ylim, xlab = xlab, ylab = ylab, interval_obs = interval_obs,
+            x = x,
+            ...,
+            id = one_id,
+            conds = conds,
+            col = col,
+            xlim = xlim,
+            ylim = ylim,
+            xlab = xlab,
+            ylab = ylab,
+            interval_obs = interval_obs,
             interval_pred = interval_pred
           )
         })
@@ -338,27 +398,34 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
   dots = list(...)
   dots = set_default_arguments(dots, conds, id)
   dots$err.col <- set_default_colors(
-    colors = dots$err.col, n = length(all_conds)
+    colors = dots$err.col,
+    n = length(all_conds)
   )
   dots$err.col <- dots$err.col[which(all_conds %in% conds)]
 
   # prepare plot
   withr::local_par(family = dots$family)
   plot(
-    c(1, 2) ~ c(1, 1), col = "white", xlab = xlab, ylab = ylab, xlim = xlim,
-    ylim = ylim, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
-    cex.main = dots$cex.main, main = dots$main
+    c(1, 2) ~ c(1, 1),
+    col = "white",
+    xlab = xlab,
+    ylab = ylab,
+    xlim = xlim,
+    ylim = ylim,
+    cex.axis = dots$cex.axis,
+    cex.lab = dots$cex.lab,
+    cex.main = dots$cex.main,
+    main = dots$main
   )
 
   # figure out if an Estimate column exists
   if ("Estimate" %in% names(cafs)) {
-    orig = cafs[cafs$Estimate == "orig",]
-    l_u = cafs[cafs$Estimate != "orig",]
+    orig = cafs[cafs$Estimate == "orig", ]
+    l_u = cafs[cafs$Estimate != "orig", ]
   } else {
     orig = cafs
     l_u = NULL
   }
-
 
   # first plot the observed data
   for (idx in seq_along(conds)) {
@@ -377,21 +444,30 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
 
       err_y0 <- df_lower[[caf_name]]
       err_y1 <- df_upper[[caf_name]]
-      err_x  <- sub_dat_orig$Bin
+      err_x <- sub_dat_orig$Bin
       keep <- abs(err_y1 - err_y0) > diff(ylim) * dots$err.eps
 
       graphics::arrows(
-        x0 = err_x[keep], y0 = err_y0[keep], x1 = err_x[keep], y1 = err_y1[keep],
-        angle = 90, code = 3, length = dots$err.width, col = dots$err.col[idx]
+        x0 = err_x[keep],
+        y0 = err_y0[keep],
+        x1 = err_x[keep],
+        y1 = err_y1[keep],
+        angle = 90,
+        code = 3,
+        length = dots$err.width,
+        col = dots$err.col[idx]
       )
     }
 
     graphics::points(
-      sub_dat_orig[[caf_name]] ~ sub_dat_orig$Bin, col = col[idx], type = "p",
-      pch = dots$obs.pch, bg = dots$obs.pt.bg, cex = dots$cex.pt,
+      sub_dat_orig[[caf_name]] ~ sub_dat_orig$Bin,
+      col = col[idx],
+      type = "p",
+      pch = dots$obs.pch,
+      bg = dots$obs.pt.bg,
+      cex = dots$cex.pt,
     )
   }
-
 
   # then plot the predicted data
   for (idx in seq_along(conds)) {
@@ -412,18 +488,21 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
       y_poly <- c(df_lower[[caf_name]], rev(df_upper[[caf_name]]))
 
       graphics::polygon(
-        x = x_poly, y = y_poly,
+        x = x_poly,
+        y = y_poly,
         col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
         border = NA
       )
     }
 
     graphics::points(
-      sub_dat_orig[[caf_name]] ~ sub_dat_orig$Bin, col = col[idx],
-      type = "l", lty = dots$pred.lty, lwd = dots$pred.lwd
+      sub_dat_orig[[caf_name]] ~ sub_dat_orig$Bin,
+      col = col[idx],
+      type = "l",
+      lty = dots$pred.lty,
+      lwd = dots$pred.lwd
     )
   }
-
 
   # plot the legend
   dots$pred.lty <- if (!any(cafs$Source == "pred")) NULL else dots$pred.lty
@@ -438,16 +517,25 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
 
   if (all(!is.na(dots$legend)) && length(dots$legend) >= 1) {
     graphics::legend(
-      x = x_leg, y = y_leg, legend = dots$legend, col = col, lwd = dots$pred.lwd,
-      lty = dots$pred.lty, pch = dots$obs.pch, pt.bg = dots$obs.pt.bg, pt.cex = dots$cex.pt,
-      bg = dots$legend.bg, bty = dots$bty, box.lwd = dots$box.lwd,
-      box.col = dots$box.col, cex = dots$cex.legend, box.lty = dots$box.lty
+      x = x_leg,
+      y = y_leg,
+      legend = dots$legend,
+      col = col,
+      lwd = dots$pred.lwd,
+      lty = dots$pred.lty,
+      pch = dots$obs.pch,
+      pt.bg = dots$obs.pt.bg,
+      pt.cex = dots$cex.pt,
+      bg = dots$legend.bg,
+      bty = dots$bty,
+      box.lwd = dots$box.lwd,
+      box.col = dots$box.col,
+      cex = dots$cex.legend,
+      box.lty = dots$box.lty
     )
   }
   invisible()
 }
-
-
 
 
 #' Plot Response Time Quantiles
@@ -499,10 +587,20 @@ plot.cafs <- function(x, ..., id = NULL, conds = NULL, col = NULL, xlim = NULL,
 #' plot(cafs)
 #'
 #' @export
-plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
-                           col = NULL, xlim = NULL, ylim = c(0, 1),
-                           xlab = "RT [s]", ylab = "F(RT)",
-                           interval_obs = TRUE, interval_pred = TRUE) {
+plot.quantiles <- function(
+  x,
+  ...,
+  id = NULL,
+  conds = NULL,
+  dv = NULL,
+  col = NULL,
+  xlim = NULL,
+  ylim = c(0, 1),
+  xlab = "RT [s]",
+  ylab = "F(RT)",
+  interval_obs = TRUE,
+  interval_pred = TRUE
+) {
   quantiles <- x
 
   # Handle multiple IDs
@@ -511,7 +609,8 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       if (!all(id %in% unique(quantiles$ID))) {
         mis_ids <- setdiff(id, unique(quantiles$ID))
         stop(
-          "The following IDs were not found: ", paste(mis_ids, collapse = ", ")
+          "The following IDs were not found: ",
+          paste(mis_ids, collapse = ", ")
         )
       }
 
@@ -520,9 +619,18 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       } else {
         lapply(id, function(one_id) {
           plot.quantiles(
-            x = x, ..., id = one_id, conds = conds, dv = dv, col = col,
-            xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
-            interval_obs = interval_obs, interval_pred = interval_pred
+            x = x,
+            ...,
+            id = one_id,
+            conds = conds,
+            dv = dv,
+            col = col,
+            xlim = xlim,
+            ylim = ylim,
+            xlab = xlab,
+            ylab = ylab,
+            interval_obs = interval_obs,
+            interval_pred = interval_pred
           )
         })
         return(invisible())
@@ -559,7 +667,8 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
   dots <- list(...)
   dots <- set_default_arguments(dots, conds, id)
   dots$err.col <- set_default_colors(
-    colors = dots$err.col, n = length(all_conds)
+    colors = dots$err.col,
+    n = length(all_conds)
   )
   dots$err.col <- dots$err.col[which(all_conds %in% conds)]
 
@@ -567,15 +676,21 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
   withr::local_par(family = dots$family)
   plot(
     c(1, 2) ~ c(1, 1),
-    type = "n", xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
-    cex.axis = dots$cex.axis, cex.lab = dots$cex.lab, cex.main = dots$cex.main,
+    type = "n",
+    xlab = xlab,
+    ylab = ylab,
+    xlim = xlim,
+    ylim = ylim,
+    cex.axis = dots$cex.axis,
+    cex.lab = dots$cex.lab,
+    cex.main = dots$cex.main,
     main = dots$main
   )
 
   # figure out if an Estimate column exists
   if ("Estimate" %in% names(quantiles)) {
-    orig = quantiles[quantiles$Estimate == "orig",]
-    l_u = quantiles[quantiles$Estimate != "orig",]
+    orig = quantiles[quantiles$Estimate == "orig", ]
+    l_u = quantiles[quantiles$Estimate != "orig", ]
   } else {
     orig = quantiles
     l_u = NULL
@@ -598,21 +713,30 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 
       err_x0 <- df_lower[[dv]]
       err_x1 <- df_upper[[dv]]
-      err_y  <- sub_dat_orig$Prob
+      err_y <- sub_dat_orig$Prob
       keep <- abs(err_x1 - err_x0) > diff(ylim) * dots$err.eps
 
       graphics::arrows(
-        y0 = err_y[keep], x0 = err_x0[keep], y1 = err_y[keep], x1 = err_x1[keep],
-        angle = 90, code = 3, length = dots$err.width, col = dots$err.col[idx]
+        y0 = err_y[keep],
+        x0 = err_x0[keep],
+        y1 = err_y[keep],
+        x1 = err_x1[keep],
+        angle = 90,
+        code = 3,
+        length = dots$err.width,
+        col = dots$err.col[idx]
       )
     }
 
     graphics::points(
-      sub_dat_orig$Prob ~ sub_dat_orig[[dv]], col = col[idx], type = "p",
-      pch = dots$obs.pch, bg = dots$obs.pt.bg, cex = dots$cex.pt,
+      sub_dat_orig$Prob ~ sub_dat_orig[[dv]],
+      col = col[idx],
+      type = "p",
+      pch = dots$obs.pch,
+      bg = dots$obs.pt.bg,
+      cex = dots$cex.pt,
     )
   }
-
 
   # then plot the predicted data
   for (idx in seq_along(conds)) {
@@ -629,21 +753,25 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       df_lower <- sub_dat_l_u[sub_dat_l_u$Estimate == borders[1], ]
       df_upper <- sub_dat_l_u[sub_dat_l_u$Estimate == borders[2], ]
 
-
       y_poly <- c(df_lower$Prob, rev(df_upper$Prob))
       x_poly <- c(df_lower[[dv]], rev(df_upper[[dv]]))
 
-      graphics::polygon(x = x_poly, y = y_poly,
-              col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
-              border = NA)
+      graphics::polygon(
+        x = x_poly,
+        y = y_poly,
+        col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
+        border = NA
+      )
     }
 
     graphics::points(
-      sub_dat_orig$Prob ~ sub_dat_orig[[dv]], col = col[idx], type = "l",
-      lty = dots$pred.lty, lwd = dots$pred.lwd
+      sub_dat_orig$Prob ~ sub_dat_orig[[dv]],
+      col = col[idx],
+      type = "l",
+      lty = dots$pred.lty,
+      lwd = dots$pred.lwd
     )
   }
-
 
   # Legend setup
   dots$pred.lty <- if (!any(quantiles$Source == "pred")) NULL else dots$pred.lty
@@ -659,16 +787,26 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 
   if (all(!is.na(dots$legend)) && length(dots$legend) >= 1) {
     graphics::legend(
-      x = x_leg, y = y_leg, legend = dots$legend, col = col, lwd = dots$pred.lwd,
-      lty = dots$pred.lty, pch = dots$obs.pch, pt.bg = dots$obs.pt.bg, pt.cex = dots$cex.pt,
-      bg = dots$legend.bg, bty = dots$bty, box.lwd = dots$box.lwd,
-      box.col = dots$box.col, cex = dots$cex.legend, box.lty = dots$box.lty
+      x = x_leg,
+      y = y_leg,
+      legend = dots$legend,
+      col = col,
+      lwd = dots$pred.lwd,
+      lty = dots$pred.lty,
+      pch = dots$obs.pch,
+      pt.bg = dots$obs.pt.bg,
+      pt.cex = dots$cex.pt,
+      bg = dots$legend.bg,
+      bty = dots$bty,
+      box.lwd = dots$box.lwd,
+      box.col = dots$box.col,
+      cex = dots$cex.legend,
+      box.lty = dots$box.lty
     )
   }
 
   invisible()
 }
-
 
 
 #' Plot Delta Functions
@@ -741,10 +879,20 @@ plot.quantiles <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 #' plot(deltas)
 #'
 #' @export
-plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
-                            col = NULL, xlim = NULL, ylim = NULL,
-                            xlab = "RT [s]", ylab = expression(Delta),
-                            interval_obs = TRUE, interval_pred = TRUE) {
+plot.delta_funs <- function(
+  x,
+  ...,
+  id = NULL,
+  conds = NULL,
+  dv = NULL,
+  col = NULL,
+  xlim = NULL,
+  ylim = NULL,
+  xlab = "RT [s]",
+  ylab = expression(Delta),
+  interval_obs = TRUE,
+  interval_pred = TRUE
+) {
   delta_fun <- x
 
   # Handle multiple IDs
@@ -752,7 +900,10 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
     if (!is.null(id)) {
       if (!all(id %in% unique(delta_fun$ID))) {
         mis_ids <- setdiff(id, unique(delta_fun$ID))
-        stop("The following IDs were not found: ", paste(mis_ids, collapse = ", "))
+        stop(
+          "The following IDs were not found: ",
+          paste(mis_ids, collapse = ", ")
+        )
       }
 
       if (length(id) == 1) {
@@ -760,9 +911,18 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       } else {
         lapply(id, function(one_id) {
           plot.delta_funs(
-            x = x, ..., id = one_id, conds = conds, dv = dv, col = col,
-            xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
-            interval_obs = interval_obs, interval_pred = interval_pred
+            x = x,
+            ...,
+            id = one_id,
+            conds = conds,
+            dv = dv,
+            col = col,
+            xlim = xlim,
+            ylim = ylim,
+            xlab = xlab,
+            ylab = ylab,
+            interval_obs = interval_obs,
+            interval_pred = interval_pred
           )
         })
         return(invisible())
@@ -793,7 +953,7 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
   xlim <- xlim %||% c(min(all_x_vals) * 0.75, max(all_x_vals) * 1.25)
 
   # Set colors
-  if (length(all_delta_columns) == 1){
+  if (length(all_delta_columns) == 1) {
     col <- "black"
   } else {
     col <- set_default_colors(colors = col, n = length(all_delta_columns))
@@ -803,36 +963,43 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
   # Collect graphical options
   dots <- list(...)
   dots <- set_default_arguments(dots, dv, id)
-  if (is.null(dots$err.col)){
+  if (is.null(dots$err.col)) {
     dots$err.col <- "gray"
   }
   dots$err.col <- set_default_colors(
-    colors = dots$err.col, n = length(all_delta_columns)
+    colors = dots$err.col,
+    n = length(all_delta_columns)
   )
   dots$err.col <- dots$err.col[which(all_delta_columns %in% dv)]
-
 
   # Prepare plot
   withr::local_par(family = dots$family)
   plot(
-    c(1, 2) ~ c(1, 1), type = "n", xlab = xlab, ylab = ylab, xlim = xlim,
-    ylim = ylim, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
-    cex.main = dots$cex.main, main = dots$main
+    c(1, 2) ~ c(1, 1),
+    type = "n",
+    xlab = xlab,
+    ylab = ylab,
+    xlim = xlim,
+    ylim = ylim,
+    cex.axis = dots$cex.axis,
+    cex.lab = dots$cex.lab,
+    cex.main = dots$cex.main,
+    main = dots$main
   )
 
   # Determine original vs interval data
   if ("Estimate" %in% names(delta_fun)) {
     orig <- delta_fun[delta_fun$Estimate == "orig", ]
-    l_u  <- delta_fun[delta_fun$Estimate != "orig", ]
+    l_u <- delta_fun[delta_fun$Estimate != "orig", ]
   } else {
     orig <- delta_fun
-    l_u  <- NULL
+    l_u <- NULL
   }
 
   # Plot observed
   for (idx in seq_along(dv)) {
     sub_obs_orig <- orig[orig$Source == "obs", c(dv[idx], uv[idx])]
-    sub_obs_lu   <- l_u[l_u$Source == "obs", ]
+    sub_obs_lu <- l_u[l_u$Source == "obs", ]
 
     if (nrow(sub_obs_orig) == 0) {
       next # if there is no observed data skip this part
@@ -848,34 +1015,49 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 
       err_x0 <- df_lower[[uv[idx]]]
       err_x1 <- df_upper[[uv[idx]]]
-      err_y  <- sub_obs_orig[[dv[idx]]]
+      err_y <- sub_obs_orig[[dv[idx]]]
       keep <- abs(err_x1 - err_x0) > diff(ylim) * dots$err.eps
 
       graphics::arrows(
-        y0 = err_y[keep], x0 = err_x0[keep], y1 = err_y[keep], x1 = err_x1[keep],
-        angle = 90, code = 3, length = dots$err.width, col = dots$err.col[idx]
+        y0 = err_y[keep],
+        x0 = err_x0[keep],
+        y1 = err_y[keep],
+        x1 = err_x1[keep],
+        angle = 90,
+        code = 3,
+        length = dots$err.width,
+        col = dots$err.col[idx]
       )
 
       err_y0 <- df_lower[[dv[idx]]]
       err_y1 <- df_upper[[dv[idx]]]
-      err_x  <- sub_obs_orig[[uv[idx]]]
+      err_x <- sub_obs_orig[[uv[idx]]]
       keep <- abs(err_y1 - err_y0) > diff(ylim) * dots$err.eps
 
-
       graphics::arrows(
-        y0 = err_y0[keep], x0 = err_x[keep], y1 = err_y1[keep], x1 = err_x[keep],
-        angle = 90, code = 3, length = dots$err.width, col = dots$err.col[idx]
+        y0 = err_y0[keep],
+        x0 = err_x[keep],
+        y1 = err_y1[keep],
+        x1 = err_x[keep],
+        angle = 90,
+        code = 3,
+        length = dots$err.width,
+        col = dots$err.col[idx]
       )
     }
-    graphics::points(sub_obs_orig[[1]] ~ sub_obs_orig[[2]],
-                     col = col[idx], pch = dots$obs.pch,
-                     bg = dots$obs.pt.bg, cex = dots$cex.pt)
+    graphics::points(
+      sub_obs_orig[[1]] ~ sub_obs_orig[[2]],
+      col = col[idx],
+      pch = dots$obs.pch,
+      bg = dots$obs.pt.bg,
+      cex = dots$cex.pt
+    )
   }
 
   # Plot predicted
   for (idx in seq_along(dv)) {
     sub_pred_orig <- orig[orig$Source == "pred", c(dv[idx], uv[idx])]
-    sub_pred_lu   <- l_u[l_u$Source == "pred", ]
+    sub_pred_lu <- l_u[l_u$Source == "pred", ]
 
     if (nrow(sub_pred_orig) == 0) {
       next # if there is no observed data skip this part
@@ -893,23 +1075,28 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
       dv_lower = df_lower[[dv[idx]]]
       uv_upper = df_upper[[uv[idx]]]
       dv_upper = df_upper[[dv[idx]]]
-      uv_orig  = sub_pred_orig[[uv[idx]]]
-      dv_orig  = sub_pred_orig[[dv[idx]]]
+      uv_orig = sub_pred_orig[[uv[idx]]]
+      dv_orig = sub_pred_orig[[dv[idx]]]
       n = length(uv_lower)
 
       x_poly <- c(uv_lower[1], uv_orig, uv_upper[n], rev(uv_orig))
       y_poly <- c(dv_orig[1], dv_lower, dv_orig[n], rev(dv_upper))
 
-      graphics::polygon(x = x_poly, y = y_poly,
-              col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
-              border = NA)
+      graphics::polygon(
+        x = x_poly,
+        y = y_poly,
+        col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
+        border = NA
+      )
     }
 
-
-    graphics::points(sub_pred_orig[[1]] ~ sub_pred_orig[[2]],
-                     type = "l", col = col[idx],
-                     lty = dots$pred.lty, lwd = dots$pred.lwd)
-
+    graphics::points(
+      sub_pred_orig[[1]] ~ sub_pred_orig[[2]],
+      type = "l",
+      col = col[idx],
+      lty = dots$pred.lty,
+      lwd = dots$pred.lwd
+    )
   }
 
   # Legend
@@ -927,18 +1114,26 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
   legend_labels <- gsub("^Delta_", "", dots$legend)
   if (all(!is.na(legend_labels)) && length(legend_labels) >= 1) {
     graphics::legend(
-      x = x_leg, y = y_leg, legend = legend_labels,
-      col = col, lwd = dots$pred.lwd, lty = dots$pred.lty, pch = dots$obs.pch,
-      pt.bg = dots$obs.pt.bg, pt.cex = dots$cex.pt,
-      bg = dots$legend.bg, bty = dots$bty, box.lwd = dots$box.lwd,
-      box.col = dots$box.col, box.lty = dots$box.lty,
+      x = x_leg,
+      y = y_leg,
+      legend = legend_labels,
+      col = col,
+      lwd = dots$pred.lwd,
+      lty = dots$pred.lty,
+      pch = dots$obs.pch,
+      pt.bg = dots$obs.pt.bg,
+      pt.cex = dots$cex.pt,
+      bg = dots$legend.bg,
+      bty = dots$bty,
+      box.lwd = dots$box.lwd,
+      box.col = dots$box.col,
+      box.lty = dots$box.lty,
       cex = dots$cex.legend
     )
   }
 
   invisible()
 }
-
 
 
 #' Plot Distributions of Predicted and Observed Data
@@ -998,10 +1193,20 @@ plot.delta_funs <- function(x, ..., id = NULL, conds = NULL, dv = NULL,
 #' plot(dens, interval_obs = TRUE, conds = "comp")
 #'
 #' @export
-plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
-                           xlim = NULL, ylim = NULL, xlab = "RT [s]",
-                           ylab = "Density", obs_stats = "hist",
-                           interval_obs = FALSE, interval_pred = TRUE) {
+plot.densities <- function(
+  x,
+  ...,
+  id = NULL,
+  conds = NULL,
+  col = NULL,
+  xlim = NULL,
+  ylim = NULL,
+  xlab = "RT [s]",
+  ylab = "Density",
+  obs_stats = "hist",
+  interval_obs = FALSE,
+  interval_pred = TRUE
+) {
   densities <- x
 
   # Handle multiple IDs
@@ -1020,9 +1225,18 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
       } else {
         lapply(id, function(one_id) {
           plot.densities(
-            x = x, ..., id = one_id, conds = conds, col = col, xlim = xlim,
-            ylim = ylim, xlab = xlab, ylab = ylab, obs_stats = obs_stats,
-            interval_obs = interval_obs, interval_pred = interval_pred
+            x = x,
+            ...,
+            id = one_id,
+            conds = conds,
+            col = col,
+            xlim = xlim,
+            ylim = ylim,
+            xlab = xlab,
+            ylab = ylab,
+            obs_stats = obs_stats,
+            interval_obs = interval_obs,
+            interval_pred = interval_pred
           )
         })
         return(invisible())
@@ -1046,7 +1260,10 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
 
   # Set axis limits
   max_dens <- sort(sapply(densities[dv], max, na.rm = TRUE))
-  y_r <- c(-max_dens[1] - diff(max_dens) / 20, max_dens[2] + diff(max_dens) / 20)
+  y_r <- c(
+    -max_dens[1] - diff(max_dens) / 20,
+    max_dens[2] + diff(max_dens) / 20
+  )
   ylim <- ylim %||% y_r
 
   xlim <- xlim %||% range(densities$Time)
@@ -1059,106 +1276,128 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
   dots <- list(...)
   dots <- set_default_arguments(dots, conds, id)
 
-
   # collect additional default coloring
   if (is.null(dots$err.col)) {
     dots$err.col <- "black"
   }
   dots$err.col <- set_default_colors(
-    colors = dots$err.col, n = length(all_conds)
+    colors = dots$err.col,
+    n = length(all_conds)
   )
   dots$err.col <- dots$err.col[which(all_conds %in% conds)]
 
   dots$obs.hist.col <- set_default_colors(
-    colors = dots$obs.hist.col, n = length(all_conds)
+    colors = dots$obs.hist.col,
+    n = length(all_conds)
   )
   dots$obs.hist.col <- dots$obs.hist.col[which(all_conds %in% conds)]
   dots$obs.kde.col <- set_default_colors(
-    colors = dots$obs.kde.col, n = length(all_conds)
+    colors = dots$obs.kde.col,
+    n = length(all_conds)
   )
   dots$obs.kde.col <- dots$obs.kde.col[which(all_conds %in% conds)]
-
-
 
   # Prepare plot
   withr::local_par(family = dots$family)
   plot(
-    c(1, 2) ~ c(1, 1), type = "n", xlab = xlab, ylab = ylab, xlim = xlim,
-    ylim = ylim, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
-    cex.main = dots$cex.main, main = dots$main
+    c(1, 2) ~ c(1, 1),
+    type = "n",
+    xlab = xlab,
+    ylab = ylab,
+    xlim = xlim,
+    ylim = ylim,
+    cex.axis = dots$cex.axis,
+    cex.lab = dots$cex.lab,
+    cex.main = dots$cex.main,
+    main = dots$main
   )
   graphics::abline(h = 0, col = dots$horiz.col, lwd = dots$horiz.lwd)
 
   # Determine original vs interval data
   if ("Estimate" %in% names(densities)) {
     orig <- densities[densities$Estimate == "orig", ]
-    l_u  <- densities[densities$Estimate != "orig", ]
+    l_u <- densities[densities$Estimate != "orig", ]
   } else {
     orig <- densities
-    l_u  <- NULL
+    l_u <- NULL
   }
 
   # Plot observed
   for (idx in seq_along(conds)) {
-    sub_obs_orig <- orig[orig$Source == "obs" & orig$Cond == conds[idx],]
-    sub_obs_lu  <- l_u[l_u$Source == "obs" & l_u$Cond == conds[idx],]
+    sub_obs_orig <- orig[orig$Source == "obs" & orig$Cond == conds[idx], ]
+    sub_obs_lu <- l_u[l_u$Source == "obs" & l_u$Cond == conds[idx], ]
 
     if (nrow(sub_obs_orig) == 0) {
       next # if there is no observed data skip this part
     }
 
     for (one_stat in obs_stats) {
-
       for (i in seq_along(dv)) {
         sign = if (i == 1) 1 else -1
 
         if (!is.null(sub_obs_lu) && nrow(sub_obs_lu) > 0 && interval_obs) {
-
           borders <- sort(unique(sub_obs_lu$Estimate))
           stopifnot(length(borders) == 2)
 
-          df_lower <- sub_obs_lu[sub_obs_lu$Estimate == borders[1] &
-                                   sub_obs_lu$Stat == one_stat, ]
-          df_upper <- sub_obs_lu[sub_obs_lu$Estimate == borders[2] &
-                                   sub_obs_lu$Stat == one_stat, ]
+          df_lower <- sub_obs_lu[
+            sub_obs_lu$Estimate == borders[1] &
+              sub_obs_lu$Stat == one_stat,
+          ]
+          df_upper <- sub_obs_lu[
+            sub_obs_lu$Estimate == borders[2] &
+              sub_obs_lu$Stat == one_stat,
+          ]
 
-          err_y0 <- sign*df_lower[[dv[i]]]
-          err_y1 <- sign*df_upper[[dv[i]]]
-          err_x  <- df_lower[["Time"]]
+          err_y0 <- sign * df_lower[[dv[i]]]
+          err_y1 <- sign * df_upper[[dv[i]]]
+          err_x <- df_lower[["Time"]]
           keep <- abs(err_y1 - err_y0) > diff(ylim) * dots$err.eps
 
           graphics::arrows(
-            y0 = err_y0[keep], x0 = err_x[keep], y1 = err_y1[keep],
-            x1 = err_x[keep], angle = 90, code = 3, length = dots$err.width,
+            y0 = err_y0[keep],
+            x0 = err_x[keep],
+            y1 = err_y1[keep],
+            x1 = err_x[keep],
+            angle = 90,
+            code = 3,
+            length = dots$err.width,
             col = dots$err.col[idx]
           )
         }
 
-        df_orig  <- sub_obs_orig[sub_obs_orig$Stat == one_stat, ]
+        df_orig <- sub_obs_orig[sub_obs_orig$Stat == one_stat, ]
         y_orig = sign * df_orig[[dv[i]]]
         x_orig = df_orig[["Time"]]
         if (one_stat == "hist") {
           x_poly <- c(x_orig, rev(x_orig))
           y_poly <- c(y_orig, numeric(nrow(df_orig)))
 
-          graphics::polygon(x = x_poly, y = y_poly,
-                  col = grDevices::adjustcolor(dots$obs.hist.col[idx],
-                                               alpha.f = dots$alpha),
-                  border = NA)
+          graphics::polygon(
+            x = x_poly,
+            y = y_poly,
+            col = grDevices::adjustcolor(
+              dots$obs.hist.col[idx],
+              alpha.f = dots$alpha
+            ),
+            border = NA
+          )
         } else if (one_stat == "kde") {
-          graphics::points(y_orig ~ x_orig,
-                           col = dots$obs.kde.col[idx], type = "l",
-                           lty = dots$obs.kde.lty, lwd = dots$obs.kde.lwd)
+          graphics::points(
+            y_orig ~ x_orig,
+            col = dots$obs.kde.col[idx],
+            type = "l",
+            lty = dots$obs.kde.lty,
+            lwd = dots$obs.kde.lwd
+          )
         }
       }
     }
   }
 
-
   # Plot predicted
   for (idx in seq_along(conds)) {
-    sub_pred_orig <- orig[orig$Source == "pred" & orig$Cond == conds[idx],]
-    sub_pred_lu  <- l_u[l_u$Source == "pred" & l_u$Cond == conds[idx],]
+    sub_pred_orig <- orig[orig$Source == "pred" & orig$Cond == conds[idx], ]
+    sub_pred_lu <- l_u[l_u$Source == "pred" & l_u$Cond == conds[idx], ]
 
     if (nrow(sub_pred_orig) == 0) {
       next # if there is no observed data skip this part
@@ -1167,37 +1406,44 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
     for (i in seq_along(dv)) {
       sign = if (i == 1) 1 else -1
       if (!is.null(sub_pred_lu) && nrow(sub_pred_lu) > 0 && interval_pred) {
-
-
         borders <- sort(unique(sub_pred_lu$Estimate))
         stopifnot(length(borders) == 2)
 
-        df_lower <- sub_pred_lu[sub_pred_lu$Estimate == borders[1] &
-                                  sub_pred_lu$Stat == "kde", ]
-        df_upper <- sub_pred_lu[sub_pred_lu$Estimate == borders[2] &
-                                  sub_pred_lu$Stat == "kde", ]
+        df_lower <- sub_pred_lu[
+          sub_pred_lu$Estimate == borders[1] &
+            sub_pred_lu$Stat == "kde",
+        ]
+        df_upper <- sub_pred_lu[
+          sub_pred_lu$Estimate == borders[2] &
+            sub_pred_lu$Stat == "kde",
+        ]
 
-        err_y0 <- sign*df_lower[[dv[i]]]
-        err_y1 <- sign*df_upper[[dv[i]]]
-        err_x  <- df_lower[["Time"]]
+        err_y0 <- sign * df_lower[[dv[i]]]
+        err_y1 <- sign * df_upper[[dv[i]]]
+        err_x <- df_lower[["Time"]]
 
         x_poly <- c(err_x, rev(err_x))
         y_poly <- c(err_y0, rev(err_y1))
 
-        graphics::polygon(x = x_poly, y = y_poly,
-                col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
-                border = NA)
+        graphics::polygon(
+          x = x_poly,
+          y = y_poly,
+          col = grDevices::adjustcolor(col[idx], alpha.f = dots$alpha),
+          border = NA
+        )
       }
-      df_orig  <- sub_pred_orig[sub_pred_orig$Stat == "pdf", ]
+      df_orig <- sub_pred_orig[sub_pred_orig$Stat == "pdf", ]
       y_orig = sign * df_orig[[dv[i]]]
       x_orig = df_orig[["Time"]]
-      graphics::points(y_orig ~ x_orig,
-                       col = col[idx], type = "l",
-                       lty = dots$pred.lty, lwd = dots$pred.lwd)
+      graphics::points(
+        y_orig ~ x_orig,
+        col = col[idx],
+        type = "l",
+        lty = dots$pred.lty,
+        lwd = dots$pred.lwd
+      )
     }
   }
-
-
 
   # Legend (condition)
   dots$pred.lty <- if (!any(densities$Source == "pred")) NULL else dots$pred.lty
@@ -1210,12 +1456,21 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
     y_leg <- dots$legend.pos[2]
   }
 
-  if (!is.null(dots$pred.lty) && !anyNA(dots$legend) && length(dots$legend) >= 1) {
+  if (
+    !is.null(dots$pred.lty) && !anyNA(dots$legend) && length(dots$legend) >= 1
+  ) {
     graphics::legend(
-      x = x_leg, y = y_leg, legend = dots$legend,
-      col = col, lwd = dots$pred.lwd, lty = dots$pred.lty,
-      bg = dots$legend.bg, bty = dots$bty, box.lwd = dots$box.lwd,
-      box.col = dots$box.col, box.lty = dots$box.lty,
+      x = x_leg,
+      y = y_leg,
+      legend = dots$legend,
+      col = col,
+      lwd = dots$pred.lwd,
+      lty = dots$pred.lty,
+      bg = dots$legend.bg,
+      bty = dots$bty,
+      box.lwd = dots$box.lwd,
+      box.col = dots$box.col,
+      box.lty = dots$box.lty,
       cex = dots$cex.legend
     )
   }
@@ -1234,19 +1489,24 @@ plot.densities <- function(x, ..., id = NULL, conds = NULL, col = NULL,
     dots[["lines.legend"]] = dots[["lines.legend"]] %||% c("pred", "obs")
     if ("kde" %in% obs_stats && !all(is.na(dots[["lines.legend"]]))) {
       graphics::legend(
-        x = x_leg, y = y_leg, legend = dots$lines.legend,
-        col = "black", lwd = c(dots$pred.lwd, dots$obs.kde.lwd),
-        lty = c(dots$pred.lty, dots$obs.kde.lty), bg = dots$legend.bg,
-        bty = dots$bty, box.lwd = dots$box.lwd, box.col = dots$box.col,
-        box.lty = dots$box.lty, cex = dots$cex.legend
+        x = x_leg,
+        y = y_leg,
+        legend = dots$lines.legend,
+        col = "black",
+        lwd = c(dots$pred.lwd, dots$obs.kde.lwd),
+        lty = c(dots$pred.lty, dots$obs.kde.lty),
+        bg = dots$legend.bg,
+        bty = dots$bty,
+        box.lwd = dots$box.lwd,
+        box.col = dots$box.col,
+        box.lty = dots$box.lty,
+        cex = dots$cex.legend
       )
     }
   }
 
-
   invisible()
 }
-
 
 
 #' Plot Multiple Statistics
@@ -1297,13 +1557,13 @@ plot.stats_dm_list <- function(x, ..., mfrow = NULL) {
     withr::local_par(mfrow = mfrow)
   }
 
-
   for (obj in x) {
     class_obj <- class(obj)[1]
     if (!(class_obj %in% drift_dm_stats_types("sum_dist"))) {
       message(
         "dRiftDM doesn't provide a plot method for objects of type ",
-        class_obj, ", skipping this entry."
+        class_obj,
+        ", skipping this entry."
       )
       next
     }
@@ -1313,11 +1573,7 @@ plot.stats_dm_list <- function(x, ..., mfrow = NULL) {
 }
 
 
-
-
 # HISTOGRAM of Parameters -------------------------------------------------
-
-
 
 #' Plot Parameter Distribution(s)
 #'
@@ -1364,9 +1620,17 @@ plot.stats_dm_list <- function(x, ..., mfrow = NULL) {
 #' hist(coefs$muc, main = expression(mu[c])) # calls graphics::hist()
 #'
 #' @export
-hist.coefs_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
-                          ylim = NULL, xlab = "value", ylab = NULL,
-                          bundle_plots = TRUE) {
+hist.coefs_dm <- function(
+  x,
+  ...,
+  conds = NULL,
+  col = NULL,
+  xlim = NULL,
+  ylim = NULL,
+  xlab = "value",
+  ylab = NULL,
+  bundle_plots = TRUE
+) {
   coefs_obj <- x
   dots <- list(...)
 
@@ -1412,7 +1676,9 @@ hist.coefs_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   n_plots <- length(prm_names)
   n_rows <- ceiling(sqrt(n_plots))
   n_cols <- ceiling(n_plots / n_rows)
-  if (bundle_plots) withr::local_par(mfrow = c(n_rows, n_cols))
+  if (bundle_plots) {
+    withr::local_par(mfrow = c(n_rows, n_cols))
+  }
 
   # figure out the arguments
   dots <- set_default_arguments(dots, leg = conds, id = NULL)
@@ -1448,12 +1714,15 @@ hist.coefs_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     main <- rep(dots$main, length.out = length(prm_names))
   }
 
-
   # temporary plot function to reuse
   my_hist <- function(x_vals, col, main, add = FALSE, xlim = NULL) {
     hist_vals <- graphics::hist(
-      x_vals, breaks = dots$breaks, include.lowest = dots$include.lowest,
-      right = dots$right, fuzz = dots$fuzz, plot = FALSE
+      x_vals,
+      breaks = dots$breaks,
+      include.lowest = dots$include.lowest,
+      right = dots$right,
+      fuzz = dots$fuzz,
+      plot = FALSE
     )
     if (is.null(dots$freq)) {
       freq = hist_vals$equidist
@@ -1469,35 +1738,55 @@ hist.coefs_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
       xlim <- range(hist_vals$breaks)
     }
 
-
     col = grDevices::adjustcolor(col, alpha.f = dots$alpha)
-    plot(hist_vals, freq = freq, density = dots$density,
-         angle = dots$angle, col = col, border = dots$border, lty = dots$lty,
-         main = main, sub = dots$sub, xlab = xlab, ylab = ylab,
-         xlim = xlim, ylim = ylim, axes = dots$axes, labels = dots$labels,
-         ann = dots$ann, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
-         cex.main = dots$cex.main, family = dots$family, add = add)
+    plot(
+      hist_vals,
+      freq = freq,
+      density = dots$density,
+      angle = dots$angle,
+      col = col,
+      border = dots$border,
+      lty = dots$lty,
+      main = main,
+      sub = dots$sub,
+      xlab = xlab,
+      ylab = ylab,
+      xlim = xlim,
+      ylim = ylim,
+      axes = dots$axes,
+      labels = dots$labels,
+      ann = dots$ann,
+      cex.axis = dots$cex.axis,
+      cex.lab = dots$cex.lab,
+      cex.main = dots$cex.main,
+      family = dots$family,
+      add = add
+    )
     invisible()
   }
 
-
   # iterate through all paramters
   for (prm_idx in seq_along(prm_names)) {
-
     # if no condition present, then just call hist
     if (!conds_present) {
       my_hist(
-        x_vals = coefs_obj[[prm_names[prm_idx]]], col = col, main = main[prm_idx]
+        x_vals = coefs_obj[[prm_names[prm_idx]]],
+        col = col,
+        main = main[prm_idx]
       )
       next()
     }
 
     # if conditions are present, then iterate through the conditions ...
-    x_r = sapply(conds, \(x){
+    x_r = sapply(conds, \(x) {
       sub <- coefs_obj[[prm_names[prm_idx]]][coefs_obj$Cond == x]
       hist_vals <- graphics::hist(
-        sub, breaks = dots$breaks, include.lowest = dots$include.lowest,
-        right = dots$right, fuzz = dots$fuzz, plot = FALSE
+        sub,
+        breaks = dots$breaks,
+        include.lowest = dots$include.lowest,
+        right = dots$right,
+        fuzz = dots$fuzz,
+        plot = FALSE
       )
       return(range(hist_vals$breaks))
     })
@@ -1513,15 +1802,16 @@ hist.coefs_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 
       # plot or add histogram
       my_hist(
-        x_vals = sub, col = col[cond_idx], main = main[prm_idx],
-        add = cond_idx != 1, xlim = x_r
+        x_vals = sub,
+        col = col[cond_idx],
+        main = main[prm_idx],
+        add = cond_idx != 1,
+        xlim = x_r
       )
     }
   }
   invisible()
 }
-
-
 
 
 #' Plot Components of a Drift Diffusion Model
@@ -1563,11 +1853,16 @@ hist.coefs_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #' plot(dmc_dm(), col = c("green", "red"))
 #'
 #' @export
-plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
-                          bundle_plots = TRUE) {
+plot.drift_dm <- function(
+  x,
+  ...,
+  conds = NULL,
+  col = NULL,
+  xlim = NULL,
+  bundle_plots = TRUE
+) {
   drift_dm_obj <- x
   dots <- list(...)
-
 
   # ensure backward compatibility (delete in the future)
   if (!is.null(dots$legend_pos)) {
@@ -1586,7 +1881,6 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   }
   conds <- match.arg(arg = conds, choices = all_conds, several.ok = TRUE)
 
-
   # get default parameters
   dots <- set_default_arguments(dots, conds, NULL)
 
@@ -1597,7 +1891,6 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   if (is.null(xlim)) {
     xlim <- c(0, t_max / 4)
   }
-
 
   # get the time and evidence space
   nx <- drift_dm_obj$prms_solve[["nx"]]
@@ -1617,14 +1910,13 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   dt_b_vals <- lapply(all_vals, \(x) x$dt_b_vals)
   nt_vals <- lapply(all_vals, \(x) x$nt_vals)
 
-
   # some temp functions for easier data handling
   temp_is_not_null <- function(x) {
     return(!all(sapply(x, is.null)))
   }
 
   range_vals <- function(x, reduce_t = FALSE, select_indices_t = NULL) {
-    as_arr <- sapply(x, \(y){
+    as_arr <- sapply(x, \(y) {
       if (reduce_t) {
         return(range(y[select_indices_t]))
       }
@@ -1634,27 +1926,36 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
   }
 
   plot_empty <- function(main, ylab, xlab, xlim, ylim) {
-    plot(c(1, 2) ~ c(1, 1),
-         col = "white", xlim = xlim,
-         ylab = ylab, xlab = xlab, ylim = ylim,
-         main = main, cex.axis = dots$cex.axis, cex.lab = dots$cex.lab,
-         cex.main = dots$cex.main, family = dots$family
+    plot(
+      c(1, 2) ~ c(1, 1),
+      col = "white",
+      xlim = xlim,
+      ylab = ylab,
+      xlab = xlab,
+      ylim = ylim,
+      main = main,
+      cex.axis = dots$cex.axis,
+      cex.lab = dots$cex.lab,
+      cex.main = dots$cex.main,
+      family = dots$family
     )
   }
   temp_points <- function(formula, col) {
     graphics::points(
-      formula, ty = "l", col = col, lty = dots$pred.lty, lwd = dots$pred.lwd
+      formula,
+      ty = "l",
+      col = col,
+      lty = dots$pred.lty,
+      lwd = dots$pred.lwd
     )
   }
 
-
   # plot everything
   if (bundle_plots) {
-    withr::local_par(mfrow = c(3,2))
+    withr::local_par(mfrow = c(3, 2))
   }
   # get the relevant time steps (for y-axis scaling)
   select_indices_t <- which(t_vec >= xlim[1] & t_vec <= xlim[2])
-
 
   # plot the drift rate
   if (temp_is_not_null(mu_vals)) {
@@ -1705,7 +2006,6 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
     }
   }
 
-
   # plot the non-decision time
   if (temp_is_not_null(nt_vals)) {
     ylim <- range_vals(nt_vals, reduce_t = TRUE, select_indices_t)
@@ -1727,16 +2027,22 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 
   if (all(!is.na(dots$legend)) && length(dots$legend) >= 1) {
     graphics::legend(
-      x = x_leg, y = y_leg, legend = dots$legend, col = col, lwd = dots$pred.lwd,
-      lty = dots$pred.lty, bg = dots$legend.bg, bty = dots$bty,
-      box.lwd = dots$box.lwd, box.col = dots$box.col,
-      cex = dots$cex.legend, box.lty = dots$box.lty
+      x = x_leg,
+      y = y_leg,
+      legend = dots$legend,
+      col = col,
+      lwd = dots$pred.lwd,
+      lty = dots$pred.lty,
+      bg = dots$legend.bg,
+      bty = dots$bty,
+      box.lwd = dots$box.lwd,
+      box.col = dots$box.col,
+      cex = dots$cex.legend,
+      box.lty = dots$box.lty
     )
   }
   invisible()
 }
-
-
 
 
 # PLOT MCMC RESULTS  --------------------------------------------
@@ -1805,22 +2111,27 @@ plot.drift_dm <- function(x, ..., conds = NULL, col = NULL, xlim = NULL,
 #' @seealso [dRiftDM::plot_mcmc_trace()], [dRiftDM::plot_mcmc_marginal()],
 #' [dRiftDM::plot_mcmc_auto()]
 #' @export
-plot.mcmc_dm <- function(x, ..., id = NULL, what = "trace",
-                         bundle_plots = TRUE) {
-
+plot.mcmc_dm <- function(
+  x,
+  ...,
+  id = NULL,
+  what = "trace",
+  bundle_plots = TRUE
+) {
   chains_obj <- x
 
   # input checks
 
   # ids only make sense in the hierarchical case
   hierarchical <- attr(chains_obj, "hierarchical")
-  if (!hierarchical & !is.null(id)) id = NULL
+  if (!hierarchical & !is.null(id)) {
+    id = NULL
+  }
   what = match.arg(what, choices = c("trace", "density", "auto"))
-
 
   # optional: use local mfrow
   if (bundle_plots) {
-    withr::local_par(mfrow = c(3,2))
+    withr::local_par(mfrow = c(3, 2))
   }
 
   # optional/additional arguments
@@ -1828,7 +2139,7 @@ plot.mcmc_dm <- function(x, ..., id = NULL, what = "trace",
 
   # call recursively the plot function if id has multiple entries
   if (length(id) > 1) {
-    lapply(id, \(one_id){
+    lapply(id, \(one_id) {
       dots$id = one_id
       do.call(plot.mcmc_dm, c(list(x = x, what = what), dots))
     })
@@ -1851,8 +2162,6 @@ plot.mcmc_dm <- function(x, ..., id = NULL, what = "trace",
 
   invisible()
 }
-
-
 
 
 #' Plot MCMC Chains for Drift Diffusion Model Parameters
@@ -1915,10 +2224,16 @@ plot.mcmc_dm <- function(x, ..., id = NULL, what = "trace",
 #'
 #' @seealso [dRiftDM::plot.mcmc_dm()]
 #' @keywords internal
-plot_mcmc_trace = function(chains, col_palette = grDevices::rainbow,
-                           col_chains = NULL, which_prms = NULL, xlab = NULL,
-                           ylab = NULL, xlim = NULL, ylim = NULL) {
-
+plot_mcmc_trace = function(
+  chains,
+  col_palette = grDevices::rainbow,
+  col_chains = NULL,
+  which_prms = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  xlim = NULL,
+  ylim = NULL
+) {
   stopifnot(length(dim(chains)) == 3)
 
   # get the dimension and prm labels
@@ -1931,8 +2246,10 @@ plot_mcmc_trace = function(chains, col_palette = grDevices::rainbow,
     prms_to_plot <- grep(pattern = which_prms, x = prms_to_plot, value = TRUE)
   }
   if (length(prms_to_plot) == 0) {
-    warning("The argument `which_prms` doesn't match with any parameter. ",
-            "No plot is provided.")
+    warning(
+      "The argument `which_prms` doesn't match with any parameter. ",
+      "No plot is provided."
+    )
     return(invisible())
   }
 
@@ -1961,7 +2278,7 @@ plot_mcmc_trace = function(chains, col_palette = grDevices::rainbow,
     ylim_one_prm = ylim[[i]]
     if (is.na(ylim_one_prm)) {
       range_sub <- range(sub_chains)
-      padding <- 0.05 * diff(range_sub)  # scale by 5%
+      padding <- 0.05 * diff(range_sub) # scale by 5%
       ylim_one_prm <- c(range_sub[1] - padding, range_sub[2] + padding)
     }
     xlim_one_prm = xlim[[i]]
@@ -1971,7 +2288,10 @@ plot_mcmc_trace = function(chains, col_palette = grDevices::rainbow,
 
     # now the raw plot outline
     plot(
-      NA, ylim = ylim_one_prm, xlab = xlab[i], ylab = ylab[i],
+      NA,
+      ylim = ylim_one_prm,
+      xlab = xlab[i],
+      ylab = ylab[i],
       xlim = xlim_one_prm
     )
     for (j in seq_len(n_chains)) {
@@ -1985,10 +2305,16 @@ plot_mcmc_trace = function(chains, col_palette = grDevices::rainbow,
 
 
 #' @rdname plot_mcmc_trace
-plot_mcmc_marginal <- function(chains, col_line = NULL, col_shade = NULL,
-                               which_prms = NULL, xlab = NULL, ylab = NULL,
-                               xlim = NULL, ylim = NULL) {
-
+plot_mcmc_marginal <- function(
+  chains,
+  col_line = NULL,
+  col_shade = NULL,
+  which_prms = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  xlim = NULL,
+  ylim = NULL
+) {
   stopifnot(length(dim(chains)) == 3)
 
   # get the prm labels
@@ -1998,16 +2324,18 @@ plot_mcmc_marginal <- function(chains, col_line = NULL, col_shade = NULL,
     prms_to_plot <- grep(pattern = which_prms, x = prms_to_plot, value = TRUE)
   }
   if (length(prms_to_plot) == 0) {
-    warning("The argument `which_prms` doesn't match with any parameter. ",
-            "No plot is provided.")
+    warning(
+      "The argument `which_prms` doesn't match with any parameter. ",
+      "No plot is provided."
+    )
     return(invisible())
   }
-
 
   # get default values for xlab etc.
   n_plot <- length(prms_to_plot)
   col_line <- rep(
-    if (is.null(col_line)) "black" else col_line, length.out = n_plot
+    if (is.null(col_line)) "black" else col_line,
+    length.out = n_plot
   )
   col_shade <- rep(
     if (is.null(col_shade)) grDevices::rgb(0, 0, 0.5, 0.5) else col_shade,
@@ -2017,9 +2345,6 @@ plot_mcmc_marginal <- function(chains, col_line = NULL, col_shade = NULL,
   ylab <- rep(if (is.null(ylab)) "Density" else ylab, length.out = n_plot)
   xlim <- rep(if (is.null(xlim)) list(NA) else xlim, length.out = n_plot)
   ylim <- rep(if (is.null(ylim)) list(NA) else ylim, length.out = n_plot)
-
-
-
 
   # iterate over each parameter and plot the posterior density
   for (i in seq_along(prms_to_plot)) {
@@ -2032,24 +2357,27 @@ plot_mcmc_marginal <- function(chains, col_line = NULL, col_shade = NULL,
     xlim_one_prm = xlim[[i]]
     if (is.na(xlim_one_prm)) {
       range_sub <- range(sub_chains)
-      padding <- 0.05 * diff(range_sub)  # scale by 5%
+      padding <- 0.05 * diff(range_sub) # scale by 5%
       xlim_one_prm <- c(range_sub[1] - padding, range_sub[2] + padding)
     }
     ylim_one_prm = ylim[[i]]
     if (is.na(ylim_one_prm)) {
       max_sub <- max(dens_one_prm$y)
-      ylim_one_prm <- c(0, 1.05 * max_sub)  # scale max by 5%
+      ylim_one_prm <- c(0, 1.05 * max_sub) # scale max by 5%
     }
 
-
     plot(
-      NA, ylim = ylim_one_prm, xlab = xlab[i], ylab = ylab[i],
+      NA,
+      ylim = ylim_one_prm,
+      xlab = xlab[i],
+      ylab = ylab[i],
       xlim = xlim_one_prm
     )
     graphics::polygon(
       x = c(dens_one_prm$x, rev(dens_one_prm$x)),
       y = c(dens_one_prm$y, rep(0, length(dens_one_prm$y))),
-      col = col_shade[i], border = col_line[i]
+      col = col_shade[i],
+      border = col_line[i]
     )
   }
   invisible()
@@ -2058,10 +2386,18 @@ plot_mcmc_marginal <- function(chains, col_line = NULL, col_shade = NULL,
 
 #' @rdname plot_mcmc_trace
 #' @keywords internal
-plot_mcmc_auto <- function(chains, lags = 1:30, col_line = NULL,
-                           which_prms = NULL, xlab = NULL, ylab = NULL,
-                           xlim = NULL, ylim = NULL, type = NULL, main = NULL) {
-
+plot_mcmc_auto <- function(
+  chains,
+  lags = 1:30,
+  col_line = NULL,
+  which_prms = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  xlim = NULL,
+  ylim = NULL,
+  type = NULL,
+  main = NULL
+) {
   stopifnot(length(dim(chains)) == 3)
 
   # get the prm labels
@@ -2071,8 +2407,10 @@ plot_mcmc_auto <- function(chains, lags = 1:30, col_line = NULL,
     prms_to_plot <- grep(pattern = which_prms, x = prms_to_plot, value = TRUE)
   }
   if (length(prms_to_plot) == 0) {
-    warning("The argument `which_prms` doesn't match with any parameter. ",
-            "No plot is provided.")
+    warning(
+      "The argument `which_prms` doesn't match with any parameter. ",
+      "No plot is provided."
+    )
     return(invisible())
   }
 
@@ -2083,40 +2421,45 @@ plot_mcmc_auto <- function(chains, lags = 1:30, col_line = NULL,
   # get default values for xlab etc.
   n_plot <- length(prms_to_plot)
   col_line <- rep(
-    if (is.null(col_line)) "black" else col_line, length.out = n_plot
+    if (is.null(col_line)) "black" else col_line,
+    length.out = n_plot
   )
   xlab <- rep(if (is.null(xlab)) "Lag" else xlab, length.out = n_plot)
-  ylab <- rep(if (is.null(ylab)) "Autocorrelation" else ylab, length.out = n_plot)
-  xlim <- rep(if (is.null(xlim)) list(range(lags)) else xlim, length.out = n_plot)
-  ylim <- rep(if (is.null(ylim)) list(c(-1,1)) else ylim, length.out = n_plot)
+  ylab <- rep(
+    if (is.null(ylab)) "Autocorrelation" else ylab,
+    length.out = n_plot
+  )
+  xlim <- rep(
+    if (is.null(xlim)) list(range(lags)) else xlim,
+    length.out = n_plot
+  )
+  ylim <- rep(if (is.null(ylim)) list(c(-1, 1)) else ylim, length.out = n_plot)
   type <- rep(if (is.null(type)) "h" else type, length.out = n_plot)
   main <- rep(if (is.null(main)) prms_to_plot else main, length.out = n_plot)
-
-
-
 
   # iterate over each parameter and plot the posterior density
   for (i in seq_along(prms_to_plot)) {
     one_prm <- prms_to_plot[i]
     prm_idx <- which(one_prm == all_prm_names)
-    subset_auto_corrs = auto_cors[,one_prm]
+    subset_auto_corrs = auto_cors[, one_prm]
 
     # prepare x and y limits
     xlim_one_prm = xlim[[i]]
     ylim_one_prm = ylim[[i]]
 
     plot(
-      subset_auto_corrs ~ lags, ylim = ylim_one_prm, xlab = xlab[i],
-      ylab = ylab[i], xlim = xlim_one_prm, ty = type[i], col = col_line[i],
+      subset_auto_corrs ~ lags,
+      ylim = ylim_one_prm,
+      xlab = xlab[i],
+      ylab = ylab[i],
+      xlim = xlim_one_prm,
+      ty = type[i],
+      col = col_line[i],
       main = main[i]
     )
-
   }
   invisible()
 }
-
-
-
 
 
 # HELPER FUNCTIONS --------------------------------------------------------
@@ -2135,9 +2478,8 @@ plot_mcmc_auto <- function(chains, lags = 1:30, col_line = NULL,
 #'
 #' @keywords internal
 set_default_colors <- function(colors, n) {
-
   color_blind_palette = grDevices::palette.colors(palette = "Okabe-Ito")
-  color_blind_palette = color_blind_palette[c(4,7,1,2,3,5,6,8)] # just ordering
+  color_blind_palette = color_blind_palette[c(4, 7, 1, 2, 3, 5, 6, 8)] # just ordering
   if (n <= 8) {
     def_cols = color_blind_palette[1:n]
   } else {
@@ -2153,9 +2495,6 @@ set_default_colors <- function(colors, n) {
   }
   return(colors)
 }
-
-
-
 
 
 #' Set default graphical parameters for plotting in dRiftDM
@@ -2258,7 +2597,6 @@ set_default_colors <- function(colors, n) {
 #'
 #' @keywords internal
 set_default_arguments <- function(dots, leg, id) {
-
   # standard line types and point types
   dots$obs.pch = if (is.null(dots$obs.pch)) 19 else dots$obs.pch
   dots$pred.lty = if (is.null(dots$pred.lty)) 1 else dots$pred.lty
@@ -2279,17 +2617,21 @@ set_default_arguments <- function(dots, leg, id) {
 
   # main and family
   if (!is.null(id)) {
-    if (is.null(dots$main)) dots$main = id
-    else dots$main = paste(dots$main, id, sep = " - ")
+    if (is.null(dots$main)) {
+      dots$main = id
+    } else {
+      dots$main = paste(dots$main, id, sep = " - ")
+    }
   }
   dots$family = if (is.null(dots$family)) "" else dots$family
 
   # the primary legend settings
   dots[["legend"]] = if (is.null(dots[["legend"]])) leg else dots[["legend"]]
-  dots$legend.pos = if (is.null(dots$legend.pos))
+  dots$legend.pos = if (is.null(dots$legend.pos)) {
     "bottomright"
-  else
+  } else {
     dots$legend.pos
+  }
   dots$legend.bg = if (is.null(dots$legend.bg)) "white" else dots$legend.bg
   dots$bty = if (is.null(dots$bty)) "o" else dots$bty
   dots$box.lwd = if (is.null(dots$box.lwd)) 1 else dots$box.lwd
@@ -2297,14 +2639,16 @@ set_default_arguments <- function(dots, leg, id) {
   dots$box.lty = if (is.null(dots$box.lty)) 1 else dots$box.lty
 
   # specific settings for the line legend
-  dots[["lines.legend"]] = if (is.null(dots[["lines.legend"]]))
+  dots[["lines.legend"]] = if (is.null(dots[["lines.legend"]])) {
     NULL
-  else
+  } else {
     dots[["lines.legend"]]
-  dots$lines.legend.pos = if (is.null(dots$lines.legend.pos))
+  }
+  dots$lines.legend.pos = if (is.null(dots$lines.legend.pos)) {
     "topright"
-  else
+  } else {
     dots$lines.legend.pos
+  }
 
   # error bar settings
   dots$err.width = if (is.null(dots$err.width)) 0.05 else dots$err.width
@@ -2312,11 +2656,16 @@ set_default_arguments <- function(dots, leg, id) {
   dots$err.eps = if (is.null(dots$err.eps)) .001 else dots$err.eps
 
   # color and line settings of kdes and histograms
-  dots$obs.hist.col = if (is.null(dots$obs.hist.col))
+  dots$obs.hist.col = if (is.null(dots$obs.hist.col)) {
     "gray20"
-  else
+  } else {
     dots$obs.hist.col
-  dots$obs.kde.col = if (is.null(dots$obs.kde.col)) "black" else dots$obs.kde.col
+  }
+  dots$obs.kde.col = if (is.null(dots$obs.kde.col)) {
+    "black"
+  } else {
+    dots$obs.kde.col
+  }
   dots$obs.kde.lty = if (is.null(dots$obs.kde.lty)) 2 else dots$obs.kde.lty
   dots$obs.kde.lwd = if (is.null(dots$obs.kde.lwd)) 1 else dots$obs.kde.lwd
 
@@ -2326,4 +2675,3 @@ set_default_arguments <- function(dots, leg, id) {
 
   return(dots)
 }
-

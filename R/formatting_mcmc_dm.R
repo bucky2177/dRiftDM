@@ -1,10 +1,6 @@
-
-
 #' @rdname estimate_dm
 #' @export
-print.mcmc_dm <- function(x, ...,
-                          round_digits = drift_dm_default_rounding()) {
-
+print.mcmc_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
   chains_obj <- x
 
   sampler = attr(chains_obj, "sampler")
@@ -83,7 +79,6 @@ print.mcmc_dm <- function(x, ...,
 #'
 #' @export
 summary.mcmc_dm <- function(object, ..., id = NULL) {
-
   chains_obj <- object
   ans <- list()
 
@@ -121,13 +116,15 @@ summary.mcmc_dm <- function(object, ..., id = NULL) {
 
 #' @rdname summary.mcmc_dm
 #' @export
-print.summary.mcmc_dm <- function(x, ...,
-                            round_digits = drift_dm_default_rounding(),
-                            show_statistics = TRUE,
-                            show_quantiles= FALSE,
-                            show_gr = TRUE,
-                            show_eff_n = TRUE) {
-
+print.summary.mcmc_dm <- function(
+  x,
+  ...,
+  round_digits = drift_dm_default_rounding(),
+  show_statistics = TRUE,
+  show_quantiles = FALSE,
+  show_gr = TRUE,
+  show_eff_n = TRUE
+) {
   summary_obj <- x
 
   # Print Out General Information
@@ -169,7 +166,7 @@ print.summary.mcmc_dm <- function(x, ...,
   gr = summary_obj$gr
   if (show_gr) {
     cat("\nGelman-Rubin Statistics\n")
-    print(round(gr[,1], digits = round_digits))
+    print(round(gr[, 1], digits = round_digits))
   }
 
   # Effective Sample Size

@@ -31,7 +31,6 @@ prms_solve(a_model)["dt"] <- .005 # changes the time discretization
 print(a_model) # see the changes
 
 
-
 # -------------------------------------------------------------------------
 #' # Exploring Model Behavior and Predictions
 #' Simulate some traces.
@@ -67,7 +66,6 @@ print(some_stats)
 plot(some_stats, mfrow = c(1, 2), col = "black")
 
 
-
 # -------------------------------------------------------------------------
 #' # Change Solver
 #' "kfe" is the default solver, but users can change this to the
@@ -76,7 +74,6 @@ plot(some_stats, mfrow = c(1, 2), col = "black")
 #+ change_solver
 solver(a_model) # shows the current method
 solver(a_model) <- "im_zero" # changes method to the integral approach
-
 
 
 # -------------------------------------------------------------------------
@@ -105,16 +102,27 @@ prms_solve(a_model)["dx"] <- .01
 # space will be the same for all conditions (see ?estimate_model for more
 # details on how to specify the search space)
 lower_prm_bnd <- c(
-  muc = 2, b = .3, non_dec = .2, sd_non_dec = .01,
-  tau = .02, A = .02, alpha = 3
+  muc = 2,
+  b = .3,
+  non_dec = .2,
+  sd_non_dec = .01,
+  tau = .02,
+  A = .02,
+  alpha = 3
 )
 upper_prm_bnd <- c(
-  muc = 6, b = .8, non_dec = .4, sd_non_dec = .06,
-  tau = .15, A = .20, alpha = 7
+  muc = 6,
+  b = .8,
+  non_dec = .4,
+  sd_non_dec = .06,
+  tau = .15,
+  A = .20,
+  alpha = 7
 )
 
 # estimate the model with (bounded) Nelder-Mead
-a_model <- estimate_model( # takes about 15 seconds
+a_model <- estimate_model(
+  # takes about 15 seconds
   drift_dm_obj = a_model, # the model (i.e., DMC)
   lower = lower_prm_bnd, # the lower end of the search space
   upper = upper_prm_bnd, # the upper end of the search space
@@ -129,14 +137,17 @@ a_model <- estimate_model( # takes about 15 seconds
 n_cores <- pmin(parallel::detectCores(), 2)
 
 # use DE algorithm with multiple cores
-a_model <- estimate_model( # takes about 7 minutes with 2 cores
+a_model <- estimate_model(
+  # takes about 7 minutes with 2 cores
   drift_dm_obj = a_model,
   lower = lower_prm_bnd,
   upper = upper_prm_bnd,
   seed = 1,
   de_control = list(
-    reltol = 1e-8, steptol = 50,
-    itermax = 200, trace = TRUE
+    reltol = 1e-8,
+    steptol = 50,
+    itermax = 200,
+    trace = TRUE
   ),
   de_n_cores = n_cores
 )
@@ -156,13 +167,9 @@ sum_stats <- calc_stats(
 #' Plot the summary statistics
 #+ plot_stats_single_fit, fig.width = 8, fig.height = 4
 # separate plot calls for more control over each panel
-plot(sum_stats$cafs,
-  col = c("green", "red"),
-  legend = NA
-) # legend = NA -> no legend
+plot(sum_stats$cafs, col = c("green", "red"), legend = NA) # legend = NA -> no legend
 plot(sum_stats$quantiles, col = c("green", "red"))
 plot(sum_stats$delta_funs)
-
 
 
 # -------------------------------------------------------------------------
@@ -179,7 +186,8 @@ a_model <- dmc_dm(t_max = 2, dx = .01, dt = .01)
 
 # now call the fit procedure.
 # we'll write each fit into the working directory
-estimate_model_ids( # takes about 10 minutes
+estimate_model_ids(
+  # takes about 10 minutes
   drift_dm_obj = a_model, # the model to fit ...
   obs_data_ids = large_dat, # to each participant in large_dat
   lower = lower_prm_bnd, # lower boundary of the search space
@@ -249,7 +257,8 @@ prms_solve(a_model)["dt"] <- c(.005)
 # fit the model to each synthetic data
 n_cores <- pmin(parallel::detectCores(), 2) # use 2 cores (if available)
 
-estimate_model_ids( # takes about 30 minutes with 2 cores
+estimate_model_ids(
+  # takes about 30 minutes with 2 cores
   drift_dm_obj = a_model, # the model to fit
   obs_data_ids = synth_data, # the synthetic data
   lower = lower_sim_bnd, # the lower search space
@@ -276,7 +285,6 @@ cor(recov_prms$non_dec, orig_prms$non_dec)
 mean(recov_prms$muc - orig_prms$muc) / diff(range(orig_prms$muc))
 mean(recov_prms$b - orig_prms$b) / diff(range(orig_prms$b))
 mean(recov_prms$non_dec - orig_prms$non_dec) / diff(range(orig_prms$non_dec))
-
 
 
 # -------------------------------------------------------------------------
@@ -352,7 +360,6 @@ mu_ssp <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   r <- prms_model[["r"]]
   sign <- prms_model[["sign"]] # this will be controlled via flex_prms
 
-
   # calculate the standard deviation at each time step
   sd_t <- pmax(sd_0 - r * t_vec, .001)
 
@@ -394,8 +401,11 @@ ssp_dm <- function() {
   # modify the flex_prms object to achieve the desired behavior of 'sign'
   # -> don't consider 'sign' a free parameter to estimate and set it to -1
   # for incompatible conditions
-  ssp_dm <- modify_flex_prms(ssp_dm, instr = "sign <!>
-                                             sign ~ incomp => -1")
+  ssp_dm <- modify_flex_prms(
+    ssp_dm,
+    instr = "sign <!>
+                                             sign ~ incomp => -1"
+  )
 
   return(ssp_dm)
 }

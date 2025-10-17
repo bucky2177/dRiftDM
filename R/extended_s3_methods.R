@@ -1,6 +1,5 @@
 # FOR DRIFT_DM OBJECTS ----------------------------------------------------
 
-
 #' Get the Number of Observations for a drift_dm Object
 #'
 #' This method retrieves the total number of observations in the `obs_data`
@@ -37,7 +36,9 @@
 #'
 #' @export
 nobs.drift_dm <- function(object, ...) {
-  if (is.null(object$obs_data)) return(0L)
+  if (is.null(object$obs_data)) {
+    return(0L)
+  }
   return(sum(sapply(object$obs_data, lengths)))
 }
 
@@ -68,7 +69,6 @@ nobs.drift_dm <- function(object, ...) {
 #'
 #' @export
 logLik.drift_dm <- function(object, ...) {
-
   stats <- with_muffled_warning(
     calc_fit_stats(object, ...),
     pattern = "Couldn't form .* bins from .* RTs"
@@ -183,8 +183,12 @@ logLik.drift_dm <- function(object, ...) {
 #' coef(a_model, select_unique = FALSE) # gives the entire parameter matrix
 #'
 #' @export
-coef.drift_dm <- function(object, ..., select_unique = TRUE,
-                          select_custom_prms = TRUE) {
+coef.drift_dm <- function(
+  object,
+  ...,
+  select_unique = TRUE,
+  select_custom_prms = TRUE
+) {
   # if unique, get labels for prm cond combos, extract the respective
   # values from the parameter matrix, and simplify parameter.cond labels
   # if cond is the same
@@ -226,7 +230,6 @@ coef.fits_agg_dm <- function(object, ...) {
 
 
 # FOR FITS_IDS_DM ---------------------------------------------------------
-
 
 #' Extract Model Statistics for fits_ids_dm Object
 #'
@@ -274,7 +277,6 @@ coef.fits_agg_dm <- function(object, ...) {
 #'
 #' @export
 logLik.fits_ids_dm <- function(object, ...) {
-
   stats <- with_muffled_warning(
     calc_stats(object, type = "fit_stats"),
     pattern = "Couldn't form .* bins from .* RTs"
@@ -316,7 +318,8 @@ coef.fits_ids_dm <- function(object, ...) {
       return_val <- data.frame(ID = x, one_coef)
     } else {
       return_val <- cbind(
-        ID = x, Cond = rownames(one_coef),
+        ID = x,
+        Cond = rownames(one_coef),
         data.frame(one_coef)
       )
     }
@@ -332,15 +335,11 @@ coef.fits_ids_dm <- function(object, ...) {
 }
 
 
-
-
-
 # FOR MCMC_DM OBJECTS -----------------------------------------------------
 
 #' @rdname coef.drift_dm
 #' @export
 coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
-
   # input checks and handling of the ids argument
   if (!is.function(.f)) {
     stop(".f argument must be a function")
@@ -354,19 +353,26 @@ coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
   }
 
   if (!is.null(id) & !hierarchical) {
-    stop("Specifying `id` doesn't make sense in the non-hierarchical case, ",
-         "because the chain object refers to only a single participant.")
+    stop(
+      "Specifying `id` doesn't make sense in the non-hierarchical case, ",
+      "because the chain object refers to only a single participant."
+    )
   }
 
   # call coef recursively with multiple ids are requested
   if (length(id) > 1) {
     results = lapply(
-      id, \(one_id) coef.mcmc_dm(object, ..., .f = .f, id = one_id)
+      id,
+      \(one_id) coef.mcmc_dm(object, ..., .f = .f, id = one_id)
     )
-    results <- lapply(seq_along(id), \(id_idx){
+    results <- lapply(seq_along(id), \(id_idx) {
       x = results[[id_idx]]
-      if (is.matrix(x)) x = cbind(`.f_out` = rownames(x), x)
-      if (is.vector(x)) x = t(as.matrix(x))
+      if (is.matrix(x)) {
+        x = cbind(`.f_out` = rownames(x), x)
+      }
+      if (is.vector(x)) {
+        x = t(as.matrix(x))
+      }
       x = as.data.frame(x)
       x = cbind(ID = id[id_idx], x)
       return(x)
@@ -382,12 +388,13 @@ coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
   chains = get_subset_chains(chains_obj = object, id = id)
   result = apply(chains, 1, FUN = .f, simplify = TRUE)
   if (is.list(result)) {
-    stop("Function supplied as argument .f did not return either a single ",
-         "value or a vector of always the same length")
+    stop(
+      "Function supplied as argument .f did not return either a single ",
+      "value or a vector of always the same length"
+    )
   }
   return(result)
 }
-
 
 
 # HELPER FUNCTION ---------------------------------------------------------
@@ -405,11 +412,12 @@ coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
 #'
 #' @keywords internal
 try_cast_integer <- function(values) {
-  if (!is.character(values)) return(values)
+  if (!is.character(values)) {
+    return(values)
+  }
   ok <- grepl("^[0-9]+$", values)
   if (all(ok)) as.integer(values) else values
 }
-
 
 
 # UNPACK METHODS ----------------------------------------------------------

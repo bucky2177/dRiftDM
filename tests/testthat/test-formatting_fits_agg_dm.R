@@ -7,7 +7,7 @@ test_that("print.fits_agg_dm prints header via summary and returns invisibly", {
 
 test_that("print.summary.fits_agg_dm prints header only when requested", {
   fits_agg <- get_example_fits("fits_agg")
-  sum_obj  <- summary(fits_agg)
+  sum_obj <- summary(fits_agg)
 
   # header only
   expect_snapshot(print(sum_obj, just_header = TRUE))
@@ -48,8 +48,8 @@ test_that("summary.fits_agg_dm works as expected", {
 test_that("summary.fits_agg_dm respects select_unique", {
   fits_agg <- get_example_fits("fits_agg")
 
-  sum_all   <- summary(fits_agg, select_unique = FALSE)
-  sum_uniq  <- summary(fits_agg, select_unique = TRUE)
+  sum_all <- summary(fits_agg, select_unique = FALSE)
+  sum_uniq <- summary(fits_agg, select_unique = TRUE)
 
   expect_identical(
     sum_all$prms,

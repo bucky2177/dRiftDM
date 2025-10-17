@@ -1,18 +1,21 @@
 # PRINT FUNCTIONS ---------------------------------------------------------
 
-
 test_that("print.stats_dm works as expected", {
   some_stats <- calc_stats(
-    dmc_dummy, type = "cafs"
+    dmc_dummy,
+    type = "cafs"
   )
 
   class(some_stats) <- class(some_stats)[-c(1, 2)]
   withr::local_preserve_seed()
   set.seed(1)
   expect_snapshot(
-    print(some_stats,
-          some = TRUE,
-          print_rows = 3, show_header = FALSE, show_note = FALSE
+    print(
+      some_stats,
+      some = TRUE,
+      print_rows = 3,
+      show_header = FALSE,
+      show_note = FALSE
     )
   )
 })
@@ -23,7 +26,6 @@ test_that("print.basic_stats works as expected", {
     print(basic_obj)
   )
 })
-
 
 
 test_that("print.cafs works as expected", {
@@ -40,7 +42,10 @@ test_that("print.quantiles works as expected", {
 
 test_that("print.delta_funs works as expected", {
   delta_funs_obj <- calc_stats(
-    dmc_dummy, type = "delta_funs", minuends = "incomp", subtrahends = "comp"
+    dmc_dummy,
+    type = "delta_funs",
+    minuends = "incomp",
+    subtrahends = "comp"
   )
   expect_snapshot(
     print(delta_funs_obj)
@@ -57,7 +62,6 @@ test_that("print.fit_stats works as expected", {
 })
 
 
-
 test_that("print.stats_dm_list works as expected", {
   fits_ids <- get_example_fits("fits_ids")
   stats_dm_list_obj <- calc_stats(fits_ids, type = c("fit_stats", "quantiles"))
@@ -66,13 +70,12 @@ test_that("print.stats_dm_list works as expected", {
     print(stats_dm_list_obj)
   )
 
-  test = stats_dm_list_obj[-c(1,2)]
+  test = stats_dm_list_obj[-c(1, 2)]
   class(test) = "stats_dm_list"
   expect_snapshot(
     print(test)
   )
 })
-
 
 
 # SUMMARY FUNCTIONS -------------------------------------------------------
@@ -132,7 +135,6 @@ test_that("summary.basic_stats works as expected", {
   expect_identical(summary_stats$source, c("obs", "pred"))
   expect_identical(summary_stats$n_ids, length(unique(some_stats$ID)))
 
-
   # Check print output snapshot
   expect_snapshot(print(summary_stats))
 })
@@ -153,7 +155,6 @@ test_that("summary.cafs works as expected", {
   expect_s3_class(summary_stats$summary_dataframe, "table")
   expect_identical(summary_stats$source, c("obs", "pred"))
   expect_identical(summary_stats$n_ids, length(unique(some_stats$ID)))
-
 
   # Check print output snapshot
   expect_snapshot(print(summary_stats))
@@ -182,7 +183,10 @@ test_that("summary.quantiles works as expected", {
 
 test_that("summary.delta_funs works as expected", {
   some_stats <- calc_stats(
-    dmc_dummy, type = "delta_funs", minuends = "incomp", subtrahends = "comp"
+    dmc_dummy,
+    type = "delta_funs",
+    minuends = "incomp",
+    subtrahends = "comp"
   )
   summary_stats <- summary(some_stats)
 
@@ -222,7 +226,8 @@ test_that("summary.fit_stats works as expected", {
 
 test_that("summary.stats_dm_list works as expected", {
   some_stats_list <- calc_stats(
-    dmc_dummy, type = c("quantiles", "cafs")
+    dmc_dummy,
+    type = c("quantiles", "cafs")
   )
   summary_list <- summary(some_stats_list)
 
@@ -233,7 +238,6 @@ test_that("summary.stats_dm_list works as expected", {
   expect_s3_class(summary_list$quantiles, "summary.quantiles")
   expect_s3_class(summary_list$cafs, "summary.cafs")
   expect_length(summary_list, 2)
-
 
   # Check print output snapshot
   expect_snapshot(print(summary_list))

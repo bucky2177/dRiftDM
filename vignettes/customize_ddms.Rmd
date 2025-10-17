@@ -262,7 +262,9 @@ The next step is to create a function that assembles the custom model by calling
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
-    muc = 3, mua = 1, sign = 1, # parameters for the custom drift rate function
+    muc = 3, # parameters for the custom drift rate function
+    mua = 1,
+    sign = 1, 
     b = .6, # parameter for a time-independent boundary "b"
     non_dec = .2 # parameter for a non-decision time "non_dec"
   )
@@ -288,8 +290,11 @@ cust_model <- function() {
   # modify the flex_prms object to achieve the desired behavior of 'sign'
   # -> don't consider 'sign' a free parameter to estimate and set it to -1
   # for incompatible conditions
-  ddm <- modify_flex_prms(ddm, instr = "sign <!>
-                                        sign ~ incomp => -1")
+  ddm <- modify_flex_prms(
+    ddm,
+    instr = "sign <!>
+                                        sign ~ incomp => -1"
+  )
 
   return(ddm)
 }
@@ -319,7 +324,9 @@ This function is then passed to the `mu_int_fun` argument within the `cust_model
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
-    muc = 3, mua = 1, sign = 1, # prms for the custom drift rate function
+    muc = 3,  # prms for the custom drift rate function
+    mua = 1,
+    sign = 1,
     b = .6, # parameter for a time-independent boundary b
     non_dec = .2
   ) # parameter for a non-decision time
@@ -465,7 +472,8 @@ cust_model <- function() {
     non_dec = .2 # parameter for a non-decision time "non_dec"
   )
 
-  # each model must have a condition (in this example it is not relevant, so we just call it "foo")
+  # each model must have a condition 
+  # (in this example it is not relevant, so we just call it "foo")
   conds <- c("foo")
 
   # get access to pre-built component functions
@@ -529,7 +537,8 @@ cust_model <- function() {
     b = .6 # parameter for a time-independent boundary
   )
 
-  # each model must have a condition (in this example it is not relevant, so we just call it "foo")
+  # each model must have a condition
+  # (in this example it is not relevant, so we just call it "foo")
   conds <- c("foo")
 
   # get access to pre-built component functions
@@ -658,11 +667,12 @@ cust_model <- function() {
   prms_model <- c(
     non_dec = .2, # parameters for the non-decision time
     muc = 3, # parameter for a time-independent drift rate
-    sd_muc = 1.2, # this will trigger trial-by-trial variability in the drift rate!
+    sd_muc = 1.2, # will trigger trial-by-trial variability in the drift rate!
     b = .4 # parameter for a time-independent boundary
   )
 
-  # each model must have a condition (in this example it is not relevant, so we just call it "foo")
+  # each model must have a condition
+  # (in this example it is not relevant, so we just call it "foo")
   conds <- c("foo")
 
   # get access to pre-built component functions

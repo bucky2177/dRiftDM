@@ -1,5 +1,4 @@
 test_that("draw_from_pdf works as expected", {
-
   quants <- qnorm(seq(0.1, 0.9, 0.1))
   x_def <- seq(-4, 4, 0.01)
   pdf <- dnorm(x_def)
@@ -7,31 +6,39 @@ test_that("draw_from_pdf works as expected", {
   # discrete
   samp_quants <- stats::quantile(
     draw_from_pdf(
-      a_pdf = pdf, x_def = x_def,
-      k = 50000, seed = 1, method = "discr"
+      a_pdf = pdf,
+      x_def = x_def,
+      k = 50000,
+      seed = 1,
+      method = "discr"
     ),
     probs = seq(0.1, 0.9, 0.1)
   )
   expect_true(all(abs(quants - samp_quants) < .01))
-
 
   # linear
   samp_quants <- stats::quantile(
     draw_from_pdf(
-      a_pdf = pdf, x_def = x_def,
-      k = 50000, seed = 1, method = "linear"
+      a_pdf = pdf,
+      x_def = x_def,
+      k = 50000,
+      seed = 1,
+      method = "linear"
     ),
     probs = seq(0.1, 0.9, 0.1)
   )
   expect_true(all(abs(quants - samp_quants) < .01))
 
-
   # rounding
-  test = draw_from_pdf(a_pdf = pdf, x_def = x_def, k = 50000,
-                method = "linear", round_to = 1)
+  test = draw_from_pdf(
+    a_pdf = pdf,
+    x_def = x_def,
+    k = 50000,
+    method = "linear",
+    round_to = 1
+  )
   expect_equal(min(diff(sort(unique(test)))), 0.1)
 })
-
 
 
 test_that("input checks for draw_from_pdf", {
@@ -110,7 +117,8 @@ test_that("simulate_values works as expected", {
 
   # uniform
   dat <- simulate_values(
-    lower = c(1, 2), upper = c(2, 5),
+    lower = c(1, 2),
+    upper = c(2, 5),
     k = 10000
   )
 
@@ -127,12 +135,14 @@ test_that("simulate_values works as expected", {
     all(abs(quantile(dat$V2, probs = probs) - test2) < .1)
   )
 
-
   # truncated normal
   dat <- simulate_values(
-    lower = c(1, 2), upper = c(2, 5),
-    k = 10000, distr = "tnorm",
-    means = c(1.3, 3), sds = c(0.4, 0.1)
+    lower = c(1, 2),
+    upper = c(2, 5),
+    k = 10000,
+    distr = "tnorm",
+    means = c(1.3, 3),
+    sds = c(0.4, 0.1)
   )
 
   test1 <- truncnorm::rtruncnorm(n = 10000, a = 1, b = 2, mean = 1.3, sd = 0.4)
@@ -150,44 +160,55 @@ test_that("simulate_values works as expected", {
 
   # returned value checks
   dat <- simulate_values(
-    lower = c(a = 1, b = 2), upper = c(a = 2, b = 5),
-    k = 2, distr = "tnorm",
-    means = c(a = 1.3, b = 3), sds = c(a = 0.4, b = 0.1)
+    lower = c(a = 1, b = 2),
+    upper = c(a = 2, b = 5),
+    k = 2,
+    distr = "tnorm",
+    means = c(a = 1.3, b = 3),
+    sds = c(a = 0.4, b = 0.1)
   )
   expect_equal(colnames(dat), c("a", "b", "ID"))
   expect_true(is.data.frame(dat))
 
-
   dat <- simulate_values(
-    lower = c(a = 1, b = 2), upper = c(a = 2, b = 5),
-    k = 2, distr = "tnorm",
-    means = c(a = 1.3, b = 3), sds = c(a = 0.4, b = 0.1),
-    cast_to_data_frame = F, add_id_column = "none"
+    lower = c(a = 1, b = 2),
+    upper = c(a = 2, b = 5),
+    k = 2,
+    distr = "tnorm",
+    means = c(a = 1.3, b = 3),
+    sds = c(a = 0.4, b = 0.1),
+    cast_to_data_frame = F,
+    add_id_column = "none"
   )
   expect_equal(colnames(dat), c("a", "b"))
   expect_true(is.matrix(dat))
 
-
   dat <- simulate_values(
-    lower = c(a = 1, b = 2), upper = c(a = 2, b = 5),
-    k = 2, distr = "tnorm",
-    means = c(a = 1.3, b = 3), sds = c(a = 0.4, b = 0.1),
-    cast_to_data_frame = F, add_id_column = FALSE
+    lower = c(a = 1, b = 2),
+    upper = c(a = 2, b = 5),
+    k = 2,
+    distr = "tnorm",
+    means = c(a = 1.3, b = 3),
+    sds = c(a = 0.4, b = 0.1),
+    cast_to_data_frame = F,
+    add_id_column = FALSE
   )
   expect_equal(colnames(dat), c("a", "b"))
   expect_true(is.matrix(dat))
 
-
   dat <- simulate_values(
-    lower = c(a = 1, b = 2), upper = c(a = 2, b = 5),
-    k = 2, distr = "tnorm",
-    means = c(a = 1.3, b = 3), sds = c(a = 0.4, b = 0.1),
-    cast_to_data_frame = T, add_id_column = "character"
+    lower = c(a = 1, b = 2),
+    upper = c(a = 2, b = 5),
+    k = 2,
+    distr = "tnorm",
+    means = c(a = 1.3, b = 3),
+    sds = c(a = 0.4, b = 0.1),
+    cast_to_data_frame = T,
+    add_id_column = "character"
   )
   expect_equal(colnames(dat), c("a", "b", "ID"))
   expect_true(is.data.frame(dat))
-  expect_true(is.character(dat[,"ID"]))
-
+  expect_true(is.character(dat[, "ID"]))
 
   # check the seed
   withr::local_preserve_seed()
@@ -217,155 +238,201 @@ test_that("input checks for simulate_values", {
   )
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, distr = "foo"
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      distr = "foo"
     ),
     "should be one of"
   )
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = NULL, distr = "foo"
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = NULL,
+      distr = "foo"
     ),
     "a single numeric"
   )
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = "a", distr = "foo"
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = "a",
+      distr = "foo"
     ),
     "a single numeric"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = "a", b = 1), upper = c(a = 2, b = 2),
-      k = "a", distr = "foo"
+      lower = c(a = "a", b = 1),
+      upper = c(a = 2, b = 2),
+      k = "a",
+      distr = "foo"
     ),
     "numeric"
   )
   expect_error(
     simulate_values(
-      lower = c(a = "a", b = 1), upper = c(a = 2, b = 2),
-      k = c(1, 2), distr = "foo"
+      lower = c(a = "a", b = 1),
+      upper = c(a = 2, b = 2),
+      k = c(1, 2),
+      distr = "foo"
     ),
     "numeric"
   )
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, cast_to_data_frame = NULL
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      cast_to_data_frame = NULL
     ),
     "a single logical"
   )
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, cast_to_data_frame = c(T, F)
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      cast_to_data_frame = c(T, F)
     ),
     "a single logical"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, add_id_column = "foo"
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      add_id_column = "foo"
     ),
     "should be one of"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, seed = "foo"
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      seed = "foo"
     ),
     "must be a single numeric"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, seed = c(1, 2)
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      seed = c(1, 2)
     ),
     "must be a single numeric"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 2, b = 1), upper = c(a = 2, b = 2),
+      lower = c(a = 2, b = 1),
+      upper = c(a = 2, b = 2),
       k = 2
     ),
     "values in lower are not always smaller"
   )
 
-
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, distr = "tnorm"
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      distr = "tnorm"
     ),
     "no means argument"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, distr = "tnorm", means = 1.5,
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      distr = "tnorm",
+      means = 1.5,
     ),
     "no sds argument"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, distr = "tnorm", means = 1.5, sds = 0.4
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      distr = "tnorm",
+      means = 1.5,
+      sds = 0.4
     ),
     "means is not a valid numeric vector with length equal to lower/upper"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, distr = "tnorm", means = "1.5", sds = 0.4
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      distr = "tnorm",
+      means = "1.5",
+      sds = 0.4
     ),
     "means is not a valid numeric vector with length equal to lower/upper"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, distr = "tnorm", means = c(1.5, 1.5), sds = 0.4
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      distr = "tnorm",
+      means = c(1.5, 1.5),
+      sds = 0.4
     ),
     "sds is not a valid numeric vector with length equal to lower/upper"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, distr = "tnorm", means = c(1.5, 1.5), sds = "0.4"
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      distr = "tnorm",
+      means = c(1.5, 1.5),
+      sds = "0.4"
     ),
     "sds is not a valid numeric vector with length equal to lower/upper"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, distr = "tnorm", means = c(a = 1.5, 1.5), sds = c(0.4, 0.4)
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      distr = "tnorm",
+      means = c(a = 1.5, 1.5),
+      sds = c(0.4, 0.4)
     ),
     "labels provided in means and sds don't match"
   )
 
   expect_error(
     simulate_values(
-      lower = c(a = 1, b = 1), upper = c(a = 2, b = 2),
-      k = 2, distr = "tnorm", means = c(c = 1.5, 1.5), sds = c(c = 0.4, 0.4)
+      lower = c(a = 1, b = 1),
+      upper = c(a = 2, b = 2),
+      k = 2,
+      distr = "tnorm",
+      means = c(c = 1.5, 1.5),
+      sds = c(c = 0.4, 0.4)
     ),
     "labels provided in means/sds don't match with lower/upper"
   )
-
 })
-
-
 
 
 test_that("check_discretization.drift_dm returns named numeric in [0,1]", {
@@ -384,8 +451,8 @@ test_that("check_discretization.drift_dm returns named numeric in [0,1]", {
 
 test_that("check_discretization.drift_dm respects round_digits", {
   model <- ratcliff_dm()
-  hs_2  <- check_discretization(model, round_digits = 2)
-  hs_4  <- check_discretization(model, round_digits = 4)
+  hs_2 <- check_discretization(model, round_digits = 2)
+  hs_4 <- check_discretization(model, round_digits = 4)
 
   expect_identical(hs_2, round(hs_2, 2))
   expect_identical(hs_4, round(hs_4, 4))
@@ -436,12 +503,12 @@ test_that("check_discretization delegates to respective methods", {
   expect_true("ID" %in% names(hs_ids))
   expect_type(hs_ids$ID, "integer")
   exp_conds <- c("comp", "incomp")
-  expect_equal(names(hs_ids)[c(2,3)], exp_conds)
+  expect_equal(names(hs_ids)[c(2, 3)], exp_conds)
   expect_true(all(hs_ids[exp_conds] > 0 & hs_ids[exp_conds] < 1))
   # IDs are sorted ascending
   expect_identical(hs_ids$ID, sort(hs_ids$ID))
 
   # check for one individual
   hs_exp <- check_discretization(fits_ids$all_fits$`2`)
-  expect_identical(as.numeric(hs_ids[2,exp_conds]), unname(hs_exp))
+  expect_identical(as.numeric(hs_ids[2, exp_conds]), unname(hs_exp))
 })

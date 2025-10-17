@@ -1,5 +1,3 @@
-
-
 #' Fit a DDM to Observed Data
 #'
 #' @description
@@ -353,17 +351,30 @@
 #' coef(fit)
 #'
 #' @export
-estimate_dm <- function(drift_dm_obj, obs_data = NULL,
-                        approach = NULL, optimizer = NULL,
-                        control = list(), n_cores = 1,
-                        parallelization_strategy = NULL, lower = NULL,
-                        upper = NULL, start_vals = NULL, means = NULL,
-                        sds = NULL, shapes = NULL, rates = NULL,
-                        n_chains = 40, burn_in = 500, samples = 1000,
-                        prob_migration = 0.1, prob_re_eval = 1,
-                        messaging = TRUE,
-                        seed = NULL, ...) {
-
+estimate_dm <- function(
+  drift_dm_obj,
+  obs_data = NULL,
+  approach = NULL,
+  optimizer = NULL,
+  control = list(),
+  n_cores = 1,
+  parallelization_strategy = NULL,
+  lower = NULL,
+  upper = NULL,
+  start_vals = NULL,
+  means = NULL,
+  sds = NULL,
+  shapes = NULL,
+  rates = NULL,
+  n_chains = 40,
+  burn_in = 500,
+  samples = 1000,
+  prob_migration = 0.1,
+  prob_re_eval = 1,
+  messaging = TRUE,
+  seed = NULL,
+  ...
+) {
   dots = list(...)
 
   # user input checks ####
@@ -376,20 +387,19 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
 
   # use data from the model or from the obs_data object
   if (is.null(obs_data)) {
-
     if (is.null(drift_dm_obj$obs_data) & is.null(drift_dm_obj$stats_agg)) {
-      stop("No observed data was supplied via the 'obs_data' argument, and no ",
-           "observed data is attached to the model. Parameter estimation is ",
-           "therefore not possible.")
+      stop(
+        "No observed data was supplied via the 'obs_data' argument, and no ",
+        "observed data is attached to the model. Parameter estimation is ",
+        "therefore not possible."
+      )
     }
 
     if (messaging) {
       message("Using the data attached to the model.")
     }
     which_data = "model"
-
   } else {
-
     # check if everything is ok
     b_coding <- b_coding(drift_dm_obj)
     b_column <- b_coding$column
@@ -413,7 +423,9 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
       conds_diff = paste(conds_diff, collapse = ",")
       warning(
         "The Cond column in 'obs_data' provides conditions that are ",
-        "not listed in the model's conditions ('", conds_diff, "'). ",
+        "not listed in the model's conditions ('",
+        conds_diff,
+        "'). ",
         "These conditions were dropped."
       )
       obs_data <- obs_data[obs_data$Cond %in% model_conds, ]
@@ -434,13 +446,13 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
   }
   stopifnot(which_data %in% c("model", "obs_data"))
 
-
   # check the approach settings and set default values
   if (is.null(approach)) {
     approach = "sep_c"
   }
   approach <- match.arg(
-    approach, choices = c("sep_c", "sep_b", "agg_c", "hier_b")
+    approach,
+    choices = c("sep_c", "sep_b", "agg_c", "hier_b")
   )
 
   # check the optimizer or use default
@@ -464,17 +476,25 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
 
   # check if the optimizer is actually implemented
   optimizer <- match.arg(
-    optimizer, choices = c("Nelder-Mead", "nmkb", "BFGS", "L-BFGS-B", "DEoptim",
-                           "DE-MCMC")
+    optimizer,
+    choices = c("Nelder-Mead", "nmkb", "BFGS", "L-BFGS-B", "DEoptim", "DE-MCMC")
   )
 
   # if there is a required optimizer not matching with the input,
   # inform the user
   if (!is.null(requ_optimizer) && !identical(requ_optimizer, optimizer)) {
     if (messaging) {
-      message("The requested optimizer ('", optimizer, "') is not compatible ",
-              "with the specified approach ('", approach, "'). Using the ",
-              "following optimizer instead: '", requ_optimizer, "'.")
+      message(
+        "The requested optimizer ('",
+        optimizer,
+        "') is not compatible ",
+        "with the specified approach ('",
+        approach,
+        "'). Using the ",
+        "following optimizer instead: '",
+        requ_optimizer,
+        "'."
+      )
     }
     optimizer = requ_optimizer
   } else {
@@ -499,7 +519,6 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
     if (messaging) message("Changing the 'cost_function' to 'rmse'.")
   }
 
-
   # check n_cores
   if (!is.numeric(n_cores) || length(n_cores) != 1 || n_cores <= 0) {
     stop("n_cores must be a single numeric >= 0")
@@ -507,8 +526,9 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
 
   # check seed input
   if (!is.null(seed)) {
-    if (!is.numeric(seed) | length(seed) != 1)
+    if (!is.numeric(seed) | length(seed) != 1) {
       stop("seed must be a single numeric")
+    }
     withr::local_preserve_seed()
     set.seed(seed)
   }
@@ -517,9 +537,11 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
   # aggregated - classical ####
   if (approach == "agg_c") {
     if (which_data == "model" || !("ID" %in% colnames(obs_data))) {
-      stop("Cannot fit the model to aggregated data without data from multiple ",
-           "participants supplied via the 'obs_data' argument. ",
-           "Please provide individual-level data (with an ID column).")
+      stop(
+        "Cannot fit the model to aggregated data without data from multiple ",
+        "participants supplied via the 'obs_data' argument. ",
+        "Please provide individual-level data (with an ID column)."
+      )
     }
 
     # aggregate the data
@@ -527,7 +549,9 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
       message("Aggregated data has been set to the model.")
     }
     drift_dm_obj = set_agg_data(
-      drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data, probs = dots$probs,
+      drift_dm_obj = drift_dm_obj,
+      obs_data_ids = obs_data,
+      probs = dots$probs,
       n_bins = dots$n_bins
     )
     if (messaging) {
@@ -539,10 +563,17 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
 
     # then call the estimation function as if for a single model
     drift_dm_obj <- estimate_classical(
-      drift_dm_obj = drift_dm_obj, optimizer = optimizer,
-      start_vals = start_vals, return_runs = dots$return_runs,
-      lower = lower, upper = upper, verbose = dots$verbose, de_n_cores = n_cores,
-      control = control, round_digits = dots$round_digits, seed = seed
+      drift_dm_obj = drift_dm_obj,
+      optimizer = optimizer,
+      start_vals = start_vals,
+      return_runs = dots$return_runs,
+      lower = lower,
+      upper = upper,
+      verbose = dots$verbose,
+      de_n_cores = n_cores,
+      control = control,
+      round_digits = dots$round_digits,
+      seed = seed
     )
 
     # wrap up the return value and create a custom class
@@ -551,12 +582,15 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
     return(fit_obj)
   }
 
-
   # handle the classical ways of fitting a single or multiple participants
   toggle <- ""
   if (approach == "sep_c" || approach == "sep_b") {
     if (identical(which_data, "obs_data")) {
-      n_ids <- if ("ID" %in% names(obs_data)) length(unique(obs_data$ID)) else 0L
+      n_ids <- if ("ID" %in% names(obs_data)) {
+        length(unique(obs_data$ID))
+      } else {
+        0L
+      }
       if (n_ids <= 1L) {
         obs_data(drift_dm_obj) <- obs_data
         toggle <- "single"
@@ -568,23 +602,29 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
     }
   }
 
-
   # handle the rather original case: Fit a model to just one participant
   # single (only for approach == "sep_c" or "sep_b", see above) ####
   if (toggle == "single") {
     if (messaging && approach == "sep_c") {
       message(
         "Fitting a single data set/participant (cost function: '",
-        drift_dm_obj$cost_function, "'). The returned object will be the model ",
+        drift_dm_obj$cost_function,
+        "'). The returned object will be the model ",
         "itself."
       )
     }
     if (approach == "sep_c") {
       drift_dm_obj <- estimate_classical(
-        drift_dm_obj = drift_dm_obj, optimizer = optimizer,
-        start_vals = start_vals, return_runs = dots$return_runs,
-        lower = lower, upper = upper, verbose = dots$verbose,
-        de_n_cores = n_cores, control = control, round_digits = dots$round_digits,
+        drift_dm_obj = drift_dm_obj,
+        optimizer = optimizer,
+        start_vals = start_vals,
+        return_runs = dots$return_runs,
+        lower = lower,
+        upper = upper,
+        verbose = dots$verbose,
+        de_n_cores = n_cores,
+        control = control,
+        round_digits = dots$round_digits,
         seed = seed
       )
       return(drift_dm_obj)
@@ -598,11 +638,20 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
     }
     if (approach == "sep_b") {
       mcmc_out = estimate_bayesian(
-        drift_dm_obj = drift_dm_obj, sampler = optimizer,
-        n_chains = n_chains, burn_in = burn_in, samples = samples,
-        prob_migration = prob_migration, prob_re_eval = prob_re_eval,
-        verbose = dots$verbose, means = means, sds = sds,
-        lower = lower, upper = upper, shapes = shapes, rates = rates
+        drift_dm_obj = drift_dm_obj,
+        sampler = optimizer,
+        n_chains = n_chains,
+        burn_in = burn_in,
+        samples = samples,
+        prob_migration = prob_migration,
+        prob_re_eval = prob_re_eval,
+        verbose = dots$verbose,
+        means = means,
+        sds = sds,
+        lower = lower,
+        upper = upper,
+        shapes = shapes,
+        rates = rates
       )
       return(mcmc_out)
     }
@@ -614,7 +663,9 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
     if (messaging && approach == "sep_c") {
       message(
         "Fitting the model separately to multiple participants (cost function:",
-        "'", drift_dm_obj$cost_function, "'). The result will be a fit object ",
+        "'",
+        drift_dm_obj$cost_function,
+        "'). The result will be a fit object ",
         "of type 'fits_ids_dm'."
       )
     }
@@ -626,12 +677,19 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
     }
     if (approach == "sep_c") {
       all_fits = estimate_classical_wrapper(
-        drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data,
+        drift_dm_obj = drift_dm_obj,
+        obs_data_ids = obs_data,
         parallelization_strategy = parallelization_strategy,
-        progress = dots$progress, start_vals = start_vals,
-        optimizer = optimizer, lower = lower, upper = upper,
-        verbose = dots$verbose, n_cores = n_cores, control = control,
-        round_digits = dots$round_digits, seed = seed
+        progress = dots$progress,
+        start_vals = start_vals,
+        optimizer = optimizer,
+        lower = lower,
+        upper = upper,
+        verbose = dots$verbose,
+        n_cores = n_cores,
+        control = control,
+        round_digits = dots$round_digits,
+        seed = seed
       )
     }
 
@@ -643,7 +701,6 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
       )
     }
     if (approach == "sep_b") {
-
       # prepare cluster
       cl <- NULL
       if (n_cores > 1) {
@@ -659,7 +716,7 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
 
       # prepare progress
       if (!is.null(dots$progress) && dots$progress == 0) {
-        op <- pbapply::pboptions(type = "none")  # respect the user settings
+        op <- pbapply::pboptions(type = "none") # respect the user settings
         withr::defer(pbapply::pboptions(type = op$type))
       }
 
@@ -669,7 +726,7 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
         FUN <- function(one_id, args) {
           # set the data and delete from args
           obs_data(args$drift_dm_obj) <-
-            args$obs_data[args$obs_data$ID == one_id,]
+            args$obs_data[args$obs_data$ID == one_id, ]
           args$obs_data <- NULL
           # run the Bayesian estimation
           do.call(estimate_bayesian, args)
@@ -688,11 +745,21 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
 
       # prepare the args
       args = list(
-        obs_data = obs_data, drift_dm_obj = drift_dm_obj, sampler = optimizer,
-        n_chains = n_chains, burn_in = burn_in,
-        samples = samples, prob_migration = prob_migration,
-        prob_re_eval = prob_re_eval, verbose = dots$verbose, means = means,
-        sds = sds, lower = lower, upper = upper, shapes = shapes, rates = rates
+        obs_data = obs_data,
+        drift_dm_obj = drift_dm_obj,
+        sampler = optimizer,
+        n_chains = n_chains,
+        burn_in = burn_in,
+        samples = samples,
+        prob_migration = prob_migration,
+        prob_re_eval = prob_re_eval,
+        verbose = dots$verbose,
+        means = means,
+        sds = sds,
+        lower = lower,
+        upper = upper,
+        shapes = shapes,
+        rates = rates
       )
 
       # run everything
@@ -701,39 +768,54 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
     return(all_fits)
   }
 
-
-
   # finally, handle the hierarchical case ####
   if (approach == "hier_b") {
-
     if (which_data != "obs_data") {
-      stop("The specified approach ('", approach, "') requires observed data ",
-           "via the 'obs_data' argument.")
+      stop(
+        "The specified approach ('",
+        approach,
+        "') requires observed data ",
+        "via the 'obs_data' argument."
+      )
     }
     if (!("ID" %in% colnames(obs_data))) {
       stop("No 'ID' column found in 'obs_data'.")
     }
     if (length(unique(obs_data$ID)) <= 1L) {
-      stop("The 'ID' column provides only one participant. A hierarchical",
-           " approach doesn't make sense in this case.")
+      stop(
+        "The 'ID' column provides only one participant. A hierarchical",
+        " approach doesn't make sense in this case."
+      )
     }
 
     if (messaging) {
-      message("Fitting the model hierarchically using a Bayesian framework. ",
-              "The result will be a fit object of type 'mcmc_dm'")
+      message(
+        "Fitting the model hierarchically using a Bayesian framework. ",
+        "The result will be a fit object of type 'mcmc_dm'"
+      )
     }
     mcmc_out = estimate_bayesian(
-      drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data, sampler = optimizer,
-      n_chains = n_chains, burn_in = burn_in, samples = samples,
-      prob_migration = prob_migration, prob_re_eval = prob_re_eval,
-      verbose = dots$verbose, n_cores = n_cores, means = means, sds = sds,
-      lower = lower, upper = upper, shapes = shapes, rates = rates, seed = seed
+      drift_dm_obj = drift_dm_obj,
+      obs_data_ids = obs_data,
+      sampler = optimizer,
+      n_chains = n_chains,
+      burn_in = burn_in,
+      samples = samples,
+      prob_migration = prob_migration,
+      prob_re_eval = prob_re_eval,
+      verbose = dots$verbose,
+      n_cores = n_cores,
+      means = means,
+      sds = sds,
+      lower = lower,
+      upper = upper,
+      shapes = shapes,
+      rates = rates,
+      seed = seed
     )
     return(mcmc_out)
   }
 }
-
-
 
 
 # CLASSICAL OPTIMIZATION --------------------------------------------------
@@ -814,12 +896,19 @@ estimate_dm <- function(drift_dm_obj, obs_data = NULL,
 #' the optimization doesn't crash, though, this is not guaranteed.
 #'
 #' @keywords internal
-estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
-                               return_runs = NULL,
-                               lower = NULL, upper = NULL, verbose = NULL,
-                               de_n_cores = 1,
-                               control = list(), round_digits = NULL,
-                               seed = NULL) {
+estimate_classical <- function(
+  drift_dm_obj,
+  optimizer,
+  start_vals = NULL,
+  return_runs = NULL,
+  lower = NULL,
+  upper = NULL,
+  verbose = NULL,
+  de_n_cores = 1,
+  control = list(),
+  round_digits = NULL,
+  seed = NULL
+) {
   # input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
     stop("drift_dm_obj is not of type drift_dm")
@@ -859,12 +948,12 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
 
   # set start_vals or recursive call
   if (!is.null(start_vals)) {
-
     if (is.null(return_runs)) {
       return_runs = FALSE
     }
-    if (!is.logical(return_runs) | length(return_runs) != 1 |
-        is.na(return_runs)) {
+    if (
+      !is.logical(return_runs) | length(return_runs) != 1 | is.na(return_runs)
+    ) {
       stop("'return_runs' must be a single logical")
     }
 
@@ -881,22 +970,31 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     } else {
       # otherwise call the function recursively
       stopifnot(nrow(start_vals) > 0)
-      results <- lapply(1:nrow(start_vals), function(i){
+      results <- lapply(1:nrow(start_vals), function(i) {
         if (verbose > 0) {
           message("Optimization run: ", i)
         }
-        one_row = unlist(start_vals[i,])
-        estimate_classical(drift_dm_obj = drift_dm_obj, optimizer = optimizer,
-                           start_vals = one_row, return_runs = FALSE,
-                           lower = lower, upper = upper, verbose = verbose,
-                           control = control, round_digits = round_digits)
+        one_row = unlist(start_vals[i, ])
+        estimate_classical(
+          drift_dm_obj = drift_dm_obj,
+          optimizer = optimizer,
+          start_vals = one_row,
+          return_runs = FALSE,
+          lower = lower,
+          upper = upper,
+          verbose = verbose,
+          control = control,
+          round_digits = round_digits
+        )
       })
       cost_values = sapply(results, cost_value)
       prms = do.call(rbind, lapply(results, coef))
       j = which.min(cost_values)
       if (verbose > 0) {
         message(
-          "Optimization run ", j, " yielded the smallest cost value"
+          "Optimization run ",
+          j,
+          " yielded the smallest cost value"
         )
       }
       r = results[[j]]
@@ -920,12 +1018,13 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
   if (optimizer %in% c("nmkb", "L-BFGS-B", "DEoptim")) {
     if (is.null(lower) || is.null(upper)) {
       stop(
-        "The optimizer '", optimizer, "' requires both 'lower' and 'upper' ",
+        "The optimizer '",
+        optimizer,
+        "' requires both 'lower' and 'upper' ",
         "bounds. Please specify these arguments and call the function again."
       )
     }
   }
-
 
   if (optimizer == "DEoptim") {
     if (!is.numeric(de_n_cores) || de_n_cores <= 0) {
@@ -944,9 +1043,13 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     stop("'round_digits' must be a single numeric value")
   }
 
-
   # objective function to minimize
-  goal_wrapper <- function(new_model_prms, drift_dm_obj, verbose, round_digits) {
+  goal_wrapper <- function(
+    new_model_prms,
+    drift_dm_obj,
+    verbose,
+    round_digits
+  ) {
     tryCatch(
       {
         # set (must re_evaluate!)
@@ -966,8 +1069,11 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
         if (verbose == 2) {
           prms_string <- prms_to_str(drift_dm_obj, sep = " = ")
           message(
-            "Parameters\n", prms_string, "\n==> gave a ",
-            drift_dm_obj$cost_function, " of ",
+            "Parameters\n",
+            prms_string,
+            "\n==> gave a ",
+            drift_dm_obj$cost_function,
+            " of ",
             round(drift_dm_obj$cost_value, round_digits)
           )
         }
@@ -984,20 +1090,26 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     add = ""
     check_opt = optimizer %in% c("nmkb", "Nelder-Mead", "L-BFGS-B", "BFGS")
     if (check_opt) {
-      add = paste0("with the following starting values:\n",
-                  prms_to_str(drift_dm_obj, collapse = ", ", sep = "="))
+      add = paste0(
+        "with the following starting values:\n",
+        prms_to_str(drift_dm_obj, collapse = ", ", sep = "=")
+      )
     }
     message("Starting optimizer '", optimizer, "' ", add)
   }
-
 
   # now call the requested optimization routine
   out = NULL
   if (optimizer == "nmkb") {
     out <- dfoptim::nmkb(
-      par = coef(drift_dm_obj), fn = goal_wrapper, lower = lower,
-      upper = upper, control = control, drift_dm_obj = drift_dm_obj,
-      verbose = verbose, round_digits = round_digits
+      par = coef(drift_dm_obj),
+      fn = goal_wrapper,
+      lower = lower,
+      upper = upper,
+      control = control,
+      drift_dm_obj = drift_dm_obj,
+      verbose = verbose,
+      round_digits = round_digits
     )
     n_eval <- out$feval
   }
@@ -1008,8 +1120,12 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
       control$parscale = pmax(x0, 1e-6)
     }
     out <- stats::optim(
-      par = x0, fn = goal_wrapper, method = optimizer,
-      control = control, drift_dm_obj = drift_dm_obj, verbose = verbose,
+      par = x0,
+      fn = goal_wrapper,
+      method = optimizer,
+      control = control,
+      drift_dm_obj = drift_dm_obj,
+      verbose = verbose,
       round_digits = round_digits
     )
     n_eval <- out$counts
@@ -1017,17 +1133,27 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
 
   if (optimizer == "L-BFGS-B") {
     out <- stats::optim(
-      par = coef(drift_dm_obj), fn = goal_wrapper, method = optimizer,
-      control = control, lower = lower, upper = upper,
-      drift_dm_obj = drift_dm_obj, verbose = verbose, round_digits = round_digits
+      par = coef(drift_dm_obj),
+      fn = goal_wrapper,
+      method = optimizer,
+      control = control,
+      lower = lower,
+      upper = upper,
+      drift_dm_obj = drift_dm_obj,
+      verbose = verbose,
+      round_digits = round_digits
     )
     n_eval <- out$counts
   }
 
   if (optimizer == "BFGS") {
     out <- stats::optim(
-      par = coef(drift_dm_obj), fn = goal_wrapper, method = optimizer,
-      control = control, drift_dm_obj = drift_dm_obj, verbose = verbose,
+      par = coef(drift_dm_obj),
+      fn = goal_wrapper,
+      method = optimizer,
+      control = control,
+      drift_dm_obj = drift_dm_obj,
+      verbose = verbose,
       round_digits = round_digits
     )
     n_eval <- out$counts
@@ -1041,7 +1167,9 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
 
     check <- optimizer %in% c("L-BFGS-B", "BFGS", "Nelder-Mead")
     if (check && is.null(message)) {
-      if (convergence == 1) message = "maxit reached"
+      if (convergence == 1) {
+        message = "maxit reached"
+      }
       if (convergence == 10) message = "degeneracy of Nelder-Mead simplex"
     }
   }
@@ -1051,7 +1179,9 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     cl <- NULL
     if (de_n_cores > 1) {
       all_funs <- c(
-        "goal_wrapper", "re_evaluate_model", "prms_to_str",
+        "goal_wrapper",
+        "re_evaluate_model",
+        "prms_to_str",
         "x2prms_vals"
       )
       cl <- parallel::makeCluster(de_n_cores)
@@ -1068,7 +1198,8 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
       control$trace = FALSE
     }
     de_controls <- do.call(
-      DEoptim::DEoptim.control, args = c(list(cluster = cl), control)
+      DEoptim::DEoptim.control,
+      args = c(list(cluster = cl), control)
     )
 
     # set seed, if desired
@@ -1079,8 +1210,11 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
 
     # now run the optimization
     out <- DEoptim::DEoptim(
-      fn = goal_wrapper, lower = lower, upper = upper,
-      control = de_controls, drift_dm_obj = drift_dm_obj,
+      fn = goal_wrapper,
+      lower = lower,
+      upper = upper,
+      control = de_controls,
+      drift_dm_obj = drift_dm_obj,
       verbose = verbose
     )
     n_eval <- out$optim$nfeval
@@ -1106,7 +1240,9 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
       if (n_iter == itermax) {
         convergence = 1L
         message = NULL
-        if (vtr_on) message = c(message, "DEoptim did not reach VTR")
+        if (vtr_on) {
+          message = c(message, "DEoptim did not reach VTR")
+        }
         if (stall_on) {
           message = c(message, "DEoptim did not meet the stall criterion")
         }
@@ -1117,12 +1253,16 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
 
   # continue with some exit messages and return value
   conv_flag = TRUE
-  if (is.na(convergence)) conv_flag = NA
+  if (is.na(convergence)) {
+    conv_flag = NA
+  }
   if (!is.na(convergence) && convergence > 0) {
     add = paste0(" (convergence message: ", message, ")")
     warning(
-    "The optimization routine did not converge successfully", add, ". ",
-    "Treat the estimated parameters with some caution."
+      "The optimization routine did not converge successfully",
+      add,
+      ". ",
+      "Treat the estimated parameters with some caution."
     )
     conv_flag = FALSE
   }
@@ -1132,21 +1272,28 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
     # special treatment of n_eval as vector (occurs for optim)
     if (length(n_eval) > 1) {
       message(
-        "Optimization routine exited after ", n_eval[1], " function ",
-        "evaluations and ", n_eval[2], " gradient evaluations\n"
+        "Optimization routine exited after ",
+        n_eval[1],
+        " function ",
+        "evaluations and ",
+        n_eval[2],
+        " gradient evaluations\n"
       )
     } else {
       if (is.na(n_iter)) {
         message(
-          "Optimization routine exited after ", n_eval, " function ",
+          "Optimization routine exited after ",
+          n_eval,
+          " function ",
           "evaluations"
         )
       } else {
         message(
-          "Optimization routine exited after ", n_iter, " iterations."
+          "Optimization routine exited after ",
+          n_iter,
+          " iterations."
         )
       }
-
     }
   }
 
@@ -1156,21 +1303,25 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
   if (verbose >= 1) {
     prms_string <- prms_to_str(drift_dm_obj, sep = " = ")
     message(
-      "Final Parameters\n", prms_string, "\n==> gave a ",
-      drift_dm_obj$cost_function, " of ",
+      "Final Parameters\n",
+      prms_string,
+      "\n==> gave a ",
+      drift_dm_obj$cost_function,
+      " of ",
       round(drift_dm_obj$cost_value, round_digits)
-
     )
   }
 
   # finally, attach some infos for downstream processing
   drift_dm_obj$estimate_info = list(
-    conv_flag = conv_flag, optimizer = optimizer, message = message,
-    n_iter = n_iter, n_eval = n_eval
+    conv_flag = conv_flag,
+    optimizer = optimizer,
+    message = message,
+    n_iter = n_iter,
+    n_eval = n_eval
   )
   return(drift_dm_obj)
 }
-
 
 
 # LOOP AROUND CLASSICAL OPTIMIZATION --------------------------------------
@@ -1214,12 +1365,17 @@ estimate_classical <- function(drift_dm_obj, optimizer, start_vals = NULL,
 #'
 #' @keywords internal
 #' @seealso [dRiftDM::estimate_classical()], [dRiftDM::estimate_dm()]
-estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
-                                      parallelization_strategy = NULL,
-                                      progress = NULL,
-                                      start_vals = NULL, optimizer,
-                                      n_cores = NULL, seed = NULL, ...) {
-
+estimate_classical_wrapper = function(
+  drift_dm_obj,
+  obs_data_ids,
+  parallelization_strategy = NULL,
+  progress = NULL,
+  start_vals = NULL,
+  optimizer,
+  n_cores = NULL,
+  seed = NULL,
+  ...
+) {
   dots = list(...)
 
   # idefault values for par_strat
@@ -1231,9 +1387,13 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
   if (is.null(parallelization_strategy) || optimizer != "DEoptim") {
     parallelization_strategy <- 1
   }
-  if (n_cores == 1)  parallelization_strategy <- 1
-  if (!is.numeric(parallelization_strategy) |
-      !(parallelization_strategy %in% c(1, 2))) {
+  if (n_cores == 1) {
+    parallelization_strategy <- 1
+  }
+  if (
+    !is.numeric(parallelization_strategy) |
+      !(parallelization_strategy %in% c(1, 2))
+  ) {
     stop("'parallelization_strategy' must be 1 or 2")
   }
 
@@ -1244,7 +1404,6 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
   if (!is.numeric(progress) | length(progress) != 1 | progress < 0) {
     stop("'progress' must be >= 0")
   }
-
 
   # input checks for start_vals
   if (!is.null(start_vals)) {
@@ -1257,15 +1416,16 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
     ids_data <- unique(obs_data_ids$ID)
     ids_start <- unique(start_vals$ID)
     if (!setequal(ids_data, ids_start)) {
-      stop ("The 'IDs' listed in 'start_vals' don't match with the 'IDs' of ",
-            "the observed data")
+      stop(
+        "The 'IDs' listed in 'start_vals' don't match with the 'IDs' of ",
+        "the observed data"
+      )
     }
   }
 
-
   # create a list of models to fit, handling observed data, and starting values
   tmp <- function(one_id) {
-    obs_data(drift_dm_obj) <- obs_data_ids[obs_data_ids$ID == one_id,]
+    obs_data(drift_dm_obj) <- obs_data_ids[obs_data_ids$ID == one_id, ]
 
     sv <- NULL
     if (!is.null(start_vals)) {
@@ -1280,16 +1440,20 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
   list_of_models <- lapply(ids, tmp)
   names(list_of_models) = ids
 
-
   # helper function for easier call
   run_estimation <- function(model_list, dots, cl = NULL) {
     FUN <- function(one_model_start, dots) {
       estimate_classical(
-        drift_dm_obj = one_model_start$drift_dm_obj, optimizer = dots$optimizer,
+        drift_dm_obj = one_model_start$drift_dm_obj,
+        optimizer = dots$optimizer,
         start_vals = one_model_start$start_vals,
-        lower = dots$lower, upper = dots$upper, verbose = dots$verbose,
-        de_n_cores = dots$de_n_cores, control = dots$control,
-        round_digits = dots$round_digits, seed = dots$seed
+        lower = dots$lower,
+        upper = dots$upper,
+        verbose = dots$verbose,
+        de_n_cores = dots$de_n_cores,
+        control = dots$control,
+        round_digits = dots$round_digits,
+        seed = dots$seed
       )
     }
 
@@ -1320,7 +1484,7 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
 
   # progress bar output
   if (progress == 0) {
-    op <- pbapply::pboptions(type = "none")  # respect the user settings
+    op <- pbapply::pboptions(type = "none") # respect the user settings
     withr::defer(pbapply::pboptions(type = op$type))
   }
 
@@ -1352,14 +1516,18 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
     which_ids <- paste(paste(ids[1:n_ids], collapse = ", "), add, sep = "")
     warning(
       "The optimization routine did not converge successfully for the ",
-      "following IDs: ", which_ids, "\n", "Summary of messages:\n",
+      "following IDs: ",
+      which_ids,
+      "\n",
+      "Summary of messages:\n",
       paste(messages_formatted, collapse = "\n")
     )
   }
 
   # wrap it up
   drift_dm_fit_info = list(
-    drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data_ids,
+    drift_dm_obj = drift_dm_obj,
+    obs_data_ids = obs_data_ids,
     optimizer = dots$optimizer,
     conv_info = list(not_conv = not_conv, messages = messages)
   )
@@ -1393,21 +1561,19 @@ estimate_classical_wrapper = function(drift_dm_obj, obs_data_ids,
 #'
 #' @keywords internal
 set_agg_data <- function(drift_dm_obj, obs_data_ids, ...) {
-
   stopifnot(cost_function(drift_dm_obj) == "rmse")
   stopifnot("ID" %in% colnames(obs_data_ids))
 
   # now get the stats_agg by iterating over the IDs and setting each
   # individual's data to the model
   ids = unique(obs_data_ids$ID)
-  all_aggs_infos = lapply(ids, \(one_id){
-    sub_dat = obs_data_ids[obs_data_ids$ID == one_id,]
+  all_aggs_infos = lapply(ids, \(one_id) {
+    sub_dat = obs_data_ids[obs_data_ids$ID == one_id, ]
     obs_data(drift_dm_obj, ...) <- sub_dat
     return(list(drift_dm_obj$stats_agg, drift_dm_obj$stats_agg_info))
   })
 
   all_aggs <- lapply(all_aggs_infos, \(x) x[[1]])
-
 
   # Get condition names
   conds <- conds(drift_dm_obj)
@@ -1417,10 +1583,9 @@ set_agg_data <- function(drift_dm_obj, obs_data_ids, ...) {
 
   # Average each stat across list entries
   avg_stats <- lapply(conds, function(one_cond) {
-
     res_list = list()
     for (one_sum_stat in summary_stats_names) {
-      tmp <- lapply(all_aggs, \(x){
+      tmp <- lapply(all_aggs, \(x) {
         x[[one_cond]][[one_sum_stat]]
       })
       avg <- colMeans(do.call(rbind, tmp))
@@ -1439,7 +1604,6 @@ set_agg_data <- function(drift_dm_obj, obs_data_ids, ...) {
   # assumes this is always the same! but not hold for cost functions that
   # are not rmse!
   drift_dm_obj$stats_agg_info <- all_aggs_infos[[1]][[2]]
-
 
   return(drift_dm_obj)
 }

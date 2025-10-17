@@ -1,6 +1,5 @@
 # Standard Ratcliff Diffusion Model ---------------------------------------
 
-
 #' Create a Basic Diffusion Model
 #'
 #' This function creates a [dRiftDM::drift_dm] model that corresponds to the
@@ -53,22 +52,49 @@
 #' @references
 #' \insertRef{Ratcliff1978}{dRiftDM}
 #' @export
-ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
-                        var_drift = FALSE, instr = NULL, obs_data = NULL,
-                        sigma = 1, t_max = 3, dt = .0075, dx = .02,
-                        solver = "kfe", b_coding = NULL) {
+ratcliff_dm <- function(
+  var_non_dec = FALSE,
+  var_start = FALSE,
+  var_drift = FALSE,
+  instr = NULL,
+  obs_data = NULL,
+  sigma = 1,
+  t_max = 3,
+  dt = .0075,
+  dx = .02,
+  solver = "kfe",
+  b_coding = NULL
+) {
   prms_model <- c(muc = 3, b = 0.6, non_dec = 0.3)
-  if (var_non_dec) prms_model <- append(prms_model, c(range_non_dec = 0.05))
-  if (var_start) prms_model <- append(prms_model, c(range_start = 0.5))
-  if (var_drift) prms_model <- append(prms_model, c(sd_muc = 1))
+  if (var_non_dec) {
+    prms_model <- append(prms_model, c(range_non_dec = 0.05))
+  }
+  if (var_start) {
+    prms_model <- append(prms_model, c(range_start = 0.5))
+  }
+  if (var_drift) {
+    prms_model <- append(prms_model, c(sd_muc = 1))
+  }
 
   conds <- "null"
   r_dm <- drift_dm(
-    prms_model = prms_model, conds = conds, subclass = "ratcliff_dm",
-    instr = instr, obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt,
-    dx = dx, mu_fun = mu_constant, mu_int_fun = mu_int_constant,
-    x_fun = x_dirac_0, b_fun = b_constant, dt_b_fun = dt_b_constant,
-    nt_fun = nt_constant, b_coding = b_coding, solver = solver
+    prms_model = prms_model,
+    conds = conds,
+    subclass = "ratcliff_dm",
+    instr = instr,
+    obs_data = obs_data,
+    sigma = sigma,
+    t_max = t_max,
+    dt = dt,
+    dx = dx,
+    mu_fun = mu_constant,
+    mu_int_fun = mu_int_constant,
+    x_fun = x_dirac_0,
+    b_fun = b_constant,
+    dt_b_fun = dt_b_constant,
+    nt_fun = nt_constant,
+    b_coding = b_coding,
+    solver = solver
   )
 
   # set other functions if requested
@@ -84,7 +110,6 @@ ratcliff_dm <- function(var_non_dec = FALSE, var_start = FALSE,
 
 
 # STANDARD DIFFUSION MODEL COMPONENTS -------------------------------------
-
 
 #' Constant Drift Rate
 #'
@@ -328,9 +353,9 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
     stop("range_non_dec should not be smaller than dt!")
   }
 
-
   d_nt <- stats::dunif(
-    x = t_vec, min = non_dec - range_non_dec / 2,
+    x = t_vec,
+    min = non_dec - range_non_dec / 2,
     max = non_dec + range_non_dec / 2
   )
   d_nt <- d_nt / (sum(d_nt) * dt) # ensure it integrates to 1
@@ -420,9 +445,17 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' \insertRef{Ulrichetal.2015}{dRiftDM}
 #'
 #' @export
-dmc_dm <- function(var_non_dec = TRUE, var_start = TRUE, instr = NULL,
-                   obs_data = NULL, sigma = 1, t_max = 3,
-                   dt = .0075, dx = .02, b_coding = NULL) {
+dmc_dm <- function(
+  var_non_dec = TRUE,
+  var_start = TRUE,
+  instr = NULL,
+  obs_data = NULL,
+  sigma = 1,
+  t_max = 3,
+  dt = .0075,
+  dx = .02,
+  b_coding = NULL
+) {
   # get default instructions to setup the configuration of DMC
   default_instr <- "peak_l := (a-1) * tau
                    a <!>
@@ -436,8 +469,14 @@ dmc_dm <- function(var_non_dec = TRUE, var_start = TRUE, instr = NULL,
 
   # get all parameters, and maybe throw away those that are not needed
   prms_model <- c(
-    muc = 4, b = .6, non_dec = .3, sd_non_dec = .02, tau = .04,
-    a = 2, A = .1, alpha = 4
+    muc = 4,
+    b = .6,
+    non_dec = .3,
+    sd_non_dec = .02,
+    tau = .04,
+    a = 2,
+    A = .1,
+    alpha = 4
   )
 
   if (!var_non_dec) {
@@ -450,10 +489,21 @@ dmc_dm <- function(var_non_dec = TRUE, var_start = TRUE, instr = NULL,
   # get the conds and call the backbone
   conds <- c("comp", "incomp")
   dmc_dm <- drift_dm(
-    prms_model = prms_model, conds = conds, subclass = "dmc_dm", instr = instr,
-    obs_data = obs_data, sigma = sigma, t_max = t_max, dt = dt, dx = dx,
-    mu_fun = mu_dmc, mu_int_fun = mu_int_dmc, x_fun = x_beta,
-    b_fun = b_constant, dt_b_fun = dt_b_constant, nt_fun = nt_truncated_normal,
+    prms_model = prms_model,
+    conds = conds,
+    subclass = "dmc_dm",
+    instr = instr,
+    obs_data = obs_data,
+    sigma = sigma,
+    t_max = t_max,
+    dt = dt,
+    dx = dx,
+    mu_fun = mu_dmc,
+    mu_int_fun = mu_int_dmc,
+    x_fun = x_beta,
+    b_fun = b_constant,
+    dt_b_fun = dt_b_constant,
+    nt_fun = nt_truncated_normal,
     b_coding = b_coding
   )
 
@@ -469,9 +519,7 @@ dmc_dm <- function(var_non_dec = TRUE, var_start = TRUE, instr = NULL,
 }
 
 
-
 # DMC COMPONENT FUNTIONS --------------------------------------------------
-
 
 #' Drift Rate for DMC
 #'
@@ -514,7 +562,9 @@ mu_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   # calculate the first derivative of the gamma-function
   if (a != 2) {
     t_vec <- t_vec + 1e-05 # general form can not be derived for t <= 0
-    mua <- A * exp(-t_vec / tau) * ((t_vec * exp(1)) / ((a - 1) * tau))^(a - 1) *
+    mua <- A *
+      exp(-t_vec / tau) *
+      ((t_vec * exp(1)) / ((a - 1) * tau))^(a - 1) *
       (((a - 1) / t_vec) - (1 / tau))
   } else {
     mua <- A / tau * exp(1 - t_vec / tau) * (1 - t_vec / tau)
@@ -616,8 +666,13 @@ x_beta <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
 #' Upper truncation is max(t_vec)
 #'
 #' @keywords internal
-nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
-                                ddm_opts) {
+nt_truncated_normal <- function(
+  prms_model,
+  prms_solve,
+  t_vec,
+  one_cond,
+  ddm_opts
+) {
   non_dec <- prms_model[["non_dec"]]
   sd_non_dec <- prms_model[["sd_non_dec"]]
   t_max <- prms_solve[["t_max"]]
@@ -652,11 +707,7 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 }
 
 
-
-
-
 # SHRINKING SPOTLIGHT MODEL -----------------------------------------------
-
 
 #' Create the Shrinking Spotlight Model
 #'
@@ -728,9 +779,17 @@ nt_truncated_normal <- function(prms_model, prms_solve, t_vec, one_cond,
 #'
 #'
 #' @export
-ssp_dm <- function(var_non_dec = TRUE, var_start = FALSE, instr = NULL,
-                   obs_data = NULL, sigma = 1, t_max = 3, dt = .005, dx = .02,
-                   b_coding = NULL) {
+ssp_dm <- function(
+  var_non_dec = TRUE,
+  var_start = FALSE,
+  instr = NULL,
+  obs_data = NULL,
+  sigma = 1,
+  t_max = 3,
+  dt = .005,
+  dx = .02,
+  b_coding = NULL
+) {
   # sign ~ ensures that sign is free, and thus avoids a message from
   # modify_flex_prms
   default_instr <- "interf_t := sd_0 / r
@@ -747,8 +806,14 @@ ssp_dm <- function(var_non_dec = TRUE, var_start = FALSE, instr = NULL,
 
   # get all parameters, and maybe throw away those that are not needed
   prms_model <- c(
-    b = .6, non_dec = .3, range_non_dec = .05, p = 3.3, sd_0 = 1.2,
-    r = 10, range_start = .5, sign = 1
+    b = .6,
+    non_dec = .3,
+    range_non_dec = .05,
+    p = 3.3,
+    sd_0 = 1.2,
+    r = 10,
+    range_start = .5,
+    sign = 1
   )
 
   if (!var_non_dec) {
@@ -760,11 +825,21 @@ ssp_dm <- function(var_non_dec = TRUE, var_start = FALSE, instr = NULL,
   conds <- c("comp", "incomp")
 
   ssp_dm <- drift_dm(
-    prms_model = prms_model, conds = conds, subclass = "ssp_dm", instr = instr,
-    obs_data = obs_data, sigma = sigma,
-    t_max = t_max, dt = dt, dx = dx, mu_fun = mu_ssp,
-    mu_int_fun = dummy_t, x_fun = x_uniform, b_fun = b_constant,
-    dt_b_fun = dt_b_constant, nt_fun = nt_uniform,
+    prms_model = prms_model,
+    conds = conds,
+    subclass = "ssp_dm",
+    instr = instr,
+    obs_data = obs_data,
+    sigma = sigma,
+    t_max = t_max,
+    dt = dt,
+    dx = dx,
+    mu_fun = mu_ssp,
+    mu_int_fun = dummy_t,
+    x_fun = x_uniform,
+    b_fun = b_constant,
+    dt_b_fun = dt_b_constant,
+    nt_fun = nt_uniform,
     b_coding = b_coding
   )
 
@@ -776,10 +851,8 @@ ssp_dm <- function(var_non_dec = TRUE, var_start = FALSE, instr = NULL,
     comp_funs(ssp_dm)[["x_fun"]] <- x_dirac_0
   }
 
-
   return(ssp_dm)
 }
-
 
 
 # SSP COMPONENTS ----------------------------------------------------------
@@ -805,7 +878,6 @@ mu_ssp <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   sd_0 <- prms_model[["sd_0"]]
   r <- prms_model[["r"]]
   sign <- prms_model[["sign"]]
-
 
   if (!is.numeric(p) | length(p) != 1) {
     stop("p is not a single number")
@@ -834,11 +906,7 @@ mu_ssp <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 }
 
 
-
-
-
 # ADDITIONAL MODEL COMPONENTS ---------------------------------------------
-
 
 #' Collapsing Boundary - Hyperbolic Ratio Function
 #'
@@ -976,10 +1044,7 @@ dt_b_weibull <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 }
 
 
-
-
 # COMPONENT SHELF ---------------------------------------------------------
-
 
 #' Diffusion Model Components
 #'
@@ -1073,7 +1138,6 @@ component_shelf <- function() {
   components$mu_dmc <- mu_dmc
   components$mu_ssp <- mu_ssp
 
-
   # mus int
   components$mu_int_constant <- mu_int_constant
   components$mu_int_dmc <- mu_int_dmc
@@ -1108,7 +1172,6 @@ component_shelf <- function() {
 dummy_t <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   stop("dummy_t: this should not be called!")
 }
-
 
 
 # FUNCTION FOR GETTING LOWER/UPPER ----------------------------------------
@@ -1169,8 +1232,6 @@ get_lower_upper <- function(object, ...) {
 #' @rdname get_lower_upper
 #' @export
 get_lower_upper.drift_dm <- function(object, ..., warn = TRUE) {
-
-
   drift_dm_obj <- object
   dx = unname(prms_solve(drift_dm_obj)["dx"])
   dt = unname(prms_solve(drift_dm_obj)["dt"])
@@ -1184,74 +1245,87 @@ get_lower_upper.drift_dm <- function(object, ..., warn = TRUE) {
   all_comp_funs = comp_funs(drift_dm_obj)
   fails = character(0)
   for (one_comp in names(all_comp_funs)) {
-
     # extract the current component of the model
     comp = all_comp_funs[[one_comp]]
 
     # check for various pre-built functions (not all currently)
     if (isTRUE(identical(comp, mu_constant))) {
       prms_lower = c(prms_lower, muc = 0.5)
-      prms_upper = c(prms_upper,  muc = 9)
+      prms_upper = c(prms_upper, muc = 9)
     } else if (isTRUE(identical(comp, x_uniform))) {
       prms_lower = c(prms_lower, range_start = max(dx + 0.005, 0.01))
-      prms_upper = c(prms_upper,  range_start = 1.5)
+      prms_upper = c(prms_upper, range_start = 1.5)
     } else if (isTRUE(identical(comp, b_constant))) {
       prms_lower = c(prms_lower, b = 0.15)
-      prms_upper = c(prms_upper,  b = 1.20)
+      prms_upper = c(prms_upper, b = 1.20)
     } else if (isTRUE(identical(comp, nt_constant))) {
       prms_lower = c(prms_lower, non_dec = 0.15)
-      prms_upper = c(prms_upper,  non_dec = 0.60)
+      prms_upper = c(prms_upper, non_dec = 0.60)
     } else if (isTRUE(identical(comp, nt_uniform))) {
       prms_lower = c(
-        prms_lower, non_dec = 0.15, range_non_dec = max(dt + 0.005, 0.01)
+        prms_lower,
+        non_dec = 0.15,
+        range_non_dec = max(dt + 0.005, 0.01)
       )
       prms_upper = c(
-        prms_upper, non_dec = 0.60, range_non_dec = max(dt + 0.005, 0.4)
+        prms_upper,
+        non_dec = 0.60,
+        range_non_dec = max(dt + 0.005, 0.4)
       )
     } else if (isTRUE(identical(comp, mu_dmc))) {
       prms_lower = c(prms_lower, muc = 0.5, tau = 0.015, a = 1.2, A = 0.005)
       prms_upper = c(prms_upper, muc = 9, tau = 0.25, a = 3, A = 0.3)
     } else if (isTRUE(identical(comp, x_beta))) {
       prms_lower = c(prms_lower, alpha = 2)
-      prms_upper = c(prms_upper,  alpha = 8)
+      prms_upper = c(prms_upper, alpha = 8)
     } else if (isTRUE(identical(comp, nt_truncated_normal))) {
       prms_lower = c(
-        prms_lower, non_dec = 0.15, sd_non_dec = max(dt, 0.005)
+        prms_lower,
+        non_dec = 0.15,
+        sd_non_dec = max(dt, 0.005)
       )
       prms_upper = c(
-        prms_upper, non_dec = 0.6, sd_non_dec = max(dt + 0.005, 0.1)
+        prms_upper,
+        non_dec = 0.6,
+        sd_non_dec = max(dt + 0.005, 0.1)
       )
     } else if (isTRUE(identical(comp, mu_ssp))) {
       prms_lower = c(prms_lower, p = 1, sd_0 = 0.5, r = 3)
-      prms_upper = c(prms_upper,  p = 7, sd_0 = 3.2, r = 30)
+      prms_upper = c(prms_upper, p = 7, sd_0 = 3.2, r = 30)
     } else {
-
       # no match with a pre-built function; check if it refers to a
       # pre-built component that is defined above, or doesn't have a parameter
       # -> if so, skip, else through a warning
       l <- list(mu_int_constant, dt_b_constant, mu_int_dmc, x_dirac_0, dummy_t)
-      checks <- vapply(l, \(one_fun){
+      checks <- vapply(
+        l,
+        \(one_fun) {
           isTRUE(identical(one_fun, comp))
-        }, FUN.VALUE = logical(1)
+        },
+        FUN.VALUE = logical(1)
       )
-      if (any(checks)) next
+      if (any(checks)) {
+        next
+      }
       fails = c(fails, one_comp)
     }
   }
 
   # get those parameters that are free
   prms_conds = prms_cond_combo(drift_dm_obj)
-  free_prms = unique(prms_conds[1,])
+  free_prms = unique(prms_conds[1, ])
 
   # check if users want a variable drift rate, and add corresponding defaults
-  if (identical(all_comp_funs$mu_fun, mu_constant) &&
-      ("sd_muc" %in% free_prms)) {
+  if (
+    identical(all_comp_funs$mu_fun, mu_constant) &&
+      ("sd_muc" %in% free_prms)
+  ) {
     prms_lower = c(prms_lower, sd_muc = 0.01)
     prms_upper = c(prms_upper, sd_muc = 3.00)
   }
   diff_prms <- setdiff(free_prms, names(prms_lower))
   if (length(fails) == 0 & length(diff_prms) != 0) {
-    stop ("There are unexpected free parameters in your model.")
+    stop("There are unexpected free parameters in your model.")
   }
 
   # warn if there are unmatched parameters and skipped components
@@ -1259,15 +1333,17 @@ get_lower_upper.drift_dm <- function(object, ..., warn = TRUE) {
     fails = paste("-", paste("'", fails, "'", sep = ""), "\n")
     diff_prms = paste("-", paste("'", diff_prms, "'", sep = ""), "\n")
 
-    warning("Cannot provide default values for the model components:\n", fails,
-            "Please specify default values for... \n", diff_prms,
-            "...before attempting to fit the model.")
+    warning(
+      "Cannot provide default values for the model components:\n",
+      fails,
+      "Please specify default values for... \n",
+      diff_prms,
+      "...before attempting to fit the model."
+    )
   }
-
 
   # finally, use those parameters that are actually considered free and return
   prms_lower = prms_lower[intersect(free_prms, names(prms_lower))]
   prms_upper = prms_upper[intersect(free_prms, names(prms_upper))]
   return(list(lower = prms_lower, upper = prms_upper))
 }
-

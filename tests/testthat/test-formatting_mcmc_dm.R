@@ -22,7 +22,10 @@ test_that("summary.mcmc_dm works as expected (full object)", {
   chains <- get_subset_chains(chains_obj = mcmc_obj, id = NULL)
   expect_null(summary_obj$general$id)
   expect_identical(summary_obj$general$sampler, attr(mcmc_obj, "sampler"))
-  expect_identical(summary_obj$general$hierarchical, attr(mcmc_obj, "hierarchical"))
+  expect_identical(
+    summary_obj$general$hierarchical,
+    attr(mcmc_obj, "hierarchical")
+  )
   expect_identical(summary_obj$general$n_param, dim(chains)[1])
   expect_identical(summary_obj$general$n_chains, dim(chains)[2])
   expect_identical(summary_obj$general$n_iter, dim(chains)[3])

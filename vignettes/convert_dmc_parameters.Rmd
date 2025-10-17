@@ -74,10 +74,12 @@ It would be tedious to do all the transformations "by hand," so we present here 
 # named_values: a named numeric vector
 # sigma_old, sigma_new: the previous and target diffusion constants
 # t_from_to: scaling of time (options: ms->s, s->ms, or none)
-convert_prms <- function(named_values,
-                         sigma_old = 4,
-                         sigma_new = 1,
-                         t_from_to = "ms->s") {
+convert_prms <- function(
+  named_values,
+  sigma_old = 4,
+  sigma_new = 1,
+  t_from_to = "ms->s"
+) {
   # Some rough input checks
   stopifnot(is.numeric(named_values), is.character(names(named_values)))
   stopifnot(is.numeric(sigma_old), is.numeric(sigma_new))
@@ -95,17 +97,26 @@ convert_prms <- function(named_values,
       value <- value * (sigma_new / sigma_old)
     }
 
-
     # 2. scale for the time
     # determine the scaling per parameter (assuming s->ms)
     scale <- 1
-    if (name %in% c("non_dec", "sd_non_dec", "tau")) scale <- 1000
-    if (name %in% c("b", "A")) scale <- sqrt(1000)
-    if (name %in% c("muc")) scale <- sqrt(1000) / 1000
+    if (name %in% c("non_dec", "sd_non_dec", "tau")) {
+      scale <- 1000
+    }
+    if (name %in% c("b", "A")) {
+      scale <- sqrt(1000)
+    }
+    if (name %in% c("muc")) {
+      scale <- sqrt(1000) / 1000
+    }
 
     # adapt, depending on the t_from_to argument
-    if (t_from_to == "ms->s") scale <- 1 / scale
-    if (t_from_to == "none") scale <- 1
+    if (t_from_to == "ms->s") {
+      scale <- 1 / scale
+    }
+    if (t_from_to == "none") {
+      scale <- 1
+    }
 
     value <- value * scale
   }
@@ -180,8 +191,22 @@ stopifnot(
 
 
 # TEST 3 -> expectation based on "hand" formula
-DMCfun_def <- c(A = 20, tau = 30, muc = 0.5, b = 75, non_dec = 300, sd_non_dec = 30, a = 2, alpha = 3)
-exp <- convert_prms(DMCfun_def, sigma_new = 0.1, sigma_old = 4, t_from_to = "ms->s")
+DMCfun_def <- c(
+  A = 20,
+  tau = 30,
+  muc = 0.5,
+  b = 75,
+  non_dec = 300,
+  sd_non_dec = 30,
+  a = 2,
+  alpha = 3
+)
+exp <- convert_prms(
+  DMCfun_def,
+  sigma_new = 0.1,
+  sigma_old = 4,
+  t_from_to = "ms->s"
+)
 stopifnot(abs(exp["A"] - 0.01581139) < 0.0001)
 stopifnot(abs(exp["tau"] - 0.030) < 0.0001)
 stopifnot(abs(exp["muc"] - 0.3952847) < 0.0001)
@@ -193,7 +218,12 @@ stopifnot(abs(exp["alpha"] - 3) < 0.0001)
 
 
 # TEST 4 -> expectation based on "hand" formula (no time scaling)
-exp <- convert_prms(DMCfun_def, sigma_new = 0.1, sigma_old = 4, t_from_to = "none")
+exp <- convert_prms(
+  DMCfun_def,
+  sigma_new = 0.1,
+  sigma_old = 4,
+  t_from_to = "none"
+)
 stopifnot(abs(exp["A"] - 0.5) < 0.0001)
 stopifnot(abs(exp["tau"] - 30) < 0.0001)
 stopifnot(abs(exp["muc"] - 0.0125) < 0.0001)

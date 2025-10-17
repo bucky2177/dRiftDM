@@ -32,14 +32,16 @@ print.drift_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
   } else {
     n_trials <- lapply(drift_dm_obj$obs_data, lengths)
     n_trials <- rowSums(do.call(cbind, n_trials))
-    print_trial_numbers(trials_vector = n_trials, round_digits = 0,
-                        header = "Observed Data:")
+    print_trial_numbers(
+      trials_vector = n_trials,
+      round_digits = 0,
+      header = "Observed Data:"
+    )
   }
   cat("\n")
 
   invisible(x)
 }
-
 
 
 #' Summary for `drift_dm` objects
@@ -142,17 +144,21 @@ summary.drift_dm <- function(object, ...) {
 
 #' @rdname summary.drift_dm
 #' @export
-print.summary.drift_dm <- function(x, ...,
-                                   round_digits = drift_dm_default_rounding()) {
+print.summary.drift_dm <- function(
+  x,
+  ...,
+  round_digits = drift_dm_default_rounding()
+) {
   summary_obj <- x
 
   print_classes(summary_obj$class)
   estimate_info <- summary_obj$estimate_info
-  if (!is.null(estimate_info)) print_estimate_info(estimate_info, long = TRUE)
+  if (!is.null(estimate_info)) {
+    print_estimate_info(estimate_info, long = TRUE)
+  }
 
   cat("\n")
   print(summary_obj$summary_flex_prms)
-
 
   cat("Observed Data:\n")
   obs_data_print <- summary_obj$obs_data
@@ -162,12 +168,9 @@ print.summary.drift_dm <- function(x, ...,
   print(obs_data_print)
   cat("\n")
 
-
   print_fit_stats(summary_obj$fit_stats, round_digits)
 
-
   cat("\n-------\n")
-
 
   print_deriving_pdfs(
     solver = summary_obj$solver,
@@ -180,9 +183,17 @@ print.summary.drift_dm <- function(x, ...,
   upper_str <- paste("  upper:", names(u_name_value))
   lower_str <- paste("  lower:", names(l_name_value))
   in_data_str <- paste0(
-    "  expected data column: ", summary_obj$b_coding$column,
-    " (", names(u_name_value), " = ", u_name_value,
-    "; ", names(l_name_value), " = ", l_name_value, ")"
+    "  expected data column: ",
+    summary_obj$b_coding$column,
+    " (",
+    names(u_name_value),
+    " = ",
+    u_name_value,
+    "; ",
+    names(l_name_value),
+    " = ",
+    l_name_value,
+    ")"
   )
   cat(upper_str, "\n")
   cat(lower_str, "\n")
@@ -193,14 +204,20 @@ print.summary.drift_dm <- function(x, ...,
 
 # HELPER FUNCTIONS --------------------------------------------------------
 
-print_deriving_pdfs = function(solver, prms_solve,
-                               header = "Deriving PDFS:", round_digits = 4) {
+print_deriving_pdfs = function(
+  solver,
+  prms_solve,
+  header = "Deriving PDFS:",
+  round_digits = 4
+) {
   cat(header)
   cat("\n  solver:", solver)
   to_str <- prms_to_str(
     x = names(prms_solve),
     prms = prms_solve,
-    sep = "=", collapse = ", ", round_digits = round_digits
+    sep = "=",
+    collapse = ", ",
+    round_digits = round_digits
   )
   cat("\n  values:", to_str)
   cat("\n")
@@ -224,9 +241,12 @@ print_fit_stats = function(fit_stats, round_digits, header = "Fit Indices:") {
 }
 
 
-print_trial_numbers = function(trials_vector, round_digits,
-                               header = "Average Trial Numbers:",
-                               interim = "trials") {
+print_trial_numbers = function(
+  trials_vector,
+  round_digits,
+  header = "Average Trial Numbers:",
+  interim = "trials"
+) {
   trials_out <- paste(
     round(trials_vector, digits = round_digits),
     interim,
@@ -234,11 +254,9 @@ print_trial_numbers = function(trials_vector, round_digits,
   )
   cat(header, paste(trials_out, collapse = "; "))
   cat("\n")
-
 }
 
 print_estimate_info = function(estimate_info, long = FALSE) {
-
   if (is.null(estimate_info)) {
     cat("(model has not been estimated yet)\n")
     return(invisible(NULL))

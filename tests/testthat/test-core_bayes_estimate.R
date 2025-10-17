@@ -1,6 +1,5 @@
 # HELPER FUNCTIONS REQUIRED FOR MCMC ALGORITHMS ---------------------------
 
-
 test_that("full_crossover works as expected", {
   prms <- matrix(seq(1, 6, 1), nrow = 2, ncol = 3)
   pis <- c(-10, -5, 0)
@@ -21,7 +20,8 @@ test_that("full_crossover works as expected", {
   }
 
   # calculate the expected proposal
-  exp <- prms[, 2] + (prms[, selected_mn[1, 2]] - prms[, selected_mn[2, 2]]) * 1.5
+  exp <- prms[, 2] +
+    (prms[, selected_mn[1, 2]] - prms[, selected_mn[2, 2]]) * 1.5
 
   with_mocked_bindings(
     call_log_posterior_m = mock_call_log_posterior_m,
@@ -31,8 +31,10 @@ test_that("full_crossover works as expected", {
       out <- full_crossover(prms, pis, lls, gamma = 1.5, b = 0.001)
 
       expect_named(
-        out, c(
-          "new_prms_across_chains", "new_pis_across_chains",
+        out,
+        c(
+          "new_prms_across_chains",
+          "new_pis_across_chains",
           "new_log_likes_across_chains"
         )
       )
@@ -55,7 +57,6 @@ test_that("full_crossover works as expected", {
 })
 
 
-
 test_that("full_crossover -> default gamma and non-default b work as expected ", {
   prms <- matrix(seq(1, 6, 1), nrow = 2, ncol = 3)
   pis <- c(-10, -5, 0)
@@ -76,8 +77,10 @@ test_that("full_crossover -> default gamma and non-default b work as expected ",
   }
 
   # calculate the expected proposals
-  exp_1 <- prms[, 1] + (prms[, selected_mn[1, 1]] - prms[, selected_mn[2, 1]]) * 1.19
-  exp_3 <- prms[, 3] + (prms[, selected_mn[1, 3]] - prms[, selected_mn[2, 3]]) * 1.19
+  exp_1 <- prms[, 1] +
+    (prms[, selected_mn[1, 1]] - prms[, selected_mn[2, 1]]) * 1.19
+  exp_3 <- prms[, 3] +
+    (prms[, selected_mn[1, 3]] - prms[, selected_mn[2, 3]]) * 1.19
 
   with_mocked_bindings(
     call_log_posterior_m = mock_call_log_posterior_m,
@@ -87,8 +90,10 @@ test_that("full_crossover -> default gamma and non-default b work as expected ",
       out <- full_crossover(prms, pis, lls, b = 0.05)
 
       expect_named(
-        out, c(
-          "new_prms_across_chains", "new_pis_across_chains",
+        out,
+        c(
+          "new_prms_across_chains",
+          "new_pis_across_chains",
           "new_log_likes_across_chains"
         )
       )
@@ -116,7 +121,6 @@ test_that("full_crossover -> default gamma and non-default b work as expected ",
     }
   )
 })
-
 
 
 test_that("migration_crossover works as expected", {
@@ -158,7 +162,8 @@ test_that("migration_crossover works as expected", {
       expect_named(
         result,
         c(
-          "new_prms_across_chains", "new_pis_across_chains",
+          "new_prms_across_chains",
+          "new_pis_across_chains",
           "new_log_likes_across_chains"
         )
       )
@@ -170,8 +175,6 @@ test_that("migration_crossover works as expected", {
     },
   )
 })
-
-
 
 
 test_that("call_log_posterior_m accepts better proposals", {
@@ -209,7 +212,6 @@ test_that("call_log_posterior_m accepts better proposals", {
     }
   )
 })
-
 
 
 test_that("call_log_posterior_m sometimes accepts worse proposals", {
@@ -362,7 +364,6 @@ test_that("crossover dispatches correctly", {
 
 # HELPER FUNCTIONS REQUIRED FOR MCMC --------------------------------------
 
-
 test_that("log_posterior_hyper works as expected", {
   withr::local_preserve_seed()
   set.seed(1)
@@ -381,7 +382,6 @@ test_that("log_posterior_hyper works as expected", {
       dgamma(x[2, ], shape = 1, rate = 1, log = TRUE)
   }
 
-
   out <- log_posterior_hyper(
     phi_j_mat = phi_j_mat,
     theta_j_mat = theta_j_mat,
@@ -391,13 +391,14 @@ test_that("log_posterior_hyper works as expected", {
   )
 
   # calculate the expected values
-  log_likes <- dnorm(theta_j_mat,
-    mean = phi_j_mat[1, ], sd = phi_j_mat[2, ],
+  log_likes <- dnorm(
+    theta_j_mat,
+    mean = phi_j_mat[1, ],
+    sd = phi_j_mat[2, ],
     log = TRUE
   )
   log_likes <- rowSums(log_likes) * temperatures
   posterior <- log_likes + log_prior_hyper_fun(phi_j_mat)
-
 
   expect_named(out, c("posterior_vals", "log_like_vals"))
   expect_equal(length(out$posterior_vals), 3)
@@ -416,33 +417,69 @@ test_that("log_posterior_lower -> works in the hierarchical case", {
   # create matrices
   thetas <- matrix(
     c(2, 3, 4, 0.4, 0.5, 0.6, 0.2, 0.3, 0.4),
-    nrow = 3, byrow = TRUE
+    nrow = 3,
+    byrow = TRUE
   )
   rownames(thetas) <- c("muc", "b", "non_dec")
   phis <- matrix(
     c(
-      3, 4, 5, 0.5, 0.6, 0.7, 0.3, 0.4, 0.5, # hyper-means
-      1, 2, 3, 0.1, 0.2, 0.3, 0.2, 0.3, 0.4
+      3,
+      4,
+      5,
+      0.5,
+      0.6,
+      0.7,
+      0.3,
+      0.4,
+      0.5, # hyper-means
+      1,
+      2,
+      3,
+      0.1,
+      0.2,
+      0.3,
+      0.2,
+      0.3,
+      0.4
     ), # hyper-sds
-    nrow = 6, byrow = TRUE,
+    nrow = 6,
+    byrow = TRUE,
   )
   rownames(phis) <- c("M-muc", "M-b", "M-non_dec", "S-muc", "S-b", "S-non_dec")
   temperatures <- c(1, 2, 3)
 
   # and the prior functions
-  prior <- get_default_prior_settings(drift_dm_obj = model_subj, level = "lower")
+  prior <- get_default_prior_settings(
+    drift_dm_obj = model_subj,
+    level = "lower"
+  )
   prior <- prior$log_dens_priors
 
   # get the likelihoods
-  lls <- sapply(1:3, \(x){
+  lls <- sapply(1:3, \(x) {
     coef(model_subj) <- thetas[, x]
     -re_evaluate_model(model_subj)$cost_value
   })
 
   # get the log-posteriors
-  d_prior_1 <- dtnorm(x = thetas[1, ], mean = phis[1, ], sd = phis[4, ], log = TRUE)
-  d_prior_2 <- dtnorm(x = thetas[2, ], mean = phis[2, ], sd = phis[5, ], log = TRUE)
-  d_prior_3 <- dtnorm(x = thetas[3, ], mean = phis[3, ], sd = phis[6, ], log = TRUE)
+  d_prior_1 <- dtnorm(
+    x = thetas[1, ],
+    mean = phis[1, ],
+    sd = phis[4, ],
+    log = TRUE
+  )
+  d_prior_2 <- dtnorm(
+    x = thetas[2, ],
+    mean = phis[2, ],
+    sd = phis[5, ],
+    log = TRUE
+  )
+  d_prior_3 <- dtnorm(
+    x = thetas[3, ],
+    mean = phis[3, ],
+    sd = phis[6, ],
+    log = TRUE
+  )
   d_prior <- rowSums(cbind(d_prior_1, d_prior_2, d_prior_3))
 
   # calculate the expected value
@@ -450,8 +487,11 @@ test_that("log_posterior_lower -> works in the hierarchical case", {
 
   # call the function
   result <- log_posterior_lower(
-    thetas_one_subj_mat = thetas, all_phis_mat = phis, model_subj = model_subj,
-    log_prior_lower_funs = prior, temperatures = temperatures,
+    thetas_one_subj_mat = thetas,
+    all_phis_mat = phis,
+    model_subj = model_subj,
+    log_prior_lower_funs = prior,
+    temperatures = temperatures,
     suppress_warnings = TRUE
   )
 
@@ -471,20 +511,24 @@ test_that("log_posterior_lower -> works in the non-hierarchical case", {
   # create matrices
   thetas <- matrix(
     c(2, 3, 4, 0.4, 0.5, 0.6, 0.2, 0.3, 0.4),
-    nrow = 3, byrow = TRUE
+    nrow = 3,
+    byrow = TRUE
   )
   rownames(thetas) <- c("muc", "b", "non_dec")
   temperatures <- c(1, 2, 3)
 
   # and the prior functions
   prior <- get_default_prior_settings(
-    drift_dm_obj = model_subj, level = "none", means = c(non_dec = 0.2),
-    lower = c(non_dec = 0.1), upper = c(non_dec = 1)
+    drift_dm_obj = model_subj,
+    level = "none",
+    means = c(non_dec = 0.2),
+    lower = c(non_dec = 0.1),
+    upper = c(non_dec = 1)
   )
   prior <- prior$log_dens_priors
 
   # get the likelihoods
-  lls <- sapply(1:3, \(x){
+  lls <- sapply(1:3, \(x) {
     coef(model_subj) <- thetas[, x]
     -re_evaluate_model(model_subj)$cost_value
   })
@@ -496,8 +540,12 @@ test_that("log_posterior_lower -> works in the non-hierarchical case", {
   d_prior_1 <- dtnorm(x = thetas[1, ], mean = muc, sd = muc, log = TRUE)
   d_prior_2 <- dtnorm(x = thetas[2, ], mean = b, sd = b, log = TRUE)
   d_prior_3 <- dtnorm(
-    x = thetas[3, ], mean = 0.2, sd = 0.2,
-    lower = 0.1, upper = 1, log = TRUE
+    x = thetas[3, ],
+    mean = 0.2,
+    sd = 0.2,
+    lower = 0.1,
+    upper = 1,
+    log = TRUE
   )
   d_prior <- rowSums(cbind(d_prior_1, d_prior_2, d_prior_3))
 
@@ -506,8 +554,11 @@ test_that("log_posterior_lower -> works in the non-hierarchical case", {
 
   # call the function
   result <- log_posterior_lower(
-    thetas_one_subj_mat = thetas, all_phis_mat = NULL, model_subj = model_subj,
-    log_prior_lower_funs = prior, temperatures = temperatures,
+    thetas_one_subj_mat = thetas,
+    all_phis_mat = NULL,
+    model_subj = model_subj,
+    log_prior_lower_funs = prior,
+    temperatures = temperatures,
     suppress_warnings = TRUE
   )
 
@@ -531,12 +582,15 @@ test_that("dtnorm works as expected", {
 
   # works with log as well?
   y_vals <- dtnorm(
-    x = x, mean = 0.5, sd = 0.2, lower = 0, upper = 0.9,
+    x = x,
+    mean = 0.5,
+    sd = 0.2,
+    lower = 0,
+    upper = 0.9,
     log = TRUE
   )
   exp <- log(test_trunc(x = x, a = 0, b = 0.9, mean = 0.5, sd = 0.2))
   expect_equal(y_vals, exp)
-
 
   # expect zeros and Infs when lower > upper
   expect_equal(dtnorm(x, lower = Inf, upper = -Inf), rep(0, length(x)))
@@ -553,9 +607,13 @@ test_that("dtnorm works as expected", {
 
   result <- dtnorm(mat, mean = means, sd = sds, lower = 0, upper = 1)
   expect_equal(dim(result), dim(mat))
-  exps <- vapply(seq_len(nrow(mat)), \(i){
-    test_trunc(x = mat[i, ], a = 0, b = 1, mean = means[i], sd = sds[i])
-  }, FUN.VALUE = numeric(ncol(mat)))
+  exps <- vapply(
+    seq_len(nrow(mat)),
+    \(i) {
+      test_trunc(x = mat[i, ], a = 0, b = 1, mean = means[i], sd = sds[i])
+    },
+    FUN.VALUE = numeric(ncol(mat))
+  )
   expect_equal(result, t(exps))
 })
 
@@ -588,11 +646,7 @@ test_that("dtnorm handles boundary cases, extreme values, and NA values", {
 
 # rtnorm is already used and tested alongside simulate_values
 
-
-
 # PRIOR FUNCTIONS (DENSITIES AND RANDOM GENERATION) -----------------------
-
-
 
 test_that("d_default_prior_hyper -> works as expected", {
   # Input values (vector)
@@ -606,60 +660,111 @@ test_that("d_default_prior_hyper -> works as expected", {
 
   # obtained output
   log_val <- d_default_prior_hyper(
-    x = x, mean = mean, sd = sd, lower = lower, upper = upper,
-    shape = shape, rate = rate, log = TRUE
+    x = x,
+    mean = mean,
+    sd = sd,
+    lower = lower,
+    upper = upper,
+    shape = shape,
+    rate = rate,
+    log = TRUE
   )
   nonlog_val <- d_default_prior_hyper(
-    x = x, mean = mean, sd = sd, lower = lower, upper = upper,
-    shape = shape, rate = rate, log = FALSE
+    x = x,
+    mean = mean,
+    sd = sd,
+    lower = lower,
+    upper = upper,
+    shape = shape,
+    rate = rate,
+    log = FALSE
   )
 
   # test - log
-  exp_log <- dtnorm(x[1],
-    mean = mean, sd = sd, lower = lower, upper = upper,
+  exp_log <- dtnorm(
+    x[1],
+    mean = mean,
+    sd = sd,
+    lower = lower,
+    upper = upper,
     log = TRUE
   ) +
     stats::dgamma(x = x[2], shape = shape, rate = rate, log = TRUE)
   expect_identical(log_val, exp_log)
 
   # test - nonlog
-  exp_nonlog <- dtnorm(x[1],
-    mean = mean, sd = sd, lower = lower,
+  exp_nonlog <- dtnorm(
+    x[1],
+    mean = mean,
+    sd = sd,
+    lower = lower,
     upper = upper
-  ) * stats::dgamma(
-    x = x[2], shape = shape,
-    rate = rate
-  )
+  ) *
+    stats::dgamma(
+      x = x[2],
+      shape = shape,
+      rate = rate
+    )
   expect_identical(nonlog_val, exp_nonlog)
 
   # test matrix input
   x_mat <- matrix(c(0.5, 1.5, 0.75, 1.25), nrow = 2) # [mean; sd]
   val_1 <- d_default_prior_hyper(
-    x = c(0.5, 1.5), mean = 0.2, sd = 1, lower = 0, upper = Inf,
-    shape = 2, rate = 1, log = TRUE
+    x = c(0.5, 1.5),
+    mean = 0.2,
+    sd = 1,
+    lower = 0,
+    upper = Inf,
+    shape = 2,
+    rate = 1,
+    log = TRUE
   )
   val_2 <- d_default_prior_hyper(
-    x = c(0.75, 1.25), mean = 0.3, sd = 2, lower = -5, upper = 5,
-    shape = 3, rate = 2, log = TRUE
+    x = c(0.75, 1.25),
+    mean = 0.3,
+    sd = 2,
+    lower = -5,
+    upper = 5,
+    shape = 3,
+    rate = 2,
+    log = TRUE
   )
   val_mat <- d_default_prior_hyper(
-    x = x_mat, mean = c(0.2, 0.3), sd = c(1, 2), lower = c(0, -5),
-    upper = c(Inf, 5), shape = c(2, 3), rate = c(1, 2), log = TRUE
+    x = x_mat,
+    mean = c(0.2, 0.3),
+    sd = c(1, 2),
+    lower = c(0, -5),
+    upper = c(Inf, 5),
+    shape = c(2, 3),
+    rate = c(1, 2),
+    log = TRUE
   )
   expect_identical(val_mat, c(val_1, val_2))
 
   # test wrong input
   expect_error(
     d_default_prior_hyper(
-      x = c(1), mean = 0, sd = 1, lower = 0, upper = 1,
-      shape = 2, rate = 1, log = FALSE
+      x = c(1),
+      mean = 0,
+      sd = 1,
+      lower = 0,
+      upper = 1,
+      shape = 2,
+      rate = 1,
+      log = FALSE
     )
   )
   mat <- matrix(c(1, 2, 3, 4, 5, 6), nrow = 3)
   expect_error(
     d_default_prior_hyper(
-      x = mat, mean = 0, sd = 1, lower = 0, upper = 1,
-      shape = 2, rate = 1, log = FALSE
+      x = mat,
+      mean = 0,
+      sd = 1,
+      lower = 0,
+      upper = 1,
+      shape = 2,
+      rate = 1,
+      log = FALSE
     )
   )
 })
@@ -667,20 +772,30 @@ test_that("d_default_prior_hyper -> works as expected", {
 test_that("d_default_prior_hyper handles extreme and NA values", {
   x_bad <- c(0.5, NA)
   val <- d_default_prior_hyper(
-    x = x_bad, mean = 0.2, sd = 1, lower = 0,
-    upper = Inf, shape = 2, rate = 1, log = TRUE
+    x = x_bad,
+    mean = 0.2,
+    sd = 1,
+    lower = 0,
+    upper = Inf,
+    shape = 2,
+    rate = 1,
+    log = TRUE
   )
   expect_true(is.na(val))
 
   x_neg <- c(0.5, -1)
   val_neg <- d_default_prior_hyper(
-    x = x_neg, mean = 0.2, sd = 1, lower = 0,
-    upper = Inf, shape = 2, rate = 1, log = TRUE
+    x = x_neg,
+    mean = 0.2,
+    sd = 1,
+    lower = 0,
+    upper = Inf,
+    shape = 2,
+    rate = 1,
+    log = TRUE
   )
   expect_equal(val_neg, -Inf)
 })
-
-
 
 
 test_that("r_default_prior_hyper -> works as expected", {
@@ -695,8 +810,13 @@ test_that("r_default_prior_hyper -> works as expected", {
   sd <- 0.25
 
   out <- r_default_prior_hyper(
-    n = n, mean = mean, sd = sd, lower = lower, upper = upper,
-    shape = shape, rate = rate
+    n = n,
+    mean = mean,
+    sd = sd,
+    lower = lower,
+    upper = upper,
+    shape = shape,
+    rate = rate
   )
 
   expect_true(all(out[1, ] >= lower & out[1, ] <= upper))
@@ -712,19 +832,26 @@ test_that("r_default_prior_hyper -> works as expected", {
   expect_equal(obs_quants, exp_quants, tolerance = 0.1)
 
   # quantiles should match roughly
-  exp_quants <- truncnorm::qtruncnorm(c(0.25, 0.5, 0.75),
-    a = lower, b = upper,
-    mean = mean, sd = sd
+  exp_quants <- truncnorm::qtruncnorm(
+    c(0.25, 0.5, 0.75),
+    a = lower,
+    b = upper,
+    mean = mean,
+    sd = sd
   )
   obs_quants <- quantile(out[1, ], probs = c(0.25, 0.5, 0.75))
   obs_quants <- unname(obs_quants)
   expect_equal(obs_quants, exp_quants, tolerance = 0.1)
 
-
   # check if return value is true for n = 1
   out_vec <- r_default_prior_hyper(
-    n = 1, mean = mean, sd = sd, lower = lower, upper = upper,
-    shape = shape, rate = rate
+    n = 1,
+    mean = mean,
+    sd = sd,
+    lower = lower,
+    upper = upper,
+    shape = shape,
+    rate = rate
   )
   expect_true(all(names(out_vec) == c("r_m", "r_sd")))
   expect_length(out_vec, 2)
@@ -733,8 +860,13 @@ test_that("r_default_prior_hyper -> works as expected", {
   # check failure for n < 1
   expect_error(
     r_default_prior_hyper(
-      n = 0, mean = mean, sd = sd, lower = lower, upper = upper,
-      shape = shape, rate = rate
+      n = 0,
+      mean = mean,
+      sd = sd,
+      lower = lower,
+      upper = upper,
+      shape = shape,
+      rate = rate
     )
   )
 })
@@ -743,17 +875,32 @@ test_that("get_default_prior_settings -> returns correct structure", {
   drift_dm_obj <- ratcliff_dummy
   mean <- c(muc = 0.5, b = 0.6)
 
-  out <- get_default_prior_settings(drift_dm_obj, level = "none", means = mean, sd = mean)
+  out <- get_default_prior_settings(
+    drift_dm_obj,
+    level = "none",
+    means = mean,
+    sd = mean
+  )
   expect_s3_class(out, "ddm_prior_settings")
   expect_named(out, c("log_dens_priors", "r_priors"))
   expect_equal(attr(out, "level"), "none")
   expect_length(out$log_dens_priors, 3)
   expect_length(out$r_priors, 3)
 
-  out <- get_default_prior_settings(drift_dm_obj, level = "hyper", means = mean, sd = mean)
+  out <- get_default_prior_settings(
+    drift_dm_obj,
+    level = "hyper",
+    means = mean,
+    sd = mean
+  )
   expect_equal(attr(out, "level"), "hyper")
 
-  out <- get_default_prior_settings(drift_dm_obj, level = "lower", means = mean, sd = mean)
+  out <- get_default_prior_settings(
+    drift_dm_obj,
+    level = "lower",
+    means = mean,
+    sd = mean
+  )
   expect_equal(attr(out, "level"), "lower")
 })
 
@@ -764,8 +911,10 @@ test_that("get_default_prior_settings -> creates working functions", {
 
   #####
   # checks for none
-  out <- get_default_prior_settings(drift_dm_obj,
-    level = "none", means = mean,
+  out <- get_default_prior_settings(
+    drift_dm_obj,
+    level = "none",
+    means = mean,
     sds = sd
   )
 
@@ -781,11 +930,12 @@ test_that("get_default_prior_settings -> creates working functions", {
   expect_length(out$log_dens_priors$non_dec(c(0, 1)), 2)
   expect_length(out$r_priors$non_dec(1), 1)
 
-
   ###
   # checks for hyper
-  out <- get_default_prior_settings(drift_dm_obj,
-    level = "hyper", means = mean,
+  out <- get_default_prior_settings(
+    drift_dm_obj,
+    level = "hyper",
+    means = mean,
     sds = sd
   )
 
@@ -793,11 +943,12 @@ test_that("get_default_prior_settings -> creates working functions", {
   expect_length(out$log_dens_priors$non_dec(c(0, 1)), 1)
   expect_length(out$r_priors$non_dec(1), 2)
 
-
   ###
   # checks for lower
-  out <- get_default_prior_settings(drift_dm_obj,
-    level = "lower", means = mean,
+  out <- get_default_prior_settings(
+    drift_dm_obj,
+    level = "lower",
+    means = mean,
     sds = sd
   )
 
@@ -822,18 +973,28 @@ test_that("get_default_prior_settings -> returns correct density values", {
   # Get prior settings
   prior <- get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
-    level = "none", means = mean, sds = sd, lower = lower, upper = upper
+    level = "none",
+    means = mean,
+    sds = sd,
+    lower = lower,
+    upper = upper
   )
 
   # Manually compute expected density
-  expected_log_density_b <- dtnorm(0.4,
-    mean = 0.5, sd = 0.5,
-    lower = -Inf, upper = Inf,
+  expected_log_density_b <- dtnorm(
+    0.4,
+    mean = 0.5,
+    sd = 0.5,
+    lower = -Inf,
+    upper = Inf,
     log = TRUE
   )
-  expected_log_density_muc <- dtnorm(3.5,
-    mean = 3, sd = 2,
-    lower = 1, upper = 5,
+  expected_log_density_muc <- dtnorm(
+    3.5,
+    mean = 3,
+    sd = 2,
+    lower = 1,
+    upper = 5,
     log = TRUE
   )
   # Compare with the generated function
@@ -843,24 +1004,38 @@ test_that("get_default_prior_settings -> returns correct density values", {
   expect_equal(actual_log_density_b, expected_log_density_b)
   expect_equal(actual_log_density_muc, expected_log_density_muc)
 
-
   ### Test hyper
   # Get prior settings
   prior <- get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
-    level = "hyper", means = mean, sds = sd, lower = lower, upper = upper,
-    shape = shape, rate = rate
+    level = "hyper",
+    means = mean,
+    sds = sd,
+    lower = lower,
+    upper = upper,
+    shape = shape,
+    rate = rate
   )
 
   # Manually compute expected density
   expected_log_density_b <- d_default_prior_hyper(
     c(0.4, 1),
-    mean = 0.5, sd = 0.5, lower = -Inf, upper = Inf, shape = 1,
-    rate = 1, log = TRUE
+    mean = 0.5,
+    sd = 0.5,
+    lower = -Inf,
+    upper = Inf,
+    shape = 1,
+    rate = 1,
+    log = TRUE
   )
   expected_log_density_muc <- d_default_prior_hyper(
     c(3.5, 2),
-    mean = 3, sd = 2, lower = 1, upper = 5, shape = 1, rate = 2,
+    mean = 3,
+    sd = 2,
+    lower = 1,
+    upper = 5,
+    shape = 1,
+    rate = 2,
     log = TRUE
   )
   # Compare with the generated function
@@ -870,24 +1045,35 @@ test_that("get_default_prior_settings -> returns correct density values", {
   expect_equal(actual_log_density_b, expected_log_density_b)
   expect_equal(actual_log_density_muc, expected_log_density_muc)
 
-
-
   ### Test hyper
   # Get prior settings
   prior <- get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
-    level = "lower", means = mean, sds = sd, lower = lower, upper = upper,
-    shapes = shape, rates = rate
+    level = "lower",
+    means = mean,
+    sds = sd,
+    lower = lower,
+    upper = upper,
+    shapes = shape,
+    rates = rate
   )
 
   # Manually compute expected density
   expected_log_density_b <- dtnorm(
     c(0.4),
-    mean = 0.5, sd = 0.5, lower = -Inf, upper = Inf, log = TRUE
+    mean = 0.5,
+    sd = 0.5,
+    lower = -Inf,
+    upper = Inf,
+    log = TRUE
   )
   expected_log_density_muc <- dtnorm(
     3.5,
-    mean = 3, sd = 2, lower = 1, upper = 5, log = TRUE
+    mean = 3,
+    sd = 2,
+    lower = 1,
+    upper = 5,
+    log = TRUE
   )
 
   # Compare with the generated function
@@ -899,12 +1085,9 @@ test_that("get_default_prior_settings -> returns correct density values", {
 })
 
 
-
 # ESTIMATION FUNCTIONS ----------------------------------------------------
 
-
 test_that("estimate_bayes_one_subj runs and returns correct structure", {
-
   # minimal test example to ensure that the function runs and returns
   # the expected object
   some_model <- ratcliff_dummy
@@ -912,8 +1095,13 @@ test_that("estimate_bayes_one_subj runs and returns correct structure", {
   withr::local_seed(123)
   sink(file = file.path(tempdir(), "capture.txt"))
   result <- estimate_bayes_one_subj(
-    drift_dm_obj = some_model, sampler = "DE-MCMC", n_chains = 3,
-    burn_in = 1, samples = 2, prob_migration = 0.1, prob_re_eval = 0.1,
+    drift_dm_obj = some_model,
+    sampler = "DE-MCMC",
+    n_chains = 3,
+    burn_in = 1,
+    samples = 2,
+    prob_migration = 0.1,
+    prob_re_eval = 0.1,
     verbose = 0
   )
   sink()
@@ -941,9 +1129,7 @@ test_that("estimate_bayes_one_subj runs and returns correct structure", {
 })
 
 
-
 test_that("estimate_bayes_h runs and returns correct structure", {
-
   # minimal test example to ensure the function runs and returns
   # the expected object
   some_model <- ratcliff_dummy
@@ -958,10 +1144,16 @@ test_that("estimate_bayes_h runs and returns correct structure", {
 
   sink(file = file.path(tempdir(), "capture.txt"))
   result <- estimate_bayes_h(
-    drift_dm_obj = some_model, obs_data_ids = obs_data_ids,
-    sampler = "DE-MCMC", n_chains = 3,
-    burn_in = 1, samples = 2, n_cores = 1, prob_migration = 0.1,
-    prob_re_eval = 0.1, verbose = 0
+    drift_dm_obj = some_model,
+    obs_data_ids = obs_data_ids,
+    sampler = "DE-MCMC",
+    n_chains = 3,
+    burn_in = 1,
+    samples = 2,
+    n_cores = 1,
+    prob_migration = 0.1,
+    prob_re_eval = 0.1,
+    verbose = 0
   )
   sink()
 
@@ -975,9 +1167,9 @@ test_that("estimate_bayes_h runs and returns correct structure", {
   # check that the data_model attribute is a named list of models
   expect_true(is.list(attr(result, "data_model")))
   expect_equal(names(attr(result, "data_model")), c("10", "2"))
-  obs_data(some_model) <- obs_data_ids[obs_data_ids$ID == 10,]
+  obs_data(some_model) <- obs_data_ids[obs_data_ids$ID == 10, ]
   expect_equal(attr(result, "data_model")[[1]], some_model)
-  obs_data(some_model) <- obs_data_ids[obs_data_ids$ID == 2,]
+  obs_data(some_model) <- obs_data_ids[obs_data_ids$ID == 2, ]
   expect_equal(attr(result, "data_model")[[2]], some_model)
 
   # Check dimensions of phi array
@@ -1015,7 +1207,6 @@ test_that("estimate_bayes_h runs and returns correct structure", {
 })
 
 
-
 test_that("create_temperatures returns correct quantiles for tide", {
   result <- create_temperatures(20L, "TIDE")
   exp <- qbeta(p = seq(0, 1, length.out = 20), shape1 = 0.3, shape2 = 1)
@@ -1033,5 +1224,4 @@ test_that("create_temperatures input checks work", {
   expect_error(create_temperatures(20L, "de_ma"), "'arg'")
   expect_error(create_temperatures(20, "de_ma"), "is.integer")
   expect_error(create_temperatures(c(20L, 10L), "de_ma"), "length")
-
 })

@@ -23,8 +23,10 @@ test_that("prms_to_str works as expected", {
 
   expect_identical(
     prms_to_str(
-      x = c("a", "b", "d"), prms = c(1, 2, 3),
-      round_digits = 3, collapse = c(";", "!"),
+      x = c("a", "b", "d"),
+      prms = c(1, 2, 3),
+      round_digits = 3,
+      collapse = c(";", "!"),
       sep = c("!", "#")
     ),
     "a!1;b!2;d!3"
@@ -38,33 +40,55 @@ test_that("prms_to_str works as expected", {
 
 
 test_that("prms_to_str input checks", {
-  expect_error(prms_to_str(
-    x = c("as", "bas", "mu_"), prms = rnorm(3),
-    round_digits = NA
-  ), "not a valid numeric")
-  expect_error(prms_to_str(
-    x = c(1, 2, 3), prms = rnorm(3),
-    round_digits = 3
-  ), "not of type character")
-  expect_error(prms_to_str(
-    x = c("a", "b", "c"), prms = c("1", 2, 3),
-    round_digits = 3
-  ), "not a valid numeric")
-
-  expect_error(prms_to_str(
-    x = c("a", "b"), prms = c(1, 2, 3),
-    round_digits = 3
-  ), "don't match")
-
-  expect_error(prms_to_str(
-    x = character(), prms = numeric(),
-    round_digits = 3
-  ), "are of length zero")
+  expect_error(
+    prms_to_str(
+      x = c("as", "bas", "mu_"),
+      prms = rnorm(3),
+      round_digits = NA
+    ),
+    "not a valid numeric"
+  )
+  expect_error(
+    prms_to_str(
+      x = c(1, 2, 3),
+      prms = rnorm(3),
+      round_digits = 3
+    ),
+    "not of type character"
+  )
+  expect_error(
+    prms_to_str(
+      x = c("a", "b", "c"),
+      prms = c("1", 2, 3),
+      round_digits = 3
+    ),
+    "not a valid numeric"
+  )
 
   expect_error(
     prms_to_str(
-      x = c("a", "b", "d"), prms = c(1, 2, 3),
-      round_digits = 3, collapse = NA
+      x = c("a", "b"),
+      prms = c(1, 2, 3),
+      round_digits = 3
+    ),
+    "don't match"
+  )
+
+  expect_error(
+    prms_to_str(
+      x = character(),
+      prms = numeric(),
+      round_digits = 3
+    ),
+    "are of length zero"
+  )
+
+  expect_error(
+    prms_to_str(
+      x = c("a", "b", "d"),
+      prms = c(1, 2, 3),
+      round_digits = 3,
+      collapse = NA
     ),
     "not of type character"
   )
@@ -85,7 +109,9 @@ test_that("check_if_named_vector input checks", {
     "ensure that x is a named vector"
   )
   expect_error(
-    check_if_named_numeric_vector(c(a = 1, b = 2, c = 3), "x",
+    check_if_named_numeric_vector(
+      c(a = 1, b = 2, c = 3),
+      "x",
       labels = c("a", "x", "z")
     ),
     "can not be adressed"
@@ -130,7 +156,8 @@ test_that("check_if_named_vector input checks", {
 test_that("prm_cond_combo_2_labels and prms_cond_combo", {
   # test case 1
   a_model <- drift_dm(
-    prms_model = c(a = 2, b = 2), conds = c("i", "c"),
+    prms_model = c(a = 2, b = 2),
+    conds = c("i", "c"),
     subclass = "test"
   )
 
@@ -149,16 +176,29 @@ test_that("prm_cond_combo_2_labels and prms_cond_combo", {
   a_model <- drift_dm(
     prms_model = c(a = 2, b = 2, c = 2),
     conds = c("i", "c", "d"),
-    subclass = "test", instr = "b ~ "
+    subclass = "test",
+    instr = "b ~ "
   )
 
   prms_cond_combo_2 <- prms_cond_combo(a_model)
   expect_identical(
     prms_cond_combo_2,
-    matrix(c(
-      "a", "b", "b", "b", "c",
-      "i", "i", "c", "d", "i"
-    ), nrow = 2, byrow = T)
+    matrix(
+      c(
+        "a",
+        "b",
+        "b",
+        "b",
+        "c",
+        "i",
+        "i",
+        "c",
+        "d",
+        "i"
+      ),
+      nrow = 2,
+      byrow = T
+    )
   )
 
   expect_identical(
@@ -193,7 +233,8 @@ test_that("get_parameters_smart works as expected", {
   a_model <- drift_dm(
     prms_model = c(a = 2, b = 2, c = 2),
     conds = c("i", "c"),
-    subclass = "test", instr = "b ~ "
+    subclass = "test",
+    instr = "b ~ "
   )
 
   expect_list <- list(
@@ -205,11 +246,11 @@ test_that("get_parameters_smart works as expected", {
     expect_list
   )
 
-
   # continue with test case 2 - named numeric vectors
   expect_identical(
     get_parameters_smart(
-      a_model, c(b = 2, a = 1, c = 3),
+      a_model,
+      c(b = 2, a = 1, c = 3),
       c(a = 4, c = 6, b = 5)
     ),
     expect_list
@@ -224,7 +265,6 @@ test_that("get_parameters_smart works as expected", {
     ),
     expect_list
   )
-
 
   # continue with test case 3 - lists, but with special variation
   expect_list$vec_a["b.i"] <- 4
@@ -244,7 +284,8 @@ test_that("get_parameters_smart works as expected", {
   a_model <- drift_dm(
     prms_model = c(a = 2, b = 2, c = 2),
     conds = c("i", "c"),
-    subclass = "test", instr = "b ~ "
+    subclass = "test",
+    instr = "b ~ "
   )
 
   expect_list <- list(
@@ -265,13 +306,13 @@ test_that("get_parameters_smart works as expected", {
 
 test_that("trapz works on a simple linear function", {
   x <- 0:4
-  y <- 2 * x + 1  # integral from 0..4 of (2x+1) = [x^2 + x]_0^4 = 20
+  y <- 2 * x + 1 # integral from 0..4 of (2x+1) = [x^2 + x]_0^4 = 20
   expect_equal(trapz(x, y), 20)
 })
 
 test_that("cumtrapz returns cumulative integral starting at 0", {
   x <- 0:3
-  y <- x  # integral of x dx over [0,1],[1,2],[2,3]: 0.5, 1.5, 2.5; cumul: 0,0.5,2.0,4.5
+  y <- x # integral of x dx over [0,1],[1,2],[2,3]: 0.5, 1.5, 2.5; cumul: 0,0.5,2.0,4.5
   res <- cumtrapz(x, y)
   expect_equal(res, c(0, 0.5, 2.0, 4.5))
   # last element should match trapz
@@ -301,14 +342,16 @@ test_that("get_parameters_smart input checks", {
   a_model <- drift_dm(
     prms_model = c(a = 2, b = 2, c = 2),
     conds = c("i", "c"),
-    subclass = "test", instr = "b ~ "
+    subclass = "test",
+    instr = "b ~ "
   )
   expect_error(
     get_parameters_smart(
       a_model,
       input_a = c("1", "2", "3"),
       input_b = c("1")
-    ), "illegal data type"
+    ),
+    "illegal data type"
   )
 
   expect_error(
@@ -316,7 +359,8 @@ test_that("get_parameters_smart input checks", {
       a_model,
       input_a = c(1, 2),
       input_b = c("1")
-    ), "doesn't match"
+    ),
+    "doesn't match"
   )
 
   expect_error(
@@ -325,7 +369,8 @@ test_that("get_parameters_smart input checks", {
       input_a = c(1, 2, 3),
       input_b = c(1, 2, 3),
       labels = NULL
-    ), "is.logical"
+    ),
+    "is.logical"
   )
 
   # check if lower < upper
@@ -334,7 +379,8 @@ test_that("get_parameters_smart input checks", {
       a_model,
       input_a = c(1, 2, 3),
       input_b = c(0, 2, 3)
-    ), "larger than"
+    ),
+    "larger than"
   )
 
   # check from list formation
@@ -365,7 +411,6 @@ test_that("get_parameters_smart input checks", {
 
 
 test_that("get_example_fits", {
-
   # some rough checks, as this is merely a helper function to get some
   # example fit objects
 
@@ -388,12 +433,12 @@ test_that("get_example_fits", {
   expect_s3_class(aux_fits, "fits_agg_dm")
   expect_identical(class(aux_fits$drift_dm_obj), c("ratcliff_dm", "drift_dm"))
 
-
   # mcmc
   aux_fits <- get_example_fits("mcmc")
   expect_s3_class(aux_fits, "mcmc_dm")
   expect_identical(
-    class(attr(aux_fits, "data_model")), c("ratcliff_dm", "drift_dm")
+    class(attr(aux_fits, "data_model")),
+    c("ratcliff_dm", "drift_dm")
   )
 
   # mcmc - hierarchical
@@ -402,10 +447,7 @@ test_that("get_example_fits", {
   data_models <- attr(aux_fits, "data_model")
   expect_type(data_models, "list")
   expect_identical(
-    class(data_models[[1]]), c("ratcliff_dm", "drift_dm")
+    class(data_models[[1]]),
+    c("ratcliff_dm", "drift_dm")
   )
-
 })
-
-
-

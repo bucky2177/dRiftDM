@@ -24,7 +24,6 @@ test_that("logLik returns NULL for missing data", {
 })
 
 
-
 test_that("coef.drift_dm returns values as expected", {
   a_model <- dmc_dummy
 
@@ -32,11 +31,15 @@ test_that("coef.drift_dm returns values as expected", {
   expect_equal(
     coefs_unique,
     c(
-      muc = 4, b = 0.6, non_dec = 0.3, sd_non_dec = 0.02, tau = 0.04,
-      A = 0.1, alpha = 4
+      muc = 4,
+      b = 0.6,
+      non_dec = 0.3,
+      sd_non_dec = 0.02,
+      tau = 0.04,
+      A = 0.1,
+      alpha = 4
     )
   )
-
 
   prms_matrix <- a_model$flex_prms_obj$prms_matrix
   expect_identical(
@@ -52,9 +55,7 @@ test_that("coef.drift_dm returns values as expected", {
 })
 
 
-
 # FITS_IDS_DM -------------------------------------------------------------
-
 
 test_that("coef.fits_ids_dm returns values as expected", {
   all_fits <- get_example_fits(class = "fits_ids")
@@ -89,7 +90,6 @@ test_that("logLik|AIC|BIC.fits_ids_dm return values as expected", {
 })
 
 
-
 # MCMC_DM -----------------------------------------------------------------
 
 test_that("coef.mcmc_dm returns named vector of means by default", {
@@ -97,7 +97,7 @@ test_that("coef.mcmc_dm returns named vector of means by default", {
   exp_coefs <- names(coef(attr(mcmc_obj, "data_model")))
 
   # result under test
-  coef_vec <- coef(mcmc_obj)  # default .f = mean
+  coef_vec <- coef(mcmc_obj) # default .f = mean
 
   # expectations: a named numeric vector
   expect_type(coef_vec, "double")
@@ -132,9 +132,9 @@ test_that("coef.mcmc_dm with .f returning multiple stats produces a matrix", {
 
 test_that("coef.mcmc_dm with multiple ids returns a sorted data.frame", {
   mcmc_obj <- get_example_fits("mcmc_dm", hierarchical = TRUE)
-  ids <- c(2L, 1L)  # out of order to test sorting
+  ids <- c(2L, 1L) # out of order to test sorting
 
-  df <- coef(mcmc_obj, id = ids)  # default .f = mean
+  df <- coef(mcmc_obj, id = ids) # default .f = mean
 
   # structure
   expect_true(is.data.frame(df))
@@ -180,7 +180,6 @@ test_that("coef.mcmc_dm errors as expected for wrong input", {
 
 # HELPER ------------------------------------------------------------------
 
-
 test_that("try_cast_integer casts from character to integer", {
   expect_identical(try_cast_integer(c("1", "2", "5")), c(1L, 2L, 5L))
 })
@@ -193,4 +192,3 @@ test_that("try_cast_integer returns input if not character", {
 test_that("try_cast_integer returns input if not only digits", {
   expect_identical(try_cast_integer(c("1.NA", "1.3")), c("1.NA", "1.3"))
 })
-

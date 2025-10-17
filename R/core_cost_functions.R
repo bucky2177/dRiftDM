@@ -43,13 +43,14 @@ calc_log_like <- function(pdfs, t_vec, obs_data) {
   log_like <- 0
 
   for (one_cond in names(pdfs)) {
-    log_like <- log_like + log_like_heart(
-      pdf_u = pdfs[[one_cond]]$pdf_u,
-      pdf_l = pdfs[[one_cond]]$pdf_l,
-      t_vec = t_vec,
-      rts_u = obs_data$rts_u[[one_cond]],
-      rts_l = obs_data$rts_l[[one_cond]]
-    )
+    log_like <- log_like +
+      log_like_heart(
+        pdf_u = pdfs[[one_cond]]$pdf_u,
+        pdf_l = pdfs[[one_cond]]$pdf_l,
+        t_vec = t_vec,
+        rts_u = obs_data$rts_u[[one_cond]],
+        rts_l = obs_data$rts_l[[one_cond]]
+      )
   }
 
   return(log_like)
@@ -60,16 +61,19 @@ log_like_heart <- function(pdf_u, pdf_l, t_vec, rts_u, rts_l) {
   tryCatch(
     expr = {
       app_like_u <- stats::approx(
-        x = t_vec, y = pdf_u,
+        x = t_vec,
+        y = pdf_u,
         xout = rts_u
       )$y
       app_like_l <- stats::approx(
-        x = t_vec, y = pdf_l,
+        x = t_vec,
+        y = pdf_l,
         xout = rts_l
       )$y
 
       log_like <- suppressWarnings(sum(log(app_like_u)) + sum(log(app_like_l)))
-      if (is.nan(log_like)) { # log(0) gives -Inf
+      if (is.nan(log_like)) {
+        # log(0) gives -Inf
         if (min(app_like_u) < 0 | min(app_like_l) < 0) {
           warning(
             "negative density values encountered",
@@ -118,9 +122,14 @@ log_like_heart <- function(pdf_u, pdf_l, t_vec, rts_u, rts_l) {
 #'
 #' @seealso [dRiftDM::stats_from_pdfs_agg_info()]
 #' @keywords internal
-calc_rmse_eval <- function(pdfs, t_vec, dt, stats_agg, stats_agg_info,
-                           weight_err = 1.5) {
-
+calc_rmse_eval <- function(
+  pdfs,
+  t_vec,
+  dt,
+  stats_agg,
+  stats_agg_info,
+  weight_err = 1.5
+) {
   # if no observed stats are present, return NULL
   if (is.null(stats_agg)) {
     return(NULL)
@@ -138,11 +147,17 @@ calc_rmse_eval <- function(pdfs, t_vec, dt, stats_agg, stats_agg_info,
 
   # build predictions
   cafs_pred <- unlist(stats_from_pdfs_agg_info(
-    pdfs = pdfs, t_vec = t_vec, dt = dt, stats_agg_info = stats_agg_info,
+    pdfs = pdfs,
+    t_vec = t_vec,
+    dt = dt,
+    stats_agg_info = stats_agg_info,
     "cafs"
   ))
   quants_pred <- unlist(stats_from_pdfs_agg_info(
-    pdfs = pdfs, t_vec = t_vec, dt = dt, stats_agg_info = stats_agg_info,
+    pdfs = pdfs,
+    t_vec = t_vec,
+    dt = dt,
+    stats_agg_info = stats_agg_info,
     "quantiles"
   ))
 
@@ -161,15 +176,24 @@ calc_rmse_eval <- function(pdfs, t_vec, dt, stats_agg, stats_agg_info,
 #' Compute RMSE from predicted and observed quantiles/CAFs
 #' @keywords internal
 #' @rdname calc_rmse_eval
-calc_rmse <- function(quants_pred, cafs_pred, quants_obs, cafs_obs,
-                      weight_err = 1.5) {
+calc_rmse <- function(
+  quants_pred,
+  cafs_pred,
+  quants_obs,
+  cafs_obs,
+  weight_err = 1.5
+) {
   # basic checks
   if (!is.numeric(weight_err) || length(weight_err) != 1 || weight_err < 0) {
     stop("'weight_err' must be a single non-negative numeric")
   }
 
-  if (length(quants_pred) == 0L || length(cafs_pred) == 0L ||
-    length(quants_obs) == 0L || length(cafs_obs) == 0L) {
+  if (
+    length(quants_pred) == 0L ||
+      length(cafs_pred) == 0L ||
+      length(quants_obs) == 0L ||
+      length(cafs_obs) == 0L
+  ) {
     stop("Empty inputs: all vectors must have length > 0")
   }
 
@@ -204,7 +228,6 @@ calc_rmse <- function(quants_pred, cafs_pred, quants_obs, cafs_obs,
 }
 
 
-
 # HELPER FUNCTIONS --------------------------------------------------------
 
 #' Get Quantiles/CAFs from PDFs and stats_agg_info
@@ -227,8 +250,13 @@ calc_rmse <- function(quants_pred, cafs_pred, quants_obs, cafs_obs,
 #'   predicted quantiles or CAFs. In case of failure, `NA_real_` values are
 #'   returned.
 #' @keywords internal
-stats_from_pdfs_agg_info <- function(pdfs, t_vec, dt, stats_agg_info = NULL,
-                                     what) {
+stats_from_pdfs_agg_info <- function(
+  pdfs,
+  t_vec,
+  dt,
+  stats_agg_info = NULL,
+  what
+) {
   stopifnot(is.list(pdfs))
   stopifnot(is.numeric(t_vec))
   stopifnot(is.numeric(dt))
@@ -261,11 +289,11 @@ stats_from_pdfs_agg_info <- function(pdfs, t_vec, dt, stats_agg_info = NULL,
     return(cafs_pred_list)
   }
 
-
   # Quantiles
   if ("quantiles" == what) {
     quants_pred_list <- lapply(conds, function(one_cond) {
-      probs = stats_agg_info[[one_cond]]$probs_corr %||% drift_dm_default_probs()
+      probs = stats_agg_info[[one_cond]]$probs_corr %||%
+        drift_dm_default_probs()
       tryCatch(
         calc_quantiles_pred(
           pdf_u = pdfs[[one_cond]]$pdf_u,

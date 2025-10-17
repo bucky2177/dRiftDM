@@ -45,9 +45,6 @@
 "ssp_synth_data"
 
 
-
-
-
 #' Exemplary Simon Data
 #'
 #' Data of the Simon task collected in the course of the study by
@@ -62,7 +59,6 @@
 #'   \item{Cond}{Condition ('comp' and 'incomp')}
 #' }
 "ulrich_simon_data"
-
 
 
 #' Exemplary Flanker Data

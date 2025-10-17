@@ -12,9 +12,12 @@ print.fits_agg_dm <- function(x, ...) {
 
 #' @rdname summary.fits_agg_dm
 #' @export
-print.summary.fits_agg_dm <- function(x, ...,
-                                      just_header = FALSE,
-                                      round_digits = drift_dm_default_rounding()) {
+print.summary.fits_agg_dm <- function(
+  x,
+  ...,
+  just_header = FALSE,
+  round_digits = drift_dm_default_rounding()
+) {
   summary_obj <- x
 
   # same information as print.fits_agg_dm
@@ -31,7 +34,6 @@ print.summary.fits_agg_dm <- function(x, ...,
     header = "Average Trial Numbers:\n"
   )
 
-
   if (!just_header) {
     cat("\n")
     cat("Parameters:\n")
@@ -43,14 +45,17 @@ print.summary.fits_agg_dm <- function(x, ...,
     )
 
     cat("\n")
-    print_fit_stats(fit_stats = summary_obj$summary_drift_dm_obj$fit_stats,
-                    round_digits = round_digits)
+    print_fit_stats(
+      fit_stats = summary_obj$summary_drift_dm_obj$fit_stats,
+      round_digits = round_digits
+    )
 
     cat("\n-------\n")
     solver = summary_obj$summary_drift_dm_obj$solver
     prms_solve = summary_obj$summary_drift_dm_obj$prms_solve
     print_deriving_pdfs(
-      solver = solver, prms_solve = prms_solve
+      solver = solver,
+      prms_solve = prms_solve
     )
   }
   invisible(x)

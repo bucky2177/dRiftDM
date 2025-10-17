@@ -14,7 +14,6 @@ test_that("print.coefs_dm works as expected", {
   expect_snapshot(
     print(coefs, round_digits = 2, some = TRUE, print_rows = 3)
   )
-
 })
 
 

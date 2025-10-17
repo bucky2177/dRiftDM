@@ -1,10 +1,15 @@
 # coef.fits_ids_dm points to coef.drift_dm
 #' @rdname coef.drift_dm
 #' @export
-print.coefs_dm <- function(x, ...,
-                           round_digits = drift_dm_default_rounding(),
-                           print_rows = 10, some = FALSE,
-                           show_header = TRUE, show_note = TRUE) {
+print.coefs_dm <- function(
+  x,
+  ...,
+  round_digits = drift_dm_default_rounding(),
+  print_rows = 10,
+  some = FALSE,
+  show_header = TRUE,
+  show_note = TRUE
+) {
   if (show_header) {
     cat("Object Type:", class(x)[1])
     cat("\n\n")
@@ -16,7 +21,8 @@ print.coefs_dm <- function(x, ...,
   # coefs_dm objects are always of type data.frame
   idx_numeric <- sapply(coefs_dm_obj, is.numeric)
   coefs_dm_obj[idx_numeric] <- lapply(
-    coefs_dm_obj[idx_numeric], round,
+    coefs_dm_obj[idx_numeric],
+    round,
     digits = round_digits
   )
 
@@ -25,7 +31,6 @@ print.coefs_dm <- function(x, ...,
     idxs <- sort(sample(x = n_row, size = min(print_rows, n_row)))
     coefs_dm_obj <- coefs_dm_obj[idxs, , drop = FALSE]
   }
-
 
   # print the result
   print.data.frame(utils::head(coefs_dm_obj, n = print_rows))
@@ -41,7 +46,6 @@ print.coefs_dm <- function(x, ...,
 
   invisible(x)
 }
-
 
 
 # summary functions -------------------------------------------------------
@@ -75,8 +79,11 @@ print.coefs_dm <- function(x, ...,
 #' summary(coefs)
 #'
 #' @export
-summary.coefs_dm <- function(object, ...,
-                             round_digits = drift_dm_default_rounding()) {
+summary.coefs_dm <- function(
+  object,
+  ...,
+  round_digits = drift_dm_default_rounding()
+) {
   coefs_obj <- object
   ans <- list()
 
@@ -97,7 +104,6 @@ summary.coefs_dm <- function(object, ...,
 #' @export
 print.summary.coefs_dm <- function(x, ..., show_header = TRUE) {
   summary_obj <- x
-
 
   if (show_header) {
     cat("Object Type:", summary_obj$type)

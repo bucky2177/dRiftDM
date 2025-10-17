@@ -5,7 +5,6 @@
 print.fits_ids_dm <- function(x, ...) {
   fits_ids <- x
 
-
   # ifs to ensure backward compatibility (deprecated)
   if (!is.null(fits_ids$drift_dm_fit_info$fit_procedure_name)) {
     cat("Fit procedure name:", fits_ids$drift_dm_fit_info$fit_procedure_name)
@@ -21,21 +20,20 @@ print.fits_ids_dm <- function(x, ...) {
       cat("\n")
     }
 
-
     conv_flag <- fits_ids$drift_dm_obj$estimate_info$conv_flag
-    if (!is.null(conv_flag)){
+    if (!is.null(conv_flag)) {
       cat("Convergence:", conv_flag)
       cat("\n")
     }
 
-
     time_call <- fits_ids$drift_dm_fit_info$time_call
-    if (!is.null(time_call)) cat("Time of (last) call:", time_call)
+    if (!is.null(time_call)) {
+      cat("Time of (last) call:", time_call)
+    }
     cat("\n")
 
     cat("N Individuals:", length(fits_ids$all_fits))
     cat("\n")
-
   } else {
     sum_obj = summary(fits_ids)
     print(sum_obj, just_header = TRUE)
@@ -47,9 +45,12 @@ print.fits_ids_dm <- function(x, ...) {
 
 #' @rdname summary.fits_ids_dm
 #' @export
-print.summary.fits_ids_dm <- function(x, ...,
-                                      just_header = FALSE,
-                                      round_digits = drift_dm_default_rounding()) {
+print.summary.fits_ids_dm <- function(
+  x,
+  ...,
+  just_header = FALSE,
+  round_digits = drift_dm_default_rounding()
+) {
   summary_obj <- x
 
   if (!is.null(summary_obj$fit_procedure_name)) {
@@ -68,7 +69,8 @@ print.summary.fits_ids_dm <- function(x, ...,
     ids = names(not_conv) # potentially non-converged individuals
     if (length(ids) > 0) {
       info = paste(
-        "Failed for", length(ids),
+        "Failed for",
+        length(ids),
         paste("participant", if (length(ids) > 1) "s", sep = "")
       )
     } else {
@@ -85,7 +87,6 @@ print.summary.fits_ids_dm <- function(x, ...,
       cost_function_label = summary_obj$summary_drift_dm_obj$cost_function
     )
   }
-
 
   if (!just_header) {
     cat("\n")
@@ -115,7 +116,8 @@ print.summary.fits_ids_dm <- function(x, ...,
       solver = summary_obj$summary_drift_dm_obj$solver
       prms_solve = summary_obj$summary_drift_dm_obj$prms_solve
       print_deriving_pdfs(
-        solver = solver, prms_solve = prms_solve
+        solver = solver,
+        prms_solve = prms_solve
       )
     }
   }
@@ -215,17 +217,23 @@ summary.fits_ids_dm <- function(object, ..., select_unique = FALSE) {
   ans$prms <- all_prms
   prm_names <- colnames(all_prms)[!(colnames(all_prms) %in% c("ID", "Cond"))]
   means <- stats::aggregate(all_prms[prm_names], by = all_prms["Cond"], mean)
-  std_errs <- stats::aggregate(all_prms[prm_names],
+  std_errs <- stats::aggregate(
+    all_prms[prm_names],
     by = all_prms["Cond"],
     \(x) stats::sd(x) / sqrt(length(x))
   )
-  ans$stats <- sapply(conds(fits_ids), function(one_cond) {
-    mean <- means[means$Cond == one_cond, -1]
-    std_err <- std_errs[means$Cond == one_cond, -1]
-    stats_data_frame <- rbind(mean, std_err)
-    rownames(stats_data_frame) <- c("mean", "std_err")
-    return(stats_data_frame)
-  }, simplify = FALSE, USE.NAMES = TRUE)
+  ans$stats <- sapply(
+    conds(fits_ids),
+    function(one_cond) {
+      mean <- means[means$Cond == one_cond, -1]
+      std_err <- std_errs[means$Cond == one_cond, -1]
+      stats_data_frame <- rbind(mean, std_err)
+      rownames(stats_data_frame) <- c("mean", "std_err")
+      return(stats_data_frame)
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
 
   # for backward compatibility
   if (!is.null(ans$fit_procedure_name)) {
@@ -234,7 +242,6 @@ summary.fits_ids_dm <- function(object, ..., select_unique = FALSE) {
     n_avg_trials = get_avg_trials(fits_ids$drift_dm_fit_info$obs_data_ids)
     ans$obs_data <- n_avg_trials
   }
-
 
   # optimizer and convergence info
   if (is.null(ans$fit_procedure_name)) {
@@ -245,7 +252,6 @@ summary.fits_ids_dm <- function(object, ..., select_unique = FALSE) {
   class(ans) <- "summary.fits_ids_dm"
   return(ans)
 }
-
 
 
 # HELPER FUNCTION ---------------------------------------------------------
@@ -264,7 +270,6 @@ summary.fits_ids_dm <- function(object, ..., select_unique = FALSE) {
 #'
 #' @keywords internal
 get_avg_trials = function(obs_data_ids) {
-
   ans <- list()
   # Number of subjects
   ans$N <- length(unique(obs_data_ids$ID))
