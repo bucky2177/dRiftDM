@@ -20,3 +20,5 @@
 ^vignettes/pictograms.pptx
 ^inst-data$
 ^revdep$
+^[.]?air[.]toml$
+^\.vscode$
