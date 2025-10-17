@@ -1,4 +1,4 @@
-# dRiftDM (development version)
+# dRiftDM 0.3.0
 
 ## Important notes for users
 

@@ -1,7 +1,7 @@
 Type: Package
 Package: dRiftDM
 Title: Estimating (Time-Dependent) Drift Diffusion Models
-Version: 0.2.2.9000
+Version: 0.3.0
 Authors@R: c(
     person("Valentin", "Koob", 
     email = "v.koob@web.de",
