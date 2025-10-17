@@ -2861,8 +2861,8 @@ resample_assemble <- function(resample_list, level, original) {
 #' `new_stats_dm` sets up the `stat_df` object by assigning it the class
 #' `stats_dm`, along with additional classes based on the specified `type`.
 #' For "basic_stats", "cafs", "quantiles", "delta_funs", this will be
-#' c("<type>", "sum_dist", "stats_dm", "data.frame")". For "fit_stats", this
-#' will be c("<type>", "stats_dm", "data.frame")".
+#' c(`type`, "sum_dist", "stats_dm", "data.frame")". For "fit_stats", this
+#' will be c(`type`, "stats_dm", "data.frame")".
 #'
 #' For basic stats, Conditional Accuracy Functions (CAFs), Quantiles, and
 #' Delta Functions, the function requires a `b_coding` argument, which specifies
