@@ -1471,20 +1471,7 @@ estimate_classical_wrapper = function(
     cl <- parallel::makeCluster(n_cores)
     withr::defer(parallel::stopCluster(cl))
     parallel::clusterSetRNGStream(cl, iseed = seed)
-    all_funs <- c(
-      "re_evaluate_model",
-      "prms_to_str",
-      "x2prms_vals",
-      "estimate_classical",
-      "is_numeric",
-      "get_parameters_smart",
-      "cost_function",
-      "cost_function.drift_dm",
-      "coef",
-      "coef.drift_dm",
-      "coef<-",
-      "coef<-.drift_dm"
-    )
+    all_funs <- c("estimate_classical")
     parallel::clusterExport(
       cl,
       varlist = all_funs,
