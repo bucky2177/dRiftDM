@@ -13,7 +13,7 @@ plot_one_traces <- function(
   ...
 ) {
   # set_default_arguments() was already called from plot.traces_dm_list
-  dots = list(...)
+  dots <- list(...)
 
   # Initialize plot
   if (new_plot) {
@@ -156,12 +156,12 @@ plot.traces_dm_list <- function(
 
   # for backward compatibility (remove in the future)
   if (!is.null(dots$lwd)) {
-    dots$b.lwd = dots$lwd
-    dots$pred.lwd = dots$lwd
+    dots$b.lwd <- dots$lwd
+    dots$pred.lwd <- dots$lwd
   }
   if (!is.null(dots$lty)) {
-    dots$b.lty = dots$lty
-    dots$pred.lty = dots$lty
+    dots$b.lty <- dots$lty
+    dots$pred.lty <- dots$lty
     lifecycle::deprecate_warn(
       "0.3.0",
       "dRiftDM::plot.traces_dm_list(lty = )",
@@ -176,7 +176,7 @@ plot.traces_dm_list <- function(
     )
   }
   if (!is.null(dots$legend_pos)) {
-    dots$legend.pos = dots$legend_pos
+    dots$legend.pos <- dots$legend_pos
     lifecycle::deprecate_warn(
       "0.3.0",
       "dRiftDM::plot.traces_dm_list(legend_pos = )",
@@ -198,7 +198,7 @@ plot.traces_dm_list <- function(
 
   # iterate over all traces
   for (i in seq_along(x[conds])) {
-    new_plot = if (i == 1) TRUE else FALSE
+    new_plot <- if (i == 1) TRUE else FALSE
 
     requ_args <- list(
       traces_obj = x[[i]],
@@ -395,8 +395,8 @@ plot.cafs <- function(
   col <- col[which(all_conds %in% conds)]
 
   # further optional arguments related to plot, points, and legend
-  dots = list(...)
-  dots = set_default_arguments(dots, conds, id)
+  dots <- list(...)
+  dots <- set_default_arguments(dots, conds, id)
   dots$err.col <- set_default_colors(
     colors = dots$err.col,
     n = length(all_conds)
@@ -420,11 +420,11 @@ plot.cafs <- function(
 
   # figure out if an Estimate column exists
   if ("Estimate" %in% names(cafs)) {
-    orig = cafs[cafs$Estimate == "orig", ]
-    l_u = cafs[cafs$Estimate != "orig", ]
+    orig <- cafs[cafs$Estimate == "orig", ]
+    l_u <- cafs[cafs$Estimate != "orig", ]
   } else {
-    orig = cafs
-    l_u = NULL
+    orig <- cafs
+    l_u <- NULL
   }
 
   # first plot the observed data
@@ -689,11 +689,11 @@ plot.quantiles <- function(
 
   # figure out if an Estimate column exists
   if ("Estimate" %in% names(quantiles)) {
-    orig = quantiles[quantiles$Estimate == "orig", ]
-    l_u = quantiles[quantiles$Estimate != "orig", ]
+    orig <- quantiles[quantiles$Estimate == "orig", ]
+    l_u <- quantiles[quantiles$Estimate != "orig", ]
   } else {
-    orig = quantiles
-    l_u = NULL
+    orig <- quantiles
+    l_u <- NULL
   }
 
   # first plot the observed data
@@ -1071,13 +1071,13 @@ plot.delta_funs <- function(
       df_upper <-
         sub_pred_lu[sub_pred_lu$Estimate == borders[2], c(dv[idx], uv[idx])]
 
-      uv_lower = df_lower[[uv[idx]]]
-      dv_lower = df_lower[[dv[idx]]]
-      uv_upper = df_upper[[uv[idx]]]
-      dv_upper = df_upper[[dv[idx]]]
-      uv_orig = sub_pred_orig[[uv[idx]]]
-      dv_orig = sub_pred_orig[[dv[idx]]]
-      n = length(uv_lower)
+      uv_lower <- df_lower[[uv[idx]]]
+      dv_lower <- df_lower[[dv[idx]]]
+      uv_upper <- df_upper[[uv[idx]]]
+      dv_upper <- df_upper[[dv[idx]]]
+      uv_orig <- sub_pred_orig[[uv[idx]]]
+      dv_orig <- sub_pred_orig[[dv[idx]]]
+      n <- length(uv_lower)
 
       x_poly <- c(uv_lower[1], uv_orig, uv_upper[n], rev(uv_orig))
       y_poly <- c(dv_orig[1], dv_lower, dv_orig[n], rev(dv_upper))
@@ -1248,7 +1248,7 @@ plot.densities <- function(
   }
 
   # Determine conditions
-  all_conds = unique(densities$Cond)
+  all_conds <- unique(densities$Cond)
   if (is.null(conds)) {
     conds <- all_conds
   }
@@ -1333,7 +1333,7 @@ plot.densities <- function(
 
     for (one_stat in obs_stats) {
       for (i in seq_along(dv)) {
-        sign = if (i == 1) 1 else -1
+        sign <- if (i == 1) 1 else -1
 
         if (!is.null(sub_obs_lu) && nrow(sub_obs_lu) > 0 && interval_obs) {
           borders <- sort(unique(sub_obs_lu$Estimate))
@@ -1366,8 +1366,8 @@ plot.densities <- function(
         }
 
         df_orig <- sub_obs_orig[sub_obs_orig$Stat == one_stat, ]
-        y_orig = sign * df_orig[[dv[i]]]
-        x_orig = df_orig[["Time"]]
+        y_orig <- sign * df_orig[[dv[i]]]
+        x_orig <- df_orig[["Time"]]
         if (one_stat == "hist") {
           x_poly <- c(x_orig, rev(x_orig))
           y_poly <- c(y_orig, numeric(nrow(df_orig)))
@@ -1404,7 +1404,7 @@ plot.densities <- function(
     }
 
     for (i in seq_along(dv)) {
-      sign = if (i == 1) 1 else -1
+      sign <- if (i == 1) 1 else -1
       if (!is.null(sub_pred_lu) && nrow(sub_pred_lu) > 0 && interval_pred) {
         borders <- sort(unique(sub_pred_lu$Estimate))
         stopifnot(length(borders) == 2)
@@ -1433,8 +1433,8 @@ plot.densities <- function(
         )
       }
       df_orig <- sub_pred_orig[sub_pred_orig$Stat == "pdf", ]
-      y_orig = sign * df_orig[[dv[i]]]
-      x_orig = df_orig[["Time"]]
+      y_orig <- sign * df_orig[[dv[i]]]
+      x_orig <- df_orig[["Time"]]
       graphics::points(
         y_orig ~ x_orig,
         col = col[idx],
@@ -1486,7 +1486,7 @@ plot.densities <- function(
   }
 
   if (all(c("pred", "obs") %in% unique(densities$Source))) {
-    dots[["lines.legend"]] = dots[["lines.legend"]] %||% c("pred", "obs")
+    dots[["lines.legend"]] <- dots[["lines.legend"]] %||% c("pred", "obs")
     if ("kde" %in% obs_stats && !all(is.na(dots[["lines.legend"]]))) {
       graphics::legend(
         x = x_leg,
@@ -1636,7 +1636,7 @@ hist.coefs_dm <- function(
 
   # ensure backward compatibility (delete in the future)
   if (!is.null(dots$colors)) {
-    col = dots$colors
+    col <- dots$colors
     lifecycle::deprecate_warn(
       "0.3.0",
       "dRiftDM::hist.coefs_dm(colors = )",
@@ -1644,7 +1644,7 @@ hist.coefs_dm <- function(
     )
   }
   if (!is.null(dots$separate_plots)) {
-    bundle_plots = dots$separate_plots
+    bundle_plots <- dots$separate_plots
     lifecycle::deprecate_warn(
       "0.3.0",
       "dRiftDM::hist.coefs_dm(separate_plots = )",
@@ -1683,28 +1683,28 @@ hist.coefs_dm <- function(
   # figure out the arguments
   dots <- set_default_arguments(dots, leg = conds, id = NULL)
   if (is.null(dots$breaks)) {
-    dots$breaks = "Sturges"
+    dots$breaks <- "Sturges"
   }
   if (is.null(dots$include.lowest)) {
-    dots$include.lowest = TRUE
+    dots$include.lowest <- TRUE
   }
   if (is.null(dots$right)) {
-    dots$right = TRUE
+    dots$right <- TRUE
   }
   if (is.null(dots$fuzz)) {
-    dots$fuzz = 1e-7
+    dots$fuzz <- 1e-7
   }
   if (is.null(dots$angle)) {
-    dots$angle = 45
+    dots$angle <- 45
   }
   if (is.null(dots$axes)) {
-    dots$axes = TRUE
+    dots$axes <- TRUE
   }
   if (is.null(dots$labels)) {
-    dots$labels = FALSE
+    dots$labels <- FALSE
   }
   if (is.null(dots$ann)) {
-    dots$ann = TRUE
+    dots$ann <- TRUE
   }
 
   # figure out the main titles
@@ -1725,20 +1725,20 @@ hist.coefs_dm <- function(
       plot = FALSE
     )
     if (is.null(dots$freq)) {
-      freq = hist_vals$equidist
+      freq <- hist_vals$equidist
     }
     if (is.null(ylab)) {
       if (isTRUE(freq)) {
-        ylab = "Frequency"
+        ylab <- "Frequency"
       } else {
-        ylab = "Density"
+        ylab <- "Density"
       }
     }
     if (is.null(xlim)) {
       xlim <- range(hist_vals$breaks)
     }
 
-    col = grDevices::adjustcolor(col, alpha.f = dots$alpha)
+    col <- grDevices::adjustcolor(col, alpha.f = dots$alpha)
     plot(
       hist_vals,
       freq = freq,
@@ -1778,7 +1778,7 @@ hist.coefs_dm <- function(
     }
 
     # if conditions are present, then iterate through the conditions ...
-    x_r = sapply(conds, \(x) {
+    x_r <- sapply(conds, \(x) {
       sub <- coefs_obj[[prm_names[prm_idx]]][coefs_obj$Cond == x]
       hist_vals <- graphics::hist(
         sub,
@@ -1791,9 +1791,9 @@ hist.coefs_dm <- function(
       return(range(hist_vals$breaks))
     })
     if (is.null(xlim)) {
-      x_r = range(x_r)
+      x_r <- range(x_r)
     } else {
-      x_r = xlim
+      x_r <- xlim
     }
 
     for (cond_idx in seq_along(conds)) {
@@ -1866,7 +1866,7 @@ plot.drift_dm <- function(
 
   # ensure backward compatibility (delete in the future)
   if (!is.null(dots$legend_pos)) {
-    dots$legend.pos = dots$legend_pos
+    dots$legend.pos <- dots$legend_pos
     lifecycle::deprecate_warn(
       "0.3.0",
       "dRiftDM::plot.drift_dm(legend_pos = )",
@@ -1875,7 +1875,7 @@ plot.drift_dm <- function(
   }
 
   # get conditions
-  all_conds = conds(drift_dm_obj)
+  all_conds <- conds(drift_dm_obj)
   if (is.null(conds)) {
     conds <- all_conds
   }
@@ -2125,9 +2125,9 @@ plot.mcmc_dm <- function(
   # ids only make sense in the hierarchical case
   hierarchical <- attr(chains_obj, "hierarchical")
   if (!hierarchical & !is.null(id)) {
-    id = NULL
+    id <- NULL
   }
-  what = match.arg(what, choices = c("trace", "density", "auto"))
+  what <- match.arg(what, choices = c("trace", "density", "auto"))
 
   # optional: use local mfrow
   if (bundle_plots) {
@@ -2135,12 +2135,12 @@ plot.mcmc_dm <- function(
   }
 
   # optional/additional arguments
-  dots = list(...)
+  dots <- list(...)
 
   # call recursively the plot function if id has multiple entries
   if (length(id) > 1) {
     lapply(id, \(one_id) {
-      dots$id = one_id
+      dots$id <- one_id
       do.call(plot.mcmc_dm, c(list(x = x, what = what), dots))
     })
     return(invisible())
@@ -2224,7 +2224,7 @@ plot.mcmc_dm <- function(
 #'
 #' @seealso [dRiftDM::plot.mcmc_dm()]
 #' @keywords internal
-plot_mcmc_trace = function(
+plot_mcmc_trace <- function(
   chains,
   col_palette = grDevices::rainbow,
   col_chains = NULL,
@@ -2254,10 +2254,10 @@ plot_mcmc_trace = function(
   }
 
   # get the colors for the plot
-  all_colors = col_palette(n_chains)
+  all_colors <- col_palette(n_chains)
   if (!is.null(col_chains)) {
     stopifnot(is.character(col_chains))
-    all_colors = rep(col_chains, length.out = n_chains)
+    all_colors <- rep(col_chains, length.out = n_chains)
   }
 
   # get default values for xlab etc.
@@ -2271,19 +2271,19 @@ plot_mcmc_trace = function(
   for (i in seq_along(prms_to_plot)) {
     one_prm <- prms_to_plot[i]
     # which idx in the chains array
-    prm_idx = which(one_prm == all_prm_names)
+    prm_idx <- which(one_prm == all_prm_names)
     sub_chains <- chains[prm_idx, , ]
 
     # prepare x and y limits
-    ylim_one_prm = ylim[[i]]
+    ylim_one_prm <- ylim[[i]]
     if (is.na(ylim_one_prm)) {
       range_sub <- range(sub_chains)
       padding <- 0.05 * diff(range_sub) # scale by 5%
       ylim_one_prm <- c(range_sub[1] - padding, range_sub[2] + padding)
     }
-    xlim_one_prm = xlim[[i]]
+    xlim_one_prm <- xlim[[i]]
     if (is.na(xlim_one_prm)) {
-      xlim_one_prm = range(iterations)
+      xlim_one_prm <- range(iterations)
     }
 
     # now the raw plot outline
@@ -2354,13 +2354,13 @@ plot_mcmc_marginal <- function(
     dens_one_prm <- stats::density(as.numeric(sub_chains))
 
     # prepare x and y limits
-    xlim_one_prm = xlim[[i]]
+    xlim_one_prm <- xlim[[i]]
     if (is.na(xlim_one_prm)) {
       range_sub <- range(sub_chains)
       padding <- 0.05 * diff(range_sub) # scale by 5%
       xlim_one_prm <- c(range_sub[1] - padding, range_sub[2] + padding)
     }
-    ylim_one_prm = ylim[[i]]
+    ylim_one_prm <- ylim[[i]]
     if (is.na(ylim_one_prm)) {
       max_sub <- max(dens_one_prm$y)
       ylim_one_prm <- c(0, 1.05 * max_sub) # scale max by 5%
@@ -2415,8 +2415,8 @@ plot_mcmc_auto <- function(
   }
 
   # transform to coda mcmc_list and get the autocorrelation values
-  mcmc_list = mcmc_dm_to_coda_mcmc(chains)
-  auto_cors = coda::autocorr.diag(mcmc_list, lags = lags)
+  mcmc_list <- mcmc_dm_to_coda_mcmc(chains)
+  auto_cors <- coda::autocorr.diag(mcmc_list, lags = lags)
 
   # get default values for xlab etc.
   n_plot <- length(prms_to_plot)
@@ -2441,11 +2441,11 @@ plot_mcmc_auto <- function(
   for (i in seq_along(prms_to_plot)) {
     one_prm <- prms_to_plot[i]
     prm_idx <- which(one_prm == all_prm_names)
-    subset_auto_corrs = auto_cors[, one_prm]
+    subset_auto_corrs <- auto_cors[, one_prm]
 
     # prepare x and y limits
-    xlim_one_prm = xlim[[i]]
-    ylim_one_prm = ylim[[i]]
+    xlim_one_prm <- xlim[[i]]
+    ylim_one_prm <- ylim[[i]]
 
     plot(
       subset_auto_corrs ~ lags,
@@ -2478,12 +2478,12 @@ plot_mcmc_auto <- function(
 #'
 #' @keywords internal
 set_default_colors <- function(colors, n) {
-  color_blind_palette = grDevices::palette.colors(palette = "Okabe-Ito")
-  color_blind_palette = color_blind_palette[c(4, 7, 1, 2, 3, 5, 6, 8)] # just ordering
+  color_blind_palette <- grDevices::palette.colors(palette = "Okabe-Ito")
+  color_blind_palette <- color_blind_palette[c(4, 7, 1, 2, 3, 5, 6, 8)] # just ordering
   if (n <= 8) {
-    def_cols = color_blind_palette[1:n]
+    def_cols <- color_blind_palette[1:n]
   } else {
-    def_cols = c(color_blind_palette, grDevices::rainbow(n = n - 8))
+    def_cols <- c(color_blind_palette, grDevices::rainbow(n = n - 8))
   }
 
   if (is.null(colors)) {
@@ -2589,7 +2589,7 @@ set_default_colors <- function(colors, n) {
 #' # See also ?plot.quantiles for more detail
 #' plot(
 #'   some_stats,
-#'   obs.pch = 21,        # optional argument 1: point type
+#'   obs.pch = 21, # optional argument 1: point type
 #'   obs.pt.bg = "black", # optional argument 2: point background
 #'   legend = c("foo", "bar") # optional argument 3: custom legend labels
 #' )
@@ -2598,80 +2598,80 @@ set_default_colors <- function(colors, n) {
 #' @keywords internal
 set_default_arguments <- function(dots, leg, id) {
   # standard line types and point types
-  dots$obs.pch = if (is.null(dots$obs.pch)) 19 else dots$obs.pch
-  dots$pred.lty = if (is.null(dots$pred.lty)) 1 else dots$pred.lty
-  dots$obs.pt.bg = if (is.null(dots$obs.pt.bg)) NA else dots$obs.pt.bg
-  dots$pred.lwd = if (is.null(dots$pred.lwd)) 1 else dots$pred.lwd
-  dots$b.lty = if (is.null(dots$b.lty)) 1 else dots$b.lty
-  dots$b.lwd = if (is.null(dots$b.lwd)) 1 else dots$b.lwd
+  dots$obs.pch <- if (is.null(dots$obs.pch)) 19 else dots$obs.pch
+  dots$pred.lty <- if (is.null(dots$pred.lty)) 1 else dots$pred.lty
+  dots$obs.pt.bg <- if (is.null(dots$obs.pt.bg)) NA else dots$obs.pt.bg
+  dots$pred.lwd <- if (is.null(dots$pred.lwd)) 1 else dots$pred.lwd
+  dots$b.lty <- if (is.null(dots$b.lty)) 1 else dots$b.lty
+  dots$b.lwd <- if (is.null(dots$b.lwd)) 1 else dots$b.lwd
 
   # shading settings
-  dots$alpha = if (is.null(dots$alpha)) 0.2 else dots$alpha
+  dots$alpha <- if (is.null(dots$alpha)) 0.2 else dots$alpha
 
   # general cex settings
-  dots$cex.axis = if (is.null(dots$cex.axis)) 1 else dots$cex.axis
-  dots$cex.lab = if (is.null(dots$cex.lab)) 1 else dots$cex.lab
-  dots$cex.main = if (is.null(dots$cex.main)) 1 else dots$cex.main
-  dots$cex.pt = if (is.null(dots$cex.pt)) 1 else dots$cex.pt
-  dots$cex.legend = if (is.null(dots$cex.legend)) 1 else dots$cex.legend
+  dots$cex.axis <- if (is.null(dots$cex.axis)) 1 else dots$cex.axis
+  dots$cex.lab <- if (is.null(dots$cex.lab)) 1 else dots$cex.lab
+  dots$cex.main <- if (is.null(dots$cex.main)) 1 else dots$cex.main
+  dots$cex.pt <- if (is.null(dots$cex.pt)) 1 else dots$cex.pt
+  dots$cex.legend <- if (is.null(dots$cex.legend)) 1 else dots$cex.legend
 
   # main and family
   if (!is.null(id)) {
     if (is.null(dots$main)) {
-      dots$main = id
+      dots$main <- id
     } else {
-      dots$main = paste(dots$main, id, sep = " - ")
+      dots$main <- paste(dots$main, id, sep = " - ")
     }
   }
-  dots$family = if (is.null(dots$family)) "" else dots$family
+  dots$family <- if (is.null(dots$family)) "" else dots$family
 
   # the primary legend settings
-  dots[["legend"]] = if (is.null(dots[["legend"]])) leg else dots[["legend"]]
-  dots$legend.pos = if (is.null(dots$legend.pos)) {
+  dots[["legend"]] <- if (is.null(dots[["legend"]])) leg else dots[["legend"]]
+  dots$legend.pos <- if (is.null(dots$legend.pos)) {
     "bottomright"
   } else {
     dots$legend.pos
   }
-  dots$legend.bg = if (is.null(dots$legend.bg)) "white" else dots$legend.bg
-  dots$bty = if (is.null(dots$bty)) "o" else dots$bty
-  dots$box.lwd = if (is.null(dots$box.lwd)) 1 else dots$box.lwd
-  dots$box.col = if (is.null(dots$box.col)) "black" else dots$box.col
-  dots$box.lty = if (is.null(dots$box.lty)) 1 else dots$box.lty
+  dots$legend.bg <- if (is.null(dots$legend.bg)) "white" else dots$legend.bg
+  dots$bty <- if (is.null(dots$bty)) "o" else dots$bty
+  dots$box.lwd <- if (is.null(dots$box.lwd)) 1 else dots$box.lwd
+  dots$box.col <- if (is.null(dots$box.col)) "black" else dots$box.col
+  dots$box.lty <- if (is.null(dots$box.lty)) 1 else dots$box.lty
 
   # specific settings for the line legend
-  dots[["lines.legend"]] = if (is.null(dots[["lines.legend"]])) {
+  dots[["lines.legend"]] <- if (is.null(dots[["lines.legend"]])) {
     NULL
   } else {
     dots[["lines.legend"]]
   }
-  dots$lines.legend.pos = if (is.null(dots$lines.legend.pos)) {
+  dots$lines.legend.pos <- if (is.null(dots$lines.legend.pos)) {
     "topright"
   } else {
     dots$lines.legend.pos
   }
 
   # error bar settings
-  dots$err.width = if (is.null(dots$err.width)) 0.05 else dots$err.width
-  dots$err.col = if (is.null(dots$err.col)) NULL else dots$err.col
-  dots$err.eps = if (is.null(dots$err.eps)) .001 else dots$err.eps
+  dots$err.width <- if (is.null(dots$err.width)) 0.05 else dots$err.width
+  dots$err.col <- if (is.null(dots$err.col)) NULL else dots$err.col
+  dots$err.eps <- if (is.null(dots$err.eps)) .001 else dots$err.eps
 
   # color and line settings of kdes and histograms
-  dots$obs.hist.col = if (is.null(dots$obs.hist.col)) {
+  dots$obs.hist.col <- if (is.null(dots$obs.hist.col)) {
     "gray20"
   } else {
     dots$obs.hist.col
   }
-  dots$obs.kde.col = if (is.null(dots$obs.kde.col)) {
+  dots$obs.kde.col <- if (is.null(dots$obs.kde.col)) {
     "black"
   } else {
     dots$obs.kde.col
   }
-  dots$obs.kde.lty = if (is.null(dots$obs.kde.lty)) 2 else dots$obs.kde.lty
-  dots$obs.kde.lwd = if (is.null(dots$obs.kde.lwd)) 1 else dots$obs.kde.lwd
+  dots$obs.kde.lty <- if (is.null(dots$obs.kde.lty)) 2 else dots$obs.kde.lty
+  dots$obs.kde.lwd <- if (is.null(dots$obs.kde.lwd)) 1 else dots$obs.kde.lwd
 
   # etc.
-  dots$horiz.col = if (is.null(dots$horiz.col)) "gray" else dots$horiz.col
-  dots$horiz.lwd = if (is.null(dots$horiz.lwd)) 1 else dots$horiz.lwd
+  dots$horiz.col <- if (is.null(dots$horiz.col)) "gray" else dots$horiz.col
+  dots$horiz.lwd <- if (is.null(dots$horiz.lwd)) 1 else dots$horiz.lwd
 
   return(dots)
 }

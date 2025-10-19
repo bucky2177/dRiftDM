@@ -802,7 +802,7 @@ test_that("SSP with var. in non-dec or start point works", {
 
   # nt_fun
   exp_nt <- rep(0, length(t_vec))
-  exp_nt[0.3 / 0.005 + 1] = 1 / .005
+  exp_nt[0.3 / 0.005 + 1] <- 1 / .005
   expect_equal(
     a_model$comp_funs$nt_fun(
       prms_model = prms_model,
@@ -1958,7 +1958,7 @@ test_that("get_lower_upper -> warns correctly (and warns can be toggled off)", {
 
   # result should still contain the known parameter
   expect_named(res, c("lower", "upper"))
-  exp_names = setdiff(names(coef(model)), c("muc", "A", "tau", "a"))
+  exp_names <- setdiff(names(coef(model)), c("muc", "A", "tau", "a"))
   expect_equal(exp_names, names(res$lower))
   expect_equal(exp_names, names(res$upper))
 

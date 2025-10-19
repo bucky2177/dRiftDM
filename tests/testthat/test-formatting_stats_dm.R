@@ -70,8 +70,8 @@ test_that("print.stats_dm_list works as expected", {
     print(stats_dm_list_obj)
   )
 
-  test = stats_dm_list_obj[-c(1, 2)]
-  class(test) = "stats_dm_list"
+  test <- stats_dm_list_obj[-c(1, 2)]
+  class(test) <- "stats_dm_list"
   expect_snapshot(
     print(test)
   )

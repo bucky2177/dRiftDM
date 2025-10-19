@@ -406,7 +406,7 @@ all_fits_deoptim <- estimate_dm(
   obs_data = data,
   lower = l_u$lower,
   upper = l_u$upper,
-  n_cores = 1 # you might want to increase this 
+  n_cores = 1 # you might want to increase this
 )
 ```
 Because DEoptim is time-consuming, it is recommended to use multiple cores. You can set the desired number of cores using the `n_cores` argument.^[The reason we do not use multiple cores here is related to how this vignette is built on GitHub, but regular users should increase this value.] To get the number of available cores, use `parallel::detectCores()`.
@@ -536,7 +536,7 @@ mcmc_list <- estimate_dm(
   upper = l_u$upper,
   verbose = 2,
   n_chains = 40,
-  n_cores = 1,   # increase to parallelize
+  n_cores = 1, # increase to parallelize
   burn_in = 150, # for the demo, usually a bit higher
   samples = 150, # for the demo, usually a bit higher
   seed = 1

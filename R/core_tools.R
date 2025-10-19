@@ -75,7 +75,7 @@ draw_from_pdf <- function(
     }
   }
 
-  method = match.arg(method, choices = c("discr", "linear"))
+  method <- match.arg(method, choices = c("discr", "linear"))
 
   if (min(a_pdf) < 0) {
     warning(
@@ -392,7 +392,7 @@ check_discretization.drift_dm <- function(
   stopifnot(is.numeric(dx_ref), length(dx_ref) == 1)
   dt_model <- prms_solve(drift_dm_obj)["dt"]
   dx_model <- prms_solve(drift_dm_obj)["dx"]
-  t_max = prms_solve(drift_dm_obj)["t_max"]
+  t_max <- prms_solve(drift_dm_obj)["t_max"]
   if (dt_model < dt_ref) {
     stop(
       "the model's 'dt' is smaller than 'dt_ref'. The reference should be ",
@@ -407,7 +407,7 @@ check_discretization.drift_dm <- function(
   }
 
   # create the common time space
-  time_pm = c(seq(-t_max - dt_ref, 0 - dt_ref, dt_ref), seq(0, t_max, dt_ref))
+  time_pm <- c(seq(-t_max - dt_ref, 0 - dt_ref, dt_ref), seq(0, t_max, dt_ref))
 
   ###
   # interim: define helper functions to calculate the distance between two
@@ -422,13 +422,13 @@ check_discretization.drift_dm <- function(
   # paste pdf_u and pdf_l together
   interp_pdf <- function(pdfs_one_cond, dt) {
     # unpack the pdfs
-    pdf_u = pdfs_one_cond$pdf_u
-    pdf_l = pdfs_one_cond$pdf_l
+    pdf_u <- pdfs_one_cond$pdf_u
+    pdf_l <- pdfs_one_cond$pdf_l
     stopifnot(length(pdf_u) == length(pdf_l))
     stopifnot(length(pdf_u) == (t_max / dt) + 1)
 
     # create new time space (negative and positive)
-    x = c(seq(-t_max - dt, 0 - dt, dt), seq(0, t_max, dt))
+    x <- c(seq(-t_max - dt, 0 - dt, dt), seq(0, t_max, dt))
 
     # paste the pdfs together and interpolate to common time_space
     pdf <- c(rev(pdf_l), pdf_u)
@@ -441,9 +441,9 @@ check_discretization.drift_dm <- function(
   pdfs_by_dx_dt <- function(model, one_dt = NULL, one_dx = NULL) {
     stopifnot(!xor(is.null(one_dt), is.null(one_dx)))
     if (!is.null(one_dt) & !is.null(one_dx)) {
-      prms_solve(model)[c("dt", "dx")] = c(one_dt, one_dx)
+      prms_solve(model)[c("dt", "dx")] <- c(one_dt, one_dx)
     }
-    pdfs_per_cond = pdfs(model)$pdfs
+    pdfs_per_cond <- pdfs(model)$pdfs
     sapply(
       pdfs_per_cond,
       \(x) interp_pdf(x, prms_solve(model)["dt"]),
@@ -454,15 +454,15 @@ check_discretization.drift_dm <- function(
   ###
 
   # calculate the reference and model
-  pdfs_ref = pdfs_by_dx_dt(
+  pdfs_ref <- pdfs_by_dx_dt(
     model = drift_dm_obj,
     one_dt = dt_ref,
     one_dx = dx_ref
   )
-  pdfs_model = pdfs_by_dx_dt(model = drift_dm_obj)
+  pdfs_model <- pdfs_by_dx_dt(model = drift_dm_obj)
 
   # iterate over all conditions and calculate the hellinger distance
-  conds = names(pdfs_ref)
+  conds <- names(pdfs_ref)
   hs <- vapply(
     conds,
     \(one_cond) {
@@ -484,10 +484,10 @@ check_discretization.fits_ids_dm <- function(object, ...) {
   hs <- sapply(object$all_fits, \(x) check_discretization(x, ...))
   hs <- t(hs)
   ids <- rownames(hs)
-  hs = cbind(ID = ids, as.data.frame(hs))
+  hs <- cbind(ID = ids, as.data.frame(hs))
   row.names(hs) <- NULL
-  hs$ID = try_cast_integer(hs$ID)
-  hs = hs[order(hs$ID), ]
+  hs$ID <- try_cast_integer(hs$ID)
+  hs <- hs[order(hs$ID), ]
   return(hs)
 }
 

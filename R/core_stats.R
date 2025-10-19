@@ -44,7 +44,7 @@
 #' The `<U>` and `<L>` placeholders are determined by the `b_coding` argument.
 #'
 #' @keywords internal
-calc_dens_obs = function(
+calc_dens_obs <- function(
   rts_u,
   rts_l,
   one_cond,
@@ -53,27 +53,27 @@ calc_dens_obs = function(
   scaling_factor = 1.0
 ) {
   # ensure that t_max and discr arguments are reasonable
-  max_rt = max(rts_u, rts_l)
+  max_rt <- max(rts_u, rts_l)
   if (is.null(discr)) {
-    discr = 0.015
+    discr <- 0.015
   }
   if (is.null(t_max)) {
-    t_max = max_rt
+    t_max <- max_rt
   }
   stopifnot(discr < t_max)
 
   # Align t_max with discr steps
-  t_max = ceiling(t_max / discr) * discr
+  t_max <- ceiling(t_max / discr) * discr
   stopifnot(max_rt < t_max)
 
   # define the breaks (taking into account the maximum RT value)
-  n = round(t_max / discr + 1)
-  breaks = seq(from = 0, to = t_max, length.out = n)
+  n <- round(t_max / discr + 1)
+  breaks <- seq(from = 0, to = t_max, length.out = n)
   mids <- breaks[-length(breaks)] + diff(breaks) / 2
 
   # call hist() twice and extract the values
-  dens_hist_u = graphics::hist(rts_u, breaks = breaks, plot = FALSE)$density
-  dens_hist_l = graphics::hist(rts_l, breaks = breaks, plot = FALSE)$density
+  dens_hist_u <- graphics::hist(rts_u, breaks = breaks, plot = FALSE)$density
+  dens_hist_l <- graphics::hist(rts_l, breaks = breaks, plot = FALSE)$density
 
   # call density() twice and extract the values
   # the wrapper ensures that the function doesn't crash if one of the
@@ -87,11 +87,11 @@ calc_dens_obs = function(
     d <- d / sum(d * discr) # ensure it sums to 1
     return(d)
   }
-  dens_kde_u = kde_wrapper(rts_u)
-  dens_kde_l = kde_wrapper(rts_l)
+  dens_kde_u <- kde_wrapper(rts_u)
+  dens_kde_l <- kde_wrapper(rts_l)
 
   # calculate the relative contribution
-  ratio = length(rts_u) / (length(rts_u) + length(rts_l))
+  ratio <- length(rts_u) / (length(rts_u) + length(rts_l))
 
   # pack up as a data.frame, scale and return
   dens_stats <- data.frame(
@@ -154,13 +154,13 @@ calc_dens <- function(
   if (!is.null(rts_u)) {
     # if there is no specified t_max value, check for temp options
     if (is.null(t_max)) {
-      t_max = stats.options("t_max") # returns NULL or some value
+      t_max <- stats.options("t_max") # returns NULL or some value
     }
 
     # if there is a time vector, extract t_max and use it (overrides any input
     # or options)
     if (!is.null(t_vec)) {
-      t_max = max(t_vec)
+      t_max <- max(t_vec)
     }
 
     result_obs <- calc_dens_obs(
@@ -233,15 +233,15 @@ calc_dens <- function(
 #' @keywords internal
 calc_basic_stats_obs <- function(rts_u, rts_l, one_cond) {
   # calculate the means
-  mean_u = mean(rts_u)
-  mean_l = mean(rts_l)
+  mean_u <- mean(rts_u)
+  mean_l <- mean(rts_l)
 
   # calculate the sds
-  sd_u = stats::sd(rts_u)
-  sd_l = stats::sd(rts_l)
+  sd_u <- stats::sd(rts_u)
+  sd_l <- stats::sd(rts_l)
 
   # calculate the percentages (e.g., error rates)
-  ratio = length(rts_u) / (length(rts_u) + length(rts_l))
+  ratio <- length(rts_u) / (length(rts_u) + length(rts_l))
 
   # pack up as a data.frame and return
   basic_stats <- data.frame(
@@ -282,7 +282,7 @@ calc_basic_stats_pred <- function(
   # to calculate the ratio of the probability mass
   sum_pdf_u <- cdf_u[n_steps]
   sum_pdf_l <- cdf_l[n_steps]
-  ratio = sum_pdf_u / (sum_pdf_l + sum_pdf_u)
+  ratio <- sum_pdf_u / (sum_pdf_l + sum_pdf_u)
 
   # determine if the contribution is relevant
   if (sum_pdf_u < skip_if_contr_low) {
@@ -293,20 +293,20 @@ calc_basic_stats_pred <- function(
   }
 
   # then scale each pdf
-  pdf_u = pdf_u / sum_pdf_u
-  pdf_l = pdf_l / sum_pdf_l
+  pdf_u <- pdf_u / sum_pdf_u
+  pdf_l <- pdf_l / sum_pdf_l
 
   # then calculate the mean
-  tmp_u = cumtrapz(x = t_vec, y = t_vec * pdf_u)
-  mean_u = tmp_u[n_steps]
-  tmp_l = cumtrapz(x = t_vec, y = t_vec * pdf_l)
-  mean_l = tmp_l[n_steps]
+  tmp_u <- cumtrapz(x = t_vec, y = t_vec * pdf_u)
+  mean_u <- tmp_u[n_steps]
+  tmp_l <- cumtrapz(x = t_vec, y = t_vec * pdf_l)
+  mean_l <- tmp_l[n_steps]
 
   # and the standard deviation (V(X) = E(X^2) - E(X)^2)
-  tmp_u = cumtrapz(x = t_vec, y = t_vec^2 * pdf_u)
-  sd_u = sqrt(tmp_u[n_steps] - mean_u^2)
-  tmp_l = cumtrapz(x = t_vec, y = t_vec^2 * pdf_l)
-  sd_l = sqrt(tmp_l[n_steps] - mean_l^2)
+  tmp_u <- cumtrapz(x = t_vec, y = t_vec^2 * pdf_u)
+  sd_u <- sqrt(tmp_u[n_steps] - mean_u^2)
+  tmp_l <- cumtrapz(x = t_vec, y = t_vec^2 * pdf_l)
+  sd_l <- sqrt(tmp_l[n_steps] - mean_l^2)
 
   # pass back
   basic_stats <- data.frame(
@@ -406,7 +406,7 @@ calc_basic_stats <- function(
   result <- rbind(result_obs, result_pred)
 
   if (!is.null(result)) {
-    new_names_u = gsub(
+    new_names_u <- gsub(
       pattern = "_U$",
       replacement = paste0("_", u_name),
       x = grep("_U$", names(result), value = T)
@@ -414,7 +414,7 @@ calc_basic_stats <- function(
     colnames(result)[grepl(pattern = "_U$", x = names(result))] <-
       new_names_u
 
-    new_names_l = gsub(
+    new_names_l <- gsub(
       pattern = "_L$",
       replacement = paste0("_", l_name),
       x = grep("_L$", names(result), value = T)
@@ -832,7 +832,7 @@ calc_quantiles <- function(
   # maybe combine
   result <- rbind(result_obs, result_pred)
 
-  #make it dm_* class and pass back
+  # make it dm_* class and pass back
   stats_dm_obj <- new_stats_dm(
     stat_df = result,
     type = "quantiles",
@@ -920,7 +920,7 @@ calc_delta_funs <- function(
 
   n_m <- length(minuends)
   tmp_m <- minuends
-  minuends = match.arg(minuends, conds, several.ok = TRUE)
+  minuends <- match.arg(minuends, conds, several.ok = TRUE)
   if (n_m > length(minuends)) {
     warning(
       "dropping unmatched conditions in minuends: ",
@@ -930,7 +930,7 @@ calc_delta_funs <- function(
 
   n_s <- length(subtrahends)
   tmp_s <- subtrahends
-  subtrahends = match.arg(subtrahends, conds, several.ok = TRUE)
+  subtrahends <- match.arg(subtrahends, conds, several.ok = TRUE)
   if (n_s > length(subtrahends)) {
     warning(
       "dropping unmatched conditions in subtrahends: ",
@@ -1068,10 +1068,10 @@ calc_fit_stats <- function(drift_dm_obj, k = 2, ...) {
   n <- nobs(drift_dm_obj)
 
   # get the pdfs and the time domain
-  pdfs_t_vec = pdfs(drift_dm_obj)
+  pdfs_t_vec <- pdfs(drift_dm_obj)
 
   # calculate the log_likelihood, aic and bic
-  log_like = calc_log_like(
+  log_like <- calc_log_like(
     pdfs_t_vec$pdfs,
     pdfs_t_vec$t_vec,
     obs_data = drift_dm_obj$obs_data
@@ -1118,7 +1118,7 @@ calc_fit_stats <- function(drift_dm_obj, k = 2, ...) {
   rmse_ms <- rmse * 1000
 
   # bind everything
-  result = data.frame(
+  result <- data.frame(
     Log_Like = log_like,
     Neg_Log_Like = neg_log_like,
     AIC = aic,
@@ -1289,7 +1289,7 @@ calc_stats_pred_obs <- function(
   }
   if (type == "densities") {
     # determine the scaling factors
-    scaling_factors = stats::setNames(rep(1.0, length(conds)), conds)
+    scaling_factors <- stats::setNames(rep(1.0, length(conds)), conds)
     if (scale_mass) {
       n_per_cond <- sapply(conds, \(one_cond) {
         rts_u <- dotdot$all_rts_u[[one_cond]]
@@ -1298,7 +1298,7 @@ calc_stats_pred_obs <- function(
       })
       # if there are no trials, fall back to scaling of 1.0
       if (any(n_per_cond == 0)) {
-        scaling_factors = stats::setNames(rep(1.0, length(conds)), conds)
+        scaling_factors <- stats::setNames(rep(1.0, length(conds)), conds)
       } else {
         scaling_factors <- n_per_cond / (sum(n_per_cond) / length(n_per_cond))
       }
@@ -1626,7 +1626,7 @@ calc_stats.data.frame <- function(
   b_coding = NULL
 ) {
   obs_data <- object
-  dots = list(...)
+  dots <- list(...)
 
   # input checks
   type <- match.arg(type, drift_dm_stats_types("sum_dist"))
@@ -1636,7 +1636,7 @@ calc_stats.data.frame <- function(
   if (!(progress %in% c(0, 1))) {
     stop("progress must be 0 or 1")
   }
-  level = match.arg(level, c("individual", "group"))
+  level <- match.arg(level, c("individual", "group"))
 
   # deprecation warning about split_by_ID and average
   if (!is.null(dots$split_by_ID)) {
@@ -1646,11 +1646,11 @@ calc_stats.data.frame <- function(
       with = "calc_stats.data.frame(level =)"
     )
     if (dots$split_by_ID) {
-      level = "individual"
+      level <- "individual"
     } else {
-      level = "group"
+      level <- "group"
     }
-    dots$split_by_ID = NULL
+    dots$split_by_ID <- NULL
     return(
       do.call(
         calc_stats.data.frame,
@@ -1677,11 +1677,11 @@ calc_stats.data.frame <- function(
       with = "calc_stats.data.frame(level =)"
     )
     if (dots$average) {
-      level = "group"
+      level <- "group"
     } else {
-      level = "individual"
+      level <- "individual"
     }
-    dots$average = NULL
+    dots$average <- NULL
     return(
       do.call(
         calc_stats.data.frame,
@@ -1748,8 +1748,8 @@ calc_stats.data.frame <- function(
 
     # iterate over the list of individual data
     all_results <- lapply(names(list_obs_data), function(id) {
-      sub_dat = list_obs_data[[id]]
-      sub_dat = sub_dat[setdiff(names(sub_dat), "ID")]
+      sub_dat <- list_obs_data[[id]]
+      sub_dat <- sub_dat[setdiff(names(sub_dat), "ID")]
       stat <- calc_stats.data.frame(
         object = sub_dat,
         type = type,
@@ -1854,7 +1854,7 @@ calc_stats.drift_dm <- function(
 ) {
   drift_dm_obj <- object
   type <- match.arg(type, drift_dm_stats_types("drift_dm"))
-  dots = list(...)
+  dots <- list(...)
 
   # input check on resample and fit_stats
   if (type == "fit_stats" && resample) {
@@ -1862,7 +1862,7 @@ calc_stats.drift_dm <- function(
       "`resampling` not available for `type = 'fit_stats'`; ",
       "setting `resampling = FALSE`"
     )
-    resample = FALSE
+    resample <- FALSE
   }
 
   # if fit_stats requested, return it
@@ -1959,14 +1959,14 @@ calc_stats.fits_ids_dm <- function(
   if (!(progress %in% c(0, 1))) {
     stop("progress must be 0 or 1")
   }
-  level = match.arg(level, c("individual", "group"))
+  level <- match.arg(level, c("individual", "group"))
 
   if (type == "fit_stats" && resample) {
     warning(
       "`resampling` not available for `type = 'fit_stats'`; ",
       "setting `resampling = FALSE`"
     )
-    resample = FALSE
+    resample <- FALSE
   }
 
   # deprecation warning about average
@@ -1977,11 +1977,11 @@ calc_stats.fits_ids_dm <- function(
       with = "calc_stats.data.frame(level =)"
     )
     if (dots$average) {
-      level = "group"
+      level <- "group"
     } else {
-      level = "individual"
+      level <- "individual"
     }
-    dots$average = NULL
+    dots$average <- NULL
   }
 
   # temporarily set t_max as an option, if it was not specified,
@@ -2060,8 +2060,8 @@ calc_stats.fits_agg_dm <- function(
 ) {
   fits_agg <- object
   dots <- list(...)
-  b_coding = b_coding(fits_agg)
-  obs_data = obs_data(fits_agg)
+  b_coding <- b_coding(fits_agg)
+  obs_data <- obs_data(fits_agg)
 
   # input checks
   model_conds <- conds(fits_agg)
@@ -2074,14 +2074,14 @@ calc_stats.fits_agg_dm <- function(
   if (!(progress %in% c(0, 1))) {
     stop("progress must be 0 or 1")
   }
-  level = match.arg(level, c("individual", "group"))
+  level <- match.arg(level, c("individual", "group"))
 
   if (type == "fit_stats" && resample) {
     warning(
       "`resampling` not available for `type = 'fit_stats'`; ",
       "setting `resampling = FALSE`"
     )
-    resample = FALSE
+    resample <- FALSE
   }
 
   # deprecation warning about average
@@ -2092,11 +2092,11 @@ calc_stats.fits_agg_dm <- function(
       with = "calc_stats.data.frame(level =)"
     )
     if (dots$average) {
-      level = "group"
+      level <- "group"
     } else {
-      level = "individual"
+      level <- "individual"
     }
-    dots$average = NULL
+    dots$average <- NULL
   }
 
   # temporarily set t_max as an option, if it was not specified,
@@ -2108,7 +2108,7 @@ calc_stats.fits_agg_dm <- function(
   if (resample) {
     # observed resample results (via calc_stats to provide sampling for each
     # individual)
-    args = list(
+    args <- list(
       object = obs_data,
       type = type,
       conds = conds,
@@ -2121,7 +2121,7 @@ calc_stats.fits_agg_dm <- function(
 
     # resample predicted
     if (is.null(dots$n_sim)) {
-      dots$n_sim = summary(fits_agg)$obs_data$avg_trials
+      dots$n_sim <- summary(fits_agg)$obs_data$avg_trials
       if (messaging) {
         message(
           "Generating simulations under the model using the average trial ",
@@ -2136,7 +2136,7 @@ calc_stats.fits_agg_dm <- function(
         )
       }
     }
-    args = list(
+    args <- list(
       object = fits_agg$drift_dm_obj,
       conds = conds,
       type = type,
@@ -2144,7 +2144,7 @@ calc_stats.fits_agg_dm <- function(
     )
     results_pred <- do.call(stats_resample_dm.drift_dm, args = c(args, dots))
     if (level == "individual") {
-      results_pred = cbind(ID = NA_real_, results_pred) # to ensure rbind works
+      results_pred <- cbind(ID = NA_real_, results_pred) # to ensure rbind works
     }
 
     # row bind and return
@@ -2152,7 +2152,7 @@ calc_stats.fits_agg_dm <- function(
   }
 
   # if no resampling required, then get the standard model stats
-  stats_pred = calc_stats.drift_dm(
+  stats_pred <- calc_stats.drift_dm(
     object = fits_agg$drift_dm_obj,
     type = type,
     ...,
@@ -2161,11 +2161,11 @@ calc_stats.fits_agg_dm <- function(
   )
   # add a fake ID column if individual was requested and observed data exists
   if (level == "individual") {
-    stats_pred = cbind(ID = NA_real_, stats_pred)
+    stats_pred <- cbind(ID = NA_real_, stats_pred)
   }
 
   # if statistics are requested that can not be used for observed data stop here
-  check = setdiff(drift_dm_stats_types(), drift_dm_stats_types("data.frame"))
+  check <- setdiff(drift_dm_stats_types(), drift_dm_stats_types("data.frame"))
   if (type %in% check) {
     return(stats_pred)
   }
@@ -2180,10 +2180,10 @@ calc_stats.fits_agg_dm <- function(
     level = level,
     b_coding = b_coding
   )
-  stats_obs = do.call(calc_stats.data.frame, args = c(args, dots))
+  stats_obs <- do.call(calc_stats.data.frame, args = c(args, dots))
 
   # combine and pass back
-  results = rbind(stats_obs, stats_pred)
+  results <- rbind(stats_obs, stats_pred)
 
   return(results)
 }
@@ -2310,13 +2310,13 @@ stats_resample_dm.drift_dm <- function(
 
   # get the synthetic data (in a format suitable for stats_resample_wrapper)
   if (is.null(n_sim)) {
-    n_sim = sapply(conds, \(one_cond) {
+    n_sim <- sapply(conds, \(one_cond) {
       nrow(obs_data[obs_data$Cond == one_cond, ])
     })
   }
 
   get_synth_data <- function() {
-    one_synth_data = simulate_data.drift_dm(
+    one_synth_data <- simulate_data.drift_dm(
       object = drift_dm_obj,
       n = n_sim,
       conds = conds,
@@ -2325,10 +2325,10 @@ stats_resample_dm.drift_dm <- function(
     split(one_synth_data, one_synth_data$Cond)
   }
 
-  synth_data = replicate(n = R, expr = get_synth_data(), simplify = FALSE)
+  synth_data <- replicate(n = R, expr = get_synth_data(), simplify = FALSE)
 
   # calculate the statistics for each synthetic data set
-  resample_list = do_resampling(
+  resample_list <- do_resampling(
     lapply(synth_data, function(one_dat_split) {
       stats_resample_wrapper(
         one_dat_split,
@@ -2338,7 +2338,7 @@ stats_resample_dm.drift_dm <- function(
       )
     })
   )
-  resample_list = lapply(resample_list, \(x) {
+  resample_list <- lapply(resample_list, \(x) {
     x$Source <- "pred"
     x
   })
@@ -2346,7 +2346,7 @@ stats_resample_dm.drift_dm <- function(
   # get the original statistic
   tmp <- drift_dm_obj
   tmp$obs_data <- NULL
-  original = calc_stats.drift_dm(
+  original <- calc_stats.drift_dm(
     object = tmp,
     type = type,
     ...,
@@ -2355,14 +2355,14 @@ stats_resample_dm.drift_dm <- function(
   )
 
   # get the borders and Estimate column
-  result_pred = resample_assemble(
+  result_pred <- resample_assemble(
     resample_list,
     level = interval_level,
     original = original
   )
 
   # finally, bind everything together and pass back
-  result = rbind(result_obs, result_pred)
+  result <- rbind(result_obs, result_pred)
   return(result)
 }
 
@@ -2380,7 +2380,7 @@ stats_resample_dm.data.frame <- function(
   progress = 0,
   level
 ) {
-  obs_data = object
+  obs_data <- object
 
   # level == "individual" treat the observed data as if it is from a single
   # participant
@@ -2388,20 +2388,20 @@ stats_resample_dm.data.frame <- function(
     stopifnot(!("ID" %in% names(obs_data))) # mustn't have an ID column
 
     # reduce and split the data by condition
-    obs_data = obs_data[obs_data$Cond %in% conds, ]
-    obs_data_split = split(obs_data, obs_data$Cond)
+    obs_data <- obs_data[obs_data$Cond %in% conds, ]
+    obs_data_split <- split(obs_data, obs_data$Cond)
 
     # helper function: creates idxs for each condition, returns a list of indices
     # for each condition
-    get_idxs = function() {
-      n_obs = lapply(obs_data_split, nrow)
+    get_idxs <- function() {
+      n_obs <- lapply(obs_data_split, nrow)
       lapply(n_obs, \(x) sample(seq_len(x), size = x, replace = TRUE))
     }
 
-    idx_list = replicate(n = R, expr = get_idxs(), simplify = FALSE)
+    idx_list <- replicate(n = R, expr = get_idxs(), simplify = FALSE)
 
     # call the stats_resample_wrapper function for each set of indices
-    resample_list = do_resampling(
+    resample_list <- do_resampling(
       lapply(idx_list, function(one_set_idxs) {
         stats_resample_wrapper(
           obs_data_split,
@@ -2414,7 +2414,7 @@ stats_resample_dm.data.frame <- function(
     )
 
     # get the original statistic
-    original = stats_resample_wrapper(
+    original <- stats_resample_wrapper(
       obs_data_split,
       type = type,
       b_coding = b_coding,
@@ -2424,10 +2424,10 @@ stats_resample_dm.data.frame <- function(
     stopifnot(("ID" %in% names(obs_data))) # must have an ID column
 
     # reduce to relevant conditions
-    obs_data = obs_data[obs_data$Cond %in% conds, ]
+    obs_data <- obs_data[obs_data$Cond %in% conds, ]
 
     # get the original statistic (aggregated)
-    original = calc_stats.data.frame(
+    original <- calc_stats.data.frame(
       object = obs_data,
       type = type,
       ...,
@@ -2439,7 +2439,7 @@ stats_resample_dm.data.frame <- function(
     )
 
     # get the statistics per participant
-    stats_id = calc_stats.data.frame(
+    stats_id <- calc_stats.data.frame(
       object = obs_data,
       type = type,
       ...,
@@ -2451,12 +2451,12 @@ stats_resample_dm.data.frame <- function(
     )
 
     # split by subject
-    stats_id_split = split(stats_id, stats_id$ID)
+    stats_id_split <- split(stats_id, stats_id$ID)
 
     # create indices of participants across replications
-    idxs = names(stats_id_split)
+    idxs <- names(stats_id_split)
 
-    idx_list = replicate(
+    idx_list <- replicate(
       n = R,
       expr = sample(x = idxs, size = length(idxs), replace = TRUE),
       simplify = FALSE
@@ -2475,7 +2475,7 @@ stats_resample_dm.data.frame <- function(
     }
 
     # then bootstrap the statistics per subject
-    resample_list = lapply(idx_list, function(one_set_idxs) {
+    resample_list <- lapply(idx_list, function(one_set_idxs) {
       stopifnot(is.character(one_set_idxs))
       boot_stats <- stats_id_split[one_set_idxs]
       boot_stats <- do.call(rbind, boot_stats)
@@ -2488,7 +2488,7 @@ stats_resample_dm.data.frame <- function(
   }
 
   # get the level borders and Estimate column
-  result = resample_assemble(
+  result <- resample_assemble(
     resample_list,
     level = interval_level,
     original = original
@@ -2511,13 +2511,13 @@ stats_resample_dm.fits_ids_dm <- function(
   progress = 0,
   level
 ) {
-  fits_ids = object
+  fits_ids <- object
   # resampling at the individual level is solved by calling
   # calc_stats.drift_dm repeatedly from calc_stats.fits_ids_dm
   stopifnot(level == "group")
 
   # now get the results for the observed data
-  obs_data = fits_ids$drift_dm_fit_info$obs_data_ids
+  obs_data <- fits_ids$drift_dm_fit_info$obs_data_ids
   result_obs <- stats_resample_dm.data.frame(
     object = obs_data,
     conds = conds,
@@ -2532,14 +2532,14 @@ stats_resample_dm.fits_ids_dm <- function(
 
   # now get the results for the predicted data
   # detach observed data to avoid calculating this as well
-  fits_ids$all_fits = lapply(fits_ids$all_fits, \(x) {
+  fits_ids$all_fits <- lapply(fits_ids$all_fits, \(x) {
     obs_data(x) <- NULL
     x
   })
-  all_fits = fits_ids$all_fits
+  all_fits <- fits_ids$all_fits
 
   # get the original statistic
-  original = calc_stats.fits_ids_dm(
+  original <- calc_stats.fits_ids_dm(
     object = fits_ids,
     type = type,
     ...,
@@ -2550,7 +2550,7 @@ stats_resample_dm.fits_ids_dm <- function(
   )
 
   # get the individual statistics (already splitted)
-  stats_id_split = lapply(all_fits, \(one_fit_obj) {
+  stats_id_split <- lapply(all_fits, \(one_fit_obj) {
     calc_stats.drift_dm(
       object = one_fit_obj,
       type = type,
@@ -2561,10 +2561,10 @@ stats_resample_dm.fits_ids_dm <- function(
   })
 
   # create indices of participants across replications
-  idxs = names(stats_id_split)
+  idxs <- names(stats_id_split)
   stopifnot(!is.null(idxs))
 
-  idx_list = replicate(
+  idx_list <- replicate(
     n = R,
     expr = sample(x = idxs, size = length(idxs), replace = TRUE),
     simplify = FALSE
@@ -2583,7 +2583,7 @@ stats_resample_dm.fits_ids_dm <- function(
   }
 
   # then bootstrap the statistics per subject
-  resample_list = lapply(idx_list, function(one_set_idxs) {
+  resample_list <- lapply(idx_list, function(one_set_idxs) {
     stopifnot(is.character(one_set_idxs))
     boot_stats <- stats_id_split[one_set_idxs]
     boot_stats <- do.call(rbind, boot_stats)
@@ -2595,13 +2595,13 @@ stats_resample_dm.fits_ids_dm <- function(
   })
 
   # get the level borders and Estimate column
-  result_pred = resample_assemble(
+  result_pred <- resample_assemble(
     resample_list,
     level = interval_level,
     original = original
   )
 
-  result = rbind(result_obs, result_pred)
+  result <- rbind(result_obs, result_pred)
   return(result)
 }
 
@@ -2621,7 +2621,7 @@ stats_resample_dm.fits_ids_dm <- function(
 #' @return The result of evaluated `x`.
 #'
 #' @keywords internal
-do_resampling = function(x) {
+do_resampling <- function(x) {
   stats.options(skip_new_stats_dm = TRUE)
   stats.options(skip_validate_stats_dm = TRUE)
   withr::defer(expr = {
@@ -2684,13 +2684,13 @@ stats_resample_wrapper <- function(
     stop("the requested statistic type ('", type, "') can't be resampled")
   }
 
-  conds = names(obs_data_split)
+  conds <- names(obs_data_split)
   stopifnot(!is.null(conds))
 
   # shuffle within each condition (if requested)
   if (!is.null(one_set_idxs)) {
     stopifnot(setequal(names(one_set_idxs), conds))
-    obs_data_split = sapply(
+    obs_data_split <- sapply(
       conds,
       \(one_cond) {
         obs_data_split[[one_cond]][one_set_idxs[[one_cond]], ]
@@ -2730,29 +2730,29 @@ resample_assemble <- function(resample_list, level, original) {
   stopifnot(!("ID" %in% names(original)))
 
   # figure out the column names etc.
-  stat_type = class(original)[1]
-  first_boot = resample_list[[1]]
-  all_cols = names(first_boot)
+  stat_type <- class(original)[1]
+  first_boot <- resample_list[[1]]
+  all_cols <- names(first_boot)
   stopifnot(all_cols == names(original))
-  relevant_cols = character(0)
+  relevant_cols <- character(0)
   if (stat_type == "basic_stats") {
-    relevant_cols = all_cols[grepl("^Mean_|^SD_|^P_", all_cols)]
+    relevant_cols <- all_cols[grepl("^Mean_|^SD_|^P_", all_cols)]
   } else if (stat_type == "quantiles") {
-    relevant_cols = all_cols[grepl("^Quant_", all_cols)]
+    relevant_cols <- all_cols[grepl("^Quant_", all_cols)]
   } else if (stat_type == "cafs") {
-    relevant_cols = all_cols[grepl("^P_", all_cols)]
+    relevant_cols <- all_cols[grepl("^P_", all_cols)]
   } else if (stat_type == "delta_funs") {
-    relevant_cols = all_cols[grepl("^Quant_|^Avg_|^Delta_", all_cols)]
+    relevant_cols <- all_cols[grepl("^Quant_|^Avg_|^Delta_", all_cols)]
   } else if (stat_type == "densities") {
-    relevant_cols = all_cols[grepl("^Dens_", all_cols)]
+    relevant_cols <- all_cols[grepl("^Dens_", all_cols)]
   }
   stopifnot(length(relevant_cols) >= 1)
 
-  alpha = 1 - level
-  level_lower = alpha / 2
-  level_upper = level + alpha / 2
+  alpha <- 1 - level
+  level_lower <- alpha / 2
+  level_upper <- level + alpha / 2
 
-  calc_interval = function(matrix) {
+  calc_interval <- function(matrix) {
     stopifnot(is.matrix(matrix))
     # rows -> statistic realizations
     # cols -> replications
@@ -2767,9 +2767,9 @@ resample_assemble <- function(resample_list, level, original) {
     return(out)
   }
 
-  n_rows = nrow(first_boot)
-  interval = lapply(seq_along(relevant_cols), \(i) {
-    matrix = vapply(
+  n_rows <- nrow(first_boot)
+  interval <- lapply(seq_along(relevant_cols), \(i) {
+    matrix <- vapply(
       resample_list,
       \(one_entry) {
         return(one_entry[relevant_cols][[i]])
@@ -2783,8 +2783,8 @@ resample_assemble <- function(resample_list, level, original) {
 
   # find the remaining column names and figure out where to insert the
   # new "Estimate" column
-  all_other_cols = setdiff(all_cols, relevant_cols)
-  to_create = c("lower", "orig", "upper")
+  all_other_cols <- setdiff(all_cols, relevant_cols)
+  to_create <- c("lower", "orig", "upper")
   if ("Cond" %in% all_other_cols) {
     pos <- which(all_other_cols == "Cond")
   } else {
@@ -2833,8 +2833,8 @@ resample_assemble <- function(resample_list, level, original) {
   rownames(result) <- NULL
   # ensures that the source is always clear (when resampling under the model,
   # the bootstrapped data sets are treated as observed data)
-  result$Source = unique(original$Source)
-  result = copy_class_attributes(old = original, new = result)
+  result$Source <- unique(original$Source)
+  result <- copy_class_attributes(old = original, new = result)
   validate_stats_dm(result)
 
   return(result)
@@ -3091,7 +3091,7 @@ validate_stats_dm.sum_dist <- function(stat_df) {
   }
 
   # check for equal count data (if available)
-  check_equal_n = c(
+  check_equal_n <- c(
     "ID",
     "Source",
     "Cond",
@@ -3101,14 +3101,14 @@ validate_stats_dm.sum_dist <- function(stat_df) {
     "Stat",
     "Time"
   )
-  check_equal_n = intersect(names(stat_df), check_equal_n)
-  counts = table(
+  check_equal_n <- intersect(names(stat_df), check_equal_n)
+  counts <- table(
     stat_df[, check_equal_n],
     useNA = "ifany"
   )
   counts <- as.data.frame(counts)
-  counts = counts[counts$Freq > 0, , drop = FALSE]
-  check = length(unique(counts$Freq)) == 1L
+  counts <- counts[counts$Freq > 0, , drop = FALSE]
+  check <- length(unique(counts$Freq)) == 1L
   if (!check) {
     stop("The number of data points across factor levels is not equal")
   }
@@ -3123,7 +3123,7 @@ validate_stats_dm.fit_stats <- function(stat_df) {
   NextMethod() # to validate stats_dm objects
 
   cols <- colnames(stat_df)
-  exp_col_names = c(
+  exp_col_names <- c(
     "Log_Like",
     "Neg_Log_Like",
     "AIC",

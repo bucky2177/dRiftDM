@@ -67,7 +67,7 @@ test_that("coef.fits_ids_dm returns values as expected", {
 
   coefs_all <- coef(all_fits, select_unique = FALSE)
   expect_true(is.data.frame(coefs_all))
-  exp_coefs = colnames(coef(u_model, select_unique = FALSE))
+  exp_coefs <- colnames(coef(u_model, select_unique = FALSE))
   expect_equal(names(coefs_all), c("ID", "Cond", exp_coefs))
 })
 

@@ -264,7 +264,7 @@ cust_model <- function() {
   prms_model <- c(
     muc = 3, # parameters for the custom drift rate function
     mua = 1,
-    sign = 1, 
+    sign = 1,
     b = .6, # parameter for a time-independent boundary "b"
     non_dec = .2 # parameter for a non-decision time "non_dec"
   )
@@ -324,7 +324,7 @@ This function is then passed to the `mu_int_fun` argument within the `cust_model
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
-    muc = 3,  # prms for the custom drift rate function
+    muc = 3, # prms for the custom drift rate function
     mua = 1,
     sign = 1,
     b = .6, # parameter for a time-independent boundary b
@@ -472,7 +472,7 @@ cust_model <- function() {
     non_dec = .2 # parameter for a non-decision time "non_dec"
   )
 
-  # each model must have a condition 
+  # each model must have a condition
   # (in this example it is not relevant, so we just call it "foo")
   conds <- c("foo")
 
@@ -612,8 +612,8 @@ To help choose discretization settings, we provide `check_discretization()`. It 
 ```{r}
 cust_model <- cust_model() # some custom model
 # set the intended discretization setting
-prms_solve(cust_model)["dx"] = .01
-prms_solve(cust_model)["dt"] = .005
+prms_solve(cust_model)["dx"] <- .01
+prms_solve(cust_model)["dt"] <- .005
 
 # compare to a precise solution
 check_discretization(cust_model)

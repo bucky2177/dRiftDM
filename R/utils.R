@@ -281,7 +281,7 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
   } else if (is_numeric(input)) {
     # if it is a vector and has condition specific values, wrangle them into a
     # list.. this aligns downstream processing with directly specifying a list
-    names_input = names(input)
+    names_input <- names(input)
     if (!is.null(names_input)) {
       if (any(names_input == "")) {
         stop(
@@ -292,18 +292,18 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
       if (any(duplicated(names_input))) {
         stop("Parameter labels must be unique! Check your input.")
       }
-      raw_input = input
+      raw_input <- input
       # ensures that condition specific values land at the end
-      raw_input = raw_input[sort(names_input)]
-      split_up = strsplit(names(raw_input), split = "\\.")
-      def_values = c()
-      input = list()
+      raw_input <- raw_input[sort(names_input)]
+      split_up <- strsplit(names(raw_input), split = "\\.")
+      def_values <- c()
+      input <- list()
       for (i in seq_along(split_up)) {
-        prm = split_up[[i]][1]
+        prm <- split_up[[i]][1]
         if (!(prm %in% names(def_values))) {
-          def_values[prm] = raw_input[i]
+          def_values[prm] <- raw_input[i]
         } else {
-          input[[split_up[[i]][2]]] = stats::setNames(raw_input[i], prm)
+          input[[split_up[[i]][2]]] <- stats::setNames(raw_input[i], prm)
         }
       }
     } else {
@@ -454,7 +454,7 @@ get_parameters_smart <- function(
   )
 
   # fill up with default parameter settings
-  fill_up = function(matrix_x) {
+  fill_up <- function(matrix_x) {
     if (is.null(matrix_x)) {
       return(NULL)
     } # no matrix provided
@@ -465,8 +465,8 @@ get_parameters_smart <- function(
     # create a matrix with default values for parameters that were not
     # specified in input_x (if there are no missing parameters, then this will
     # return matrix_x unmodified)
-    missing_prms = prm_labels[!(prm_labels %in% colnames(matrix_x))]
-    missing_mat = matrix(
+    missing_prms <- prm_labels[!(prm_labels %in% colnames(matrix_x))]
+    missing_mat <- matrix(
       data = fill_up_with,
       nrow = nrow(matrix_x),
       ncol = length(missing_prms)
@@ -475,11 +475,11 @@ get_parameters_smart <- function(
     return(cbind(matrix_x, missing_mat))
   }
 
-  matrix_a = fill_up(matrix_a)
-  matrix_b = fill_up(matrix_b)
+  matrix_a <- fill_up(matrix_a)
+  matrix_b <- fill_up(matrix_b)
 
   # check if all parameters are there (or additional parameters that are )
-  diff_a = setdiff(prm_labels, colnames(matrix_a))
+  diff_a <- setdiff(prm_labels, colnames(matrix_a))
   if (!is.null(matrix_a) && length(diff_a) > 0) {
     stop(
       "Some free model parameters are missing input values. ",
@@ -488,7 +488,7 @@ get_parameters_smart <- function(
       paste(diff_a, collapse = ", ")
     )
   }
-  diff_b = setdiff(prm_labels, colnames(matrix_b))
+  diff_b <- setdiff(prm_labels, colnames(matrix_b))
   if (!is.null(matrix_b) && !all(prm_labels %in% colnames(matrix_b))) {
     stop(
       "Some free model parameters are missing input values. ",
@@ -498,7 +498,7 @@ get_parameters_smart <- function(
     )
   }
 
-  diff_a = setdiff(colnames(matrix_a), prm_labels)
+  diff_a <- setdiff(colnames(matrix_a), prm_labels)
   if (!is.null(matrix_a) && length(diff_a) > 0) {
     warning(
       "Parameter values (e.g., for lower, upper, means) were provided ",
@@ -508,7 +508,7 @@ get_parameters_smart <- function(
       "ignored."
     )
   }
-  diff_b = setdiff(colnames(matrix_b), prm_labels)
+  diff_b <- setdiff(colnames(matrix_b), prm_labels)
   if (!is.null(matrix_b) && length(diff_b) > 0) {
     warning(
       "Parameter values (e.g., for lower, upper, means) were provided ",
@@ -520,15 +520,15 @@ get_parameters_smart <- function(
   }
 
   # turn the matrix to a vector (which works with unsorted matrices)
-  map_to_vec = function(matrix_x) {
+  map_to_vec <- function(matrix_x) {
     if (is.null(matrix_x)) {
       return(NULL)
     }
     sapply(1:ncol(prm_cond_combo), function(idx) {
       prm <- prm_cond_combo[1, idx]
       cond <- prm_cond_combo[2, idx]
-      prm_is_unique = sum(prm_cond_combo[1, ] == prm) == 1
-      vals_are_unique = length(unique(matrix_x[, prm])) == 1
+      prm_is_unique <- sum(prm_cond_combo[1, ] == prm) == 1
+      vals_are_unique <- length(unique(matrix_x[, prm])) == 1
       if (prm_is_unique && !vals_are_unique) {
         stop(
           "Condition-specific input found for parameter '",
@@ -852,8 +852,8 @@ drift_dm_stats_types <- function(context = NULL) {
 #' get_example_fits(class = "fits_agg")
 #'
 #' @export
-get_example_fits = function(class, hierarchical = FALSE) {
-  class = match.arg(class, c("fits_ids_dm", "fits_agg_dm", "mcmc_dm"))
+get_example_fits <- function(class, hierarchical = FALSE) {
+  class <- match.arg(class, c("fits_ids_dm", "fits_agg_dm", "mcmc_dm"))
   sys_path <- system.file(package = "dRiftDM")
   if (class == "fits_ids_dm") {
     obj <- readRDS(

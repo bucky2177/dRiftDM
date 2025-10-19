@@ -1091,7 +1091,7 @@ test_that("estimate_bayes_one_subj runs and returns correct structure", {
   # minimal test example to ensure that the function runs and returns
   # the expected object
   some_model <- ratcliff_dummy
-  prms_solve(some_model)[c("dx", "dt", "t_max")] = c(0.01, 0.01, 1)
+  prms_solve(some_model)[c("dx", "dt", "t_max")] <- c(0.01, 0.01, 1)
   withr::local_seed(123)
   sink(file = file.path(tempdir(), "capture.txt"))
   result <- estimate_bayes_one_subj(
@@ -1133,7 +1133,7 @@ test_that("estimate_bayes_h runs and returns correct structure", {
   # minimal test example to ensure the function runs and returns
   # the expected object
   some_model <- ratcliff_dummy
-  prms_solve(some_model)[c("dx", "dt", "t_max")] = c(0.01, 0.01, 1)
+  prms_solve(some_model)[c("dx", "dt", "t_max")] <- c(0.01, 0.01, 1)
 
   # create minimal hierarchical structure by duplicating data
   d <- ratcliff_synth_data
@@ -1174,7 +1174,7 @@ test_that("estimate_bayes_h runs and returns correct structure", {
 
   # Check dimensions of phi array
   expect_equal(dim(result$phi), c(6, 3, 2))
-  higher_prms = paste0(c("M-", "S-"), rep(names(coef(some_model)), each = 2))
+  higher_prms <- paste0(c("M-", "S-"), rep(names(coef(some_model)), each = 2))
   expect_equal(dimnames(result$phi)[[1]], higher_prms)
   expect_equal(dimnames(result$phi)[[2]], as.character(1:3))
   expect_equal(dimnames(result$phi)[[3]], as.character(3:4))
@@ -1189,7 +1189,7 @@ test_that("estimate_bayes_h runs and returns correct structure", {
   expect_equal(dimnames(result$lls_phi), dimnames(result$pis_phi))
 
   # Check theta array dimensions
-  ID_names = as.character(unique(obs_data_ids$ID))
+  ID_names <- as.character(unique(obs_data_ids$ID))
   expect_equal(dim(result$theta), c(3, 3, 2, 2))
   expect_equal(dimnames(result$theta)[[1]], names(coef(some_model)))
   expect_equal(dimnames(result$theta)[[2]], as.character(1:3))

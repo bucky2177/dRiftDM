@@ -56,9 +56,9 @@ calc_pdfs.drift_dm <- function(drift_dm_obj, x_vec, t_vec, prms_solve) {
   prm_labels <- colnames(prms_matrix)
 
   # check if variability in drift rate is requested
-  var_drift = FALSE
+  var_drift <- FALSE
   if (any("sd_muc" == prm_labels)) {
-    var_drift = TRUE
+    var_drift <- TRUE
 
     # and check if constant drift rate is used
     if (!identical(drift_dm_obj$comp_funs$mu_fun, mu_constant)) {
