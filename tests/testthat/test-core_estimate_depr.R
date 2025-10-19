@@ -5,7 +5,7 @@ test_that("input checks estimate_model", {
 
   # first tests without data
   a_model <- ratcliff_dummy
-  a_model$obs_data = NULL
+  a_model$obs_data <- NULL
 
   lifecycle::expect_deprecated(
     expect_error(estimate_model("hallo"), "drift_dm")

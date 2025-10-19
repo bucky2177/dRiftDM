@@ -134,17 +134,17 @@ test_that("summary.fits_ids_dm (new) and print", {
   expect_equal(sum_obj$obs_data$N, length(fits_ids$all_fits))
 
   # -> avg trials
-  all_data = lapply(
+  all_data <- lapply(
     names(fits_ids$all_fits),
     \(x, ...) {
-      data = obs_data(fits_ids$all_fits[[x]], ...)
-      data$ID = x
+      data <- obs_data(fits_ids$all_fits[[x]], ...)
+      data$ID <- x
       return(data)
     },
     messaging = FALSE
   )
-  all_data = do.call(rbind, all_data)
-  exp_avg = colMeans(table(all_data$ID, all_data$Cond))
+  all_data <- do.call(rbind, all_data)
+  exp_avg <- colMeans(table(all_data$ID, all_data$Cond))
   expect_equal(sum_obj$obs_data$avg_trials, exp_avg)
 
   # optimizer

@@ -82,7 +82,7 @@ test_that("pdfs always sum to 1", {
 
 test_that("test im_zero", {
   a_model <- dmc_dm(t_max = 1, dx = .001, dt = .001, var_start = F)
-  a_model$solver = "im_zero"
+  a_model$solver <- "im_zero"
 
   pdf_u <- numeric(1001)
   pdf_l <- numeric(1001)
@@ -129,16 +129,16 @@ test_that("test im_zero", {
   expect_equal(test_l_pdf, a_model$pdfs$comp$pdf_l, tolerance = .0001)
 
   # input length checks
-  nt = prms_solve(a_model)["nt"]
-  dt = prms_solve(a_model)["dt"]
-  sigma = prms_solve(a_model)["sigma"]
-  t_max = prms_solve(a_model)["t_max"]
+  nt <- prms_solve(a_model)["nt"]
+  dt <- prms_solve(a_model)["dt"]
+  sigma <- prms_solve(a_model)["sigma"]
+  t_max <- prms_solve(a_model)["t_max"]
 
-  comp_vals = comp_vals(a_model)
+  comp_vals <- comp_vals(a_model)
 
-  pdf_u = numeric(nt + 1)
-  pdf_l = numeric(nt + 1)
-  t_vec = seq(0, t_max, length.out = nt + 1)
+  pdf_u <- numeric(nt + 1)
+  pdf_l <- numeric(nt + 1)
+  t_vec <- seq(0, t_max, length.out = nt + 1)
 
   expect_error(
     cpp_imzero(
@@ -255,22 +255,22 @@ test_that("test im_zero", {
 
 
 test_that("cpp_kfe_ada input checks and errors", {
-  a_model = ratcliff_dummy
+  a_model <- ratcliff_dummy
 
   # input checks
-  nt = prms_solve(a_model)["nt"]
-  nx = prms_solve(a_model)["nx"]
-  dt = prms_solve(a_model)["dt"]
-  dx = prms_solve(a_model)["dx"]
-  sigma = prms_solve(a_model)["sigma"]
-  t_max = prms_solve(a_model)["t_max"]
+  nt <- prms_solve(a_model)["nt"]
+  nx <- prms_solve(a_model)["nx"]
+  dt <- prms_solve(a_model)["dt"]
+  dx <- prms_solve(a_model)["dx"]
+  sigma <- prms_solve(a_model)["sigma"]
+  t_max <- prms_solve(a_model)["t_max"]
 
-  comp_vals = comp_vals(a_model)[[1]]
+  comp_vals <- comp_vals(a_model)[[1]]
 
-  pdf_u = numeric(nt + 1)
-  pdf_l = numeric(nt + 1)
-  t_vec = seq(0, t_max, length.out = nt + 1)
-  x_vec = seq(-1, 1, length.out = nx + 1)
+  pdf_u <- numeric(nt + 1)
+  pdf_l <- numeric(nt + 1)
+  t_vec <- seq(0, t_max, length.out = nt + 1)
+  x_vec <- seq(-1, 1, length.out = nx + 1)
 
   expect_error(
     cpp_kfe_ada(
@@ -401,27 +401,27 @@ test_that("cpp_kfe_ada input checks and errors", {
 
 
 test_that("input checks calc_pdfs", {
-  a_model = ratcliff_dm(var_drift = T)
+  a_model <- ratcliff_dm(var_drift = T)
 
   # no dRiftDM constant drift rate
-  temp = a_model
-  comp_funs(temp)[["mu_fun"]] = mu_dmc
+  temp <- a_model
+  comp_funs(temp)[["mu_fun"]] <- mu_dmc
   expect_error(
     calc_pdfs(temp, x_vec = NULL, t_vec = NULL, prms_solve = NULL),
     "requires dRiftDM's mu_constant function"
   )
 
-  temp = a_model
-  temp$solver = "im_zero"
-  temp$comp_funs$mu_int_fun = mu_int_dmc
+  temp <- a_model
+  temp$solver <- "im_zero"
+  temp$comp_funs$mu_int_fun <- mu_int_dmc
   expect_error(
     calc_pdfs(temp, x_vec = NULL, t_vec = NULL, prms_solve = NULL),
     "requires dRiftDM's mu_int_constant function"
   )
 
   # weird solver
-  temp = a_model
-  temp$solver = "foo"
+  temp <- a_model
+  temp$solver <- "foo"
   expect_error(
     calc_pdfs(temp, x_vec = NULL, t_vec = NULL, prms_solve = NULL),
     "solver foo not implemented"
@@ -435,7 +435,7 @@ test_that("subst. negative PDF values test", {
   # negative density warnings
   # add a data point to trigger the warning twice: when calculating the density
   # values and when computing the log_likelihood
-  a_model$obs_data$rts_l$null = c(3, a_model$obs_data$rts_l$null)
+  a_model$obs_data$rts_l$null <- c(3, a_model$obs_data$rts_l$null)
   suppressWarnings({
     prms_solve(a_model)[c("dx", "dt", "t_max")] <- c(.5, .5, 3)
     coef(a_model) <- c(1.5, 0.2, 0.3)

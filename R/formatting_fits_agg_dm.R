@@ -51,8 +51,8 @@ print.summary.fits_agg_dm <- function(
     )
 
     cat("\n-------\n")
-    solver = summary_obj$summary_drift_dm_obj$solver
-    prms_solve = summary_obj$summary_drift_dm_obj$prms_solve
+    solver <- summary_obj$summary_drift_dm_obj$solver
+    prms_solve <- summary_obj$summary_drift_dm_obj$prms_solve
     print_deriving_pdfs(
       solver = solver,
       prms_solve = prms_solve
@@ -109,11 +109,11 @@ summary.fits_agg_dm <- function(object, ..., select_unique = FALSE) {
   ans <- list()
 
   # summary of the model itself
-  ans$summary_drift_dm_obj = unclass(summary(fits_agg$drift_dm_obj))
-  ans$prms = coef(fits_agg$drift_dm_obj, select_unique = select_unique)
+  ans$summary_drift_dm_obj <- unclass(summary(fits_agg$drift_dm_obj))
+  ans$prms <- coef(fits_agg$drift_dm_obj, select_unique = select_unique)
 
   # Infos subjects
-  n_avg_trials = get_avg_trials(fits_agg$obs_data_ids)
+  n_avg_trials <- get_avg_trials(fits_agg$obs_data_ids)
   ans$obs_data <- n_avg_trials
 
   class(ans) <- "summary.fits_agg_dm"

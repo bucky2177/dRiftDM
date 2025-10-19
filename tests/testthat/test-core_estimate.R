@@ -134,7 +134,7 @@ test_that("estimate_dm -> sep_c works as expected", {
 
   tmp <- model
   tmp$obs_data <- NULL
-  prms_solve(tmp)["t_max"] = 0.5
+  prms_solve(tmp)["t_max"] <- 0.5
   data <- ratcliff_synth_data
   expect_error(
     estimate_dm(drift_dm_obj = tmp, obs_data = data),
@@ -203,14 +203,14 @@ test_that("estimate_dm -> agg_c works as expected", {
   expect_identical(names(agg_fit), c("drift_dm_obj", "obs_data_ids"))
 
   # did the aggregation work?
-  exp_stats = calc_stats(
+  exp_stats <- calc_stats(
     data,
     type = c("quantiles", "cafs"),
     level = "group",
     n_bins = 6,
     probs = c(0.1, 0.4, 0.6, 0.8)
   )
-  model_stats = agg_fit$drift_dm_obj$stats_agg
+  model_stats <- agg_fit$drift_dm_obj$stats_agg
   expect_identical(
     exp_stats$quantiles$Quant_corr,
     model_stats$null$quantiles_corr
@@ -395,7 +395,9 @@ test_that("estimate_dm -> hier_b runs as expected", {
   )
   expect_true(attr(mcmc_obj, "hierarchical"))
 
-  mock_call_bayesian <- function(...) return(1)
+  mock_call_bayesian <- function(...) {
+    return(1)
+  }
 
   with_mocked_bindings(
     estimate_bayesian = mock_call_bayesian,
@@ -425,7 +427,7 @@ test_that("estimate_dm -> hier_b runs as expected", {
   )
 
   tmp <- data
-  tmp$ID = NULL
+  tmp$ID <- NULL
   expect_error(
     estimate_dm(
       drift_dm_obj = model,
@@ -499,7 +501,7 @@ test_that("estimate_dm throws warning/errors for unreasonable input", {
 test_that("estimate_classical -> start_vals are applied and correctly mapped", {
   model <- ratcliff_dummy
   prms_solve(model)[c("dx", "dt")] <- .01
-  coef(model)["muc"] = 5
+  coef(model)["muc"] <- 5
 
   # named vector
   expect_snapshot(
@@ -595,7 +597,7 @@ test_that("estimate_classical -> optimizer is dispatched correctly", {
     b = c(0.3, 0.5, 0.9),
     non_dec = c(0.2, 0.3, 0.4)
   )
-  l_u = get_lower_upper(model)
+  l_u <- get_lower_upper(model)
   expect_warning(
     estimate_classical(
       model,
@@ -617,7 +619,7 @@ test_that("estimate_clasical -> correctly dispatches to stats::optim", {
   l_u <- get_lower_upper(model)
 
   # mock optim and capture method input
-  mocked_optim = function(...) {
+  mocked_optim <- function(...) {
     dots <- list(...)
     # use message as transport
     list(par = dots$par, counts = 1L, convergence = 0L, message = dots$method)
@@ -678,7 +680,7 @@ test_that("estimate_clasical -> correctly dispatches to dfoptim::dfoptim", {
   l_u <- get_lower_upper(model)
 
   # mock optim and capture method input
-  mocked_nmkb = function(...) {
+  mocked_nmkb <- function(...) {
     dots <- list(...)
     # use message as transport
     list(par = dots$par, feval = 1L, convergence = 0L, message = "dfoptim")

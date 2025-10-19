@@ -35,7 +35,7 @@ print.fits_ids_dm <- function(x, ...) {
     cat("N Individuals:", length(fits_ids$all_fits))
     cat("\n")
   } else {
-    sum_obj = summary(fits_ids)
+    sum_obj <- summary(fits_ids)
     print(sum_obj, just_header = TRUE)
   }
 
@@ -64,17 +64,17 @@ print.summary.fits_ids_dm <- function(
       class_vector = summary_obj$summary_drift_dm_obj$class
     )
     cat("Optimizer:", summary_obj$optimizer, "\n")
-    not_conv = summary_obj$conv_info$not_conv
-    not_conv = not_conv[sapply(not_conv, isTRUE)] # keep only not_conv entries that are TRUE
-    ids = names(not_conv) # potentially non-converged individuals
+    not_conv <- summary_obj$conv_info$not_conv
+    not_conv <- not_conv[sapply(not_conv, isTRUE)] # keep only not_conv entries that are TRUE
+    ids <- names(not_conv) # potentially non-converged individuals
     if (length(ids) > 0) {
-      info = paste(
+      info <- paste(
         "Failed for",
         length(ids),
         paste("participant", if (length(ids) > 1) "s", sep = "")
       )
     } else {
-      info = "TRUE"
+      info <- "TRUE"
     }
     cat("Convergence:", info, "\n")
     cat("N Individuals:", summary_obj$obs_data$N, "\n")
@@ -113,8 +113,8 @@ print.summary.fits_ids_dm <- function(
       cat("Time of (Last) Call:", summary_obj$time_call)
       cat("\n")
     } else {
-      solver = summary_obj$summary_drift_dm_obj$solver
-      prms_solve = summary_obj$summary_drift_dm_obj$prms_solve
+      solver <- summary_obj$summary_drift_dm_obj$solver
+      prms_solve <- summary_obj$summary_drift_dm_obj$prms_solve
       print_deriving_pdfs(
         solver = solver,
         prms_solve = prms_solve
@@ -207,7 +207,7 @@ summary.fits_ids_dm <- function(object, ..., select_unique = FALSE) {
       collapse = ", "
     )
   } else {
-    ans$summary_drift_dm_obj = unclass(
+    ans$summary_drift_dm_obj <- unclass(
       summary(fits_ids$drift_dm_fit_info$drift_dm_obj)
     )
   }
@@ -239,14 +239,14 @@ summary.fits_ids_dm <- function(object, ..., select_unique = FALSE) {
   if (!is.null(ans$fit_procedure_name)) {
     ans$N <- length(fits_ids$all_fits)
   } else {
-    n_avg_trials = get_avg_trials(fits_ids$drift_dm_fit_info$obs_data_ids)
+    n_avg_trials <- get_avg_trials(fits_ids$drift_dm_fit_info$obs_data_ids)
     ans$obs_data <- n_avg_trials
   }
 
   # optimizer and convergence info
   if (is.null(ans$fit_procedure_name)) {
-    ans$optimizer = fits_ids$drift_dm_fit_info$optimizer
-    ans$conv_info = fits_ids$drift_dm_fit_info$conv_info
+    ans$optimizer <- fits_ids$drift_dm_fit_info$optimizer
+    ans$conv_info <- fits_ids$drift_dm_fit_info$conv_info
   }
 
   class(ans) <- "summary.fits_ids_dm"
@@ -269,7 +269,7 @@ summary.fits_ids_dm <- function(object, ..., select_unique = FALSE) {
 #'   - `avg_trials`: named numeric vector of average trials per condition
 #'
 #' @keywords internal
-get_avg_trials = function(obs_data_ids) {
+get_avg_trials <- function(obs_data_ids) {
   ans <- list()
   # Number of subjects
   ans$N <- length(unique(obs_data_ids$ID))

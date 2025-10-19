@@ -137,20 +137,20 @@ test_that("validate_drift_dm fails as expected", {
   temp <- b_model
   obs_data(temp) <- dmc_synth_data
   for_failure <- temp
-  for_failure$obs_data$rts_u$foo = c(1, 2)
+  for_failure$obs_data$rts_u$foo <- c(1, 2)
   expect_error(
     validate_drift_dm(for_failure),
     "rts_u entry of obs_data is not labeled like the conditions"
   )
   for_failure <- temp
-  names(for_failure$obs_data$rts_l)[1] = "foo"
+  names(for_failure$obs_data$rts_l)[1] <- "foo"
   expect_error(
     validate_drift_dm(for_failure),
     "rts_l entry of obs_data is not labeled like the conditions"
   )
 
   for_failure <- temp
-  for_failure$obs_data$rts_l$comp =
+  for_failure$obs_data$rts_l$comp <-
     c("test", for_failure$obs_data$rts_l$comp)
   expect_error(
     validate_drift_dm(for_failure),
@@ -158,14 +158,14 @@ test_that("validate_drift_dm fails as expected", {
   )
 
   for_failure <- temp
-  for_failure$obs_data$rts_l$comp =
+  for_failure$obs_data$rts_l$comp <-
     c(NA, for_failure$obs_data$rts_l$comp)
   expect_error(
     validate_drift_dm(for_failure),
     "not of type numeric or contain missing/infinite values"
   )
   for_failure <- temp
-  for_failure$obs_data$rts_l$comp =
+  for_failure$obs_data$rts_l$comp <-
     c(Inf, for_failure$obs_data$rts_l$comp)
   expect_error(
     validate_drift_dm(for_failure),
@@ -182,7 +182,7 @@ test_that("validate_drift_dm fails as expected", {
   # check for x_dirac_0 when im_zero
   temp <- a_model
   temp$comp_funs$x_fun <- x_uniform
-  temp$solver = "im_zero"
+  temp$solver <- "im_zero"
   expect_warning(validate_drift_dm(temp), "x_dirac_0")
 
   # wrong function declarations
@@ -278,32 +278,32 @@ test_that("validate_drift_dm fails as expected", {
 
   # accuracy coding for rmse
   temp <- a_model
-  temp$cost_function = "rmse"
-  attr(temp, "b_coding")[["column"]] = "Nope"
+  temp$cost_function <- "rmse"
+  attr(temp, "b_coding")[["column"]] <- "Nope"
   expect_warning(validate_drift_dm(temp), "not accuracy-coded")
 
   # cost value
   temp <- a_model
-  temp$cost_value = Inf
+  temp$cost_value <- Inf
   expect_no_condition(validate_drift_dm(temp))
-  temp$cost_value = NA
+  temp$cost_value <- NA
   expect_error(validate_drift_dm(temp))
 
   # stats agg
   temp <- b_model
   temp$cost_function <- "rmse"
-  temp$stats_agg = list(foo = 2, incomp = 5)
+  temp$stats_agg <- list(foo = 2, incomp = 5)
   expect_error(validate_drift_dm(temp), "not labeled")
-  temp$stats_agg = list(comp = list(foo = 1, bar = 1), incomp = 5)
+  temp$stats_agg <- list(comp = list(foo = 1, bar = 1), incomp = 5)
   expect_error(validate_drift_dm(temp), "not named quantiles_corr and cafs")
-  temp$stats_agg = list(
+  temp$stats_agg <- list(
     comp = list(quantiles_corr = 1, cafs = 1),
     incomp = list(quantiles_corr = "2", cafs = 1)
   )
   expect_error(validate_drift_dm(temp), "not of type numeric")
 
   # -> follow-ups with stats_agg_info
-  temp$stats_agg = list(
+  temp$stats_agg <- list(
     comp = list(quantiles_corr = c(1, 3), cafs = 1),
     incomp = list(quantiles_corr = c(1, 2), cafs = 1)
   )
@@ -368,9 +368,9 @@ test_that("validate_drift_dm fails as expected", {
 
   # check the boundary coding
   temp <- a_model
-  test_b_coding = b_coding(temp)
-  names(test_b_coding)[1] = "foo"
-  attr(temp, "b_coding") = test_b_coding
+  test_b_coding <- b_coding(temp)
+  names(test_b_coding)[1] <- "foo"
+  attr(temp, "b_coding") <- test_b_coding
   expect_error(
     validate_drift_dm(temp),
     "unexpected entries in b_coding"
@@ -378,9 +378,9 @@ test_that("validate_drift_dm fails as expected", {
 
   # check estimate_info
   temp <- a_model
-  temp$estimate_info = list()
+  temp$estimate_info <- list()
   expect_error(validate_drift_dm(temp), "unexpected entries")
-  temp$estimate_info = list(
+  temp$estimate_info <- list(
     conv_flag = 2,
     optimizer = "foo",
     message = "bar",
@@ -388,7 +388,7 @@ test_that("validate_drift_dm fails as expected", {
     n_eval = 50
   )
   expect_error(validate_drift_dm(temp), "single logical")
-  temp$estimate_info = list(
+  temp$estimate_info <- list(
     conv_flag = TRUE,
     optimizer = 2,
     message = "bar",
@@ -396,7 +396,7 @@ test_that("validate_drift_dm fails as expected", {
     n_eval = 50
   )
   expect_error(validate_drift_dm(temp), "single string")
-  temp$estimate_info = list(
+  temp$estimate_info <- list(
     conv_flag = TRUE,
     optimizer = "foo",
     message = 1,
@@ -404,7 +404,7 @@ test_that("validate_drift_dm fails as expected", {
     n_eval = 50
   )
   expect_error(validate_drift_dm(temp), "single string")
-  temp$estimate_info = list(
+  temp$estimate_info <- list(
     conv_flag = TRUE,
     optimizer = "foo",
     message = "bar",
@@ -412,7 +412,7 @@ test_that("validate_drift_dm fails as expected", {
     n_eval = 50
   )
   expect_error(validate_drift_dm(temp), "single numeric")
-  temp$estimate_info = list(
+  temp$estimate_info <- list(
     conv_flag = TRUE,
     optimizer = "foo",
     message = "bar",
@@ -657,7 +657,7 @@ test_that("prms_solve -> extractor and replacement works as expected", {
   temp <- a_model
   expect_message(
     {
-      prms_solve(temp)["t_max"] = 3.05
+      prms_solve(temp)["t_max"] <- 3.05
     },
     regexp = "t_max"
   )
@@ -667,7 +667,7 @@ test_that("prms_solve -> extractor and replacement works as expected", {
   temp <- a_model
   expect_message(
     {
-      prms_solve(temp)["dt"] = .08
+      prms_solve(temp)["dt"] <- .08
     },
     regexp = "t_max"
   )
@@ -891,8 +891,8 @@ test_that("comp_funs -> extractor and replacement functions work as expected", {
   )
 
   # with fits_ids_dm
-  fits_ids = get_example_fits("fits_ids")
-  all_funs = comp_funs(fits_ids)
+  fits_ids <- get_example_fits("fits_ids")
+  all_funs <- comp_funs(fits_ids)
   expect_identical(
     all_funs[["mu_fun"]],
     fits_ids$drift_dm_fit_info$drift_dm_obj$comp_funs$mu_fun
@@ -919,8 +919,8 @@ test_that("comp_funs -> extractor and replacement functions work as expected", {
   )
 
   # with fits_agg
-  fits_agg = get_example_fits("fits_agg")
-  all_funs = comp_funs(fits_agg)
+  fits_agg <- get_example_fits("fits_agg")
+  all_funs <- comp_funs(fits_agg)
   expect_identical(all_funs[["mu_fun"]], fits_agg$drift_dm_obj$comp_funs$mu_fun)
   expect_identical(
     all_funs[["mu_int_fun"]],
@@ -950,7 +950,7 @@ test_that("b_coding -> extractor and replacement functions work as expected", {
   expect_identical(b_coding(a_model), new_coding)
 
   # check that wrong input is captured
-  new_coding$u_name_value = c(foo = "a", uff = "c")
+  new_coding$u_name_value <- c(foo = "a", uff = "c")
   expect_error(
     b_coding(a_model) <- new_coding,
     "must be of length 1"
@@ -1106,7 +1106,7 @@ test_that("pdfs -> works as expected", {
   expect_identical(pdfs_t$t_vec, t_vec)
 
   # does it re_evaluate?
-  prms_solve(a_model)[c("dx", "dt")] = .01
+  prms_solve(a_model)[c("dx", "dt")] <- .01
   expect_identical(pdfs(a_model)$pdfs, re_evaluate_model(a_model)$pdfs)
 
   # check the structure
@@ -1559,7 +1559,7 @@ test_that("simulate_data.drift_dm -> single data set works as expected", {
   expect_true(all(abs(sim_quantiles_b - exp_quantiles$Quant_b) <= 0.015))
 
   # check the rounding
-  test_rts = simulate_data(a_model, n = 2, seed = 2, round_to = 2)
+  test_rts <- simulate_data(a_model, n = 2, seed = 2, round_to = 2)
   expect_true(all(nchar(test_rts$RT) == 4))
 })
 
@@ -1645,7 +1645,7 @@ test_that("simulate_data.drift_dm -> multiple data sets works as expected", {
 
   withr::local_preserve_seed()
   set.seed(1)
-  exp_prms = simulate_values(
+  exp_prms <- simulate_values(
     lower = c(muc = 2, b = 0.4, non_dec = 0.2),
     upper = c(muc = 6, b = 1, non_dec = 0.5),
     k = 2,
@@ -1671,7 +1671,7 @@ test_that("simulate_data.drift_dm -> multiple data sets works as expected", {
 
   withr::local_preserve_seed()
   set.seed(1)
-  exp_prms = simulate_values(
+  exp_prms <- simulate_values(
     lower = c(muc = 2, b = 0.4, non_dec = 0.2),
     upper = c(muc = 6, b = 1, non_dec = 0.5),
     k = 2,
@@ -1843,13 +1843,13 @@ test_that("unpack_traces -> lifecylce check", {
 
   # check the older unpack_traces (list)
   lifecycle::expect_deprecated(unpack_traces(out))
-  unpacked_traces = suppressWarnings(unpack_traces(out))
+  unpacked_traces <- suppressWarnings(unpack_traces(out))
   unpacked_obj <- unpack_obj(out)
   expect_identical(unpacked_traces, unpacked_obj)
 
   # check the older unpack_traces (list)
   lifecycle::expect_deprecated(unpack_traces(out[[1]]))
-  unpacked_traces = suppressWarnings(unpack_traces(out[[1]]))
+  unpacked_traces <- suppressWarnings(unpack_traces(out[[1]]))
   unpacked_obj <- unpack_obj(out[[1]])
   expect_identical(unpacked_traces, unpacked_obj)
 })

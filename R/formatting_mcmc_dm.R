@@ -3,12 +3,12 @@
 print.mcmc_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
   chains_obj <- x
 
-  sampler = attr(chains_obj, "sampler")
-  hierarchical = attr(chains_obj, "hierarchical")
-  subset = get_subset_chains(chains_obj)
-  n_prms = dim(subset)[1]
-  n_chains = dim(subset)[2]
-  n_iterations = dim(subset)[3]
+  sampler <- attr(chains_obj, "sampler")
+  hierarchical <- attr(chains_obj, "hierarchical")
+  subset <- get_subset_chains(chains_obj)
+  n_prms <- dim(subset)[1]
+  n_chains <- dim(subset)[2]
+  n_iterations <- dim(subset)[3]
   cat("Sampler:", sampler, "\n")
   cat("Hierarchical:", hierarchical, "\n")
   if (hierarchical) {
@@ -83,30 +83,30 @@ summary.mcmc_dm <- function(object, ..., id = NULL) {
   ans <- list()
 
   # get the relevant chains array to summarize
-  chains = get_subset_chains(chains_obj = chains_obj, id = id)
+  chains <- get_subset_chains(chains_obj = chains_obj, id = id)
 
   # get general Information
-  general = list()
-  general$id = id
-  general$sampler = attr(chains_obj, "sampler")
-  general$hierarchical = attr(chains_obj, "hierarchical")
-  general$n_param = dim(chains)[1]
-  general$n_chains = dim(chains)[2]
-  general$n_iter = dim(chains)[3]
-  ans$general = general
+  general <- list()
+  general$id <- id
+  general$sampler <- attr(chains_obj, "sampler")
+  general$hierarchical <- attr(chains_obj, "hierarchical")
+  general$n_param <- dim(chains)[1]
+  general$n_chains <- dim(chains)[2]
+  general$n_iter <- dim(chains)[3]
+  ans$general <- general
 
   # turn to an mcmc list to utilize the coda package
-  mcmc_list = mcmc_dm_to_coda_mcmc(chains)
-  summary_coda = summary(mcmc_list, ...)
+  mcmc_list <- mcmc_dm_to_coda_mcmc(chains)
+  summary_coda <- summary(mcmc_list, ...)
 
   # Parameter Summary with respect to means/sds/ses and quantiles
-  ans$statistics = summary_coda$statistics
-  ans$quantiles = summary_coda$quantiles
+  ans$statistics <- summary_coda$statistics
+  ans$quantiles <- summary_coda$quantiles
 
   # Gelman-Rubin Statitic and Effective Sample Size
-  gr_coda = coda::gelman.diag(mcmc_list, autoburnin = FALSE)
-  ans$gr = gr_coda$psrf
-  ans$eff_n = coda::effectiveSize(mcmc_list)
+  gr_coda <- coda::gelman.diag(mcmc_list, autoburnin = FALSE)
+  ans$gr <- gr_coda$psrf
+  ans$eff_n <- coda::effectiveSize(mcmc_list)
 
   # pass back
   class(ans) <- "summary.mcmc_dm"
@@ -128,8 +128,8 @@ print.summary.mcmc_dm <- function(
   summary_obj <- x
 
   # Print Out General Information
-  general = summary_obj$general
-  id = summary_obj$general$id
+  general <- summary_obj$general
+  id <- summary_obj$general$id
 
   if (!is.null(id)) {
     cat("Showing Results for ID:", id, "\n")
@@ -149,28 +149,28 @@ print.summary.mcmc_dm <- function(
   }
 
   # Print Out Parameter Summaries
-  statistics = summary_obj$statistics
+  statistics <- summary_obj$statistics
   if (show_statistics) {
     cat("\nParameter Summary: Basic Statistics\n")
     print(round(statistics, digits = round_digits))
   }
 
   # Parameter Summary with respect to quantiles
-  quantiles = summary_obj$quantiles
+  quantiles <- summary_obj$quantiles
   if (show_quantiles) {
     cat("\nParameter Summary: Quantiles\n")
     print(round(quantiles, digits = round_digits))
   }
 
   # Gelman-Rubin Statistic
-  gr = summary_obj$gr
+  gr <- summary_obj$gr
   if (show_gr) {
     cat("\nGelman-Rubin Statistics\n")
     print(round(gr[, 1], digits = round_digits))
   }
 
   # Effective Sample Size
-  eff_n = summary_obj$eff_n
+  eff_n <- summary_obj$eff_n
   if (show_eff_n) {
     cat("\nEffective Sample Size\n")
     print(round(eff_n, digits = round_digits))

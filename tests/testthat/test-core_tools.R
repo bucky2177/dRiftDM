@@ -30,7 +30,7 @@ test_that("draw_from_pdf works as expected", {
   expect_true(all(abs(quants - samp_quants) < .01))
 
   # rounding
-  test = draw_from_pdf(
+  test <- draw_from_pdf(
     a_pdf = pdf,
     x_def = x_def,
     k = 50000,

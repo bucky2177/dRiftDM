@@ -93,7 +93,7 @@ print.drift_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
 #' print(sum_obj, round_digits = 2)
 #'
 #' # more information is provided when we add data to the model
-#' obs_data(a_model) <- dmc_synth_data  # (data set comes with dRiftDM)
+#' obs_data(a_model) <- dmc_synth_data # (data set comes with dRiftDM)
 #' summary(a_model)
 #'
 #' # fit indices are added once we evaluate the model
@@ -135,7 +135,7 @@ summary.drift_dm <- function(object, ...) {
     ans$fit_stats <- unlist(unpack_obj(fit_stats))
   }
 
-  ans$estimate_info = drift_dm_obj$estimate_info
+  ans$estimate_info <- drift_dm_obj$estimate_info
 
   class(ans) <- "summary.drift_dm"
   return(ans)
@@ -204,7 +204,7 @@ print.summary.drift_dm <- function(
 
 # HELPER FUNCTIONS --------------------------------------------------------
 
-print_deriving_pdfs = function(
+print_deriving_pdfs <- function(
   solver,
   prms_solve,
   header = "Deriving PDFS:",
@@ -224,24 +224,27 @@ print_deriving_pdfs = function(
 }
 
 
-print_classes = function(class_vector, header = "Class(es)") {
+print_classes <- function(class_vector, header = "Class(es)") {
   cat(header, paste(class_vector, collapse = ", "))
   cat("\n")
 }
 
-print_cost_function = function(cost_function_label, header = "Cost Function:") {
+print_cost_function <- function(
+  cost_function_label,
+  header = "Cost Function:"
+) {
   cat(header, cost_function_label)
   cat("\n")
 }
 
-print_fit_stats = function(fit_stats, round_digits, header = "Fit Indices:") {
+print_fit_stats <- function(fit_stats, round_digits, header = "Fit Indices:") {
   cat(header)
   cat("\n")
   print(round(fit_stats, digits = round_digits))
 }
 
 
-print_trial_numbers = function(
+print_trial_numbers <- function(
   trials_vector,
   round_digits,
   header = "Average Trial Numbers:",
@@ -256,7 +259,7 @@ print_trial_numbers = function(
   cat("\n")
 }
 
-print_estimate_info = function(estimate_info, long = FALSE) {
+print_estimate_info <- function(estimate_info, long = FALSE) {
   if (is.null(estimate_info)) {
     cat("(model has not been estimated yet)\n")
     return(invisible(NULL))

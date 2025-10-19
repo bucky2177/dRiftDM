@@ -46,7 +46,7 @@ The following code iterates over each parameter, plotting the influence of each 
 
 
 ```{r}
-par(mfcol = c(1,2))
+par(mfcol = c(1, 2))
 
 # define the parameter ranges
 muc_seq <- seq(1.5, 5.0, by = 0.5)
@@ -62,28 +62,40 @@ get_stats <- function(prm_val, prm_label) {
 }
 
 # Drift Rate Plots
-par(mfcol = c(1,2))
-stats_mu = sapply(muc_seq, get_stats, prm_label = "muc")
-plot(stats_mu[1,] ~ muc_seq, type = "l",
-     ylim = c(0.2,0.8), xlab = "muc", ylab = "correct RTs", main = "Influence: Drift Rate")
-plot(stats_mu[2,] ~ muc_seq, type = "l",
-     ylim = c(0.5,1), xlab = "muc", ylab = "Accuarcy", main = "Influence: Drift Rate")
+par(mfcol = c(1, 2))
+stats_mu <- sapply(muc_seq, get_stats, prm_label = "muc")
+plot(stats_mu[1, ] ~ muc_seq,
+  type = "l",
+  ylim = c(0.2, 0.8), xlab = "muc", ylab = "correct RTs", main = "Influence: Drift Rate"
+)
+plot(stats_mu[2, ] ~ muc_seq,
+  type = "l",
+  ylim = c(0.5, 1), xlab = "muc", ylab = "Accuarcy", main = "Influence: Drift Rate"
+)
 
 # Boundary Plots
-par(mfcol = c(1,2))
-stats_b = sapply(b_seq, get_stats, prm_label = "b")
-plot(stats_b[1,] ~ b_seq, type = "l",
-     ylim = c(0.2,0.8), xlab = "b", ylab = "correct RTs", main = "Influence: Boundary")
-plot(stats_b[2,] ~ b_seq, type = "l",
-     ylim = c(0.5,1), xlab = "b", ylab = "Accuarcy", main = "Influence: Boundary")
+par(mfcol = c(1, 2))
+stats_b <- sapply(b_seq, get_stats, prm_label = "b")
+plot(stats_b[1, ] ~ b_seq,
+  type = "l",
+  ylim = c(0.2, 0.8), xlab = "b", ylab = "correct RTs", main = "Influence: Boundary"
+)
+plot(stats_b[2, ] ~ b_seq,
+  type = "l",
+  ylim = c(0.5, 1), xlab = "b", ylab = "Accuarcy", main = "Influence: Boundary"
+)
 
 # Non-Decision Time Plots
-par(mfcol = c(1,2))
-stats_non_dec = sapply(t0_seq, get_stats, prm_label = "non_dec")
-plot(stats_non_dec[1,] ~ t0_seq, type = "l",
-     ylim = c(0.2,0.8), xlab = "non_dec", ylab = "correct RTs", main = "Influence: Non-Decision Time")
-plot(stats_non_dec[2,] ~ t0_seq, type = "l",
-     ylim = c(0.5,1), xlab = "non_dec", ylab = "Accuarcy", main = "Influence: Non-Decision Time")
+par(mfcol = c(1, 2))
+stats_non_dec <- sapply(t0_seq, get_stats, prm_label = "non_dec")
+plot(stats_non_dec[1, ] ~ t0_seq,
+  type = "l",
+  ylim = c(0.2, 0.8), xlab = "non_dec", ylab = "correct RTs", main = "Influence: Non-Decision Time"
+)
+plot(stats_non_dec[2, ] ~ t0_seq,
+  type = "l",
+  ylim = c(0.5, 1), xlab = "non_dec", ylab = "Accuarcy", main = "Influence: Non-Decision Time"
+)
 ```
 
 

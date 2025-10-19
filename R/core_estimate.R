@@ -239,25 +239,24 @@
 #' # get a model for the examples (DMC with just two free parameters)
 #' model <- dmc_dm(
 #'   t_max = 1.5, dx = .01, dt = .01,
-#'   instr = '
+#'   instr = "
 #'    b <!>
 #'    non_dec <!>
 #'    sd_non_dec <!>
 #'    tau <!>
 #'    alpha <!>
-#'    '
+#'    "
 #' )
 #'
 #' # get some data (the first two participants in the data set of Ulrich et al.)
-#' data <- ulrich_flanker_data[ulrich_flanker_data$ID %in% 1:2,]
-#'
+#' data <- ulrich_flanker_data[ulrich_flanker_data$ID %in% 1:2, ]
 #'
 #'
 #' ####
 #' # Fit a single individual (using unbounded Nelder-Mead)
 #' fit <- estimate_dm(
 #'   drift_dm_obj = model,
-#'   obs_data = data[data$ID == 1,],
+#'   obs_data = data[data$ID == 1, ],
 #'   optimizer = "Nelder-Mead"
 #' )
 #' print(fit)
@@ -269,7 +268,7 @@
 #' l_u <- get_lower_upper(model)
 #' fit <- estimate_dm(
 #'   drift_dm_obj = model,
-#'   obs_data = data[data$ID == 1,],
+#'   obs_data = data[data$ID == 1, ],
 #'   optimizer = "nmkb",
 #'   lower = l_u$lower, upper = l_u$upper,
 #'   start_vals = c(muc = 4, A = 0.06)
@@ -286,7 +285,7 @@
 #' set.seed(2)
 #' fit <- estimate_dm(
 #'   drift_dm_obj = model,
-#'   obs_data = data[data$ID == 1,],
+#'   obs_data = data[data$ID == 1, ],
 #'   optimizer = "DEoptim",
 #'   lower = l_u$lower, upper = l_u$upper,
 #'   control = list(steptol = 10)
@@ -324,7 +323,7 @@
 #' # Fit a single individual (using DE-MCMC; Bayesian; custom priors)
 #' fit <- estimate_dm(
 #'   drift_dm_obj = model,
-#'   obs_data = data[data$ID == 1,],
+#'   obs_data = data[data$ID == 1, ],
 #'   approach = "sep_b",
 #'   burn_in = 2, # this is usually way higher
 #'   samples = 2, # this too
@@ -375,7 +374,7 @@ estimate_dm <- function(
   seed = NULL,
   ...
 ) {
-  dots = list(...)
+  dots <- list(...)
 
   # user input checks ####
   if (!inherits(drift_dm_obj, "drift_dm")) {
@@ -383,7 +382,7 @@ estimate_dm <- function(
   }
 
   # check if it can be evaluated
-  drift_dm_obj = re_evaluate_model(drift_dm_obj)
+  drift_dm_obj <- re_evaluate_model(drift_dm_obj)
 
   # use data from the model or from the obs_data object
   if (is.null(obs_data)) {
@@ -398,7 +397,7 @@ estimate_dm <- function(
     if (messaging) {
       message("Using the data attached to the model.")
     }
-    which_data = "model"
+    which_data <- "model"
   } else {
     # check if everything is ok
     b_coding <- b_coding(drift_dm_obj)
@@ -420,7 +419,7 @@ estimate_dm <- function(
     data_conds <- conds(obs_data)
     conds_diff <- setdiff(data_conds, model_conds)
     if (length(conds_diff) >= 1) {
-      conds_diff = paste(conds_diff, collapse = ",")
+      conds_diff <- paste(conds_diff, collapse = ",")
       warning(
         "The Cond column in 'obs_data' provides conditions that are ",
         "not listed in the model's conditions ('",
@@ -442,13 +441,13 @@ estimate_dm <- function(
     if (messaging) {
       message("Using the data supplied via the 'obs_data' argument.")
     }
-    which_data = "obs_data"
+    which_data <- "obs_data"
   }
   stopifnot(which_data %in% c("model", "obs_data"))
 
   # check the approach settings and set default values
   if (is.null(approach)) {
-    approach = "sep_c"
+    approach <- "sep_c"
   }
   approach <- match.arg(
     approach,
@@ -456,21 +455,21 @@ estimate_dm <- function(
   )
 
   # check the optimizer or use default
-  requ_optimizer = NULL
+  requ_optimizer <- NULL
   if (approach %in% c("hier_b", "sep_b")) {
-    requ_optimizer = "DE-MCMC"
+    requ_optimizer <- "DE-MCMC"
   }
 
   # if the user did not specify an optimizer, choose for them
   if (is.null(optimizer)) {
     if (is.null(requ_optimizer)) {
       if (!is.null(lower) | !is.null(upper)) {
-        optimizer = "DEoptim"
+        optimizer <- "DEoptim"
       } else {
-        optimizer = "Nelder-Mead"
+        optimizer <- "Nelder-Mead"
       }
     } else {
-      optimizer = requ_optimizer
+      optimizer <- requ_optimizer
     }
   }
 
@@ -496,7 +495,7 @@ estimate_dm <- function(
         "'."
       )
     }
-    optimizer = requ_optimizer
+    optimizer <- requ_optimizer
   } else {
     if (messaging) {
       message("Using optimizer '", optimizer, "'.")
@@ -504,7 +503,7 @@ estimate_dm <- function(
   }
 
   # check for the required cost function
-  cost_fun = cost_function(drift_dm_obj)
+  cost_fun <- cost_function(drift_dm_obj)
   if (approach %in% c("hier_b", "sep_b") && cost_fun != "neg_log_like") {
     cost_function(drift_dm_obj) <- "neg_log_like"
     if (messaging) {
@@ -548,7 +547,7 @@ estimate_dm <- function(
     if (messaging) {
       message("Aggregated data has been set to the model.")
     }
-    drift_dm_obj = set_agg_data(
+    drift_dm_obj <- set_agg_data(
       drift_dm_obj = drift_dm_obj,
       obs_data_ids = obs_data,
       probs = dots$probs,
@@ -577,8 +576,8 @@ estimate_dm <- function(
     )
 
     # wrap up the return value and create a custom class
-    fit_obj = list(drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data)
-    class(fit_obj) = "fits_agg_dm"
+    fit_obj <- list(drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data)
+    class(fit_obj) <- "fits_agg_dm"
     return(fit_obj)
   }
 
@@ -637,7 +636,7 @@ estimate_dm <- function(
       )
     }
     if (approach == "sep_b") {
-      mcmc_out = estimate_bayesian(
+      mcmc_out <- estimate_bayesian(
         drift_dm_obj = drift_dm_obj,
         sampler = optimizer,
         n_chains = n_chains,
@@ -676,7 +675,7 @@ estimate_dm <- function(
       )
     }
     if (approach == "sep_c") {
-      all_fits = estimate_classical_wrapper(
+      all_fits <- estimate_classical_wrapper(
         drift_dm_obj = drift_dm_obj,
         obs_data_ids = obs_data,
         parallelization_strategy = parallelization_strategy,
@@ -704,7 +703,7 @@ estimate_dm <- function(
       # prepare cluster
       cl <- NULL
       if (n_cores > 1) {
-        cl <- mirai::make_cluster(n_cores)
+        cl <- parallel::makeCluster(n_cores)
         withr::defer(parallel::stopCluster(cl))
         parallel::clusterSetRNGStream(cl, iseed = seed)
         parallel::clusterExport(
@@ -733,7 +732,7 @@ estimate_dm <- function(
         }
 
         # Use parallel if cluster provided
-        ids = unique(args$obs_data$ID)
+        ids <- unique(args$obs_data$ID)
         if (!is.null(cl)) {
           result <- pbapply::pblapply(ids, FUN, args = args, cl = cl)
         } else {
@@ -744,7 +743,7 @@ estimate_dm <- function(
       }
 
       # prepare the args
-      args = list(
+      args <- list(
         obs_data = obs_data,
         drift_dm_obj = drift_dm_obj,
         sampler = optimizer,
@@ -794,7 +793,7 @@ estimate_dm <- function(
         "The result will be a fit object of type 'mcmc_dm'"
       )
     }
-    mcmc_out = estimate_bayesian(
+    mcmc_out <- estimate_bayesian(
       drift_dm_obj = drift_dm_obj,
       obs_data_ids = obs_data,
       sampler = optimizer,
@@ -914,9 +913,9 @@ estimate_classical <- function(
     stop("drift_dm_obj is not of type drift_dm")
   }
 
-  cost_function = cost_function(drift_dm_obj)
-  no_raw = cost_function == "neg_log_like" && is.null(drift_dm_obj$obs_data)
-  no_agg = cost_function == "rmse" &&
+  cost_function <- cost_function(drift_dm_obj)
+  no_raw <- cost_function == "neg_log_like" && is.null(drift_dm_obj$obs_data)
+  no_agg <- cost_function == "rmse" &&
     (is.null(drift_dm_obj$stats_agg) || is.null(drift_dm_obj$stats_agg_info))
   if (no_raw || no_agg) {
     warning("No data set, passing back unmodified object")
@@ -930,7 +929,7 @@ estimate_classical <- function(
 
   # continue checks/defaults
   if (is.null(verbose)) {
-    verbose = 1
+    verbose <- 1
   }
   if (length(verbose) != 1 || !is.numeric(verbose) || verbose < 0) {
     stop("verbose must be numeric >= 0")
@@ -938,7 +937,7 @@ estimate_classical <- function(
 
   # ignore start_vals for DEoptim
   if (optimizer == "DEoptim" && !is.null(start_vals)) {
-    start_vals = NULL
+    start_vals <- NULL
     warning(
       "The 'start_vals' argument is ignored for the 'DEoptim' optimizer. ",
       "If you want to specify an initial population for DEoptim, please ",
@@ -949,7 +948,7 @@ estimate_classical <- function(
   # set start_vals or recursive call
   if (!is.null(start_vals)) {
     if (is.null(return_runs)) {
-      return_runs = FALSE
+      return_runs <- FALSE
     }
     if (
       !is.logical(return_runs) | length(return_runs) != 1 | is.na(return_runs)
@@ -974,7 +973,7 @@ estimate_classical <- function(
         if (verbose > 0) {
           message("Optimization run: ", i)
         }
-        one_row = unlist(start_vals[i, ])
+        one_row <- unlist(start_vals[i, ])
         estimate_classical(
           drift_dm_obj = drift_dm_obj,
           optimizer = optimizer,
@@ -987,9 +986,9 @@ estimate_classical <- function(
           round_digits = round_digits
         )
       })
-      cost_values = sapply(results, cost_value)
-      prms = do.call(rbind, lapply(results, coef))
-      j = which.min(cost_values)
+      cost_values <- sapply(results, cost_value)
+      prms <- do.call(rbind, lapply(results, coef))
+      j <- which.min(cost_values)
       if (verbose > 0) {
         message(
           "Optimization run ",
@@ -997,9 +996,9 @@ estimate_classical <- function(
           " yielded the smallest cost value"
         )
       }
-      r = results[[j]]
+      r <- results[[j]]
       if (return_runs) {
-        r = list(best_run = r, prms = prms, cost_values = cost_values)
+        r <- list(best_run = r, prms = prms, cost_values = cost_values)
       }
       return(r)
     }
@@ -1037,7 +1036,7 @@ estimate_classical <- function(
   }
 
   if (is.null(round_digits)) {
-    round_digits = drift_dm_default_rounding()
+    round_digits <- drift_dm_default_rounding()
   }
   if (!is.numeric(round_digits) || length(round_digits) != 1) {
     stop("'round_digits' must be a single numeric value")
@@ -1087,10 +1086,10 @@ estimate_classical <- function(
 
   # providing starting of optimizer message
   if (verbose >= 1) {
-    add = ""
-    check_opt = optimizer %in% c("nmkb", "Nelder-Mead", "L-BFGS-B", "BFGS")
+    add <- ""
+    check_opt <- optimizer %in% c("nmkb", "Nelder-Mead", "L-BFGS-B", "BFGS")
     if (check_opt) {
-      add = paste0(
+      add <- paste0(
         "with the following starting values:\n",
         prms_to_str(drift_dm_obj, collapse = ", ", sep = "=")
       )
@@ -1099,7 +1098,7 @@ estimate_classical <- function(
   }
 
   # now call the requested optimization routine
-  out = NULL
+  out <- NULL
   if (optimizer == "nmkb") {
     out <- dfoptim::nmkb(
       par = coef(drift_dm_obj),
@@ -1117,7 +1116,7 @@ estimate_classical <- function(
   if (optimizer == "Nelder-Mead") {
     x0 <- coef(drift_dm_obj)
     if (is.null(control$parscale)) {
-      control$parscale = pmax(x0, 1e-6)
+      control$parscale <- pmax(x0, 1e-6)
     }
     out <- stats::optim(
       par = x0,
@@ -1168,9 +1167,9 @@ estimate_classical <- function(
     check <- optimizer %in% c("L-BFGS-B", "BFGS", "Nelder-Mead")
     if (check && is.null(message)) {
       if (convergence == 1) {
-        message = "maxit reached"
+        message <- "maxit reached"
       }
-      if (convergence == 10) message = "degeneracy of Nelder-Mead simplex"
+      if (convergence == 10) message <- "degeneracy of Nelder-Mead simplex"
     }
   }
 
@@ -1178,7 +1177,8 @@ estimate_classical <- function(
     # create clusters
     cl <- NULL
     if (de_n_cores > 1) {
-      cl <- mirai::make_cluster(de_n_cores)
+      cl <- parallel::makeCluster(de_n_cores)
+      parallel::clusterSetRNGStream(cl = cl, iseed = seed)
       withr::defer(parallel::stopCluster(cl))
       parallel::clusterExport(
         cl = cl,
@@ -1189,7 +1189,7 @@ estimate_classical <- function(
 
     # set control parameters
     if (is.null(control$trace)) {
-      control$trace = FALSE
+      control$trace <- FALSE
     }
     de_controls <- do.call(
       DEoptim::DEoptim.control,
@@ -1220,25 +1220,25 @@ estimate_classical <- function(
 
     # figure out convergence
     # info and message (default)
-    convergence = NA_integer_
-    message = "DEoptim had to run for the maximum number of iterations"
+    convergence <- NA_integer_
+    message <- "DEoptim had to run for the maximum number of iterations"
 
     # possible convergence via VTR or steptol
     vtr_on <- !is.infinite(VTR)
     stall_on <- steptol < itermax
     if (vtr_on || stall_on) {
-      convergence = 0L
-      message = "Successful convergence"
+      convergence <- 0L
+      message <- "Successful convergence"
 
       # override if it actually wasn't successful
       if (n_iter == itermax) {
-        convergence = 1L
-        message = NULL
+        convergence <- 1L
+        message <- NULL
         if (vtr_on) {
-          message = c(message, "DEoptim did not reach VTR")
+          message <- c(message, "DEoptim did not reach VTR")
         }
         if (stall_on) {
-          message = c(message, "DEoptim did not meet the stall criterion")
+          message <- c(message, "DEoptim did not meet the stall criterion")
         }
       }
       message <- paste(message, collapse = " + ")
@@ -1246,22 +1246,22 @@ estimate_classical <- function(
   }
 
   # continue with some exit messages and return value
-  conv_flag = TRUE
+  conv_flag <- TRUE
   if (is.na(convergence)) {
-    conv_flag = NA
+    conv_flag <- NA
   }
   if (!is.na(convergence) && convergence > 0) {
-    add = paste0(" (convergence message: ", message, ")")
+    add <- paste0(" (convergence message: ", message, ")")
     warning(
       "The optimization routine did not converge successfully",
       add,
       ". ",
       "Treat the estimated parameters with some caution."
     )
-    conv_flag = FALSE
+    conv_flag <- FALSE
   }
 
-  n_eval = n_eval[!is.na(n_eval)]
+  n_eval <- n_eval[!is.na(n_eval)]
   if (verbose >= 1) {
     # special treatment of n_eval as vector (occurs for optim)
     if (length(n_eval) > 1) {
@@ -1307,7 +1307,7 @@ estimate_classical <- function(
   }
 
   # finally, attach some infos for downstream processing
-  drift_dm_obj$estimate_info = list(
+  drift_dm_obj$estimate_info <- list(
     conv_flag = conv_flag,
     optimizer = optimizer,
     message = message,
@@ -1359,7 +1359,7 @@ estimate_classical <- function(
 #'
 #' @keywords internal
 #' @seealso [dRiftDM::estimate_classical()], [dRiftDM::estimate_dm()]
-estimate_classical_wrapper = function(
+estimate_classical_wrapper <- function(
   drift_dm_obj,
   obs_data_ids,
   parallelization_strategy = NULL,
@@ -1370,10 +1370,10 @@ estimate_classical_wrapper = function(
   seed = NULL,
   ...
 ) {
-  dots = list(...)
+  dots <- list(...)
 
   # idefault values for par_strat
-  n_cores = n_cores %||% 1
+  n_cores <- n_cores %||% 1
 
   # decide over parallelization strategy (1 = parallelize individuals,
   # 2 = parallelize within inidviduals, currently only supported for DEoptim
@@ -1393,7 +1393,7 @@ estimate_classical_wrapper = function(
 
   # continue checks
   if (is.null(progress)) {
-    progress = 1
+    progress <- 1
   }
   if (!is.numeric(progress) | length(progress) != 1 | progress < 0) {
     stop("'progress' must be >= 0")
@@ -1430,9 +1430,9 @@ estimate_classical_wrapper = function(
 
     return(list(drift_dm_obj = drift_dm_obj, start_vals = sv))
   }
-  ids = unique(obs_data_ids$ID)
+  ids <- unique(obs_data_ids$ID)
   list_of_models <- lapply(ids, tmp)
-  names(list_of_models) = ids
+  names(list_of_models) <- ids
 
   # helper function for easier call
   run_estimation <- function(model_list, dots, cl = NULL) {
@@ -1462,7 +1462,7 @@ estimate_classical_wrapper = function(
   # Cluster Setup
   cl <- NULL
   if (parallelization_strategy == 1 & n_cores > 1) {
-    cl <- mirai::make_cluster(n_cores)
+    cl <- parallel::makeCluster(n_cores)
     withr::defer(parallel::stopCluster(cl))
     parallel::clusterSetRNGStream(cl, iseed = seed)
     parallel::clusterExport(
@@ -1470,10 +1470,10 @@ estimate_classical_wrapper = function(
       varlist = c("estimate_classical"),
       envir = environment()
     )
-    dots$de_n_cores = 1 # to avoid that de_n_cores is larger than 1 for parstrat 1
+    dots$de_n_cores <- 1 # to avoid that de_n_cores is larger than 1 for parstrat 1
   } else {
-    dots$de_n_cores = n_cores
-    dots$seed = seed
+    dots$de_n_cores <- n_cores
+    dots$seed <- seed
   }
 
   # progress bar output
@@ -1485,27 +1485,27 @@ estimate_classical_wrapper = function(
   # if no verbose was specified, set to 0  (to avoid interference with
   # the progress bar)
   if (is.null(dots$verbose)) {
-    dots$verbose = 0
+    dots$verbose <- 0
   }
 
   # Run estimation
-  dots$optimizer = optimizer
+  dots$optimizer <- optimizer
   all_fits <- run_estimation(list_of_models, dots = dots, cl = cl)
 
   # Check convergence: did some of the fit runs not converge?
-  not_conv = !sapply(all_fits, \(x) x$estimate_info$conv_flag)
-  messages = lapply(all_fits, \(x) x$estimate_info$message)
+  not_conv <- !sapply(all_fits, \(x) x$estimate_info$conv_flag)
+  messages <- lapply(all_fits, \(x) x$estimate_info$message)
 
   check <- any(vapply(not_conv, isTRUE, logical(1)))
   if (check) {
-    ids = names(not_conv[not_conv])
-    not_conv_msg = messages[not_conv]
-    messages_formatted = paste("-", unique(messages))
-    add = ""
-    n_ids = length(ids)
+    ids <- names(not_conv[not_conv])
+    not_conv_msg <- messages[not_conv]
+    messages_formatted <- paste("-", unique(messages))
+    add <- ""
+    n_ids <- length(ids)
     if (n_ids > drift_dm_n_id_trunc_warn()) {
-      n_ids = drift_dm_n_id_trunc_warn()
-      add = ", (and more)"
+      n_ids <- drift_dm_n_id_trunc_warn()
+      add <- ", (and more)"
     }
     which_ids <- paste(paste(ids[1:n_ids], collapse = ", "), add, sep = "")
     warning(
@@ -1519,7 +1519,7 @@ estimate_classical_wrapper = function(
   }
 
   # wrap it up
-  drift_dm_fit_info = list(
+  drift_dm_fit_info <- list(
     drift_dm_obj = drift_dm_obj,
     obs_data_ids = obs_data_ids,
     optimizer = dots$optimizer,
@@ -1560,9 +1560,9 @@ set_agg_data <- function(drift_dm_obj, obs_data_ids, ...) {
 
   # now get the stats_agg by iterating over the IDs and setting each
   # individual's data to the model
-  ids = unique(obs_data_ids$ID)
-  all_aggs_infos = lapply(ids, \(one_id) {
-    sub_dat = obs_data_ids[obs_data_ids$ID == one_id, ]
+  ids <- unique(obs_data_ids$ID)
+  all_aggs_infos <- lapply(ids, \(one_id) {
+    sub_dat <- obs_data_ids[obs_data_ids$ID == one_id, ]
     obs_data(drift_dm_obj, ...) <- sub_dat
     return(list(drift_dm_obj$stats_agg, drift_dm_obj$stats_agg_info))
   })
@@ -1573,17 +1573,17 @@ set_agg_data <- function(drift_dm_obj, obs_data_ids, ...) {
   conds <- conds(drift_dm_obj)
 
   # get the summary stats (assumes this is always the same)
-  summary_stats_names = names(all_aggs[[1]][[conds[1]]])
+  summary_stats_names <- names(all_aggs[[1]][[conds[1]]])
 
   # Average each stat across list entries
   avg_stats <- lapply(conds, function(one_cond) {
-    res_list = list()
+    res_list <- list()
     for (one_sum_stat in summary_stats_names) {
       tmp <- lapply(all_aggs, \(x) {
         x[[one_cond]][[one_sum_stat]]
       })
       avg <- colMeans(do.call(rbind, tmp))
-      res_list[[one_sum_stat]] = avg
+      res_list[[one_sum_stat]] <- avg
     }
     return(res_list)
   })

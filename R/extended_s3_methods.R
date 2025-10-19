@@ -345,10 +345,10 @@ coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
     stop(".f argument must be a function")
   }
 
-  hierarchical = attr(object, "hierarchical")
+  hierarchical <- attr(object, "hierarchical")
   if (!is.null(id) & hierarchical) {
     if (length(id) == 1 && is.na(id)) {
-      id = dimnames(object[["theta"]])[[3]] # third dimension are the ids
+      id <- dimnames(object[["theta"]])[[3]] # third dimension are the ids
     }
   }
 
@@ -361,32 +361,32 @@ coef.mcmc_dm <- function(object, ..., .f = mean, id = NULL) {
 
   # call coef recursively with multiple ids are requested
   if (length(id) > 1) {
-    results = lapply(
+    results <- lapply(
       id,
       \(one_id) coef.mcmc_dm(object, ..., .f = .f, id = one_id)
     )
     results <- lapply(seq_along(id), \(id_idx) {
-      x = results[[id_idx]]
+      x <- results[[id_idx]]
       if (is.matrix(x)) {
-        x = cbind(`.f_out` = rownames(x), x)
+        x <- cbind(`.f_out` = rownames(x), x)
       }
       if (is.vector(x)) {
-        x = t(as.matrix(x))
+        x <- t(as.matrix(x))
       }
-      x = as.data.frame(x)
-      x = cbind(ID = id[id_idx], x)
+      x <- as.data.frame(x)
+      x <- cbind(ID = id[id_idx], x)
       return(x)
     })
-    results = do.call(rbind, results)
-    results$ID = try_cast_integer(results$ID)
+    results <- do.call(rbind, results)
+    results$ID <- try_cast_integer(results$ID)
     results <- results[order(results$ID), ]
     rownames(results) <- NULL
     return(results)
   }
 
   # get the relevant chains
-  chains = get_subset_chains(chains_obj = object, id = id)
-  result = apply(chains, 1, FUN = .f, simplify = TRUE)
+  chains <- get_subset_chains(chains_obj = object, id = id)
+  result <- apply(chains, 1, FUN = .f, simplify = TRUE)
   if (is.list(result)) {
     stop(
       "Function supplied as argument .f did not return either a single ",

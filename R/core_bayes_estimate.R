@@ -86,13 +86,13 @@ migration_crossover <- function(
 
   # Update parameter matrix if proposal accepted
   accepted <- results$accept
-  which_acc = selected_chains[accepted]
+  which_acc <- selected_chains[accepted]
   prms_across_chains[, which_acc] <- proposal_mat[, accepted, drop = FALSE]
   pis_across_chains[which_acc] <- results$pis[accepted]
   log_likes_across_chains[which_acc] <- results$lls[accepted]
 
   # wrap it up and return
-  return_list = list(
+  return_list <- list(
     new_prms_across_chains = prms_across_chains,
     new_pis_across_chains = pis_across_chains,
     new_log_likes_across_chains = log_likes_across_chains
@@ -134,7 +134,7 @@ full_crossover <- function(
   }
 
   # Sample chain pairs: matrix of size (2 x n_chains)
-  all_chains = seq_len(n_chains)
+  all_chains <- seq_len(n_chains)
   selected_mn <- vapply(
     all_chains,
     function(k) {
@@ -175,7 +175,7 @@ full_crossover <- function(
   log_likes_across_chains[accepted] <- results$lls[accepted]
 
   # wrap it up and return
-  return_list = list(
+  return_list <- list(
     new_prms_across_chains = prms_across_chains,
     new_pis_across_chains = pis_across_chains,
     new_log_likes_across_chains = log_likes_across_chains
@@ -266,10 +266,10 @@ call_log_posterior_m <- function(
   accept[is.na(accept)] <- FALSE # can happen for -Inf -(-Inf)
 
   # wrangle return (replace with proposal prob. if accepted)
-  prev_pis[accept] = proposal_pis[accept]
-  prev_lls[accept] = proposal_lls[accept]
+  prev_pis[accept] <- proposal_pis[accept]
+  prev_lls[accept] <- proposal_lls[accept]
 
-  return_list = list(pis = prev_pis, lls = prev_lls, accept = accept)
+  return_list <- list(pis = prev_pis, lls = prev_lls, accept = accept)
 
   return(return_list)
 }
@@ -286,8 +286,8 @@ call_log_posterior_m <- function(
 #' @param ... Further arguments passed to the underlying crossover function.
 #'
 #' @keywords internal
-crossover = function(which, ...) {
-  which = match.arg(which, choices = c("diff", "migration"))
+crossover <- function(which, ...) {
+  which <- match.arg(which, choices = c("diff", "migration"))
 
   if (which == "diff") {
     return(full_crossover(...))
@@ -522,9 +522,9 @@ log_posterior_lower <- function(
   # get the likelihoods of an individual's data given the model parameters
   # for this individual across chains
   # chains are assumed to be represented as cols, parameters as rows
-  n_chains = ncol(thetas_one_subj_mat)
+  n_chains <- ncol(thetas_one_subj_mat)
 
-  log_like_vals = sapply(seq_len(n_chains), \(k) {
+  log_like_vals <- sapply(seq_len(n_chains), \(k) {
     model_subj$flex_prms_obj <- x2prms_vals(
       x = thetas_one_subj_mat[, k],
       flex_prms_obj = model_subj$flex_prms_obj
@@ -546,7 +546,7 @@ log_posterior_lower <- function(
   stopifnot(is.vector(log_like_vals))
   stopifnot(length(log_like_vals) == n_chains)
 
-  log_like_vals = log_like_vals * temperatures
+  log_like_vals <- log_like_vals * temperatures
   log_like_vals[is.na(log_like_vals)] <- -Inf
 
   # then get the log prior density values
@@ -556,8 +556,8 @@ log_posterior_lower <- function(
     # that lower level parameters are distributed according to a normal
     # or truncated normal distribution with a mean and a standard deviation
     # given by the hyper-level parameters.
-    Ms = paste("M", thetas_names, sep = "-")
-    Ss = paste("S", thetas_names, sep = "-")
+    Ms <- paste("M", thetas_names, sep = "-")
+    Ss <- paste("S", thetas_names, sep = "-")
     phis_means_mat <- all_phis_mat[Ms, , drop = FALSE]
     phis_sds_mat <- all_phis_mat[Ss, , drop = FALSE]
 
@@ -589,9 +589,9 @@ log_posterior_lower <- function(
   # -> sum over parameters; get sum for each chain
   # if n_chains = 1, then sapply returns a vector -> sum over parameters
   if (is.matrix(log_priors_mat)) {
-    log_priors = rowSums(log_priors_mat)
+    log_priors <- rowSums(log_priors_mat)
   } else {
-    log_priors = sum(log_priors_mat)
+    log_priors <- sum(log_priors_mat)
   }
 
   # combine everything and pass back ...
@@ -648,12 +648,12 @@ log_posterior_lower <- function(
 d_default_prior_hyper <- function(x, mean, sd, lower, upper, shape, rate, log) {
   if (is.matrix(x)) {
     stopifnot(nrow(x) == 2)
-    hyper_means = x[1, ]
-    hyper_sds = x[2, ]
+    hyper_means <- x[1, ]
+    hyper_sds <- x[2, ]
   } else {
     stopifnot(length(x) == 2)
-    hyper_means = x[1]
-    hyper_sds = x[2]
+    hyper_means <- x[1]
+    hyper_sds <- x[2]
   }
 
   d_m <- dtnorm(
@@ -755,9 +755,9 @@ get_default_prior_settings <- function(
   # if mean is NULL, set it equal to the model parameters, otherwise
   # replace missing values with the model parameters
   if (is.null(means)) {
-    means = coef(drift_dm_obj)
+    means <- coef(drift_dm_obj)
   } else {
-    means[is.na(means)] = coef(drift_dm_obj)[is.na(means)]
+    means[is.na(means)] <- coef(drift_dm_obj)[is.na(means)]
   }
   all_coefs <- names(means)
 
@@ -989,49 +989,49 @@ estimate_bayes_h <- function(
   seed = NULL,
   ...
 ) {
-  sampler = match.arg(sampler, choices = c("DE-MCMC", "TIDE"))
+  sampler <- match.arg(sampler, choices = c("DE-MCMC", "TIDE"))
 
   # wrangle data into a list of individual models
-  data_model = lapply(unique(obs_data_ids$ID), \(x) {
-    obs_data(drift_dm_obj) = obs_data_ids[obs_data_ids$ID == x, ]
+  data_model <- lapply(unique(obs_data_ids$ID), \(x) {
+    obs_data(drift_dm_obj) <- obs_data_ids[obs_data_ids$ID == x, ]
     return(drift_dm_obj)
   })
-  names(data_model) = unique(obs_data_ids$ID)
+  names(data_model) <- unique(obs_data_ids$ID)
 
   # get the prior distributions for the hyper parameters phi
-  prior_distr_hyper = get_default_prior_settings(
+  prior_distr_hyper <- get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
     level = "hyper",
     ...
   )
-  log_priors_hyper = prior_distr_hyper$log_dens_priors
-  r_priors_hyper = prior_distr_hyper$r_priors
+  log_priors_hyper <- prior_distr_hyper$log_dens_priors
+  r_priors_hyper <- prior_distr_hyper$r_priors
 
   # get the prior distributions for the lower parameters theta
-  prior_distr_lower = get_default_prior_settings(
+  prior_distr_lower <- get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
     level = "lower",
     ...
   )
-  log_priors_lower = prior_distr_lower$log_dens_priors
-  r_priors_lower = prior_distr_lower$r_priors
+  log_priors_lower <- prior_distr_lower$log_dens_priors
+  r_priors_lower <- prior_distr_lower$r_priors
 
   # names
-  theta_names = names(log_priors_lower)
-  phi_names = paste0(
+  theta_names <- names(log_priors_lower)
+  phi_names <- paste0(
     rep(c("M-", "S-"), length(log_priors_lower)),
     rep(theta_names, each = 2)
   )
-  subj_names = names(data_model)
+  subj_names <- names(data_model)
 
   # create containers for the parameters
-  n_thetas = length(theta_names)
-  n_phis = length(phi_names)
-  n_subjs = length(data_model)
-  iterations = as.integer(burn_in + samples + 1)
-  n_chains = as.integer(n_chains)
+  n_thetas <- length(theta_names)
+  n_phis <- length(phi_names)
+  n_subjs <- length(data_model)
+  iterations <- as.integer(burn_in + samples + 1)
+  n_chains <- as.integer(n_chains)
 
-  theta_array = array(
+  theta_array <- array(
     0,
     dim = c(n_thetas, n_chains, n_subjs, iterations),
     dimnames = list(
@@ -1041,36 +1041,36 @@ estimate_bayes_h <- function(
       seq_len(iterations)
     )
   )
-  phi_array = array(
+  phi_array <- array(
     0,
     dim = c(n_phis, n_chains, iterations),
     dimnames = list(phi_names, seq_len(n_chains), seq_len(iterations))
   )
 
   # create containers for the log_posteriors and the log_likelihoods
-  pis_theta = array(
+  pis_theta <- array(
     0,
     dim = c(n_chains, n_subjs, iterations),
     dimnames = list(seq_len(n_chains), subj_names, seq_len(iterations))
   )
-  lls_theta = array(
+  lls_theta <- array(
     0,
     dim = c(n_chains, n_subjs, iterations),
     dimnames = list(seq_len(n_chains), subj_names, seq_len(iterations))
   )
-  pis_phi = array(
+  pis_phi <- array(
     0,
     dim = c(n_thetas, n_chains, iterations),
     dimnames = list(theta_names, seq_len(n_chains), seq_len(iterations))
   )
-  lls_phi = array(
+  lls_phi <- array(
     0,
     dim = c(n_thetas, n_chains, iterations),
     dimnames = list(theta_names, seq_len(n_chains), seq_len(iterations))
   )
 
   # create powers (or just get ones if not TIDE)
-  temperatures = create_temperatures(n_chains, sampler)
+  temperatures <- create_temperatures(n_chains, sampler)
 
   # turn on parallel engine
   cl <- mirai::make_cluster(n_cores)
@@ -1103,15 +1103,15 @@ estimate_bayes_h <- function(
 
   # draw random values for each hyper parameter
   for (one_prm in theta_names) {
-    which_phis = paste0(c("M-", "S-"), one_prm)
-    phi_array[which_phis, , 1] = r_priors_hyper[[one_prm]](n_chains)
+    which_phis <- paste0(c("M-", "S-"), one_prm)
+    phi_array[which_phis, , 1] <- r_priors_hyper[[one_prm]](n_chains)
   }
 
   # then draw thetas based on the provided mean priors (parallelized
   # because here I'll calculate the log-posterior as well)
-  mean_hyper = rowMeans(phi_array[paste0("M-", theta_names), , 1])
-  names(mean_hyper) = theta_names
-  phi_start = phi_array[,, 1]
+  mean_hyper <- rowMeans(phi_array[paste0("M-", theta_names), , 1])
+  names(mean_hyper) <- theta_names
+  phi_start <- phi_array[,, 1]
 
   parallel::clusterExport(
     cl,
@@ -1145,8 +1145,8 @@ estimate_bayes_h <- function(
     )
   })
 
-  pis_theta[,, 1] = sapply(pis_lls_thetas, \(x) x$posterior_vals)
-  lls_theta[,, 1] = sapply(pis_lls_thetas, \(x) x$log_like_vals)
+  pis_theta[,, 1] <- sapply(pis_lls_thetas, \(x) x$posterior_vals)
+  lls_theta[,, 1] <- sapply(pis_lls_thetas, \(x) x$log_like_vals)
 
   # wrangle in the parameters (unlist and re-assemble; unlist
   # flattens by columns (i.e., each parameter across chains) then by list entries)
@@ -1157,20 +1157,20 @@ estimate_bayes_h <- function(
 
   # permute to get desired shape: n_chains x n_thetas x n_subjs
   thetas_tmp <- aperm(thetas_tmp, c(2, 1, 3))
-  theta_array[,,, 1] = thetas_tmp
+  theta_array[,,, 1] <- thetas_tmp
 
   # now with hopefully reasonable values for phi and theta, get pi for phi
   for (one_prm in theta_names) {
-    which_phis = paste0(c("M-", "S-"), one_prm)
-    posterior_ll_vals = log_posterior_hyper(
+    which_phis <- paste0(c("M-", "S-"), one_prm)
+    posterior_ll_vals <- log_posterior_hyper(
       phi_j_mat = phi_array[which_phis, , 1],
       theta_j_mat = theta_array[one_prm, , , 1],
       log_prior_hyper_fun = log_priors_hyper[[one_prm]],
       log_prior_lower_fun = log_priors_lower[[one_prm]],
       temperatures = temperatures
     )
-    pis_phi[one_prm, , 1] = posterior_ll_vals$posterior_vals
-    lls_phi[one_prm, , 1] = posterior_ll_vals$log_like_vals
+    pis_phi[one_prm, , 1] <- posterior_ll_vals$posterior_vals
+    lls_phi[one_prm, , 1] <- posterior_ll_vals$log_like_vals
   }
 
   if (verbose >= 1) {
@@ -1189,37 +1189,37 @@ estimate_bayes_h <- function(
   # now the sampling...
   for (i in 2:iterations) {
     # determine which step to do (during burn_in do migration with some prob.)
-    which = "diff"
+    which <- "diff"
     if ((i <= burn_in) && stats::runif(1) < prob_migration) {
-      which = "migration"
+      which <- "migration"
     }
 
     # re-evaluate the posterior/likelihood with certain prob.
-    re_eval = FALSE
+    re_eval <- FALSE
     if (stats::runif(1) < prob_re_eval) {
-      re_eval = TRUE
+      re_eval <- TRUE
     }
 
     ####
     # update each phi across chains (separately)
     for (one_prm in theta_names) {
-      which_phis = paste0(c("M-", "S-"), one_prm)
+      which_phis <- paste0(c("M-", "S-"), one_prm)
 
       # get previous phis and pis
-      prev_prms_across_chains = phi_array[which_phis, , i - 1]
-      prev_pis_across_chains = pis_phi[one_prm, , i - 1]
-      prev_lls_across_chains = lls_phi[one_prm, , i - 1]
+      prev_prms_across_chains <- phi_array[which_phis, , i - 1]
+      prev_pis_across_chains <- pis_phi[one_prm, , i - 1]
+      prev_lls_across_chains <- lls_phi[one_prm, , i - 1]
 
       # get the values for one theta across lower chains and subjs
       # if DE-MCMC (i.e., not TIDE), break dependence
-      prev_thetas = theta_array[one_prm, , , i - 1]
+      prev_thetas <- theta_array[one_prm, , , i - 1]
       if (sampler == "DE-MCMC") {
-        shuffle_idx = sample(seq_len(n_chains))
-        prev_thetas = prev_thetas[shuffle_idx, ]
+        shuffle_idx <- sample(seq_len(n_chains))
+        prev_thetas <- prev_thetas[shuffle_idx, ]
       }
 
       # do the crossover
-      returned_list = crossover(
+      returned_list <- crossover(
         which = which, # which crossover function to call?
         prms_across_chains = prev_prms_across_chains, # prms across the chains
         pis_across_chains = prev_pis_across_chains, # each pi per chain
@@ -1233,18 +1233,18 @@ estimate_bayes_h <- function(
       )
 
       # sort the values in
-      phi_array[which_phis, , i] = returned_list$new_prms_across_chains
-      pis_phi[one_prm, , i] = returned_list$new_pis
-      lls_phi[one_prm, , i] = returned_list$new_log_likes
+      phi_array[which_phis, , i] <- returned_list$new_prms_across_chains
+      pis_phi[one_prm, , i] <- returned_list$new_pis
+      lls_phi[one_prm, , i] <- returned_list$new_log_likes
     }
 
     ####
     # now update the thetas and pis for each subject (because parallelized
     # this returns a list which we have to sort in again...)
-    prev_prms_across_chains_subj = theta_array[,,, i - 1]
-    prev_pis_across_chains_subj = pis_theta[,, i - 1]
-    prev_log_likes_across_chains_subj = lls_theta[,, i - 1]
-    cur_phis = phi_array[,, i]
+    prev_prms_across_chains_subj <- theta_array[,,, i - 1]
+    prev_pis_across_chains_subj <- pis_theta[,, i - 1]
+    prev_log_likes_across_chains_subj <- lls_theta[,, i - 1]
+    cur_phis <- phi_array[,, i]
 
     parallel::clusterExport(
       cl,
@@ -1288,30 +1288,30 @@ estimate_bayes_h <- function(
 
       return(returned_list)
     })
-    names(new_thetas_and_pis) = subj_names
+    names(new_thetas_and_pis) <- subj_names
 
     # sort the values in
     for (j in subj_names) {
-      theta_array[,, j, i] = new_thetas_and_pis[[j]]$new_prms_across_chains
-      pis_theta[, j, i] = new_thetas_and_pis[[j]]$new_pis
-      lls_theta[, j, i] = new_thetas_and_pis[[j]]$new_log_likes
+      theta_array[,, j, i] <- new_thetas_and_pis[[j]]$new_prms_across_chains
+      pis_theta[, j, i] <- new_thetas_and_pis[[j]]$new_pis
+      lls_theta[, j, i] <- new_thetas_and_pis[[j]]$new_log_likes
     }
 
     if (verbose >= 2) pb$tick()
   }
 
   # drop the burn_in period
-  idx_after_burn_in = (burn_in + 2):iterations
-  phi_array = phi_array[,, idx_after_burn_in, drop = FALSE]
-  pis_phi = pis_phi[,, idx_after_burn_in, drop = FALSE]
-  lls_phi = lls_phi[,, idx_after_burn_in, drop = FALSE]
+  idx_after_burn_in <- (burn_in + 2):iterations
+  phi_array <- phi_array[,, idx_after_burn_in, drop = FALSE]
+  pis_phi <- pis_phi[,, idx_after_burn_in, drop = FALSE]
+  lls_phi <- lls_phi[,, idx_after_burn_in, drop = FALSE]
 
-  theta_array = theta_array[,,, idx_after_burn_in, drop = FALSE]
-  pis_theta = pis_theta[,, idx_after_burn_in, drop = FALSE]
-  lls_theta = lls_theta[,, idx_after_burn_in, drop = FALSE]
+  theta_array <- theta_array[,,, idx_after_burn_in, drop = FALSE]
+  pis_theta <- pis_theta[,, idx_after_burn_in, drop = FALSE]
+  lls_theta <- lls_theta[,, idx_after_burn_in, drop = FALSE]
 
   # wrap up everything in a list and pass back
-  r_l = list(
+  r_l <- list(
     phi = phi_array,
     pis_phi = pis_phi,
     lls_phi = lls_phi,
@@ -1338,21 +1338,21 @@ estimate_bayes_one_subj <- function(
   ...
 ) {
   # get the prior distributions for theta
-  prior_distr = get_default_prior_settings(
+  prior_distr <- get_default_prior_settings(
     drift_dm_obj = drift_dm_obj,
     level = "none",
     ...
   )
-  log_priors = prior_distr$log_dens_priors
-  r_priors = prior_distr$r_priors
+  log_priors <- prior_distr$log_dens_priors
+  r_priors <- prior_distr$r_priors
 
   # names and containers
-  theta_names = names(log_priors)
-  n_thetas = length(theta_names)
-  iterations = as.integer(burn_in + samples + 1)
-  n_chains = as.integer(n_chains)
+  theta_names <- names(log_priors)
+  n_thetas <- length(theta_names)
+  iterations <- as.integer(burn_in + samples + 1)
+  n_chains <- as.integer(n_chains)
 
-  theta_array = array(
+  theta_array <- array(
     0,
     dim = c(n_thetas, n_chains, iterations),
     dimnames = list(
@@ -1363,19 +1363,19 @@ estimate_bayes_one_subj <- function(
   )
 
   # create containers for the log_posteriors and the log_likelihoods
-  pis_theta = array(
+  pis_theta <- array(
     0,
     dim = c(n_chains, iterations),
     dimnames = list(seq_len(n_chains), seq_len(iterations))
   )
-  lls_theta = array(
+  lls_theta <- array(
     0,
     dim = c(n_chains, iterations),
     dimnames = list(seq_len(n_chains), seq_len(iterations))
   )
 
   # create powers (or get ones)
-  temperatures = create_temperatures(n_chains, sampler)
+  temperatures <- create_temperatures(n_chains, sampler)
 
   # get starting values
   if (verbose >= 1) {
@@ -1396,9 +1396,9 @@ estimate_bayes_one_subj <- function(
   )
 
   # sort the values in
-  pis_theta[, 1] = pis_lls$posterior_vals
-  lls_theta[, 1] = pis_lls$log_like_vals
-  theta_array[,, 1] = thetas_i
+  pis_theta[, 1] <- pis_lls$posterior_vals
+  lls_theta[, 1] <- pis_lls$log_like_vals
+  theta_array[,, 1] <- thetas_i
 
   # start the sampling....
   if (verbose >= 1) {
@@ -1416,15 +1416,15 @@ estimate_bayes_one_subj <- function(
 
   for (i in 2:iterations) {
     # determine which step to do (during burn_in do migration with some prob.)
-    which = "diff"
+    which <- "diff"
     if ((i <= burn_in) && stats::runif(1) < prob_migration) {
-      which = "migration"
+      which <- "migration"
     }
 
     # re-evaluate the posterior/likelihood with certain prob.
-    re_eval = FALSE
+    re_eval <- FALSE
     if (stats::runif(1) < prob_re_eval) {
-      re_eval = TRUE
+      re_eval <- TRUE
     }
 
     # do the crossover
@@ -1442,20 +1442,20 @@ estimate_bayes_one_subj <- function(
     )
 
     # sort the values in
-    theta_array[,, i] = returned_list$new_prms_across_chains
-    pis_theta[, i] = returned_list$new_pis
-    lls_theta[, i] = returned_list$new_log_likes
+    theta_array[,, i] <- returned_list$new_prms_across_chains
+    pis_theta[, i] <- returned_list$new_pis
+    lls_theta[, i] <- returned_list$new_log_likes
     if (verbose >= 2) pb$tick()
   }
 
   # drop the burn_in period
-  idx_after_burn_in = (burn_in + 2):iterations
-  theta_array = theta_array[,, idx_after_burn_in, drop = FALSE]
-  pis_theta = pis_theta[, idx_after_burn_in, drop = FALSE]
-  lls_theta = lls_theta[, idx_after_burn_in, drop = FALSE]
+  idx_after_burn_in <- (burn_in + 2):iterations
+  theta_array <- theta_array[,, idx_after_burn_in, drop = FALSE]
+  pis_theta <- pis_theta[, idx_after_burn_in, drop = FALSE]
+  lls_theta <- lls_theta[, idx_after_burn_in, drop = FALSE]
 
   # wrap up everything
-  r_l = list(theta = theta_array, pis_theta = pis_theta, lls_theta = lls_theta)
+  r_l <- list(theta = theta_array, pis_theta = pis_theta, lls_theta = lls_theta)
   attr(r_l, "data_model") <- drift_dm_obj
   return(r_l)
 }
@@ -1503,7 +1503,7 @@ estimate_bayes_one_subj <- function(
 #' @seealso [dRiftDM::summary.mcmc_dm()], [dRiftDM::estimate_bayes_h()],
 #' [dRiftDM::estimate_bayes_one_subj()]
 #' @keywords internal
-estimate_bayesian = function(
+estimate_bayesian <- function(
   drift_dm_obj,
   obs_data_ids = NULL,
   sampler,
@@ -1517,7 +1517,7 @@ estimate_bayesian = function(
 ) {
   # input checks (no checks on drift_dm_obj and obs_data_ids,
   # these have to be supplied with reasonable values from estimate_dm())
-  sampler = match.arg(sampler, c("DE-MCMC", "TIDE"))
+  sampler <- match.arg(sampler, c("DE-MCMC", "TIDE"))
 
   if (!is_numeric(n_chains) | n_chains < 3) {
     stop("n_chains must be a numeric >= 3")
@@ -1541,7 +1541,7 @@ estimate_bayesian = function(
     stop("prob_re_eval must be a numeric between 0 and 1")
   }
   if (is.null(verbose)) {
-    verbose = 2
+    verbose <- 2
   }
   if (!is_numeric(verbose) | !(verbose %in% 0:2)) {
     stop("verbose must be either 0, 1, or 2")
@@ -1552,8 +1552,8 @@ estimate_bayesian = function(
 
   # decide over dispatch
   if (!is.null(obs_data_ids)) {
-    hierarchical = TRUE # controls if the model is estimated hierarchically
-    results = estimate_bayes_h(
+    hierarchical <- TRUE # controls if the model is estimated hierarchically
+    results <- estimate_bayes_h(
       drift_dm_obj = drift_dm_obj,
       obs_data_ids = obs_data_ids,
       sampler = sampler,
@@ -1566,8 +1566,8 @@ estimate_bayesian = function(
       ...
     )
   } else {
-    hierarchical = FALSE
-    results = estimate_bayes_one_subj(
+    hierarchical <- FALSE
+    results <- estimate_bayes_one_subj(
       drift_dm_obj = drift_dm_obj,
       sampler = sampler,
       n_chains = n_chains,
@@ -1583,12 +1583,12 @@ estimate_bayesian = function(
   # log_likelihoods, with the the attribute "data_model".
 
   # calculate the marginal distribution
-  ti = NA_real_
+  ti <- NA_real_
   if (sampler == "TIDE") {
-    temperatures = create_temperatures(n_chains, sampler)
-    lls_theta = results$lls_theta
-    m_ll_theta = apply(lls_theta, MARGIN = 1, mean)
-    ti = sum(
+    temperatures <- create_temperatures(n_chains, sampler)
+    lls_theta <- results$lls_theta
+    m_ll_theta <- apply(lls_theta, MARGIN = 1, mean)
+    ti <- sum(
       diff(temperatures) /
         2 *
         (utils::tail(m_ll_theta, -1) + utils::head(m_ll_theta, -1))
@@ -1596,12 +1596,12 @@ estimate_bayesian = function(
   }
 
   # add ti value to the list
-  results$ti = ti
+  results$ti <- ti
 
   # give it a class label and attribute containing the sampler
   class(results) <- "mcmc_dm"
-  attr(results, "sampler") = sampler
-  attr(results, "hierarchical") = hierarchical
+  attr(results, "sampler") <- sampler
+  attr(results, "hierarchical") <- hierarchical
 
   # and pass back
   return(results)
@@ -1618,15 +1618,15 @@ estimate_bayesian = function(
 #' `sampler == "TIDE"`. Otherwise a numeric vector of `1`s is returned.
 #'
 #' @keywords internal
-create_temperatures = function(n_chains, sampler) {
+create_temperatures <- function(n_chains, sampler) {
   stopifnot(is.integer(n_chains))
   stopifnot(length(n_chains) == 1)
 
-  sampler = match.arg(sampler, choices = c("TIDE", "DE-MCMC"))
-  alpha = 0.3
-  temperatures = rep(1, n_chains)
+  sampler <- match.arg(sampler, choices = c("TIDE", "DE-MCMC"))
+  alpha <- 0.3
+  temperatures <- rep(1, n_chains)
   if (sampler == "TIDE") {
-    temperatures = c(0:(n_chains - 1) / (n_chains - 1))^(1 / alpha)
+    temperatures <- c(0:(n_chains - 1) / (n_chains - 1))^(1 / alpha)
   }
   return(temperatures)
 }
@@ -1665,7 +1665,7 @@ get_subset_chains <- function(chains_obj, id = NULL) {
   if (hierarchical & !is.null(id)) {
     chains <- chains_obj[["theta"]] # prms x chains x subjs x iterations
     all_ids <- dimnames(chains)[[3]]
-    id = as.character(id)
+    id <- as.character(id)
     if (!(id %in% all_ids)) {
       stop("ID ", id, " was not found")
     }
@@ -1699,22 +1699,22 @@ get_subset_chains <- function(chains_obj, id = NULL) {
 #' @keywords internal
 mcmc_dm_to_coda_mcmc <- function(chains) {
   stopifnot(length(dim(chains)) == 3)
-  n_chains = dim(chains)[2]
+  n_chains <- dim(chains)[2]
 
-  list_of_chains = lapply(seq_len(n_chains), \(x) {
-    subset = chains[, x, ] # extract chain
+  list_of_chains <- lapply(seq_len(n_chains), \(x) {
+    subset <- chains[, x, ] # extract chain
     # if chains only contains one parameter dimension are dropped, and might
     # result in a vector instead of an array/matrix
     if (is.vector(subset)) {
-      subset = matrix(subset, ncol = 1)
-      colnames(subset) = dimnames(chains)[[1]]
+      subset <- matrix(subset, ncol = 1)
+      colnames(subset) <- dimnames(chains)[[1]]
     } else {
-      subset = t(subset)
+      subset <- t(subset)
     }
     coda::mcmc(subset)
   })
 
-  coda_mcmc_obj = do.call(coda::mcmc.list, args = list_of_chains)
+  coda_mcmc_obj <- do.call(coda::mcmc.list, args = list_of_chains)
 
   return(coda_mcmc_obj)
 }

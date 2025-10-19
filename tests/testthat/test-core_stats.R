@@ -1,13 +1,13 @@
 # Basic Stats -------------------------------------------------------------
 
 test_that("calc_basic_stats_obs works as expected", {
-  rts_u = c(1, 2, 2, 3, 3, 4)
-  rts_l = c(1, 2, 6, 3)
+  rts_u <- c(1, 2, 2, 3, 3, 4)
+  rts_l <- c(1, 2, 6, 3)
 
-  returned_dat = calc_basic_stats_obs(rts_u, rts_l, one_cond = "foo")
+  returned_dat <- calc_basic_stats_obs(rts_u, rts_l, one_cond = "foo")
 
   # expectation
-  exp = data.frame(
+  exp <- data.frame(
     Cond = "foo",
     Mean_U = mean(rts_u),
     Mean_L = mean(rts_l),
@@ -20,13 +20,13 @@ test_that("calc_basic_stats_obs works as expected", {
 
 
 test_that("calc_basic_stats_pred works as expected", {
-  dt = .005
-  t_vec = seq(0, 2, dt)
+  dt <- .005
+  t_vec <- seq(0, 2, dt)
 
-  pdf_u = dgamma(t_vec, shape = 2, scale = .125) * 0.65
-  pdf_l = dnorm(t_vec, mean = 0.3, sd = 0.05) * 0.35
+  pdf_u <- dgamma(t_vec, shape = 2, scale = .125) * 0.65
+  pdf_l <- dnorm(t_vec, mean = 0.3, sd = 0.05) * 0.35
 
-  returned_dat = calc_basic_stats_pred(
+  returned_dat <- calc_basic_stats_pred(
     pdf_u = pdf_u,
     pdf_l = pdf_l,
     one_cond = "bar",
@@ -35,7 +35,7 @@ test_that("calc_basic_stats_pred works as expected", {
   )
 
   # expectation
-  exp = data.frame(
+  exp <- data.frame(
     Cond = "bar",
     Mean_U = 0.25,
     Mean_L = 0.3,
@@ -61,9 +61,9 @@ test_that("calc_basic_stats -> works as expected", {
   model <- re_evaluate_model(model)
 
   # expectations based on the pdfs
-  t_vec = seq(0, 2, 0.005)
-  pdfs_pred = pdfs(model)$pdfs
-  exps_pred_comp = calc_basic_stats_pred(
+  t_vec <- seq(0, 2, 0.005)
+  pdfs_pred <- pdfs(model)$pdfs
+  exps_pred_comp <- calc_basic_stats_pred(
     pdf_u = pdfs_pred$comp$pdf_u,
     pdf_l = pdfs_pred$comp$pdf_l,
     one_cond = "comp",
@@ -71,9 +71,9 @@ test_that("calc_basic_stats -> works as expected", {
     dt = .005,
     skip_if_contr_low = NULL
   )
-  exps_pred_comp = cbind(Source = "pred", exps_pred_comp)
+  exps_pred_comp <- cbind(Source = "pred", exps_pred_comp)
 
-  exps_pred_incomp = calc_basic_stats_pred(
+  exps_pred_incomp <- calc_basic_stats_pred(
     pdf_u = pdfs_pred$incomp$pdf_u,
     pdf_l = pdfs_pred$incomp$pdf_l,
     one_cond = "incomp",
@@ -81,23 +81,28 @@ test_that("calc_basic_stats -> works as expected", {
     dt = .005,
     skip_if_contr_low = NULL
   )
-  exps_pred_incomp = cbind(Source = "pred", exps_pred_incomp)
+  exps_pred_incomp <- cbind(Source = "pred", exps_pred_incomp)
 
   # expectations based on the data
-  exps_obs_comp = calc_basic_stats_obs(
+  exps_obs_comp <- calc_basic_stats_obs(
     rts_u = model$obs_data$rts_u$comp,
     rts_l = model$obs_data$rts_l$comp,
     one_cond = "comp"
   )
-  exps_obs_comp = cbind(Source = "obs", exps_obs_comp)
-  exps_obs_incomp = calc_basic_stats_obs(
+  exps_obs_comp <- cbind(Source = "obs", exps_obs_comp)
+  exps_obs_incomp <- calc_basic_stats_obs(
     rts_u = model$obs_data$rts_u$incomp,
     rts_l = model$obs_data$rts_l$incomp,
     one_cond = "incomp"
   )
-  exps_obs_incomp = cbind(Source = "obs", exps_obs_incomp)
+  exps_obs_incomp <- cbind(Source = "obs", exps_obs_incomp)
 
-  exps = rbind(exps_obs_comp, exps_obs_incomp, exps_pred_comp, exps_pred_incomp)
+  exps <- rbind(
+    exps_obs_comp,
+    exps_obs_incomp,
+    exps_pred_comp,
+    exps_pred_incomp
+  )
 
   # calculate via calc_stats.drift_dm
   basics <- calc_stats(model, type = "basic_stats")
@@ -1023,8 +1028,8 @@ test_that("fit_stats -> validate and aggregate work as expected", {
     new_stats_dm(as.data.frame(t(one_row)), "fit_stats")
   })
   data_id <- do.call(rbind, data_id)
-  data_id$ID = c(1, 2)
-  data_id = data_id[c(ncol(data_id), 1:(ncol(data_id) - 1))]
+  data_id$ID <- c(1, 2)
+  data_id <- data_id[c(ncol(data_id), 1:(ncol(data_id) - 1))]
 
   test <- colMeans(data_id)[-1]
 
@@ -1095,8 +1100,8 @@ test_that("calc_dens returns valid data.frame; t_max/discr and scale_mass", {
   dens_hist_l_comp <- out$Dens_err[out$Stat == "hist" & out$Cond == "comp"]
   n_comp_rtu <- sum(data$Cond == "comp" & data$Error == 0)
   n_comp_rtl <- sum(data$Cond == "comp" & data$Error == 1)
-  w_rt_u_comp = n_comp_rtu / (n_comp_rtu + n_comp_rtl)
-  w_rt_l_comp = 1 - w_rt_u_comp
+  w_rt_u_comp <- n_comp_rtu / (n_comp_rtu + n_comp_rtl)
+  w_rt_l_comp <- 1 - w_rt_u_comp
 
   expect_equal(sum(dens_hist_u_comp * discr), w_rt_u_comp * ws_comp)
   expect_equal(sum(dens_hist_l_comp * discr), w_rt_l_comp * ws_comp)
@@ -1106,8 +1111,8 @@ test_that("calc_dens returns valid data.frame; t_max/discr and scale_mass", {
   dens_hist_l_incomp <- out$Dens_err[out$Stat == "hist" & out$Cond == "incomp"]
   n_incomp_rtu <- sum(data$Cond == "incomp" & data$Error == 0)
   n_incomp_rtl <- sum(data$Cond == "incomp" & data$Error == 1)
-  w_rt_u_incomp = n_incomp_rtu / (n_incomp_rtu + n_incomp_rtl)
-  w_rt_l_incomp = 1 - w_rt_u_incomp
+  w_rt_u_incomp <- n_incomp_rtu / (n_incomp_rtu + n_incomp_rtl)
+  w_rt_l_incomp <- 1 - w_rt_u_incomp
 
   expect_equal(sum(dens_hist_u_incomp * discr), w_rt_u_incomp * ws_incomp)
   expect_equal(
@@ -1357,7 +1362,7 @@ test_that("calc_stats.drift_dm -> resampling not possible for fit_stats", {
 
 test_that("calc_stats.drift_dm -> prob mass warning", {
   model <- dmc_dummy
-  coef(model)["non_dec"] = 2.5
+  coef(model)["non_dec"] <- 2.5
   expect_warning(
     res1 <- calc_stats(model, type = "fit_stats", resample = TRUE),
     "setting `resampling = FALSE`"
@@ -1506,7 +1511,7 @@ test_that("calc_stats.fits_agg_dm -> works as expected", {
   # check against one single subject
   cafs_2 <- caf_stats[caf_stats$ID == 2 & caf_stats$Source == "obs", ]
   rownames(cafs_2) <- NULL
-  data_2 = fits_agg$obs_data_ids[fits_agg$obs_data_ids$ID == 2, ]
+  data_2 <- fits_agg$obs_data_ids[fits_agg$obs_data_ids$ID == 2, ]
   sep_2 <- calc_stats(data_2, type = "cafs")
   expect_equal(class(cafs_2), class(sep_2))
 })
@@ -1616,8 +1621,8 @@ test_that("calc_stats.data.frame -> resampling at group level works", {
 
   # now do it manually
   withr::local_seed(1)
-  pos_idxs = names(cafs_split)
-  idx_list = replicate(
+  pos_idxs <- names(cafs_split)
+  idx_list <- replicate(
     n = 10,
     expr = sample(x = pos_idxs, size = length(pos_idxs), replace = TRUE),
     simplify = FALSE
@@ -1631,7 +1636,7 @@ test_that("calc_stats.data.frame -> resampling at group level works", {
 
   # test for equality....
   # no resampling and with resampling
-  agg_standard = aggregate_stats(cafs_standard)
+  agg_standard <- aggregate_stats(cafs_standard)
   expect_equal(agg_standard$P_corr, cafs$P_corr[cafs$Estimate == "orig"])
 
   # for manual resampling
@@ -1667,13 +1672,13 @@ test_that("calc_stats.fits_ids_dm -> resampling at group level works", {
   # the same rng value (when calling resample, we no only perform resamples
   # for the model preds but also for the obs!)
   withr::local_seed(1)
-  pos_idxs = names(cafs_split)
-  idx_list = replicate(
+  pos_idxs <- names(cafs_split)
+  idx_list <- replicate(
     n = 20,
     expr = sample(x = pos_idxs, size = length(pos_idxs), replace = TRUE),
     simplify = FALSE
   )
-  idx_list = idx_list[11:20]
+  idx_list <- idx_list[11:20]
 
   stats <- lapply(idx_list, \(one_set) {
     boot_cafs <- cafs_split[one_set]
@@ -1683,7 +1688,7 @@ test_that("calc_stats.fits_ids_dm -> resampling at group level works", {
 
   # test for equality....
   # no resampling and with resampling
-  agg_standard = aggregate_stats(cafs_per_subject)
+  agg_standard <- aggregate_stats(cafs_per_subject)
   expect_equal(cafs$P_corr[cafs$Estimate == "orig"], agg_standard$P_corr)
 
   # for manual resampling

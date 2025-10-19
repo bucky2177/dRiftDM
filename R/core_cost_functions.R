@@ -261,7 +261,7 @@ stats_from_pdfs_agg_info <- function(
   stopifnot(is.numeric(t_vec))
   stopifnot(is.numeric(dt))
   if (is.null(stats_agg_info)) {
-    stats_agg_info = list()
+    stats_agg_info <- list()
   }
   stopifnot(is.list(stats_agg_info))
   what <- match.arg(what, c("quantiles", "cafs"))
@@ -274,7 +274,7 @@ stats_from_pdfs_agg_info <- function(
   # CAFs
   if ("cafs" == what) {
     cafs_pred_list <- lapply(conds, function(one_cond) {
-      n_bins = stats_agg_info[[one_cond]]$n_bins %||% drift_dm_default_n_bins()
+      n_bins <- stats_agg_info[[one_cond]]$n_bins %||% drift_dm_default_n_bins()
       tryCatch(
         calc_cafs_pred(
           pdf_u = pdfs[[one_cond]]$pdf_u,
@@ -292,7 +292,7 @@ stats_from_pdfs_agg_info <- function(
   # Quantiles
   if ("quantiles" == what) {
     quants_pred_list <- lapply(conds, function(one_cond) {
-      probs = stats_agg_info[[one_cond]]$probs_corr %||%
+      probs <- stats_agg_info[[one_cond]]$probs_corr %||%
         drift_dm_default_probs()
       tryCatch(
         calc_quantiles_pred(
