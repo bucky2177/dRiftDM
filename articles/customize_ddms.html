@@ -61,7 +61,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>How To Customize DDMs</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/v0.3.0/vignettes/customize_ddms.Rmd" class="external-link"><code>vignettes/customize_ddms.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/main/vignettes/customize_ddms.Rmd" class="external-link"><code>vignettes/customize_ddms.Rmd</code></a></small>
       <div class="d-none name"><code>customize_ddms.Rmd</code></div>
     </div>
 
@@ -520,7 +520,7 @@ by modifying the parameter settings with
 <span>  <span class="va">prms_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    muc <span class="op">=</span> <span class="fl">3</span>, <span class="co"># parameters for the custom drift rate function</span></span>
 <span>    mua <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>    sign <span class="op">=</span> <span class="fl">1</span>, </span>
+<span>    sign <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    b <span class="op">=</span> <span class="fl">.6</span>, <span class="co"># parameter for a time-independent boundary "b"</span></span>
 <span>    non_dec <span class="op">=</span> <span class="fl">.2</span> <span class="co"># parameter for a non-decision time "non_dec"</span></span>
 <span>  <span class="op">)</span></span>
@@ -690,7 +690,7 @@ derivative of the boundary:
 <span>    non_dec <span class="op">=</span> <span class="fl">.2</span> <span class="co"># parameter for a non-decision time "non_dec"</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span>  <span class="co"># each model must have a condition </span></span>
+<span>  <span class="co"># each model must have a condition</span></span>
 <span>  <span class="co"># (in this example it is not relevant, so we just call it "foo")</span></span>
 <span>  <span class="va">conds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"foo"</span><span class="op">)</span></span>
 <span></span>
@@ -829,8 +829,8 @@ under a fine discretization (with <code>dx</code> = <code>dt</code> =
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cust_model</span> <span class="op">&lt;-</span> <span class="fu">cust_model</span><span class="op">(</span><span class="op">)</span> <span class="co"># some custom model</span></span>
 <span><span class="co"># set the intended discretization setting</span></span>
-<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">cust_model</span><span class="op">)</span><span class="op">[</span><span class="st">"dx"</span><span class="op">]</span> <span class="op">=</span> <span class="fl">.01</span></span>
-<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">cust_model</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">=</span> <span class="fl">.005</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">cust_model</span><span class="op">)</span><span class="op">[</span><span class="st">"dx"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.01</span></span>
+<span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">cust_model</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.005</span></span>
 <span></span>
 <span><span class="co"># compare to a precise solution</span></span>
 <span><span class="fu"><a href="../reference/check_discretization.html">check_discretization</a></span><span class="op">(</span><span class="va">cust_model</span><span class="op">)</span></span>
