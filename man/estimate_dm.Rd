@@ -296,25 +296,24 @@ exported:
 # get a model for the examples (DMC with just two free parameters)
 model <- dmc_dm(
   t_max = 1.5, dx = .01, dt = .01,
-  instr = '
+  instr = "
    b <!>
    non_dec <!>
    sd_non_dec <!>
    tau <!>
    alpha <!>
-   '
+   "
 )
 
 # get some data (the first two participants in the data set of Ulrich et al.)
-data <- ulrich_flanker_data[ulrich_flanker_data$ID \%in\% 1:2,]
-
+data <- ulrich_flanker_data[ulrich_flanker_data$ID \%in\% 1:2, ]
 
 
 ####
 # Fit a single individual (using unbounded Nelder-Mead)
 fit <- estimate_dm(
   drift_dm_obj = model,
-  obs_data = data[data$ID == 1,],
+  obs_data = data[data$ID == 1, ],
   optimizer = "Nelder-Mead"
 )
 print(fit)
@@ -326,7 +325,7 @@ print(fit)
 l_u <- get_lower_upper(model)
 fit <- estimate_dm(
   drift_dm_obj = model,
-  obs_data = data[data$ID == 1,],
+  obs_data = data[data$ID == 1, ],
   optimizer = "nmkb",
   lower = l_u$lower, upper = l_u$upper,
   start_vals = c(muc = 4, A = 0.06)
@@ -343,7 +342,7 @@ l_u <- get_lower_upper(model)
 set.seed(2)
 fit <- estimate_dm(
   drift_dm_obj = model,
-  obs_data = data[data$ID == 1,],
+  obs_data = data[data$ID == 1, ],
   optimizer = "DEoptim",
   lower = l_u$lower, upper = l_u$upper,
   control = list(steptol = 10)
@@ -381,7 +380,7 @@ coef(fit)
 # Fit a single individual (using DE-MCMC; Bayesian; custom priors)
 fit <- estimate_dm(
   drift_dm_obj = model,
-  obs_data = data[data$ID == 1,],
+  obs_data = data[data$ID == 1, ],
   approach = "sep_b",
   burn_in = 2, # this is usually way higher
   samples = 2, # this too

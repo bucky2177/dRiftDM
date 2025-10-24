@@ -62,7 +62,7 @@ sum_obj <- summary(a_model)
 print(sum_obj, round_digits = 2)
 
 # more information is provided when we add data to the model
-obs_data(a_model) <- dmc_synth_data  # (data set comes with dRiftDM)
+obs_data(a_model) <- dmc_synth_data # (data set comes with dRiftDM)
 summary(a_model)
 
 # fit indices are added once we evaluate the model
