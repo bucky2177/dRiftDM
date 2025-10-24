@@ -195,12 +195,30 @@ calc_pdfs_heart <- function(
   dt_b_vals <- comp_vals_one_cond$dt_b_vals
   nt_vals <- comp_vals_one_cond$nt_vals
 
+  # check for constant b and mu
+  check <- all(b_vals == b_vals[1]) && all(mu_vals == mu_vals[1])
+
   # Initializing containers
   pdf_u <- numeric(nt + 1)
   pdf_l <- numeric(nt + 1)
 
-  if (solver == "kfe") {
-    # solve the pdfs with kfe
+  if (solver == "kfe" && check) {
+    # solve the pdfs with simplified kfe
+    cpp_kfe_ada_fixed_mu_b(
+      pdf_u = pdf_u,
+      pdf_l = pdf_l,
+      xx = x_vals,
+      nt = nt,
+      nx = nx,
+      dtbase = dt,
+      dx = dx,
+      sigma = sigma,
+      b_val = b_vals[1],
+      mu_val = mu_vals[1],
+      x_vec = x_vec
+    )
+  } else if (solver == "kfe" && !check) {
+    # solve the pdfs with general kfe
     cpp_kfe_ada(
       pdf_u = pdf_u,
       pdf_l = pdf_l,

@@ -945,6 +945,15 @@ estimate_classical <- function(
     )
   }
 
+  # check if start_vals is a data.frame, and omit the ID column;
+  # mabye turn into a simple vector if it has only one row
+  if (is.data.frame(start_vals)) {
+    start_vals <- start_vals[,names(start_vals) != "ID"]
+    if (nrow(start_vals) == 1) {
+      start_vals <-  unlist(start_vals)
+    }
+  }
+
   # set start_vals or recursive call
   if (!is.null(start_vals)) {
     if (is.null(return_runs)) {
@@ -968,7 +977,7 @@ estimate_classical <- function(
       coef(drift_dm_obj) <- prm
     } else {
       # otherwise call the function recursively
-      stopifnot(nrow(start_vals) > 0)
+      stopifnot(nrow(start_vals) > 1)
       results <- lapply(1:nrow(start_vals), function(i) {
         if (verbose > 0) {
           message("Optimization run: ", i)
@@ -1500,7 +1509,7 @@ estimate_classical_wrapper <- function(
   if (check) {
     ids <- names(not_conv[not_conv])
     not_conv_msg <- messages[not_conv]
-    messages_formatted <- paste("-", unique(messages))
+    messages_formatted <- paste("-", unique(not_conv_msg))
     add <- ""
     n_ids <- length(ids)
     if (n_ids > drift_dm_n_id_trunc_warn()) {

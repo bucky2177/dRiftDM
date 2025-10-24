@@ -527,7 +527,7 @@
       Object Type: coefs_dm
       
         ID   muc     b non_dec
-      1  1 4.128 0.514   0.287
+      1  1 4.132 0.503   0.295
       2  2 3.265 0.399   0.313
       
       (access the data.frame's columns/rows as usual)
