@@ -36,6 +36,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/model_recovery.html">How To Perform a Model Recovery</a></li>
     <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul>
 </li>
@@ -248,7 +249,7 @@ symmetric beta distribution <span class="citation">(see Ulrich et al.
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">five_traces</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"green"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-1.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-1.png" class="r-plt" width="700"></p>
 <p>If you would like diffusion processes with a higher temporal
 resolution (e.g., for a nice publication-ready figure), simply increase
 <code>dt</code> (see the next chapter below) and run
@@ -260,7 +261,7 @@ by eliminating the stochastic noise with setting the argument
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exp_behavior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, k <span class="op">=</span> <span class="fl">1</span>, sigma <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">exp_behavior</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"green"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-2-1.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-2-1.png" class="r-plt" width="700"></p>
 <p>Note: When deriving the diffusion processes, <code>dRiftDM</code>
 simply uses the Euler-Maruyama method with a fixed time step size of
 <code>dt</code>. When actually deriving model predictions via the
@@ -322,7 +323,7 @@ model predictions:</p>
 method:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sum_stats</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-3-1.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-3-2.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-3-1.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-3-2.png" class="r-plt" width="700"></p>
 <p>It is also possible to plot the predicted response time distributions
 using <code>type = "densities"</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -348,10 +349,10 @@ using <code>type = "densities"</code>.</p>
 for each condition, so they don’t overlap too much:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sum_stats</span>, conds <span class="op">=</span> <span class="st">"comp"</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-4-1.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-4-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sum_stats</span>, conds <span class="op">=</span> <span class="st">"incomp"</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-4-2.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-4-2.png" class="r-plt" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -712,66 +713,74 @@ Simon data set provided by <span class="citation">Ulrich et al.
 <span><span class="co">#&gt; Using the data supplied via the 'obs_data' argument.</span></span>
 <span><span class="co">#&gt; Using optimizer 'Nelder-Mead'.</span></span>
 <span><span class="co">#&gt; Fitting the model separately to multiple participants (cost function:'neg_log_like'). The result will be a fit object of type 'fits_ids_dm'.</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'Nelder-Mead' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Warning in estimate_classical(drift_dm_obj = one_model_start$drift_dm_obj, :</span></span>
-<span><span class="co">#&gt; The optimization routine did not converge successfully (convergence message:</span></span>
-<span><span class="co">#&gt; maxit reached). Treat the estimated parameters with some caution.</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 501 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 4.277</span></span>
-<span><span class="co">#&gt; b = 0.447</span></span>
-<span><span class="co">#&gt; non_dec = 0.308</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.022</span></span>
-<span><span class="co">#&gt; tau = 0.02</span></span>
-<span><span class="co">#&gt; A = 0.114</span></span>
-<span><span class="co">#&gt; alpha = 5.289</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -418.653</span></span>
-<span><span class="co">#&gt; Starting optimizer 'Nelder-Mead' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
+<span><span class="co">#&gt; muc=3.936, b=0.39, non_dec=0.306, sd_non_dec=0.027, tau=0.059, A=0.074, alpha=7.498</span></span>
 <span><span class="co">#&gt; Warning in estimate_classical(drift_dm_obj = one_model_start$drift_dm_obj, :</span></span>
 <span><span class="co">#&gt; The optimization routine did not converge successfully (convergence message:</span></span>
 <span><span class="co">#&gt; maxit reached). Treat the estimated parameters with some caution.</span></span>
 <span><span class="co">#&gt; Optimization routine exited after 502 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 4.116</span></span>
-<span><span class="co">#&gt; b = 0.379</span></span>
-<span><span class="co">#&gt; non_dec = 0.303</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.032</span></span>
-<span><span class="co">#&gt; tau = 0.06</span></span>
-<span><span class="co">#&gt; A = 0.046</span></span>
-<span><span class="co">#&gt; alpha = 5.623</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -383.466</span></span>
-<span><span class="co">#&gt; Starting optimizer 'Nelder-Mead' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Warning in estimate_classical(drift_dm_obj = one_model_start$drift_dm_obj, :</span></span>
-<span><span class="co">#&gt; The optimization routine did not converge successfully (convergence message:</span></span>
-<span><span class="co">#&gt; maxit reached). Treat the estimated parameters with some caution.</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 501 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 5.427</span></span>
-<span><span class="co">#&gt; b = 0.433</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 4.263</span></span>
+<span><span class="co">#&gt; b = 0.438</span></span>
 <span><span class="co">#&gt; non_dec = 0.307</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.019</span></span>
-<span><span class="co">#&gt; tau = 0.059</span></span>
-<span><span class="co">#&gt; A = 0.026</span></span>
-<span><span class="co">#&gt; alpha = 4.426</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -508.639</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.029</span></span>
+<span><span class="co">#&gt; tau = 0.025</span></span>
+<span><span class="co">#&gt; A = 0.088</span></span>
+<span><span class="co">#&gt; alpha = 8.185</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -419.191</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'Nelder-Mead' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
+<span><span class="co">#&gt; muc=3.512, b=0.379, non_dec=0.287, sd_non_dec=0.041, tau=0.069, A=0.036, alpha=6.628</span></span>
 <span><span class="co">#&gt; Warning in estimate_classical(drift_dm_obj = one_model_start$drift_dm_obj, :</span></span>
 <span><span class="co">#&gt; The optimization routine did not converge successfully (convergence message:</span></span>
 <span><span class="co">#&gt; maxit reached). Treat the estimated parameters with some caution.</span></span>
 <span><span class="co">#&gt; Optimization routine exited after 502 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 2.863</span></span>
-<span><span class="co">#&gt; b = 0.537</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 4.147</span></span>
+<span><span class="co">#&gt; b = 0.383</span></span>
 <span><span class="co">#&gt; non_dec = 0.302</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.034</span></span>
-<span><span class="co">#&gt; tau = 0.051</span></span>
-<span><span class="co">#&gt; A = 0.101</span></span>
-<span><span class="co">#&gt; alpha = 2.761</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -172.322</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.032</span></span>
+<span><span class="co">#&gt; tau = 0.064</span></span>
+<span><span class="co">#&gt; A = 0.049</span></span>
+<span><span class="co">#&gt; alpha = 5.273</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -383.355</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
+<span><span class="co">#&gt; Starting optimizer 'Nelder-Mead' with the following starting values:</span></span>
+<span><span class="co">#&gt; muc=4.759, b=0.443, non_dec=0.292, sd_non_dec=0.022, tau=0.16, A=0.033, alpha=5.641</span></span>
+<span><span class="co">#&gt; Warning in estimate_classical(drift_dm_obj = one_model_start$drift_dm_obj, :</span></span>
+<span><span class="co">#&gt; The optimization routine did not converge successfully (convergence message:</span></span>
+<span><span class="co">#&gt; maxit reached). Treat the estimated parameters with some caution.</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 502 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 5.617</span></span>
+<span><span class="co">#&gt; b = 0.467</span></span>
+<span><span class="co">#&gt; non_dec = 0.302</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.021</span></span>
+<span><span class="co">#&gt; tau = 0.011</span></span>
+<span><span class="co">#&gt; A = 0.052</span></span>
+<span><span class="co">#&gt; alpha = 6.718</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -510.38</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
+<span><span class="co">#&gt; Starting optimizer 'Nelder-Mead' with the following starting values:</span></span>
+<span><span class="co">#&gt; muc=2.187, b=0.497, non_dec=0.27, sd_non_dec=0.029, tau=0.218, A=0.03, alpha=6.945</span></span>
+<span><span class="co">#&gt; Warning in estimate_classical(drift_dm_obj = one_model_start$drift_dm_obj, :</span></span>
+<span><span class="co">#&gt; The optimization routine did not converge successfully (convergence message:</span></span>
+<span><span class="co">#&gt; maxit reached). Treat the estimated parameters with some caution.</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 502 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 2.651</span></span>
+<span><span class="co">#&gt; b = 0.501</span></span>
+<span><span class="co">#&gt; non_dec = 0.292</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.038</span></span>
+<span><span class="co">#&gt; tau = 0.055</span></span>
+<span><span class="co">#&gt; A = 0.049</span></span>
+<span><span class="co">#&gt; alpha = 5.745</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -165.915</span></span>
 <span><span class="co">#&gt; Warning in estimate_classical_wrapper(drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data, : The optimization routine did not converge successfully for the following IDs: 1, 2, 3, 4</span></span>
 <span><span class="co">#&gt; Summary of messages:</span></span>
 <span><span class="co">#&gt; - maxit reached</span></span></code></pre></div>
@@ -806,54 +815,69 @@ info).</p>
 <span><span class="co">#&gt; Using the data supplied via the 'obs_data' argument.</span></span>
 <span><span class="co">#&gt; Using optimizer 'Nelder-Mead'.</span></span>
 <span><span class="co">#&gt; Fitting the model separately to multiple participants (cost function:'neg_log_like'). The result will be a fit object of type 'fits_ids_dm'.</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'Nelder-Mead' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 605 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 4.274</span></span>
-<span><span class="co">#&gt; b = 0.446</span></span>
-<span><span class="co">#&gt; non_dec = 0.308</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.022</span></span>
-<span><span class="co">#&gt; tau = 0.02</span></span>
-<span><span class="co">#&gt; A = 0.114</span></span>
-<span><span class="co">#&gt; alpha = 5.294</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -418.653</span></span>
+<span><span class="co">#&gt; muc=3.936, b=0.39, non_dec=0.306, sd_non_dec=0.025, tau=0.238, A=0.074, alpha=7.407</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 1104 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 4.288</span></span>
+<span><span class="co">#&gt; b = 0.409</span></span>
+<span><span class="co">#&gt; non_dec = 0.315</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.035</span></span>
+<span><span class="co">#&gt; tau = 0.023</span></span>
+<span><span class="co">#&gt; A = 0.09</span></span>
+<span><span class="co">#&gt; alpha = 9.046</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -417.937</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'Nelder-Mead' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 1214 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 4.105</span></span>
+<span><span class="co">#&gt; muc=3.512, b=0.379, non_dec=0.287, sd_non_dec=0.027, tau=0.075, A=0.017, alpha=5.836</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 1041 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 4.26</span></span>
 <span><span class="co">#&gt; b = 0.378</span></span>
-<span><span class="co">#&gt; non_dec = 0.303</span></span>
+<span><span class="co">#&gt; non_dec = 0.305</span></span>
 <span><span class="co">#&gt; sd_non_dec = 0.032</span></span>
-<span><span class="co">#&gt; tau = 0.02</span></span>
-<span><span class="co">#&gt; A = 0.058</span></span>
-<span><span class="co">#&gt; alpha = 5.893</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -384.298</span></span>
+<span><span class="co">#&gt; tau = 0.061</span></span>
+<span><span class="co">#&gt; A = 0.018</span></span>
+<span><span class="co">#&gt; alpha = 4.321</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -382.68</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'Nelder-Mead' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 699 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 5.425</span></span>
-<span><span class="co">#&gt; b = 0.433</span></span>
+<span><span class="co">#&gt; muc=4.759, b=0.443, non_dec=0.292, sd_non_dec=0.019, tau=0.218, A=0.094, alpha=6.858</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 1286 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 5.177</span></span>
+<span><span class="co">#&gt; b = 0.404</span></span>
 <span><span class="co">#&gt; non_dec = 0.307</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.019</span></span>
-<span><span class="co">#&gt; tau = 0.059</span></span>
-<span><span class="co">#&gt; A = 0.025</span></span>
-<span><span class="co">#&gt; alpha = 4.446</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -508.641</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.018</span></span>
+<span><span class="co">#&gt; tau = 0.012</span></span>
+<span><span class="co">#&gt; A = 0.067</span></span>
+<span><span class="co">#&gt; alpha = 15.44</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -512.195</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'Nelder-Mead' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 598 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 2.863</span></span>
-<span><span class="co">#&gt; b = 0.537</span></span>
-<span><span class="co">#&gt; non_dec = 0.302</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.034</span></span>
-<span><span class="co">#&gt; tau = 0.051</span></span>
-<span><span class="co">#&gt; A = 0.101</span></span>
-<span><span class="co">#&gt; alpha = 2.761</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -172.322</span></span></code></pre></div>
+<span><span class="co">#&gt; muc=2.187, b=0.497, non_dec=0.27, sd_non_dec=0.026, tau=0.055, A=0.08, alpha=6.095</span></span>
+<span><span class="co">#&gt; Warning in estimate_classical(drift_dm_obj = one_model_start$drift_dm_obj, :</span></span>
+<span><span class="co">#&gt; The optimization routine did not converge successfully (convergence message:</span></span>
+<span><span class="co">#&gt; degeneracy of Nelder-Mead simplex). Treat the estimated parameters with some</span></span>
+<span><span class="co">#&gt; caution.</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 316 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 2.878</span></span>
+<span><span class="co">#&gt; b = 0.534</span></span>
+<span><span class="co">#&gt; non_dec = 0.304</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.035</span></span>
+<span><span class="co">#&gt; tau = 0.043</span></span>
+<span><span class="co">#&gt; A = 0.096</span></span>
+<span><span class="co">#&gt; alpha = 2.832</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -172.065</span></span>
+<span><span class="co">#&gt; Warning in estimate_classical_wrapper(drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data, : The optimization routine did not converge successfully for the following IDs: 4</span></span>
+<span><span class="co">#&gt; Summary of messages:</span></span>
+<span><span class="co">#&gt; - degeneracy of Nelder-Mead simplex</span></span></code></pre></div>
 <p>Now the algorithm converges after about 600 to 1000 function
 evaluations.</p>
 <p>What about the other option of switching the algorithm? Instead of
@@ -895,62 +919,62 @@ least for the pre-built models and model components:</p>
 <span><span class="co">#&gt; Using the data supplied via the 'obs_data' argument.</span></span>
 <span><span class="co">#&gt; Using optimizer 'nmkb'.</span></span>
 <span><span class="co">#&gt; Fitting the model separately to multiple participants (cost function:'neg_log_like'). The result will be a fit object of type 'fits_ids_dm'.</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'nmkb' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Warning in estimate_classical(drift_dm_obj = one_model_start$drift_dm_obj, :</span></span>
-<span><span class="co">#&gt; The optimization routine did not converge successfully (convergence message:</span></span>
-<span><span class="co">#&gt; Maximum number of fevals exceeded). Treat the estimated parameters with some</span></span>
-<span><span class="co">#&gt; caution.</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 1500 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 4.317</span></span>
-<span><span class="co">#&gt; b = 0.426</span></span>
-<span><span class="co">#&gt; non_dec = 0.314</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.027</span></span>
-<span><span class="co">#&gt; tau = 0.02</span></span>
-<span><span class="co">#&gt; A = 0.092</span></span>
-<span><span class="co">#&gt; alpha = 4.929</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -420.083</span></span>
+<span><span class="co">#&gt; muc=3.936, b=0.39, non_dec=0.306, sd_non_dec=0.025, tau=0.132, A=0.06, alpha=7.677</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 1315 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 4.21</span></span>
+<span><span class="co">#&gt; b = 0.395</span></span>
+<span><span class="co">#&gt; non_dec = 0.315</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.029</span></span>
+<span><span class="co">#&gt; tau = 0.08</span></span>
+<span><span class="co">#&gt; A = 0.032</span></span>
+<span><span class="co">#&gt; alpha = 7.415</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -414.813</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'nmkb' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 870 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 4.265</span></span>
-<span><span class="co">#&gt; b = 0.385</span></span>
-<span><span class="co">#&gt; non_dec = 0.305</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.032</span></span>
-<span><span class="co">#&gt; tau = 0.024</span></span>
-<span><span class="co">#&gt; A = 0.049</span></span>
-<span><span class="co">#&gt; alpha = 4.117</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -384.243</span></span>
-<span><span class="co">#&gt; Starting optimizer 'nmkb' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 1374 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 5.24</span></span>
-<span><span class="co">#&gt; b = 0.445</span></span>
-<span><span class="co">#&gt; non_dec = 0.302</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.018</span></span>
+<span><span class="co">#&gt; muc=3.512, b=0.379, non_dec=0.287, sd_non_dec=0.032, tau=0.015, A=0.037, alpha=7.887</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 732 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 4.046</span></span>
+<span><span class="co">#&gt; b = 0.366</span></span>
+<span><span class="co">#&gt; non_dec = 0.304</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.033</span></span>
 <span><span class="co">#&gt; tau = 0.015</span></span>
-<span><span class="co">#&gt; A = 0.068</span></span>
-<span><span class="co">#&gt; alpha = 8</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -512.014</span></span>
+<span><span class="co">#&gt; A = 0.064</span></span>
+<span><span class="co">#&gt; alpha = 7.951</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -384.096</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'nmkb' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 915 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 2.868</span></span>
-<span><span class="co">#&gt; b = 0.525</span></span>
-<span><span class="co">#&gt; non_dec = 0.305</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.037</span></span>
-<span><span class="co">#&gt; tau = 0.044</span></span>
-<span><span class="co">#&gt; A = 0.115</span></span>
-<span><span class="co">#&gt; alpha = 3.15</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -171.917</span></span>
-<span><span class="co">#&gt; Warning in estimate_classical_wrapper(drift_dm_obj = drift_dm_obj, obs_data_ids = obs_data, : The optimization routine did not converge successfully for the following IDs: 1</span></span>
-<span><span class="co">#&gt; Summary of messages:</span></span>
-<span><span class="co">#&gt; - Maximum number of fevals exceeded</span></span>
-<span><span class="co">#&gt; - Successful convergence</span></span></code></pre></div>
+<span><span class="co">#&gt; muc=4.759, b=0.443, non_dec=0.292, sd_non_dec=0.021, tau=0.209, A=0.122, alpha=5.36</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 1100 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 5.347</span></span>
+<span><span class="co">#&gt; b = 0.439</span></span>
+<span><span class="co">#&gt; non_dec = 0.304</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.019</span></span>
+<span><span class="co">#&gt; tau = 0.015</span></span>
+<span><span class="co">#&gt; A = 0.066</span></span>
+<span><span class="co">#&gt; alpha = 7.97</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -512.114</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
+<span><span class="co">#&gt; Starting optimizer 'nmkb' with the following starting values:</span></span>
+<span><span class="co">#&gt; muc=2.187, b=0.497, non_dec=0.27, sd_non_dec=0.013, tau=0.068, A=0.055, alpha=7.786</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 1082 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 2.871</span></span>
+<span><span class="co">#&gt; b = 0.527</span></span>
+<span><span class="co">#&gt; non_dec = 0.302</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.036</span></span>
+<span><span class="co">#&gt; tau = 0.057</span></span>
+<span><span class="co">#&gt; A = 0.104</span></span>
+<span><span class="co">#&gt; alpha = 2.839</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -172.3</span></span></code></pre></div>
 <p>In this case, we only saw a convergence warning for one participant.
 By increasing the number of iterations, this warning again
 disappears:</p>
@@ -967,54 +991,62 @@ disappears:</p>
 <span><span class="co">#&gt; Using the data supplied via the 'obs_data' argument.</span></span>
 <span><span class="co">#&gt; Using optimizer 'nmkb'.</span></span>
 <span><span class="co">#&gt; Fitting the model separately to multiple participants (cost function:'neg_log_like'). The result will be a fit object of type 'fits_ids_dm'.</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'nmkb' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 1714 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 4.317</span></span>
-<span><span class="co">#&gt; b = 0.426</span></span>
+<span><span class="co">#&gt; muc=3.936, b=0.39, non_dec=0.306, sd_non_dec=0.023, tau=0.104, A=0.066, alpha=7.879</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 1504 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 4.23</span></span>
+<span><span class="co">#&gt; b = 0.411</span></span>
 <span><span class="co">#&gt; non_dec = 0.314</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.027</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.028</span></span>
 <span><span class="co">#&gt; tau = 0.02</span></span>
-<span><span class="co">#&gt; A = 0.092</span></span>
-<span><span class="co">#&gt; alpha = 4.929</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -420.083</span></span>
+<span><span class="co">#&gt; A = 0.093</span></span>
+<span><span class="co">#&gt; alpha = 7.946</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -420.397</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'nmkb' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 870 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 4.265</span></span>
-<span><span class="co">#&gt; b = 0.385</span></span>
+<span><span class="co">#&gt; muc=3.512, b=0.379, non_dec=0.287, sd_non_dec=0.033, tau=0.084, A=0.061, alpha=7.114</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 530 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 4.229</span></span>
+<span><span class="co">#&gt; b = 0.381</span></span>
 <span><span class="co">#&gt; non_dec = 0.305</span></span>
 <span><span class="co">#&gt; sd_non_dec = 0.032</span></span>
-<span><span class="co">#&gt; tau = 0.024</span></span>
-<span><span class="co">#&gt; A = 0.049</span></span>
-<span><span class="co">#&gt; alpha = 4.117</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -384.243</span></span>
+<span><span class="co">#&gt; tau = 0.023</span></span>
+<span><span class="co">#&gt; A = 0.053</span></span>
+<span><span class="co">#&gt; alpha = 4.625</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -384.316</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'nmkb' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 1374 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 5.24</span></span>
-<span><span class="co">#&gt; b = 0.445</span></span>
-<span><span class="co">#&gt; non_dec = 0.302</span></span>
+<span><span class="co">#&gt; muc=4.759, b=0.443, non_dec=0.292, sd_non_dec=0.015, tau=0.131, A=0.051, alpha=5.635</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 1160 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 5.27</span></span>
+<span><span class="co">#&gt; b = 0.438</span></span>
+<span><span class="co">#&gt; non_dec = 0.303</span></span>
 <span><span class="co">#&gt; sd_non_dec = 0.018</span></span>
-<span><span class="co">#&gt; tau = 0.015</span></span>
-<span><span class="co">#&gt; A = 0.068</span></span>
-<span><span class="co">#&gt; alpha = 8</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -512.014</span></span>
+<span><span class="co">#&gt; tau = 0.054</span></span>
+<span><span class="co">#&gt; A = 0.021</span></span>
+<span><span class="co">#&gt; alpha = 7.557</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -510.464</span></span>
+<span><span class="co">#&gt; Using EZ-Diffusion estimates for: muc, b, non_dec</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'nmkb' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 915 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 2.868</span></span>
-<span><span class="co">#&gt; b = 0.525</span></span>
-<span><span class="co">#&gt; non_dec = 0.305</span></span>
+<span><span class="co">#&gt; muc=2.187, b=0.497, non_dec=0.27, sd_non_dec=0.027, tau=0.213, A=0.039, alpha=7.117</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 805 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 2.901</span></span>
+<span><span class="co">#&gt; b = 0.533</span></span>
+<span><span class="co">#&gt; non_dec = 0.303</span></span>
 <span><span class="co">#&gt; sd_non_dec = 0.037</span></span>
-<span><span class="co">#&gt; tau = 0.044</span></span>
-<span><span class="co">#&gt; A = 0.115</span></span>
-<span><span class="co">#&gt; alpha = 3.15</span></span>
-<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -171.917</span></span></code></pre></div>
+<span><span class="co">#&gt; tau = 0.053</span></span>
+<span><span class="co">#&gt; A = 0.1</span></span>
+<span><span class="co">#&gt; alpha = 2.862</span></span>
+<span><span class="co">#&gt; ==&gt; gave a neg_log_like of -172.311</span></span></code></pre></div>
 <p>When you provide <code>lower/upper</code>, the default is actually
 not “nmkb”, but “DEoptim”. The ‘DE’ stands for Differential Evolution—a
 slower but very robust optimization algorithm. If runtime is not
@@ -1028,10 +1060,7 @@ DDMs).</p>
 <span>  lower <span class="op">=</span> <span class="va">l_u</span><span class="op">$</span><span class="va">lower</span>,</span>
 <span>  upper <span class="op">=</span> <span class="va">l_u</span><span class="op">$</span><span class="va">upper</span>,</span>
 <span>  n_cores <span class="op">=</span> <span class="fl">1</span> <span class="co"># you might want to increase this</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Using the data supplied via the 'obs_data' argument.</span></span>
-<span><span class="co">#&gt; Using optimizer 'DEoptim'.</span></span>
-<span><span class="co">#&gt; Fitting the model separately to multiple participants (cost function:'neg_log_like'). The result will be a fit object of type 'fits_ids_dm'.</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Because DEoptim is time-consuming, it is recommended to use multiple
 cores. You can set the desired number of cores using the
 <code>n_cores</code> argument.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The reason we do not use multiple cores here is related
@@ -1073,7 +1102,7 @@ the individual fits.</p>
 <span><span class="co">#&gt; Fit approach: separately - classical</span></span>
 <span><span class="co">#&gt; Fitted model type: dmc_dm, drift_dm</span></span>
 <span><span class="co">#&gt; Optimizer: DEoptim </span></span>
-<span><span class="co">#&gt; Convergence: TRUE </span></span>
+<span><span class="co">#&gt; Convergence: NA </span></span>
 <span><span class="co">#&gt; N Individuals: 4 </span></span>
 <span><span class="co">#&gt; Average Trial Numbers:</span></span>
 <span><span class="co">#&gt;  167 trials comp; 168 trials incomp</span></span>
@@ -1099,9 +1128,9 @@ about—just be aware of it.</p>
 <span><span class="co">#&gt; Convergence: TRUE</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Values:</span></span>
-<span><span class="co">#&gt;          muc     b non_dec sd_non_dec  tau a      A alpha</span></span>
-<span><span class="co">#&gt; comp   4.274 0.446   0.308      0.022 0.02 2  0.114 5.294</span></span>
-<span><span class="co">#&gt; incomp 4.274 0.446   0.308      0.022 0.02 2 -0.114 5.294</span></span>
+<span><span class="co">#&gt;         muc     b non_dec sd_non_dec   tau a      A alpha</span></span>
+<span><span class="co">#&gt; comp   4.27 0.422   0.312      0.028 0.078 2  0.013 4.759</span></span>
+<span><span class="co">#&gt; incomp 4.27 0.422   0.312      0.028 0.078 2 -0.013 4.759</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Settings:</span></span>
 <span><span class="co">#&gt;        muc b non_dec sd_non_dec tau a A alpha</span></span>
@@ -1113,8 +1142,8 @@ about—just be aware of it.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Custom Parameters:</span></span>
 <span><span class="co">#&gt;        peak_l</span></span>
-<span><span class="co">#&gt; comp     0.02</span></span>
-<span><span class="co">#&gt; incomp   0.02</span></span>
+<span><span class="co">#&gt; comp    0.078</span></span>
+<span><span class="co">#&gt; incomp  0.078</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Deriving PDFS:</span></span>
 <span><span class="co">#&gt;   solver: kfe</span></span>
@@ -1192,19 +1221,20 @@ algorithm such as Nelder-Mead or Differential Evolution.&lt;/p&gt;'><sup>2</sup>
 <span><span class="co">#&gt; Using the data supplied via the 'obs_data' argument.</span></span>
 <span><span class="co">#&gt; Using optimizer 'nmkb'.</span></span>
 <span><span class="co">#&gt; Aggregated data has been set to the model.</span></span>
-<span><span class="co">#&gt; Fitting the model to aggregated data across participants. The returned object will of type 'fits_agg_dm'.</span></span>
+<span><span class="co">#&gt; Fitting the model once to the aggregated data. The returned object will of type 'fits_agg_dm'.</span></span>
+<span><span class="co">#&gt; Performing latin hypercube sampling (n_lhs = 10) on: muc, b, non_dec, sd_non_dec, tau, A, alpha</span></span>
 <span><span class="co">#&gt; Starting optimizer 'nmkb' with the following starting values:</span></span>
-<span><span class="co">#&gt; muc=4, b=0.6, non_dec=0.3, sd_non_dec=0.02, tau=0.04, A=0.1, alpha=4</span></span>
-<span><span class="co">#&gt; Optimization routine exited after 481 function evaluations</span></span>
-<span><span class="co">#&gt; Final Parameters</span></span>
-<span><span class="co">#&gt; muc = 4.116</span></span>
-<span><span class="co">#&gt; b = 0.449</span></span>
-<span><span class="co">#&gt; non_dec = 0.305</span></span>
-<span><span class="co">#&gt; sd_non_dec = 0.023</span></span>
-<span><span class="co">#&gt; tau = 0.021</span></span>
-<span><span class="co">#&gt; A = 0.07</span></span>
-<span><span class="co">#&gt; alpha = 3.671</span></span>
-<span><span class="co">#&gt; ==&gt; gave a rmse of 0.015</span></span></code></pre></div>
+<span><span class="co">#&gt; muc=5.056, b=0.636, non_dec=0.271, sd_non_dec=0.092, tau=0.213, A=0.043, alpha=2.332</span></span>
+<span><span class="co">#&gt; Optimization routine exited after 515 function evaluations</span></span>
+<span><span class="co">#&gt; Final Parameters:</span></span>
+<span><span class="co">#&gt; muc = 4.573</span></span>
+<span><span class="co">#&gt; b = 0.469</span></span>
+<span><span class="co">#&gt; non_dec = 0.31</span></span>
+<span><span class="co">#&gt; sd_non_dec = 0.018</span></span>
+<span><span class="co">#&gt; tau = 0.03</span></span>
+<span><span class="co">#&gt; A = 0.049</span></span>
+<span><span class="co">#&gt; alpha = 2.01</span></span>
+<span><span class="co">#&gt; ==&gt; gave a rmse of 0.014</span></span></code></pre></div>
 <p>Aggregating data offers the advantage of substantially reducing
 computational burden, since the model is fitted only once. In addition,
 individual data can be very noisy—especially when the number of trials
@@ -1236,11 +1266,28 @@ quantiles.</p>
 <code class="sourceCode R"><span><span class="va">check_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">all_fits</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cafs"</span>, <span class="st">"quantiles"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">check_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Aggregating across ID</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-5-1.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-5-1.png" class="r-plt" width="700"></p>
 <pre><code><span><span class="co">#&gt; Aggregating across ID</span></span></code></pre>
-<p><img src="dRiftDM_files/figure-html/plot-results-5-2.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-5-2.png" class="r-plt" width="700"></p>
 <p>Circles indicate observed data while lines indicate the model’s
 predictions.</p>
+<p>To invoke a bootstrap, where we repeatedly resample individuals to
+derive an uncertainty interval around both the observed and predicted
+data, we can specify the argument in combination with the argument .
+This helps us to judge if small misfits between the observed data and
+the model predictions are just related to sampling noise, or whether
+they reflect systematic misfits that are apparent across individuals.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;It is also possible to resample at the individual level.
+In this case, however, we don’t bootstrap the participants, but instead
+bootstrap the trials within each individual.&lt;/p&gt;"><sup>3</sup></a>:</p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">check_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span></span>
+<span>  object <span class="op">=</span> <span class="va">all_fits</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cafs"</span>, <span class="st">"quantiles"</span><span class="op">)</span>,</span>
+<span>  level <span class="op">=</span> <span class="st">"group"</span>,</span>
+<span>  resample <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">check_fit</span><span class="op">)</span></span></code></pre></div>
+<p><img src="dRiftDM_files/figure-html/plot-results-51-1.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-51-2.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="extracting-parameter-estimates-and-fit-statistics">Extracting Parameter Estimates and Fit Statistics<a class="anchor" aria-label="anchor" href="#extracting-parameter-estimates-and-fit-statistics"></a>
@@ -1248,37 +1295,37 @@ predictions.</p>
 <p>Extracting the parameter estimates can be done via the
 <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> method, which work with the objects returned by
 <code><a href="../reference/estimate_dm.html">estimate_dm()</a></code>.</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">all_coefs</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Object Type: coefs_dm</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   ID   muc     b non_dec sd_non_dec   tau     A alpha</span></span>
-<span><span class="co">#&gt; 1  1 4.274 0.446   0.308      0.022 0.020 0.114 5.294</span></span>
-<span><span class="co">#&gt; 2  2 4.105 0.378   0.303      0.032 0.020 0.058 5.893</span></span>
-<span><span class="co">#&gt; 3  3 5.425 0.433   0.307      0.019 0.059 0.025 4.446</span></span>
-<span><span class="co">#&gt; 4  4 2.863 0.537   0.302      0.034 0.051 0.101 2.761</span></span>
+<span><span class="co">#&gt;   ID   muc     b non_dec sd_non_dec   tau     A  alpha</span></span>
+<span><span class="co">#&gt; 1  1 4.288 0.409   0.315      0.035 0.023 0.090  9.046</span></span>
+<span><span class="co">#&gt; 2  2 4.260 0.378   0.305      0.032 0.061 0.018  4.321</span></span>
+<span><span class="co">#&gt; 3  3 5.177 0.404   0.307      0.018 0.012 0.067 15.440</span></span>
+<span><span class="co">#&gt; 4  4 2.878 0.534   0.304      0.035 0.043 0.096  2.832</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; (access the data.frame's columns/rows as usual)</span></span></code></pre></div>
 <p>We can even make a quick visualization of the respective
 distributions using the <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist()</a></code> method.</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">all_coefs</span>, bundle_plots <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-6-1.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-2.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-3.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-4.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-5.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-6.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-7.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-6-1.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-2.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-3.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-4.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-5.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-6.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-7.png" class="r-plt" width="700"></p>
 <p>After fitting a model, we often want to quantify its fit—and maybe
 compare the quantiative fit between several candidate models. To this
 end, we can request several relative and absolute fit measures, using
 <code><a href="../reference/calc_stats.html">calc_stats()</a></code> and the argument
 <code>type = "fit_stats"</code>.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span><span class="va">all_fits</span>, type <span class="op">=</span> <span class="st">"fit_stats"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Type of Statistic: fit_stats</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   ID Log_Like Neg_Log_Like       AIC      BIC RMSE_s RMSE_ms</span></span>
-<span><span class="co">#&gt; 1  1  418.653     -418.653  -823.307 -796.587  0.031  30.703</span></span>
-<span><span class="co">#&gt; 2  2  384.298     -384.298  -754.596 -727.876  0.038  38.264</span></span>
-<span><span class="co">#&gt; 3  3  508.641     -508.641 -1003.283 -976.563  0.017  17.422</span></span>
-<span><span class="co">#&gt; 4  4  172.322     -172.322  -330.644 -304.008  0.039  38.599</span></span>
+<span><span class="co">#&gt; 1  1  417.937     -417.937  -821.874 -795.154  0.029  29.078</span></span>
+<span><span class="co">#&gt; 2  2  382.680     -382.680  -751.360 -724.640  0.043  42.654</span></span>
+<span><span class="co">#&gt; 3  3  512.195     -512.195 -1010.389 -983.670  0.014  13.963</span></span>
+<span><span class="co">#&gt; 4  4  172.065     -172.065  -330.129 -303.493  0.040  40.187</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; (access the data.frame's columns/rows as usual)</span></span></code></pre></div>
 <p>The first few columns provide the (negative) log-likelihood, and the
@@ -1287,12 +1334,12 @@ the RMSE statistic (in the unit of seconds and milliseconds).</p>
 <p>A neat summary of the model, the optimization routine, the data, and
 the parameter estimates can be obtained via the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 method.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">all_fits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fit approach: separately - classical</span></span>
 <span><span class="co">#&gt; Fitted model type: dmc_dm, drift_dm</span></span>
 <span><span class="co">#&gt; Optimizer: Nelder-Mead </span></span>
-<span><span class="co">#&gt; Convergence: TRUE </span></span>
+<span><span class="co">#&gt; Convergence: Failed for 1 participant </span></span>
 <span><span class="co">#&gt; N Individuals: 4 </span></span>
 <span><span class="co">#&gt; Average Trial Numbers:</span></span>
 <span><span class="co">#&gt;  167 trials comp; 168 trials incomp</span></span>
@@ -1300,13 +1347,13 @@ method.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Summary: comp </span></span>
 <span><span class="co">#&gt;           muc     b non_dec sd_non_dec   tau a     A alpha peak_l</span></span>
-<span><span class="co">#&gt; mean    4.167 0.448   0.305      0.027 0.037 2 0.074 4.598  0.037</span></span>
-<span><span class="co">#&gt; std_err 0.524 0.033   0.001      0.004 0.010 0 0.020 0.681  0.010</span></span>
+<span><span class="co">#&gt; mean    4.151 0.431   0.308      0.030 0.035 2 0.068 7.910  0.035</span></span>
+<span><span class="co">#&gt; std_err 0.475 0.035   0.002      0.004 0.011 0 0.018 2.838  0.011</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Summary: incomp </span></span>
 <span><span class="co">#&gt;           muc     b non_dec sd_non_dec   tau a      A alpha peak_l</span></span>
-<span><span class="co">#&gt; mean    4.167 0.448   0.305      0.027 0.037 2 -0.074 4.598  0.037</span></span>
-<span><span class="co">#&gt; std_err 0.524 0.033   0.001      0.004 0.010 0  0.020 0.681  0.010</span></span>
+<span><span class="co">#&gt; mean    4.151 0.431   0.308      0.030 0.035 2 -0.068 7.910  0.035</span></span>
+<span><span class="co">#&gt; std_err 0.475 0.035   0.002      0.004 0.011 0  0.018 2.838  0.011</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -------</span></span>
 <span><span class="co">#&gt; Deriving PDFS:</span></span>
@@ -1329,7 +1376,7 @@ latter case, the model is fitted hierarchically.</p>
 <code>lower</code>, <code>upper</code>, <code>means</code>,
 <code>sds</code>, <code>shapes</code>, and <code>rates</code> (see the
 documentation of <code><a href="../reference/estimate_dm.html">estimate_dm()</a></code>)</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># DMC without variability in the non-decision time;</span></span>
 <span><span class="co"># makes it a bit easier to estimate, although it is still</span></span>
 <span><span class="co"># difficult, because trial numbers are low in the sample data set :)</span></span>
@@ -1349,21 +1396,10 @@ documentation of <code><a href="../reference/estimate_dm.html">estimate_dm()</a>
 <span>  burn_in <span class="op">=</span> <span class="fl">150</span>, <span class="co"># for the demo, usually a bit higher</span></span>
 <span>  samples <span class="op">=</span> <span class="fl">150</span>, <span class="co"># for the demo, usually a bit higher</span></span>
 <span>  seed <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Using the data supplied via the 'obs_data' argument.</span></span>
-<span><span class="co">#&gt; Using optimizer 'DE-MCMC'.</span></span>
-<span><span class="co">#&gt; Fitting the model separaetely to multiple participants using the Bayesian framework. For now, the result will be a list of 'mcmc_dm' objects.</span></span>
-<span><span class="co">#&gt; Finding starting values...</span></span>
-<span><span class="co">#&gt; Starting the sampling procedure</span></span>
-<span><span class="co">#&gt; Finding starting values...</span></span>
-<span><span class="co">#&gt; Starting the sampling procedure</span></span>
-<span><span class="co">#&gt; Finding starting values...</span></span>
-<span><span class="co">#&gt; Starting the sampling procedure</span></span>
-<span><span class="co">#&gt; Finding starting values...</span></span>
-<span><span class="co">#&gt; Starting the sampling procedure</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>This returns a list of <code>mcmc_dm</code> objects, one for each
 individual.</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">one_mcmc</span> <span class="op">&lt;-</span> <span class="va">mcmc_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">one_mcmc</span></span>
 <span><span class="co">#&gt; Sampler: DE-MCMC </span></span>
@@ -1373,11 +1409,11 @@ individual.</p>
 <span><span class="co">#&gt; Iterations Per Chain: 150</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">one_mcmc</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        muc          b    non_dec        tau          A      alpha </span></span>
-<span><span class="co">#&gt; 4.43895842 0.64038802 0.26251248 0.06067285 0.08268417 6.89377463</span></span>
+<span><span class="co">#&gt; 4.44719079 0.63874750 0.26239573 0.06165401 0.08431614 6.88167399</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">one_mcmc</span>, bundle_plots <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-7-1.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-2.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-3.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-4.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-5.png" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-6.png" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-7-1.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-2.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-3.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-4.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-5.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-6.png" class="r-plt" width="700"></p>
 <p>It is also possible to request hierarchical estimation.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mcmc_hier</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_dm.html">estimate_dm</a></span><span class="op">(</span></span>
 <span>  drift_dm_obj <span class="op">=</span> <span class="va">ddm</span>,</span>
 <span>  obs_data <span class="op">=</span> <span class="va">data</span>,</span>
@@ -1400,17 +1436,17 @@ individual.</p>
 <code><a href="../reference/simulate_data.html">simulate_data()</a></code> function. The first argument takes the
 model object. The second argument is a numeric (vector), defining the
 number of trials per condition:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># a model for demonstration purpose</span></span>
 <span><span class="va">sim_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_data.html">simulate_data</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, n <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      RT Error Cond</span></span>
-<span><span class="co">#&gt; 1 0.384     0 null</span></span>
-<span><span class="co">#&gt; 2 0.453     0 null</span></span>
-<span><span class="co">#&gt; 3 0.361     0 null</span></span>
-<span><span class="co">#&gt; 4 0.355     0 null</span></span>
-<span><span class="co">#&gt; 5 0.433     0 null</span></span>
-<span><span class="co">#&gt; 6 0.737     0 null</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 0.651     0 null</span></span>
+<span><span class="co">#&gt; 2 0.405     0 null</span></span>
+<span><span class="co">#&gt; 3 0.441     0 null</span></span>
+<span><span class="co">#&gt; 4 0.426     0 null</span></span>
+<span><span class="co">#&gt; 5 0.490     0 null</span></span>
+<span><span class="co">#&gt; 6 0.440     0 null</span></span></code></pre></div>
 <p>This returns a single synthetic data set for one “participant”. Note
 that the simulated response times are rounded to three digits per
 default.</p>
@@ -1419,7 +1455,7 @@ synthetic data sets simultaneously. In this case, however, we must also
 specify lower and upper bounds to define the simulation space when
 drawing random parameter combinations per data set (see the
 <code>simulate_data</code> documentation for more details):</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_data.html">simulate_data</a></span><span class="op">(</span></span>
 <span>  object <span class="op">=</span> <span class="va">ddm</span>, n <span class="op">=</span> <span class="fl">200</span>, k <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">.4</span>, non_dec <span class="op">=</span> <span class="fl">.2</span><span class="op">)</span>,</span>
@@ -1427,19 +1463,19 @@ drawing random parameter combinations per data set (see the
 <span><span class="op">)</span></span></code></pre></div>
 <p>This returns a list with the synthetic data sets and the
 corresponding parameter values:</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_2</span><span class="op">$</span><span class="va">synth_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      RT Error Cond ID</span></span>
-<span><span class="co">#&gt; 1 0.442     0 null  1</span></span>
-<span><span class="co">#&gt; 2 0.575     0 null  1</span></span>
-<span><span class="co">#&gt; 3 0.497     0 null  1</span></span>
-<span><span class="co">#&gt; 4 0.373     0 null  1</span></span>
-<span><span class="co">#&gt; 5 0.372     0 null  1</span></span>
-<span><span class="co">#&gt; 6 0.374     0 null  1</span></span>
+<span><span class="co">#&gt; 1 0.415     0 null  1</span></span>
+<span><span class="co">#&gt; 2 0.394     0 null  1</span></span>
+<span><span class="co">#&gt; 3 0.504     0 null  1</span></span>
+<span><span class="co">#&gt; 4 0.435     0 null  1</span></span>
+<span><span class="co">#&gt; 5 0.376     0 null  1</span></span>
+<span><span class="co">#&gt; 6 0.389     0 null  1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_2</span><span class="op">$</span><span class="va">prms</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   ID      muc         b   non_dec</span></span>
-<span><span class="co">#&gt; 1  1 3.150769 0.5352176 0.2355121</span></span>
-<span><span class="co">#&gt; 2  2 2.069268 0.4133454 0.2690531</span></span></code></pre></div>
+<span><span class="co">#&gt; 1  1 5.244792 0.7871501 0.3069412</span></span>
+<span><span class="co">#&gt; 2  2 1.532809 0.6139069 0.2390046</span></span></code></pre></div>
 <p>The returned data sets are in a format that can be passed directly to
 <code><a href="../reference/estimate_model_ids.html">estimate_model_ids()</a></code>, making parameter recovery exercises
 very easy.</p>
@@ -1458,7 +1494,7 @@ underlying data type. Therefore, we provide the
 unnecessary attributes and class labels. This can be useful, for
 example, if you want to create your own plot or wrangle the data into a
 particular format.</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ddm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="va">ddm</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co"># although this object is essentially a list of matrices, the class label ...</span></span>
@@ -1471,22 +1507,22 @@ particular format.</p>
 <span><span class="co">#&gt; 0.000, 0.007, 0.015, 0.022 ... 3.000 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Condition: comp </span></span>
-<span><span class="co">#&gt; ~&gt;  0.000,  0.239,  0.287,  0.243 ...  0.676 </span></span>
-<span><span class="co">#&gt; ~&gt;  0.000, -0.104, -0.137, -0.185 ...  0.639 </span></span>
+<span><span class="co">#&gt; ~&gt;  0.000,  0.016,  0.136,  0.164 ...  0.646 </span></span>
+<span><span class="co">#&gt; ~&gt;  0.000,  0.078,  0.387,  0.372 ...  0.656 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Condition: incomp </span></span>
-<span><span class="co">#&gt; ~&gt;  0.000, -0.005,  0.020,  0.032 ...  0.667 </span></span>
-<span><span class="co">#&gt; ~&gt;  0.000, -0.128, -0.178, -0.106 ...  0.608</span></span>
+<span><span class="co">#&gt; ~&gt;  0.000, -0.203, -0.190, -0.037 ...  0.646 </span></span>
+<span><span class="co">#&gt; ~&gt;  0.000, -0.027, -0.090, -0.085 ...  0.614</span></span>
 <span></span>
 <span><span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/unpack_obj.html">unpack_obj</a></span><span class="op">(</span><span class="va">traces</span><span class="op">)</span> <span class="co"># provides the plain list of matrices</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">raw</span><span class="op">$</span><span class="va">comp</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           [,1]       [,2]</span></span>
-<span><span class="co">#&gt; [1,] 0.0000000  0.0000000</span></span>
-<span><span class="co">#&gt; [2,] 0.2387526 -0.1035851</span></span>
-<span><span class="co">#&gt; [3,] 0.2865938 -0.1373298</span></span>
-<span><span class="co">#&gt; [4,] 0.2428892 -0.1849793</span></span>
-<span><span class="co">#&gt; [5,] 0.3130805 -0.3254528</span></span>
-<span><span class="co">#&gt; [6,] 0.3192930 -0.3616110</span></span></code></pre></div>
+<span><span class="co">#&gt;            [,1]       [,2]</span></span>
+<span><span class="co">#&gt; [1,] 0.00000000 0.00000000</span></span>
+<span><span class="co">#&gt; [2,] 0.01610337 0.07827198</span></span>
+<span><span class="co">#&gt; [3,] 0.13579594 0.38695708</span></span>
+<span><span class="co">#&gt; [4,] 0.16438534 0.37209682</span></span>
+<span><span class="co">#&gt; [5,] 0.10007293 0.45559657</span></span>
+<span><span class="co">#&gt; [6,] 0.18377312 0.42206136</span></span></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-Janczyketal.2024" class="csl-entry">
 Janczyk, Markus, Ian Grant Mackenzie, and Valentin Koob. 2024. <span>“A
@@ -1529,7 +1565,7 @@ Attentional Selection.”</span> <em>Cognitive Psychology</em> 63 (4):
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

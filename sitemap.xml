@@ -6,6 +6,7 @@
 <url><loc>https://bucky2177.github.io/dRiftDM/articles/customize_ddms.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/articles/dRiftDM.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/articles/index.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/articles/model_recovery.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/articles/predictions_simple_ddm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/authors.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/index.html</loc></url>
@@ -82,8 +83,10 @@
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/get_default_functions.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/get_default_prior_settings.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/get_example_fits.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/reference/get_ez_diffusion.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/get_lower_upper.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/get_parameters_smart.html</loc></url>
+<url><loc>https://bucky2177.github.io/dRiftDM/reference/get_starting_values.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/get_subset_chains.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/hist.coefs_dm.html</loc></url>
 <url><loc>https://bucky2177.github.io/dRiftDM/reference/index.html</loc></url>

@@ -29,6 +29,7 @@ be aggregated across individuals."><meta property="og:image" content="https://bu
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/model_recovery.html">How To Perform a Model Recovery</a></li>
     <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -101,11 +102,11 @@ be aggregated across individuals.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  round_digits <span class="op">=</span> <span class="fu"><a href="defaults.html">drift_dm_default_rounding</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  print_rows <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  some <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  show_header <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  show_note <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  round_digits <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  print_rows <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  some <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_header <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_note <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'stats_dm_list'</span></span>
@@ -342,7 +343,7 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example 1: Calculate CAFs and Quantiles from a model ---------------------</span></span></span>
 <span class="r-in"><span><span class="co"># get a model for demonstration purpose</span></span></span>
-<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="ssp_dm.html">ssp_dm</a></span><span class="op">(</span>dx <span class="op">=</span> <span class="fl">.0025</span>, dt <span class="op">=</span> <span class="fl">.0025</span>, t_max <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="ssp_dm.html">ssp_dm</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># and then calculate cafs and quantiles</span></span></span>
 <span class="r-in"><span><span class="va">some_stats</span> <span class="op">&lt;-</span> <span class="fu">calc_stats</span><span class="op">(</span><span class="va">a_model</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cafs"</span>, <span class="st">"quantiles"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">some_stats</span><span class="op">)</span></span></span>
@@ -354,8 +355,8 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3    pred   comp   3  0.981</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4    pred   comp   4  0.981</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5    pred   comp   5  0.981</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    pred incomp   1  0.678</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7    pred incomp   2  0.926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    pred incomp   1  0.675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    pred incomp   2  0.925</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8    pred incomp   3  0.960</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9    pred incomp   4  0.973</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10   pred incomp   5  0.979</span>
@@ -368,12 +369,12 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2    pred   comp  0.2      0.383     0.383</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3    pred   comp  0.3      0.403     0.403</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4    pred   comp  0.4      0.422     0.422</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    pred   comp  0.5      0.444     0.444</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    pred   comp  0.6      0.470     0.470</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    pred   comp  0.5      0.445     0.444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    pred   comp  0.6      0.471     0.470</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7    pred   comp  0.7      0.503     0.503</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8    pred   comp  0.8      0.549     0.549</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9    pred   comp  0.9      0.627     0.627</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10   pred incomp  0.1      0.408     0.344</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    pred   comp  0.9      0.626     0.626</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   pred incomp  0.1      0.407     0.344</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (extract the list's elements as usual, e.g., with $cafs)</span>
@@ -393,11 +394,11 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type of Statistic: delta_funs</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Source Prob Quant_corr_comp Quant_corr_incomp Delta_incomp_comp</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   pred  0.1           0.362             0.408             0.045</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   pred  0.1           0.362             0.407             0.045</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   pred  0.2           0.383             0.437             0.053</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   pred  0.3           0.403             0.462             0.060</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4   pred  0.4           0.422             0.487             0.065</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   pred  0.5           0.444             0.514             0.069</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   pred  0.5           0.445             0.514             0.069</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Avg_incomp_comp</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1           0.385</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2           0.410</span>
@@ -461,7 +462,7 @@ values <code>NA</code>. Users can alter this by explicitly passing the argument
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

@@ -27,6 +27,7 @@ calc_stats()."><meta property="og:image" content="https://bucky2177.github.io/dR
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/model_recovery.html">How To Perform a Model Recovery</a></li>
     <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -171,7 +172,7 @@ from <code>sum_dist</code>.</p></li>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># get a model with data for demonstration purpose</span></span></span>
-<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span>t_max <span class="op">=</span> <span class="fl">2.0</span>, dx <span class="op">=</span> <span class="fl">.01</span>, dt <span class="op">=</span> <span class="fl">.005</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="obs_data.html">obs_data</a></span><span class="op">(</span><span class="va">a_model</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">dmc_synth_data</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># now get some statistics and call the summary functions</span></span></span>
@@ -196,20 +197,20 @@ from <code>sum_dist</code>.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Summary of Element 2: fit_stats</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Dependent Variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Log_Like    Neg_Log_Like       AIC            BIC           RMSE_s      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Min.   :125   Min.   :-125   Min.   :-236   Min.   :-205   Min.   :0.0818  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1st Qu.:125   1st Qu.:-125   1st Qu.:-236   1st Qu.:-205   1st Qu.:0.0818  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Median :125   Median :-125   Median :-236   Median :-205   Median :0.0818  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean   :125   Mean   :-125   Mean   :-236   Mean   :-205   Mean   :0.0818  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3rd Qu.:125   3rd Qu.:-125   3rd Qu.:-236   3rd Qu.:-205   3rd Qu.:0.0818  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   :125   Max.   :-125   Max.   :-236   Max.   :-205   Max.   :0.0818  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     RMSE_ms    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Min.   :81.8  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1st Qu.:81.8  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Median :81.8  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean   :81.8  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3rd Qu.:81.8  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   :81.8  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Log_Like    Neg_Log_Like       AIC            BIC           RMSE_s     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Min.   :125   Min.   :-125   Min.   :-235   Min.   :-205   Min.   :0.083  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1st Qu.:125   1st Qu.:-125   1st Qu.:-235   1st Qu.:-205   1st Qu.:0.083  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Median :125   Median :-125   Median :-235   Median :-205   Median :0.083  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean   :125   Mean   :-125   Mean   :-235   Mean   :-205   Mean   :0.083  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3rd Qu.:125   3rd Qu.:-125   3rd Qu.:-235   3rd Qu.:-205   3rd Qu.:0.083  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   :125   Max.   :-125   Max.   :-235   Max.   :-205   Max.   :0.083  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     RMSE_ms  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Min.   :83  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1st Qu.:83  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Median :83  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean   :83  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3rd Qu.:83  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   :83  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">some_stats</span><span class="op">$</span><span class="va">quantiles</span><span class="op">)</span> <span class="co"># summary.quantiles</span></span></span>
@@ -239,7 +240,7 @@ from <code>sum_dist</code>.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

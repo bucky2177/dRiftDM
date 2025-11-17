@@ -23,6 +23,7 @@ which contain multiple fits across individuals."><meta property="og:image" conte
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/model_recovery.html">How To Perform a Model Recovery</a></li>
     <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -139,18 +140,18 @@ formatted manner.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Summary: comp </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          muc    b non_dec sd_non_dec  tau a    A alpha peak_l</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> mean    5.12 0.49    0.32       0.03 0.08 2 0.13  4.99   0.08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> std_err 0.42 0.07    0.01       0.01 0.02 0 0.03  0.94   0.02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mean    4.79 0.47    0.32       0.03 0.07 2 0.12  6.32   0.07</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> std_err 0.44 0.06    0.01       0.01 0.02 0 0.03  1.24   0.02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Summary: incomp </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          muc    b non_dec sd_non_dec  tau a     A alpha peak_l</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> mean    5.12 0.49    0.32       0.03 0.08 2 -0.13  4.99   0.08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> std_err 0.42 0.07    0.01       0.01 0.02 0  0.03  0.94   0.02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mean    4.79 0.47    0.32       0.03 0.07 2 -0.12  6.32   0.07</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> std_err 0.44 0.06    0.01       0.01 0.02 0  0.03  1.24   0.02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Deriving PDFS:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   solver: kfe</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   values: sigma=1, t_max=3, dt=0.01, dx=0.01, nt=300, nx=200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   values: sigma=1, t_max=3, dt=0.0075, dx=0.02, nt=400, nx=100</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -163,7 +164,7 @@ formatted manner.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

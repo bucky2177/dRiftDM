@@ -29,6 +29,7 @@ via the approach argument."><meta property="og:image" content="https://bucky2177
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/model_recovery.html">How To Perform a Model Recovery</a></li>
     <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -126,7 +127,8 @@ Note that <code>"BFGS"</code> and <code>"L-BFGS-B"</code> are often unstable.</p
 
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
 <dd><p>a list of control parameters passed to the optimizer
-(see <a href="https://rdrr.io/pkg/dfoptim/man/nmkb.html" class="external-link">dfoptim::nmkb</a>, <a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.html" class="external-link">DEoptim::DEoptim</a>, <a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim</a>).
+(for Nelder-Mead, BFGS, and L-BFGS-B, see <a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim</a>; for nmkb, see
+<a href="https://rdrr.io/pkg/dfoptim/man/nmkb.html" class="external-link">dfoptim::nmkb</a>; for DEoptim, see <a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.html" class="external-link">DEoptim::DEoptim</a>).
 Per default, we set the <code>trace</code> control argument for <a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.html" class="external-link">DEoptim::DEoptim</a> to
 <code>FALSE</code>. Also, we set the <code>parscale</code> control argument for "Nelder-Mead" via
 <a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim</a> to <code>pmax(x0, 1e-6)</code>.</p></dd>
@@ -208,7 +210,11 @@ if <code>verbose = 2</code>), <code>return_runs</code>
 (when fitting a single individual and starting the estimation
 routine with multiple starting points; if <code>TRUE</code>, then a list of all
 routines is returned), <code>probs/n_bins</code> (the quantile levels and the number
-of CAF bins when fitting aggregated data using the RMSE cost function).</p></dd>
+of CAF bins when fitting aggregated data using the RMSE cost function),
+<code>use_ez/n_lhs</code> (logical and integer; the first controls if EZ-Diffusion
+Parameter Estimates shall be used for determining starting points; the
+latter controls the number of parameters to sample per dimension for the
+latin hypercube sampling when searching for starting values)</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
@@ -320,7 +326,7 @@ argument or the currently set model parameters (i.e., from
 default, equal to \(\mu^{(j)}\). This can be changed by passing
 the <code>sd</code> argument. The lower and upper boundaries of the truncated normal
 are <code>-Inf</code> and <code>Inf</code> per default. This can be altered by passing the
-arguments <code>lower</code> and  <code>upper</code>.</p>
+arguments <code>lower</code> and  <code>upper</code> (see the examples below).</p>
 <p><strong>(Default) Prior settings in the hierarchical case:</strong></p>
 <p>Let \(\theta_i^{(j)}\) indicate parameter \(j\) for participant \(i\)
 (e.g., the  drift rate estimated for individual \(i\)). The prior on
@@ -366,7 +372,19 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <li><p>Bayesian estimation via <code><a href="estimate_bayesian.html">estimate_bayesian()</a></code>.</p></li>
 <li><p>Aggregated fitting is handled within <code>estimate_dm()</code> in combination with
 <code><a href="estimate_classical.html">estimate_classical()</a></code></p></li>
-</ul></div>
+</ul><p>When fitting a model with <code>optimizer = "DEoptim"</code>, the corresponding
+minimization routine always runs for 200 iterations by default, irrespective
+of whether a minimum has already been reached (see
+<a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim::DEoptim.control</a>). Therefore, with default optimization settings,
+<code>estimate_dm()</code> returns the convergence flag <code>NA</code> for
+<code>optimizer = "DEoptim"</code>, because the termination of the routine does not
+necessarily indicate convergence. However, this is typically not an issue, as
+200 iterations are generally sufficient for the algorithm to find the global
+minimum. If users explicitly define convergence criteria via the <code>control</code>
+argument of <code>estimate_dm()</code> (which is passed on to
+<a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim::DEoptim.control</a>), valid convergence messages and flags are
+returned.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="estimate_classical.html">estimate_classical()</a></code>, <code><a href="estimate_bayesian.html">estimate_bayesian()</a></code>,
@@ -385,38 +403,38 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get a model for the examples (DMC with just two free parameters)</span></span></span>
 <span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  t_max <span class="op">=</span> <span class="fl">1.5</span>, dx <span class="op">=</span> <span class="fl">.01</span>, dt <span class="op">=</span> <span class="fl">.01</span>,</span></span>
-<span class="r-in"><span>  instr <span class="op">=</span> <span class="st">'</span></span></span>
+<span class="r-in"><span>  instr <span class="op">=</span> <span class="st">"</span></span></span>
 <span class="r-in"><span><span class="st">   b &lt;!&gt;</span></span></span>
 <span class="r-in"><span><span class="st">   non_dec &lt;!&gt;</span></span></span>
 <span class="r-in"><span><span class="st">   sd_non_dec &lt;!&gt;</span></span></span>
 <span class="r-in"><span><span class="st">   tau &lt;!&gt;</span></span></span>
 <span class="r-in"><span><span class="st">   alpha &lt;!&gt;</span></span></span>
-<span class="r-in"><span><span class="st">   '</span></span></span>
+<span class="r-in"><span><span class="st">   "</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get some data (the first two participants in the data set of Ulrich et al.)</span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">ulrich_flanker_data</span><span class="op">[</span><span class="va">ulrich_flanker_data</span><span class="op">$</span><span class="va">ID</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,<span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">ulrich_flanker_data</span><span class="op">[</span><span class="va">ulrich_flanker_data</span><span class="op">$</span><span class="va">ID</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">####</span></span></span>
 <span class="r-in"><span><span class="co"># Fit a single individual (using unbounded Nelder-Mead)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">estimate_dm</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  drift_dm_obj <span class="op">=</span> <span class="va">model</span>,</span></span>
-<span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span><span class="op">[</span><span class="va">data</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="fl">1</span>,<span class="op">]</span>,</span></span>
+<span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span><span class="op">[</span><span class="va">data</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span>,</span></span>
 <span class="r-in"><span>  optimizer <span class="op">=</span> <span class="st">"Nelder-Mead"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the data supplied via the 'obs_data' argument.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using optimizer 'Nelder-Mead'.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting a single data set/participant (cost function: 'neg_log_like'). The returned object will be the model itself.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using EZ-Diffusion estimates for: muc</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Performing latin hypercube sampling (n_lhs = 10) on: A</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting optimizer 'Nelder-Mead' with the following starting values:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> muc=4, A=0.1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 89 function evaluations</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Final Parameters</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 4.627</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.084</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==&gt; gave a neg_log_like of -369.167</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> muc=3.868, A=0.076</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 91 function evaluations</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Final Parameters:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 4.608</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.081</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==&gt; gave a neg_log_like of -368.96</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Class(es) dmc_dm, drift_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Optimizer: Nelder-Mead</span>
@@ -424,8 +442,8 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Values:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          muc   b non_dec sd_non_dec  tau a      A alpha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> comp   4.627 0.6     0.3       0.02 0.04 2  0.084     4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> incomp 4.627 0.6     0.3       0.02 0.04 2 -0.084     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> comp   4.608 0.6     0.3       0.02 0.04 2  0.081     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> incomp 4.608 0.6     0.3       0.02 0.04 2 -0.081     4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Settings:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        muc b non_dec sd_non_dec tau a A alpha</span>
@@ -442,7 +460,7 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Deriving PDFS:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   solver: kfe</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   values: sigma=1, t_max=1.5, dt=0.01, dx=0.01, nt=150, nx=200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   values: sigma=1, t_max=3, dt=0.0075, dx=0.02, nt=400, nx=100</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cost Function: neg_log_like</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -456,7 +474,7 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-in"><span><span class="va">l_u</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_lower_upper.html">get_lower_upper</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">estimate_dm</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  drift_dm_obj <span class="op">=</span> <span class="va">model</span>,</span></span>
-<span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span><span class="op">[</span><span class="va">data</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="fl">1</span>,<span class="op">]</span>,</span></span>
+<span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span><span class="op">[</span><span class="va">data</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span>,</span></span>
 <span class="r-in"><span>  optimizer <span class="op">=</span> <span class="st">"nmkb"</span>,</span></span>
 <span class="r-in"><span>  lower <span class="op">=</span> <span class="va">l_u</span><span class="op">$</span><span class="va">lower</span>, upper <span class="op">=</span> <span class="va">l_u</span><span class="op">$</span><span class="va">upper</span>,</span></span>
 <span class="r-in"><span>  start_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">4</span>, A <span class="op">=</span> <span class="fl">0.06</span><span class="op">)</span></span></span>
@@ -466,11 +484,11 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting a single data set/participant (cost function: 'neg_log_like'). The returned object will be the model itself.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting optimizer 'nmkb' with the following starting values:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> muc=4, A=0.06</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 116 function evaluations</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Final Parameters</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 4.627</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.084</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==&gt; gave a neg_log_like of -369.167</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 94 function evaluations</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Final Parameters:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 4.608</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.081</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==&gt; gave a neg_log_like of -368.96</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Class(es) dmc_dm, drift_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Optimizer: nmkb</span>
@@ -478,8 +496,8 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Values:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          muc   b non_dec sd_non_dec  tau a      A alpha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> comp   4.627 0.6     0.3       0.02 0.04 2  0.084     4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> incomp 4.627 0.6     0.3       0.02 0.04 2 -0.084     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> comp   4.608 0.6     0.3       0.02 0.04 2  0.081     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> incomp 4.608 0.6     0.3       0.02 0.04 2 -0.081     4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Settings:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        muc b non_dec sd_non_dec tau a A alpha</span>
@@ -496,7 +514,7 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Deriving PDFS:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   solver: kfe</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   values: sigma=1, t_max=1.5, dt=0.01, dx=0.01, nt=150, nx=200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   values: sigma=1, t_max=3, dt=0.0075, dx=0.02, nt=400, nx=100</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cost Function: neg_log_like</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -513,7 +531,7 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">estimate_dm</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  drift_dm_obj <span class="op">=</span> <span class="va">model</span>,</span></span>
-<span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span><span class="op">[</span><span class="va">data</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="fl">1</span>,<span class="op">]</span>,</span></span>
+<span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span><span class="op">[</span><span class="va">data</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span>,</span></span>
 <span class="r-in"><span>  optimizer <span class="op">=</span> <span class="st">"DEoptim"</span>,</span></span>
 <span class="r-in"><span>  lower <span class="op">=</span> <span class="va">l_u</span><span class="op">$</span><span class="va">lower</span>, upper <span class="op">=</span> <span class="va">l_u</span><span class="op">$</span><span class="va">upper</span>,</span></span>
 <span class="r-in"><span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>steptol <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
@@ -522,11 +540,11 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using optimizer 'DEoptim'.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting a single data set/participant (cost function: 'neg_log_like'). The returned object will be the model itself.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting optimizer 'DEoptim' </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 29 iterations.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Final Parameters</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 4.627</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.084</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==&gt; gave a neg_log_like of -369.167</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 65 iterations.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Final Parameters:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 4.608</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.081</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==&gt; gave a neg_log_like of -368.96</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Class(es) dmc_dm, drift_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Optimizer: DEoptim</span>
@@ -534,8 +552,8 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Values:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          muc   b non_dec sd_non_dec  tau a      A alpha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> comp   4.627 0.6     0.3       0.02 0.04 2  0.084     4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> incomp 4.627 0.6     0.3       0.02 0.04 2 -0.084     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> comp   4.608 0.6     0.3       0.02 0.04 2  0.081     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> incomp 4.608 0.6     0.3       0.02 0.04 2 -0.081     4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Settings:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        muc b non_dec sd_non_dec tau a A alpha</span>
@@ -552,7 +570,7 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Deriving PDFS:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   solver: kfe</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   values: sigma=1, t_max=1.5, dt=0.01, dx=0.01, nt=150, nx=200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   values: sigma=1, t_max=3, dt=0.0075, dx=0.02, nt=400, nx=100</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cost Function: neg_log_like</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -585,8 +603,8 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-out co"><span class="r-pr">#&gt;</span> Object Type: coefs_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ID   muc     A</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 4.627 0.084</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2 6.934 0.114</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 4.595 0.081</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2 6.843 0.114</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (access the data.frame's columns/rows as usual)</span>
 <span class="r-in"><span></span></span>
@@ -603,14 +621,15 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using optimizer 'Nelder-Mead'.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Changing the 'cost_function' to 'rmse'.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregated data has been set to the model.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting the model to aggregated data across participants. The returned object will of type 'fits_agg_dm'.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting the model once to the aggregated data. The returned object will of type 'fits_agg_dm'.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Performing latin hypercube sampling (n_lhs = 10) on: muc, A</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting optimizer 'Nelder-Mead' with the following starting values:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> muc=4, A=0.1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 129 function evaluations</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Final Parameters</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 5.77</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.131</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==&gt; gave a rmse of 0.024</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> muc=5.843, A=0.222</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 63 function evaluations</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Final Parameters:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 5.549</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.164</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==&gt; gave a rmse of 0.025</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fit approach: aggregated - classical</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitted model type: dmc_dm, drift_dm</span>
@@ -621,7 +640,7 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-out co"><span class="r-pr">#&gt;</span>  168 trials comp; 168 trials incomp</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       muc         A </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5.7702593 0.1305267 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5.5490172 0.1639635 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">###</span></span></span>
@@ -629,7 +648,7 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-in"><span><span class="co"># Fit a single individual (using DE-MCMC; Bayesian; custom priors)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">estimate_dm</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  drift_dm_obj <span class="op">=</span> <span class="va">model</span>,</span></span>
-<span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span><span class="op">[</span><span class="va">data</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="fl">1</span>,<span class="op">]</span>,</span></span>
+<span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span><span class="op">[</span><span class="va">data</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span>,</span></span>
 <span class="r-in"><span>  approach <span class="op">=</span> <span class="st">"sep_b"</span>,</span></span>
 <span class="r-in"><span>  burn_in <span class="op">=</span> <span class="fl">2</span>, <span class="co"># this is usually way higher</span></span></span>
 <span class="r-in"><span>  samples <span class="op">=</span> <span class="fl">2</span>, <span class="co"># this too</span></span></span>
@@ -650,7 +669,7 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-out co"><span class="r-pr">#&gt;</span> Iterations Per Chain: 2 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       muc         A </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3.5762989 0.1580784 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4.3807555 0.2611374 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">###</span></span></span>
@@ -676,8 +695,8 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 <span class="r-out co"><span class="r-pr">#&gt;</span> No. Chains: 10 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Iterations Per Chain: 2 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     M-muc     S-muc       M-A       S-A </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.2452057 2.7738100 0.1012086 0.5637372 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      M-muc      S-muc        M-A        S-A </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.23822502 3.41562477 0.08431614 0.81469557 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -690,7 +709,7 @@ exported:</p><ul><li><p>Classical optimization of one individual via
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

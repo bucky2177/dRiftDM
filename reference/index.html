@@ -21,6 +21,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/model_recovery.html">How To Perform a Model Recovery</a></li>
     <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -42,8 +43,7 @@
 
 
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -54,337 +54,393 @@
 
         </dt>
         <dd>The Coding of the Boundaries</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="calc_stats.html">calc_stats()</a></code> <code><a href="calc_stats.html">print(<i>&lt;stats_dm&gt;</i>)</a></code> <code><a href="calc_stats.html">print(<i>&lt;stats_dm_list&gt;</i>)</a></code>
 
         </dt>
         <dd>Calculate Statistics</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_discretization.html">check_discretization()</a></code>
 
         </dt>
         <dd>Check time/space discretization via reference comparison</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="coef.drift_dm.html">`coef&lt;-`()</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;drift_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;fits_agg_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;fits_ids_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">coef(<i>&lt;mcmc_dm&gt;</i>)</a></code> <code><a href="coef.drift_dm.html">print(<i>&lt;coefs_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Access Coefficients of a Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="comp_funs.html">`comp_funs&lt;-`()</a></code> <code><a href="comp_funs.html">comp_funs()</a></code>
 
         </dt>
         <dd>The Component Functions of A Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="component_shelf.html">component_shelf()</a></code>
 
         </dt>
         <dd>Diffusion Model Components</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="conds.html">`conds&lt;-`()</a></code> <code><a href="conds.html">conds()</a></code>
 
         </dt>
         <dd>The Conditions of an Object</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="cost_function.html">`cost_function&lt;-`()</a></code> <code><a href="cost_function.html">cost_function()</a></code> <code><a href="cost_function.html">cost_value()</a></code>
 
         </dt>
         <dd>Access/Replace the Cost Function Label and Access the Cost Function Value</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ddm_opts.html">`ddm_opts&lt;-`()</a></code> <code><a href="ddm_opts.html">ddm_opts()</a></code>
 
         </dt>
         <dd>Optional Arguments for the Component Functions</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="dmc_dm.html">dmc_dm()</a></code>
 
         </dt>
         <dd>Create the Diffusion Model for Conflict Tasks</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="dmc_synth_data.html">dmc_synth_data</a></code>
 
         </dt>
         <dd>A synthetic data set with two conditions</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="drift_dm.html">drift_dm()</a></code> <code><a href="drift_dm.html">print(<i>&lt;drift_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Create a drift_dm object</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="estimate_dm.html">estimate_dm()</a></code> <code><a href="estimate_dm.html">print(<i>&lt;fits_agg_dm&gt;</i>)</a></code> <code><a href="estimate_dm.html">print(<i>&lt;fits_ids_dm&gt;</i>)</a></code> <code><a href="estimate_dm.html">print(<i>&lt;mcmc_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Fit a DDM to Observed Data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="estimate_model.html">estimate_model()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Estimate the Parameters of a drift_dm Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="estimate_model_ids.html">estimate_model_ids()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Fit Multiple Individuals and Save Results</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="flex_prms.html">`flex_prms&lt;-`()</a></code> <code><a href="flex_prms.html">flex_prms()</a></code> <code><a href="flex_prms.html">print(<i>&lt;flex_prms&gt;</i>)</a></code>
 
         </dt>
         <dd>Flex_Prms</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_example_fits.html">get_example_fits()</a></code>
 
         </dt>
         <dd>Auxiliary Function to load a <code>fits_ids_dm</code>, <code>fits_agg_dm</code>, or <code>mcmc_dm</code> object</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_lower_upper.html">get_lower_upper()</a></code>
 
         </dt>
         <dd>Get Default Parameter Ranges for a Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="hist.coefs_dm.html">hist(<i>&lt;coefs_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Plot Parameter Distribution(s)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="load_fits_ids.html">load_fits_ids()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Load Estimates of a Fit Procedure</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="logLik.drift_dm.html">logLik(<i>&lt;drift_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Extract Log-Likelihood for a drift_dm Object</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="logLik.fits_ids_dm.html">logLik(<i>&lt;fits_ids_dm&gt;</i>)</a></code> <code><a href="logLik.fits_ids_dm.html">AIC(<i>&lt;fits_ids_dm&gt;</i>)</a></code> <code><a href="logLik.fits_ids_dm.html">BIC(<i>&lt;fits_ids_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Extract Model Statistics for fits_ids_dm Object</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="modify_flex_prms.html">modify_flex_prms()</a></code>
 
         </dt>
         <dd>Set Instructions to a flex_prms object</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="nobs.drift_dm.html">nobs(<i>&lt;drift_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Get the Number of Observations for a drift_dm Object</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="obs_data.html">`obs_data&lt;-`()</a></code> <code><a href="obs_data.html">obs_data()</a></code>
 
         </dt>
         <dd>The Observed Data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="pdfs.html">pdfs()</a></code>
 
         </dt>
         <dd>Access the Probability Density Functions of a Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot.cafs.html">plot(<i>&lt;cafs&gt;</i>)</a></code>
 
         </dt>
         <dd>Plot Conditional Accuracy Functions (CAFs)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot.delta_funs.html">plot(<i>&lt;delta_funs&gt;</i>)</a></code>
 
         </dt>
         <dd>Plot Delta Functions</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot.densities.html">plot(<i>&lt;densities&gt;</i>)</a></code>
 
         </dt>
         <dd>Plot Distributions of Predicted and Observed Data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot.drift_dm.html">plot(<i>&lt;drift_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Plot Components of a Drift Diffusion Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot.mcmc_dm.html">plot(<i>&lt;mcmc_dm&gt;</i>)</a></code>
 
         </dt>
-        <dd>Plot MCMC Results and Diagnostics <code>mcmc_dm</code> Objects</dd>
-      </dl><dl><dt>
+        <dd>Plot MCMC Results and Diagnostics for <code>mcmc_dm</code> Objects</dd>
+
+        <dt>
 
           <code><a href="plot.quantiles.html">plot(<i>&lt;quantiles&gt;</i>)</a></code>
 
         </dt>
         <dd>Plot Response Time Quantiles</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot.stats_dm_list.html">plot(<i>&lt;stats_dm_list&gt;</i>)</a></code>
 
         </dt>
         <dd>Plot Multiple Statistics</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot.traces_dm_list.html">plot(<i>&lt;traces_dm_list&gt;</i>)</a></code> <code><a href="plot.traces_dm_list.html">plot(<i>&lt;traces_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Plot Traces of a Drift Diffusion Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="prms_solve.html">`prms_solve&lt;-`()</a></code> <code><a href="prms_solve.html">prms_solve()</a></code>
 
         </dt>
         <dd>The Parameters for Deriving Model Predictions</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ratcliff_dm.html">ratcliff_dm()</a></code>
 
         </dt>
         <dd>Create a Basic Diffusion Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ratcliff_synth_data.html">ratcliff_synth_data</a></code>
 
         </dt>
         <dd>A synthetic data set with one condition</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="re_evaluate_model.html">re_evaluate_model()</a></code>
 
         </dt>
         <dd>Re-evaluate the model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="simulate_data.html">simulate_data()</a></code>
 
         </dt>
         <dd>Simulate Synthetic Responses</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="simulate_traces.html">simulate_traces()</a></code> <code><a href="simulate_traces.html">print(<i>&lt;traces_dm_list&gt;</i>)</a></code> <code><a href="simulate_traces.html">print(<i>&lt;traces_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Simulate Trajectories/Traces of a Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="simulate_traces_one_cond.html">simulate_traces_one_cond()</a></code>
 
         </dt>
         <dd>Simulate Traces for One Conditions</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="simulate_values.html">simulate_values()</a></code>
 
         </dt>
         <dd>Simulate Values</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="solver.html">`solver&lt;-`()</a></code> <code><a href="solver.html">solver()</a></code>
 
         </dt>
         <dd>The Solver for Deriving Model Predictions</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ssp_dm.html">ssp_dm()</a></code>
 
         </dt>
         <dd>Create the Shrinking Spotlight Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ssp_synth_data.html">ssp_synth_data</a></code>
 
         </dt>
         <dd>A synthetic data set with two conditions</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="summary.coefs_dm.html">summary(<i>&lt;coefs_dm&gt;</i>)</a></code> <code><a href="summary.coefs_dm.html">print(<i>&lt;summary.coefs_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Summary for <code>coefs_dm</code> Objects</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="summary.drift_dm.html">summary(<i>&lt;drift_dm&gt;</i>)</a></code> <code><a href="summary.drift_dm.html">print(<i>&lt;summary.drift_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Summary for <code>drift_dm</code> objects</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="summary.fits_agg_dm.html">print(<i>&lt;summary.fits_agg_dm&gt;</i>)</a></code> <code><a href="summary.fits_agg_dm.html">summary(<i>&lt;fits_agg_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Summary and Printing for <code>fits_agg_dm</code> Objects</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="summary.fits_ids_dm.html">print(<i>&lt;summary.fits_ids_dm&gt;</i>)</a></code> <code><a href="summary.fits_ids_dm.html">summary(<i>&lt;fits_ids_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Summary and Printing for fits_ids_dm Objects</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="summary.flex_prms.html">summary(<i>&lt;flex_prms&gt;</i>)</a></code> <code><a href="summary.flex_prms.html">print(<i>&lt;summary.flex_prms&gt;</i>)</a></code>
 
         </dt>
         <dd>Summarizing Flex Parameters</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="summary.mcmc_dm.html">summary(<i>&lt;mcmc_dm&gt;</i>)</a></code> <code><a href="summary.mcmc_dm.html">print(<i>&lt;summary.mcmc_dm&gt;</i>)</a></code>
 
         </dt>
         <dd>Summary for <code>mcmc_dm</code> Objects</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="summary.stats_dm.html">summary(<i>&lt;stats_dm&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;basic_stats&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;cafs&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;quantiles&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;delta_funs&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;fit_stats&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;sum_dist&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">summary(<i>&lt;stats_dm_list&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.stats_dm&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.basic_stats&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.cafs&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.quantiles&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.delta_funs&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.fit_stats&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.sum_dist&gt;</i>)</a></code> <code><a href="summary.stats_dm.html">print(<i>&lt;summary.stats_dm_list&gt;</i>)</a></code>
 
         </dt>
         <dd>Summary for <code>stats_dm</code> Objects</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="summary.traces_dm.html">summary(<i>&lt;traces_dm&gt;</i>)</a></code> <code><a href="summary.traces_dm.html">print(<i>&lt;summary.traces_dm&gt;</i>)</a></code> <code><a href="summary.traces_dm.html">summary(<i>&lt;traces_dm_list&gt;</i>)</a></code> <code><a href="summary.traces_dm.html">print(<i>&lt;summary.traces_dm_list&gt;</i>)</a></code>
 
         </dt>
         <dd>Summary for traces_dm and traces_dm_list Objects</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ulrich_flanker_data.html">ulrich_flanker_data</a></code>
 
         </dt>
         <dd>Exemplary Flanker Data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ulrich_simon_data.html">ulrich_simon_data</a></code>
 
         </dt>
         <dd>Exemplary Simon Data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="unpack_obj.html">unpack_obj()</a></code>
 
         </dt>
         <dd>Unpack/Destroy dRiftDM Objects</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="unpack_traces.html">unpack_traces()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
@@ -399,7 +455,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

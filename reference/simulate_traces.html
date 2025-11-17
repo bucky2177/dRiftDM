@@ -27,6 +27,7 @@ creating figures (see also plot.traces_dm_list)"><meta property="og:image" conte
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/model_recovery.html">How To Perform a Model Recovery</a></li>
     <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -232,17 +233,17 @@ before passing them back.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Class(es): traces_dm_list</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Time space:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000, 0.010, 0.020, 0.030 ... 3.000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000, 0.007, 0.015, 0.022 ... 3.000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Condition: comp </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000,  0.032,  0.135,  0.128 ...  0.538 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000,  0.018,  0.099,  0.085 ...  0.516 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Condition: incomp </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000, -0.097,  0.118,  0.106 ...  0.493 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000,  0.164,  0.119,  0.098 ...  0.487 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># we can also print only the traces of one condition</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">some_traces</span><span class="op">$</span><span class="va">comp</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000,  0.032,  0.135,  0.128 ...  0.538 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~&gt;  0.000,  0.018,  0.099,  0.085 ...  0.516 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -255,7 +256,7 @@ before passing them back.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

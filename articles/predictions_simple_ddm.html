@@ -36,6 +36,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/model_recovery.html">How To Perform a Model Recovery</a></li>
     <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul>
 </li>
@@ -67,12 +68,13 @@
 
     
     
+<p>In this vignette, we explore how the core parameters of the drift
+diffusion model influence mean RTs and accuracy.</p>
 <p>We can create the classical (Ratcliff) DDM, which is pre-built in
 <code>dRiftDM</code>, in its simplest version using the function
-<code><a href="../reference/ratcliff_dm.html">ratcliff_dm()</a></code>. To increase speed we set medium
-discretization settings:</p>
+<code><a href="../reference/ratcliff_dm.html">ratcliff_dm()</a></code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span>dx <span class="op">=</span> <span class="fl">.005</span>, dt <span class="op">=</span> <span class="fl">.005</span>, t_max <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>To access the parameter settings, we can use the <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>
 method:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -89,11 +91,38 @@ current values: the drift rate <code>muc</code> is 3.0, the boundary
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     muc       b non_dec </span></span>
 <span><span class="co">#&gt;     2.5     0.5     0.3</span></span></code></pre></div>
-<p>To derive model predictions for basic response times (RTs) and
+<p>To visualize the model, we can simulate some evidence accumulation
+trajectories, using the function <code><a href="../reference/simulate_traces.html">simulate_traces()</a></code> and the
+generic <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="va">model</span>, k <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">traces</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="700"></p>
+<p>You might wonder why these trajectories appear so “coarse.” This
+results from the discretization settings of the underlying solver that
+computes the first-passage times when fitting the model. To obtain a
+smoother plot, we can temporarily increase the resolution in the time
+domain:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">=</span> <span class="fl">.001</span> <span class="co"># set to 1 ms step size (for a nice plot)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="va">model</span>, k <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">traces</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="700"></p>
+<p>Sometimes, we might want to visualize the model without noise. In
+this case, the argument <code>sigma</code> of the
+<code><a href="../reference/simulate_traces.html">simulate_traces()</a></code> function comes in handy.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="va">model</span>, k <span class="op">=</span> <span class="fl">1</span>, sigma <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">traces</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="700"></p>
+<p>To derive basic model predictions for mean response times (RTs) and
 accuracy, we can use the <code><a href="../reference/calc_stats.html">calc_stats()</a></code> method and the
 argument <code>type = "basic_stats"</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span><span class="va">model</span>, type <span class="op">=</span> <span class="st">"basic_stats"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">=</span> <span class="fl">.010</span> <span class="co"># set it back to a 10 ms step size (for speed)</span></span>
+<span><span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span><span class="va">model</span>, type <span class="op">=</span> <span class="st">"basic_stats"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Type of Statistic: basic_stats</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Source Cond Mean_corr Mean_err SD_corr SD_err P_corr</span></span>
@@ -123,7 +152,7 @@ parameter ranges:</p>
 <p>The following code iterates over each parameter, plotting the
 influence of each parameter on RTs (upper panels) and accuracy (lower
 panels).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfcol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># define the parameter ranges</span></span>
@@ -150,8 +179,8 @@ panels).</p>
 <span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"muc"</span>, ylab <span class="op">=</span> <span class="st">"Accuarcy"</span>, main <span class="op">=</span> <span class="st">"Influence: Drift Rate"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="700"></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Boundary Plots</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfcol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
@@ -164,8 +193,8 @@ panels).</p>
 <span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"b"</span>, ylab <span class="op">=</span> <span class="st">"Accuarcy"</span>, main <span class="op">=</span> <span class="st">"Influence: Boundary"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-6-2.png" width="700"></p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-9-2.png" class="r-plt" width="700"></p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Non-Decision Time Plots</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfcol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
@@ -178,7 +207,7 @@ panels).</p>
 <span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"non_dec"</span>, ylab <span class="op">=</span> <span class="st">"Accuarcy"</span>, main <span class="op">=</span> <span class="st">"Influence: Non-Decision Time"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-6-3.png" width="700"></p>
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-9-3.png" class="r-plt" width="700"></p>
 <p>The effects of these variations on RTs and accuracy are
 straightforward:</p>
 <ul>
@@ -199,7 +228,7 @@ remains unchanged.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

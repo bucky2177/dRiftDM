@@ -1,0 +1,77 @@
+# Default Values for the dRiftDM Package
+
+These functions provide default values for various settings in the
+`dRiftDM` package.
+
+## Usage
+
+``` r
+drift_dm_approx_error()
+
+drift_dm_medium_approx_error()
+
+drift_dm_small_approx_error()
+
+drift_dm_rough_approx_error()
+
+drift_dm_robust_prm()
+
+drift_dm_default_rounding()
+
+drift_dm_default_probs()
+
+drift_dm_default_n_bins()
+
+drift_dm_default_b_coding()
+
+drift_dm_skip_if_contr_low()
+
+drift_dm_n_id_trunc_warn()
+```
+
+## Value
+
+the respective values/lists as described in the Details section
+
+## Details
+
+- `drift_dm_approx_error()`: Returns the default approximation error for
+  precise calculations (1e-20).
+
+- `drift_dm_medium_approx_error()`: Returns a 'medium' level of
+  approximation error (1e-06).
+
+- `drift_dm_small_approx_error()`: Returns a 'small' level of
+  approximation error (.01).
+
+- `drift_dm_rough_approx_error()`: Returns a rough level of
+  approximation error (.1).
+
+- `drift_dm_robust_prm()`: Returns a value that is added to the PDFs
+  after convolution with the non-decision time to make parameter
+  estimation and the evaluation of the log-likelihood more robust
+  (1e-8).
+
+- `drift_dm_default_rounding()`: Returns the default rounding precision
+  for numerical outputs (3).
+
+- `drift_dm_default_probs()`: Returns the default sequence of
+  probabilities for quantiles (0.1, 0.2, ..., 0.9)
+
+- `drift_dm_default_n_bins()`: Returns the default number of bins for a
+  CAF (5)
+
+- `drift_dm_default_b_coding()`: Returns the default boundary coding
+  (list(column = "Error", u_name_value = c("corr" = 0), l_name_value =
+  c("err" = 1))
+
+- `drift_dm_skip_if_contr_low()`: returns the value 0.0001. If a PDF
+  integrates to a value lower than that (i.e., if there is almost no
+  contribution of a PDF; most likely this will be pdf_l), then summary
+  functions returned by
+  [`calc_stats()`](https://bucky2177.github.io/dRiftDM/reference/calc_stats.md)
+  might contain the value NA for the respective PDF.
+
+- `drift_dm_n_id_trunc_warn()`: returns 15. If there are warnings
+  relevant to multiple participants, the printed IDs are truncated at
+  15.

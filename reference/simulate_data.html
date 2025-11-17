@@ -25,6 +25,7 @@ sampling."><meta property="og:image" content="https://bucky2177.github.io/dRiftD
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/convert_dmc_parameters.html">How to Convert DMC's parameters</a></li>
     <li><a class="dropdown-item" href="../articles/customize_ddms.html">How To Customize DDMs</a></li>
+    <li><a class="dropdown-item" href="../articles/model_recovery.html">How To Perform a Model Recovery</a></li>
     <li><a class="dropdown-item" href="../articles/predictions_simple_ddm.html">Core DDM Parameters: Impact on RTs and Accuracy</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -210,7 +211,7 @@ to the specified parameters in the respective condition.</p></li>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example 1 ----------------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co"># get a pre-built model for demonstration</span></span></span>
-<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span>t_max <span class="op">=</span> <span class="fl">1.5</span>, dx <span class="op">=</span> <span class="fl">.005</span>, dt <span class="op">=</span> <span class="fl">.005</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="ratcliff_dm.html">ratcliff_dm</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># define a lower and upper simulation space</span></span></span>
 <span class="r-in"><span><span class="va">lower</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.4</span>, <span class="fl">0.1</span><span class="op">)</span></span></span>
@@ -223,12 +224,12 @@ to the specified parameters in the respective condition.</p></li>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_prms</span><span class="op">$</span><span class="va">synth_data</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      RT Error Cond ID</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.597     0 null  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1.291     0 null  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.415     0 null  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.650     0 null  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.915     0 null  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.352     0 null  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.600     0 null  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1.369     0 null  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.416     0 null  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.653     0 null  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.928     0 null  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.353     0 null  1</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_prms</span><span class="op">$</span><span class="va">prms</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ID      muc         b   non_dec</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 2.327543 0.8491948 0.1823898</span>
@@ -240,7 +241,7 @@ to the specified parameters in the respective condition.</p></li>
 <span class="r-in"><span><span class="co"># Example 2 ----------------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co"># more flexibility when defining lists for lower and upper</span></span></span>
 <span class="r-in"><span><span class="co"># get a pre-built model, and allow muc to vary across conditions</span></span></span>
-<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span>t_max <span class="op">=</span> <span class="fl">1.5</span>, dx <span class="op">=</span> <span class="fl">.01</span>, dt <span class="op">=</span> <span class="fl">.005</span>, instr <span class="op">=</span> <span class="st">"muc ~ "</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="dmc_dm.html">dmc_dm</a></span><span class="op">(</span>instr <span class="op">=</span> <span class="st">"muc ~ "</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># define a lower and upper simulation space</span></span></span>
 <span class="r-in"><span><span class="co"># let muc vary between 2 and 6, but in incomp conditions, let it vary</span></span></span>
@@ -282,7 +283,7 @@ to the specified parameters in the respective condition.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
