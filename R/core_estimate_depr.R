@@ -162,7 +162,9 @@ estimate_model <- function(
       lower = lower,
       upper = upper,
       verbose = verbose,
-      control = nmkb_control
+      control = nmkb_control,
+      use_ez = FALSE,
+      n_lhs = 0
     )
   }
 

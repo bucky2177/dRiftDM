@@ -31,6 +31,11 @@
 
 - `estimate_dm()` has been introduced.
 
+- If possible, `dRiftDM` now provides reasonable starting values for the 
+  Nelder-Mead and BFGS optimization routines (both bounded and unbounded). To 
+  this end, EZ Diffusion parameter estimates are used whenever possible, in 
+  combination with grid-search-like procedure. 
+
 - `estimate_model()` has been deprecated and superseded by `estimate_dm()`.
 
 - `estimate_model_ids()` has been deprecated. Use `estimate_dm()`, which does

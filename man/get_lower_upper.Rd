@@ -50,7 +50,7 @@ adjust the returned values as needed.
 }
 \examples{
 # get a model for the example
-model <- dmc_dm(dx = .005, dt = 0.005, obs_data = dmc_synth_data)
+model <- dmc_dm(obs_data = dmc_synth_data)
 
 # get the parameter ranges
 lu <- get_lower_upper(model)

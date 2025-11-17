@@ -1560,7 +1560,7 @@ calc_stats_pred_obs <- function(
 #' @examples
 #' # Example 1: Calculate CAFs and Quantiles from a model ---------------------
 #' # get a model for demonstration purpose
-#' a_model <- ssp_dm(dx = .0025, dt = .0025, t_max = 2)
+#' a_model <- ssp_dm()
 #' # and then calculate cafs and quantiles
 #' some_stats <- calc_stats(a_model, type = c("cafs", "quantiles"))
 #' print(some_stats)
@@ -1595,6 +1595,12 @@ calc_stats <- function(object, type, ...) {
   # the statistics
   withr::defer(stats.options(NULL))
 
+  # re_evaluate if necessary (to avoid doing this multiple times)
+  if (inherits(object, "drift_dm") && is.null(object$pdfs)) {
+    object <- re_evaluate_model(object)
+  }
+
+  # now pass forward or loop
   if (length(type) > 1) {
     all_stats <- sapply(
       type,

@@ -26,7 +26,7 @@ possible.
 \examples{
 # get a pre-built model and a data set for demonstration purpose
 # (when creating the model, set the discretization to reasonable values)
-a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+a_model <- dmc_dm()
 obs_data(a_model) <- dmc_synth_data
 logLik(a_model)
 

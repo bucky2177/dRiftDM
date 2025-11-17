@@ -106,9 +106,9 @@
       Type of Statistic: fit_stats
       
         ID Log_Like Neg_Log_Like      AIC      BIC RMSE_s RMSE_ms
-      1  1  399.565     -399.565 -785.129 -758.410  0.019  18.806
-      2  2  377.965     -377.965 -741.929 -715.251  0.032  32.040
-      3  3  472.748     -472.748 -931.496 -904.776  0.014  13.758
+      1  1  399.081     -399.081 -784.163 -757.443  0.020  19.842
+      2  2  375.788     -375.788 -737.576 -710.898  0.031  31.312
+      3  3  472.647     -472.647 -931.294 -904.574  0.014  14.071
       
       (access the data.frame's columns/rows as usual)
 
@@ -120,9 +120,9 @@
       Element 1, contains fit_stats
       
         ID Log_Like Neg_Log_Like      AIC      BIC RMSE_s RMSE_ms
-      1  1  399.565     -399.565 -785.129 -758.410  0.019  18.806
-      2  2  377.965     -377.965 -741.929 -715.251  0.032  32.040
-      3  3  472.748     -472.748 -931.496 -904.776  0.014  13.758
+      1  1  399.081     -399.081 -784.163 -757.443  0.020  19.842
+      2  2  375.788     -375.788 -737.576 -710.898  0.031  31.312
+      3  3  472.647     -472.647 -931.294 -904.574  0.014  14.071
       
       
       Element 2, contains quantiles
@@ -158,19 +158,19 @@
       
       Dependent Variables:
              ID         Log_Like    Neg_Log_Like       AIC            BIC      
-       Min.   :1.0   Min.   :378   Min.   :-473   Min.   :-931   Min.   :-905  
-       1st Qu.:1.5   1st Qu.:389   1st Qu.:-436   1st Qu.:-858   1st Qu.:-832  
-       Median :2.0   Median :400   Median :-400   Median :-785   Median :-758  
-       Mean   :2.0   Mean   :417   Mean   :-417   Mean   :-820   Mean   :-793  
-       3rd Qu.:2.5   3rd Qu.:436   3rd Qu.:-389   3rd Qu.:-764   3rd Qu.:-737  
-       Max.   :3.0   Max.   :473   Max.   :-378   Max.   :-742   Max.   :-715  
+       Min.   :1.0   Min.   :376   Min.   :-473   Min.   :-931   Min.   :-905  
+       1st Qu.:1.5   1st Qu.:387   1st Qu.:-436   1st Qu.:-858   1st Qu.:-831  
+       Median :2.0   Median :399   Median :-399   Median :-784   Median :-757  
+       Mean   :2.0   Mean   :416   Mean   :-416   Mean   :-818   Mean   :-791  
+       3rd Qu.:2.5   3rd Qu.:436   3rd Qu.:-387   3rd Qu.:-761   3rd Qu.:-734  
+       Max.   :3.0   Max.   :473   Max.   :-376   Max.   :-738   Max.   :-711  
            RMSE_s          RMSE_ms    
-       Min.   :0.0138   Min.   :13.8  
-       1st Qu.:0.0163   1st Qu.:16.3  
-       Median :0.0188   Median :18.8  
-       Mean   :0.0215   Mean   :21.5  
-       3rd Qu.:0.0254   3rd Qu.:25.4  
-       Max.   :0.0320   Max.   :32.0  
+       Min.   :0.0141   Min.   :14.1  
+       1st Qu.:0.0170   1st Qu.:17.0  
+       Median :0.0198   Median :19.8  
+       Mean   :0.0217   Mean   :21.7  
+       3rd Qu.:0.0256   3rd Qu.:25.6  
+       Max.   :0.0313   Max.   :31.3  
       
       N IDs: 3 
 
@@ -201,11 +201,11 @@
       
       Dependent Variables:
          Mean_corr       Mean_err       SD_corr          SD_err          P_corr    
-       Min.   :0.36   Min.   :0.29   Min.   :0.053   Min.   :0.020   Min.   :0.90  
-       1st Qu.:0.38   1st Qu.:0.35   1st Qu.:0.063   1st Qu.:0.046   1st Qu.:0.96  
-       Median :0.41   Median :0.36   Median :0.068   Median :0.060   Median :0.97  
-       Mean   :0.41   Mean   :0.37   Mean   :0.067   Mean   :0.056   Mean   :0.96  
-       3rd Qu.:0.44   3rd Qu.:0.40   3rd Qu.:0.070   3rd Qu.:0.070   3rd Qu.:0.98  
+       Min.   :0.36   Min.   :0.29   Min.   :0.056   Min.   :0.020   Min.   :0.90  
+       1st Qu.:0.39   1st Qu.:0.35   1st Qu.:0.064   1st Qu.:0.046   1st Qu.:0.95  
+       Median :0.41   Median :0.37   Median :0.069   Median :0.062   Median :0.97  
+       Mean   :0.41   Mean   :0.37   Mean   :0.068   Mean   :0.058   Mean   :0.96  
+       3rd Qu.:0.44   3rd Qu.:0.40   3rd Qu.:0.071   3rd Qu.:0.074   3rd Qu.:0.98  
        Max.   :0.45   Max.   :0.44   Max.   :0.085   Max.   :0.077   Max.   :1.00  
                       NA's   :1                      NA's   :1                     
       
@@ -284,19 +284,19 @@
       
       Dependent Variables:
           Log_Like    Neg_Log_Like       AIC            BIC           RMSE_s      
-       Min.   :378   Min.   :-473   Min.   :-931   Min.   :-905   Min.   :0.0138  
-       1st Qu.:389   1st Qu.:-436   1st Qu.:-858   1st Qu.:-832   1st Qu.:0.0163  
-       Median :400   Median :-400   Median :-785   Median :-758   Median :0.0188  
-       Mean   :417   Mean   :-417   Mean   :-820   Mean   :-793   Mean   :0.0215  
-       3rd Qu.:436   3rd Qu.:-389   3rd Qu.:-764   3rd Qu.:-737   3rd Qu.:0.0254  
-       Max.   :473   Max.   :-378   Max.   :-742   Max.   :-715   Max.   :0.0320  
+       Min.   :376   Min.   :-473   Min.   :-931   Min.   :-905   Min.   :0.0141  
+       1st Qu.:387   1st Qu.:-436   1st Qu.:-858   1st Qu.:-831   1st Qu.:0.0170  
+       Median :399   Median :-399   Median :-784   Median :-757   Median :0.0198  
+       Mean   :416   Mean   :-416   Mean   :-818   Mean   :-791   Mean   :0.0217  
+       3rd Qu.:436   3rd Qu.:-387   3rd Qu.:-761   3rd Qu.:-734   3rd Qu.:0.0256  
+       Max.   :473   Max.   :-376   Max.   :-738   Max.   :-711   Max.   :0.0313  
           RMSE_ms    
-       Min.   :13.8  
-       1st Qu.:16.3  
-       Median :18.8  
-       Mean   :21.5  
-       3rd Qu.:25.4  
-       Max.   :32.0  
+       Min.   :14.1  
+       1st Qu.:17.0  
+       Median :19.8  
+       Mean   :21.7  
+       3rd Qu.:25.6  
+       Max.   :31.3  
       
       N IDs: 3 
 

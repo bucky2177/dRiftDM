@@ -15,6 +15,9 @@ knitr::opts_chunk$set(
 )
 library(dRiftDM)
 set.seed(1014)
+
+re_run = FALSE # if TRUE, runs heavy computations and saves them to inst.. 
+# -> otherwise just load them (for speed)
 ```
 
 
@@ -400,7 +403,34 @@ all_fits_nmkb <- estimate_dm(
 
 When you provide `lower/upper`, the default is actually not "nmkb", but "DEoptim". The ‘DE’ stands for Differential Evolution---a slower but very robust optimization algorithm. If runtime is not critical, we recommend using "DEoptim", since it performs reliably even when the cost function is complex (which is almost always the case with DDMs).
 
-```{r fit-model-4}
+
+```{r, echo = FALSE}
+sys_path <- system.file(package = "dRiftDM")
+if (re_run) {
+  all_fits_deoptim <- estimate_dm(
+    drift_dm_obj = ddm,
+    obs_data = data,
+    lower = l_u$lower,
+    upper = l_u$upper,
+    n_cores = 4 # you might want to increase this
+  )
+  
+  # save
+  use_directory("inst")
+  saveRDS(
+    object = all_fits_deoptim,
+    file = file.path("inst", "drift_dm_vignette_all_fits_deoptim.rds")
+  )
+  
+} else {
+  all_fits_deoptim <- readRDS(
+    file = file.path(sys_path, "drift_dm_vignette_all_fits_deoptim.rds")
+  )
+}
+
+```
+
+```{r fit-model-4, eval=FALSE}
 all_fits_deoptim <- estimate_dm(
   drift_dm_obj = ddm,
   obs_data = data,
@@ -409,6 +439,8 @@ all_fits_deoptim <- estimate_dm(
   n_cores = 1 # you might want to increase this
 )
 ```
+
+
 Because DEoptim is time-consuming, it is recommended to use multiple cores. You can set the desired number of cores using the `n_cores` argument.^[The reason we do not use multiple cores here is related to how this vignette is built on GitHub, but regular users should increase this value.] To get the number of available cores, use `parallel::detectCores()`.
 
 A common question concerns the number of cores to use. By default, `dRiftDM` (v.0.3.0) parallelizes across individuals---that is, one individual is fitted per core. Therefore, you should not specify more cores than there are individuals. In the present toy example, this limits the number of cores to four.
@@ -483,6 +515,19 @@ plot(check_fit)
 
  Circles indicate observed data while lines indicate the model's predictions. 
  
+To invoke a bootstrap, where we repeatedly resample individuals to derive an uncertainty interval around both the observed and predicted data, we can specify the argument \verb|resample| in combination with the argument \verb|level = "group"|. This helps us to judge if small misfits between the observed data and the model predictions are just related to sampling noise, or whether they reflect systematic misfits that are apparent across individuals.^[It is also possible to resample at the individual level. In this case, however, we don't bootstrap the participants, but instead bootstrap the trials within each individual.]:
+
+```{r plot-results-51}
+check_fit <- calc_stats(
+  object = all_fits,
+  type = c("cafs", "quantiles"),
+  level = "group",
+  resample = TRUE
+)
+plot(check_fit)
+```
+
+
 ## Extracting Parameter Estimates and Fit Statistics
 
 Extracting the parameter estimates can be done via the `coef()` method, which work with the objects returned by `estimate_dm()`.
@@ -520,7 +565,46 @@ We can request Bayesian parameter estimation using the argument `approach = "sep
 
 The prior distributions can be parameterized using the arguments `lower`, `upper`, `means`, `sds`, `shapes`, and `rates` (see the documentation of `estimate_dm()`)
 
-```{r dmc-dm-3}
+
+```{r, echo = FALSE}
+sys_path <- system.file(package = "dRiftDM")
+
+if (re_run) {
+  ddm <- dmc_dm(var_non_dec = FALSE)
+
+  l_u <- get_lower_upper(ddm)
+  mcmc_list <- estimate_dm(
+    drift_dm_obj = ddm,
+    obs_data = data,
+    approach = "sep_b",
+    lower = l_u$lower,
+    upper = l_u$upper,
+    verbose = 2,
+    n_chains = 40,
+    n_cores = 4, # increase to parallelize
+    burn_in = 150, # for the demo, usually a bit higher
+    samples = 150, # for the demo, usually a bit higher
+    seed = 1
+  )
+
+  # save the chains (without data to avoid unnec. storage of data)
+  use_directory("inst")
+  for_save = lapply(mcmc_list, \(x) {
+    attr(x, "data_model") <- NULL
+    x
+  })
+  saveRDS(
+    object = for_save,
+    file = file.path("inst", "drift_dm_vignette_mcmc_list.rds")
+  )
+} else {
+  mcmc_list <- readRDS(
+    file = file.path(sys_path, "drift_dm_vignette_mcmc_list.rds")
+  )
+}
+```
+
+```{r dmc-dm-3, eval = FALSE}
 # DMC without variability in the non-decision time;
 # makes it a bit easier to estimate, although it is still
 # difficult, because trial numbers are low in the sample data set :)

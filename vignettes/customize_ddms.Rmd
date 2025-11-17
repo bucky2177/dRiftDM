@@ -279,7 +279,6 @@ cust_model <- function() {
     conds = conds,
     subclass = "my_custom_model",
     mu_fun = cust_mu, # your custom drift rate function
-    mu_int_fun = comps$dummy_t, # a dummy function, because no integral
     # of the drift rate is required per default
     x_fun = comps$x_dirac_0, # pre-built dirac delta on zero for the starting point
     b_fun = comps$b_constant, # pre-built time-independent boundary with parameter b
@@ -293,16 +292,18 @@ cust_model <- function() {
   ddm <- modify_flex_prms(
     ddm,
     instr = "sign <!>
-                                        sign ~ incomp => -1"
+    sign ~ incomp => -1"
   )
 
   return(ddm)
 }
 
 ddm <- cust_model()
+pdf_vals <- pdfs(ddm)
+plot(pdf_vals$pdfs$comp$pdf_u)
 ```
 
-If we want to use the "im_zero" method to derive model predictions, we also need to write a function for the integral of the drift rate:^[The "im_zero" method is provided for backward compatibility, the default "kfe" method is recommended.] 
+If we want to use the "im_zero" method to derive model predictions (see `solver()`), we also need to write a function for the integral of the drift rate. Note, however, that the "im_zero" method is primarily provided for backward compatibility, and it is usually not needed; the default "kfe" method is recommended and often works fine. Thus, especially novel users can just skip the following part. 
 
 ```{r}
 cust_mu_int <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
@@ -361,9 +362,8 @@ cust_model <- function() {
 }
 
 ddm <- cust_model()
-pdf_vals <- pdfs(ddm)
-plot(pdf_vals$pdfs$comp$pdf_u)
 ```
+
 
 ## Example 2: Custom Starting Point (Distribution)
 

@@ -304,7 +304,7 @@ plot.traces_dm <- function(x, ...) {
 #'
 #' @examples
 #' # Example 1: Model predictions only ---------------------------------------
-#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+#' a_model <- dmc_dm()
 #' cafs <- calc_stats(a_model, type = "cafs")
 #' plot(cafs)
 #' plot(cafs, col = c("green", "red"), ylim = c(0.5, 1))
@@ -568,7 +568,7 @@ plot.cafs <- function(
 #'
 #' @examples
 #' # Example 1: Model predictions only ---------------------------------------
-#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+#' a_model <- dmc_dm()
 #' quantiles <- calc_stats(a_model, type = "quantiles")
 #' plot(quantiles)
 #' plot(quantiles, col = c("green", "red"), xlim = c(0.2, 0.6))
@@ -839,7 +839,7 @@ plot.quantiles <- function(
 #'
 #' @examples
 #' # Example 1: Model predictions only ---------------------------------------
-#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+#' a_model <- dmc_dm()
 #' deltas <- calc_stats(
 #'   a_model,
 #'   type = "delta_funs",
@@ -2047,15 +2047,15 @@ plot.drift_dm <- function(
 
 # PLOT MCMC RESULTS  --------------------------------------------
 
-#' Plot MCMC Results and Diagnostics `mcmc_dm` Objects
+#' Plot MCMC Results and Diagnostics for `mcmc_dm` Objects
 #'
 #' Visualize MCMC results and diagnostics for `mcmc_dm` objects.
 #' The function `plot.mcmc()` is typically called when users supply an
-#' objects returned by [dRiftDM::estimate_bayesian()] to the generic
+#' `mcmc_dm` object returned by [dRiftDM::estimate_dm()] to the generic
 #' [base::plot()] function.
 #'
 #' @param x an object of class `mcmc_dm`, as returned by
-#' [dRiftDM::estimate_bayesian()].
+#' [dRiftDM::estimate_dm()].
 #' @param ... optional arguments passed on to the underlying plotting functions
 #'   [dRiftDM::plot_mcmc_trace()], [dRiftDM::plot_mcmc_marginal()], and
 #'   [dRiftDM::plot_mcmc_auto()]. See the respective documentations for a list

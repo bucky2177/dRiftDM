@@ -57,12 +57,12 @@ vector created via \code{unlist(unpack_obj(calc_stats(..., type = "fit_stats")))
 }
 \examples{
 # get a pre-built model for demonstration
-a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+a_model <- dmc_dm()
 sum_obj <- summary(a_model)
 print(sum_obj, round_digits = 2)
 
 # more information is provided when we add data to the model
-obs_data(a_model) <- dmc_synth_data  # (data set comes with dRiftDM)
+obs_data(a_model) <- dmc_synth_data # (data set comes with dRiftDM)
 summary(a_model)
 
 # fit indices are added once we evaluate the model

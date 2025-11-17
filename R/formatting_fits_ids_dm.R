@@ -14,18 +14,6 @@ print.fits_ids_dm <- function(x, ...) {
       header = "Fitted model type:"
     )
 
-    optimizer <- fits_ids$drift_dm_obj$estimate_info$optimizer
-    if (!is.null(optimizer)) {
-      cat("Optimizer:", optimizer)
-      cat("\n")
-    }
-
-    conv_flag <- fits_ids$drift_dm_obj$estimate_info$conv_flag
-    if (!is.null(conv_flag)) {
-      cat("Convergence:", conv_flag)
-      cat("\n")
-    }
-
     time_call <- fits_ids$drift_dm_fit_info$time_call
     if (!is.null(time_call)) {
       cat("Time of (last) call:", time_call)
@@ -64,8 +52,9 @@ print.summary.fits_ids_dm <- function(
       class_vector = summary_obj$summary_drift_dm_obj$class
     )
     cat("Optimizer:", summary_obj$optimizer, "\n")
-    not_conv <- summary_obj$conv_info$not_conv
-    not_conv <- not_conv[sapply(not_conv, isTRUE)] # keep only not_conv entries that are TRUE
+    all_not_conv <- summary_obj$conv_info$not_conv
+    # keep only those that are TRUE
+    not_conv <- all_not_conv[sapply(all_not_conv, isTRUE)]
     ids <- names(not_conv) # potentially non-converged individuals
     if (length(ids) > 0) {
       info <- paste(
@@ -74,7 +63,11 @@ print.summary.fits_ids_dm <- function(
         paste("participant", if (length(ids) > 1) "s", sep = "")
       )
     } else {
-      info <- "TRUE"
+      if (any(is.na(all_not_conv))) {
+        info <- "NA"
+      } else {
+        info <- "TRUE"
+      }
     }
     cat("Convergence:", info, "\n")
     cat("N Individuals:", summary_obj$obs_data$N, "\n")

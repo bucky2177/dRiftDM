@@ -161,6 +161,8 @@ test_that("snapshot of the model running through nmkb", {
   new_data <- simulate_data(a_model, n = 2000, seed = 1)
   obs_data(a_model) <- new_data
   coef(a_model) <- c(muc = 2, b = 0.3, non_dec = 0.2)
+
+  # with model parameters
   expect_snapshot(
     w_estimate_model(
       a_model,

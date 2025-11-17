@@ -135,7 +135,7 @@ unique parameter labels.
 \examples{
 # get a pre-built model and a data set for demonstration purpose
 # (when creating the model, set the discretization to reasonable values)
-a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+a_model <- dmc_dm()
 coef(a_model) # gives the free and unique parameters
 coef(a_model, select_unique = FALSE) # gives the entire parameter matrix
 

@@ -9,3 +9,7 @@ cpp_kfe_ada <- function(pdf_u, pdf_l, xx, nt, nx, dtbase, dx, sigma, b_vals, mu_
     .Call(`_dRiftDM_cpp_kfe_ada`, pdf_u, pdf_l, xx, nt, nx, dtbase, dx, sigma, b_vals, mu_vals, dt_b_vals, x_vec)
 }
 
+cpp_kfe_ada_fixed_mu_b <- function(pdf_u, pdf_l, xx, nt, nx, dtbase, dx, sigma, b_val, mu_val, x_vec) {
+    .Call(`_dRiftDM_cpp_kfe_ada_fixed_mu_b`, pdf_u, pdf_l, xx, nt, nx, dtbase, dx, sigma, b_val, mu_val, x_vec)
+}
+

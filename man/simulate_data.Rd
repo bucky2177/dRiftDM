@@ -147,7 +147,7 @@ A function for \code{fits_ids_dm} will be provided in the future.
 \examples{
 # Example 1 ----------------------------------------------------------------
 # get a pre-built model for demonstration
-a_model <- ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
+a_model <- ratcliff_dm()
 
 # define a lower and upper simulation space
 lower <- c(1, 0.4, 0.1)
@@ -164,7 +164,7 @@ head(data_prms$prms)
 # Example 2 ----------------------------------------------------------------
 # more flexibility when defining lists for lower and upper
 # get a pre-built model, and allow muc to vary across conditions
-a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005, instr = "muc ~ ")
+a_model <- dmc_dm(instr = "muc ~ ")
 
 # define a lower and upper simulation space
 # let muc vary between 2 and 6, but in incomp conditions, let it vary

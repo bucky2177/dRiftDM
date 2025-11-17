@@ -1,6 +1,47 @@
 # estimate_dm -> sep_c works as expected
 
     Code
+      estimate_dm(drift_dm_obj = tmp, obs_data = ratcliff_synth_data, seed = 1)
+    Message
+      Using the data supplied via the 'obs_data' argument.
+      Using optimizer 'Nelder-Mead'.
+      Fitting a single data set/participant (cost function: 'neg_log_like'). The returned object will be the model itself.
+      Using EZ-Diffusion estimates for: muc, b, non_dec
+      Performing latin hypercube sampling (n_lhs = 10) on: range_non_dec
+      Starting optimizer 'Nelder-Mead' with the following starting values:
+      muc=3.092, b=0.418, non_dec=0.298, range_non_dec=0.027
+      Optimization routine exited after 265 function evaluations
+      Final Parameters:
+      muc = 3.12
+      b = 0.398
+      non_dec = 0.307
+      range_non_dec = 0.03
+      ==> gave a neg_log_like of -324.311
+    Output
+      Class(es) ratcliff_dm, drift_dm
+      Optimizer: Nelder-Mead
+      Convergence: TRUE
+      
+      Parameter Values:
+            muc     b non_dec range_non_dec
+      null 3.12 0.398   0.307          0.03
+      
+      Parameter Settings:
+           muc b non_dec range_non_dec
+      null   1 2       3             4
+      
+      Deriving PDFS:
+        solver: kfe
+        values: sigma=1, t_max=3, dt=0.0075, dx=0.02, nt=400, nx=100
+      
+      Cost Function: neg_log_like
+      
+      Observed Data: 300 trials null
+      
+
+---
+
+    Code
       all_fits <- estimate_dm(drift_dm_obj = tmp, obs_data = data, lower = l_u$lower,
       upper = l_u$upper, messaging = TRUE, verbose = 0, progress = 0, control = list(
         VTR = 0, trace = FALSE))
@@ -20,7 +61,7 @@
       Using optimizer 'DEoptim'.
       Changing the 'cost_function' to 'rmse'.
       Aggregated data has been set to the model.
-      Fitting the model to aggregated data across participants. The returned object will of type 'fits_agg_dm'.
+      Fitting the model once to the aggregated data. The returned object will of type 'fits_agg_dm'.
     Output
       Fit approach: aggregated - classical
       Fitted model type: ratcliff_dm, drift_dm
@@ -92,7 +133,7 @@
       non_dec = 0.21
       ==> gave a neg_log_like of 443.313
       Optimization routine exited after 6 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 2
       b = 0.33
       non_dec = 0.2
@@ -160,7 +201,7 @@
       non_dec = 0.21
       ==> gave a neg_log_like of 331.43
       Optimization routine exited after 6 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 1
       b = 0.33
       non_dec = 0.2
@@ -199,7 +240,7 @@
       non_dec = 0.24
       ==> gave a neg_log_like of -241.01
       Optimization routine exited after 6 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 3.3
       b = 0.5
       non_dec = 0.3
@@ -238,7 +279,7 @@
       non_dec = 0.32
       ==> gave a neg_log_like of 777.43
       Optimization routine exited after 6 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 7
       b = 0.9
       non_dec = 0.4
@@ -286,7 +327,7 @@
       non_dec = 0.22
       ==> gave a neg_log_like of -154.525
       Optimization routine exited after 6 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 2
       b = 0.4
       non_dec = 0.22
@@ -325,7 +366,7 @@
       non_dec = 0.24
       ==> gave a neg_log_like of -241.01
       Optimization routine exited after 6 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 3.3
       b = 0.5
       non_dec = 0.3
@@ -365,7 +406,7 @@
       non_dec = 0.32
       ==> gave a neg_log_like of 193.854
       Optimization routine exited after 6 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 4.4
       b = 0.6
       non_dec = 0.4
@@ -404,7 +445,7 @@
       non_dec = 0.4
       ==> gave a neg_log_like of 3344.136
       Optimization routine exited after 6 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 5.5
       b = 0.7
       non_dec = 0.5
@@ -460,7 +501,7 @@
       non_dec = 0.22
       ==> gave a neg_log_like of -154.525
       Optimization routine exited after 6 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 2
       b = 0.4
       non_dec = 0.22
@@ -498,7 +539,7 @@
       non_dec = 0.32
       ==> gave a neg_log_like of 193.854
       Optimization routine exited after 6 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 4.4
       b = 0.6
       non_dec = 0.4

@@ -61,7 +61,8 @@ if a classical optimization approach is used, defaults to \code{"DEoptim"} or
 Note that \code{"BFGS"} and \code{"L-BFGS-B"} are often unstable.}
 
 \item{control}{a list of control parameters passed to the optimizer
-(see \link[dfoptim:nmkb]{dfoptim::nmkb}, \link[DEoptim:DEoptim]{DEoptim::DEoptim}, \link[stats:optim]{stats::optim}).
+(for Nelder-Mead, BFGS, and L-BFGS-B, see \link[stats:optim]{stats::optim}; for nmkb, see
+\link[dfoptim:nmkb]{dfoptim::nmkb}; for DEoptim, see \link[DEoptim:DEoptim]{DEoptim::DEoptim}).
 Per default, we set the \code{trace} control argument for \link[DEoptim:DEoptim]{DEoptim::DEoptim} to
 \code{FALSE}. Also, we set the \code{parscale} control argument for "Nelder-Mead" via
 \link[stats:optim]{stats::optim} to \code{pmax(x0, 1e-6)}.}
@@ -117,7 +118,11 @@ if \code{verbose = 2}), \code{return_runs}
 (when fitting a single individual and starting the estimation
 routine with multiple starting points; if \code{TRUE}, then a list of all
 routines is returned), \code{probs/n_bins} (the quantile levels and the number
-of CAF bins when fitting aggregated data using the RMSE cost function).}
+of CAF bins when fitting aggregated data using the RMSE cost function),
+\code{use_ez/n_lhs} (logical and integer; the first controls if EZ-Diffusion
+Parameter Estimates shall be used for determining starting points; the
+latter controls the number of parameters to sample per dimension for the
+latin hypercube sampling when searching for starting values)}
 
 \item{x}{an object of type \code{fits_agg_dm}, \code{fits_ids_dm}, or \code{mcmc_dm}}
 
@@ -230,7 +235,7 @@ argument or the currently set model parameters (i.e., from
 default, equal to \eqn{\mu^{(j)}}. This can be changed by passing
 the \code{sd} argument. The lower and upper boundaries of the truncated normal
 are \code{-Inf} and \code{Inf} per default. This can be altered by passing the
-arguments \code{lower} and  \code{upper}.
+arguments \code{lower} and  \code{upper} (see the examples below).
 
 \strong{(Default) Prior settings in the hierarchical case:}
 
@@ -283,6 +288,19 @@ exported:
 \item Aggregated fitting is handled within \code{estimate_dm()} in combination with
 \code{\link[=estimate_classical]{estimate_classical()}}
 }
+
+When fitting a model with \code{optimizer = "DEoptim"}, the corresponding
+minimization routine always runs for 200 iterations by default, irrespective
+of whether a minimum has already been reached (see
+\link[DEoptim:DEoptim.control]{DEoptim::DEoptim.control}). Therefore, with default optimization settings,
+\code{estimate_dm()} returns the convergence flag \code{NA} for
+\code{optimizer = "DEoptim"}, because the termination of the routine does not
+necessarily indicate convergence. However, this is typically not an issue, as
+200 iterations are generally sufficient for the algorithm to find the global
+minimum. If users explicitly define convergence criteria via the \code{control}
+argument of \code{estimate_dm()} (which is passed on to
+\link[DEoptim:DEoptim.control]{DEoptim::DEoptim.control}), valid convergence messages and flags are
+returned.
 }
 \examples{
 ##########
@@ -295,26 +313,24 @@ exported:
 
 # get a model for the examples (DMC with just two free parameters)
 model <- dmc_dm(
-  t_max = 1.5, dx = .01, dt = .01,
-  instr = '
+  instr = "
    b <!>
    non_dec <!>
    sd_non_dec <!>
    tau <!>
    alpha <!>
-   '
+   "
 )
 
 # get some data (the first two participants in the data set of Ulrich et al.)
-data <- ulrich_flanker_data[ulrich_flanker_data$ID \%in\% 1:2,]
-
+data <- ulrich_flanker_data[ulrich_flanker_data$ID \%in\% 1:2, ]
 
 
 ####
 # Fit a single individual (using unbounded Nelder-Mead)
 fit <- estimate_dm(
   drift_dm_obj = model,
-  obs_data = data[data$ID == 1,],
+  obs_data = data[data$ID == 1, ],
   optimizer = "Nelder-Mead"
 )
 print(fit)
@@ -326,7 +342,7 @@ print(fit)
 l_u <- get_lower_upper(model)
 fit <- estimate_dm(
   drift_dm_obj = model,
-  obs_data = data[data$ID == 1,],
+  obs_data = data[data$ID == 1, ],
   optimizer = "nmkb",
   lower = l_u$lower, upper = l_u$upper,
   start_vals = c(muc = 4, A = 0.06)
@@ -343,7 +359,7 @@ l_u <- get_lower_upper(model)
 set.seed(2)
 fit <- estimate_dm(
   drift_dm_obj = model,
-  obs_data = data[data$ID == 1,],
+  obs_data = data[data$ID == 1, ],
   optimizer = "DEoptim",
   lower = l_u$lower, upper = l_u$upper,
   control = list(steptol = 10)
@@ -381,7 +397,7 @@ coef(fit)
 # Fit a single individual (using DE-MCMC; Bayesian; custom priors)
 fit <- estimate_dm(
   drift_dm_obj = model,
-  obs_data = data[data$ID == 1,],
+  obs_data = data[data$ID == 1, ],
   approach = "sep_b",
   burn_in = 2, # this is usually way higher
   samples = 2, # this too

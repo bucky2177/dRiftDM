@@ -462,12 +462,17 @@ test_that("standard components for the ddm components work as expected", {
     one_cond = "W",
     a_model$ddm_opts
   )
-  def_mu_int <- a_model$comp_funs$mu_int_fun(
-    a_model$prms_model,
-    a_model$prms_solve,
-    t_vec,
-    one_cond = "W",
-    a_model$ddm_opts
+
+  expect_identical(a_model$comp_funs$mu_int_fun, dummy_t)
+  expect_error(
+    a_model$comp_funs$mu_int_fun(
+      a_model$prms_model,
+      a_model$prms_solve,
+      t_vec,
+      one_cond = "W",
+      a_model$ddm_opts
+    ),
+    "should not be called"
   )
   def_b <- a_model$comp_funs$b_fun(
     a_model$prms_model,
@@ -499,7 +504,6 @@ test_that("standard components for the ddm components work as expected", {
   )
 
   expect_identical(def_mu, rep(3, 301))
-  expect_identical(def_mu_int, 3 * t_vec)
   expect_identical(def_b, rep(0.5, 301))
   expect_identical(def_dtb, rep(0, 301))
   exp_nt <- rep(0, 301)
@@ -514,16 +518,6 @@ test_that("standard components for the ddm components work as expected", {
   x_vec <- numeric()
   expect_error(
     a_model$comp_funs$mu_fun(
-      a_model$prms_model,
-      a_model$prms_solve,
-      t_vec,
-      one_cond = "W",
-      a_model$ddm_opts
-    ),
-    "t_vec is not a numeric vector"
-  )
-  expect_error(
-    a_model$comp_funs$mu_int_fun(
       a_model$prms_model,
       a_model$prms_solve,
       t_vec,

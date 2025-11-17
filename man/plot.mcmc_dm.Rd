@@ -2,13 +2,13 @@
 % Please edit documentation in R/plotting.R
 \name{plot.mcmc_dm}
 \alias{plot.mcmc_dm}
-\title{Plot MCMC Results and Diagnostics \code{mcmc_dm} Objects}
+\title{Plot MCMC Results and Diagnostics for \code{mcmc_dm} Objects}
 \usage{
 \method{plot}{mcmc_dm}(x, ..., id = NULL, what = "trace", bundle_plots = TRUE)
 }
 \arguments{
 \item{x}{an object of class \code{mcmc_dm}, as returned by
-\code{\link[=estimate_bayesian]{estimate_bayesian()}}.}
+\code{\link[=estimate_dm]{estimate_dm()}}.}
 
 \item{...}{optional arguments passed on to the underlying plotting functions
 \code{\link[=plot_mcmc_trace]{plot_mcmc_trace()}}, \code{\link[=plot_mcmc_marginal]{plot_mcmc_marginal()}}, and
@@ -35,7 +35,7 @@ Returns \code{NULL} invisibly.
 \description{
 Visualize MCMC results and diagnostics for \code{mcmc_dm} objects.
 The function \code{plot.mcmc()} is typically called when users supply an
-objects returned by \code{\link[=estimate_bayesian]{estimate_bayesian()}} to the generic
+\code{mcmc_dm} object returned by \code{\link[=estimate_dm]{estimate_dm()}} to the generic
 \code{\link[base:plot]{base::plot()}} function.
 }
 \details{

@@ -105,7 +105,7 @@ some_stats <- calc_stats(some_data, type = "quantiles")
 # See also ?plot.quantiles for more detail
 plot(
   some_stats,
-  obs.pch = 21,        # optional argument 1: point type
+  obs.pch = 21, # optional argument 1: point type
   obs.pt.bg = "black", # optional argument 2: point background
   legend = c("foo", "bar") # optional argument 3: custom legend labels
 )

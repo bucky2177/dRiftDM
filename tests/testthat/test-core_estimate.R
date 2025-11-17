@@ -38,6 +38,12 @@ test_that("estimate_dm -> sep_c works as expected", {
   )
   expect_identical(tmp2, tmp)
 
+  # check if starting values are used
+  tmp <- ratcliff_dm(var_non_dec = TRUE)
+  expect_snapshot(
+    estimate_dm(drift_dm_obj = tmp, obs_data = ratcliff_synth_data, seed = 1)
+  )
+
   # check messages
   expect_message(
     expect_message(
@@ -115,7 +121,9 @@ test_that("estimate_dm -> sep_c works as expected", {
       messaging = FALSE,
       verbose = 0,
       progress = 0,
-      control = list(maxfeval = 20)
+      control = list(maxfeval = 20),
+      use_ez = 0,
+      n_lhs = 0
     ),
     "fevals exceeded"
   )

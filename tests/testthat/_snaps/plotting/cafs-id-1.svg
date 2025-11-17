@@ -90,10 +90,10 @@
 <circle cx='374.40' cy='75.47' r='2.70' style='stroke-width: 0.75; stroke: #D55E00; fill: #D55E00;' />
 <circle cx='520.40' cy='87.91' r='2.70' style='stroke-width: 0.75; stroke: #D55E00; fill: #D55E00;' />
 <circle cx='666.40' cy='87.55' r='2.70' style='stroke-width: 0.75; stroke: #D55E00; fill: #D55E00;' />
-<polygon points='82.40,86.03 228.40,75.47 374.40,112.46 520.40,99.81 666.40,87.55 666.40,75.47 520.40,75.47 374.40,75.47 228.40,75.47 82.40,75.47 ' style='stroke-width: 0.75; stroke: none; fill: #009E73; fill-opacity: 0.20;' />
-<polyline points='82.40,78.58 228.40,79.45 374.40,80.94 520.40,83.07 666.40,83.63 ' style='stroke-width: 0.75; stroke: #009E73;' />
-<polygon points='82.40,165.99 228.40,113.74 374.40,99.62 520.40,88.30 666.40,97.21 666.40,75.47 520.40,75.47 374.40,75.47 228.40,99.62 82.40,102.04 ' style='stroke-width: 0.75; stroke: none; fill: #D55E00; fill-opacity: 0.20;' />
-<polyline points='82.40,135.98 228.40,101.20 374.40,88.49 520.40,82.49 666.40,80.73 ' style='stroke-width: 0.75; stroke: #D55E00;' />
+<polygon points='82.40,86.03 228.40,75.47 374.40,112.53 520.40,109.32 666.40,87.87 666.40,75.47 520.40,75.47 374.40,75.47 228.40,75.47 82.40,75.47 ' style='stroke-width: 0.75; stroke: none; fill: #009E73; fill-opacity: 0.20;' />
+<polyline points='82.40,78.81 228.40,79.85 374.40,81.54 520.40,84.14 666.40,84.88 ' style='stroke-width: 0.75; stroke: #009E73;' />
+<polygon points='82.40,176.55 228.40,113.74 374.40,100.21 520.40,99.15 666.40,97.21 666.40,75.47 520.40,75.47 374.40,75.47 228.40,99.62 82.40,112.91 ' style='stroke-width: 0.75; stroke: none; fill: #D55E00; fill-opacity: 0.20;' />
+<polyline points='82.40,137.33 228.40,102.09 374.40,89.32 520.40,83.05 666.40,81.33 ' style='stroke-width: 0.75; stroke: #D55E00;' />
 <rect x='610.03' y='459.36' width='79.73' height='43.20' style='stroke-width: 0.75; fill: #FFFFFF;' />
 <line x1='613.27' y1='473.76' x2='634.87' y2='473.76' style='stroke-width: 0.75; stroke: #009E73;' />
 <line x1='613.27' y1='488.16' x2='634.87' y2='488.16' style='stroke-width: 0.75; stroke: #D55E00;' />
