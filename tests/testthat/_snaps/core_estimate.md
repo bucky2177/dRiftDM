@@ -1,7 +1,7 @@
 # estimate_dm -> sep_c works as expected
 
     Code
-      estimate_dm(drift_dm_obj = tmp, obs_data = ratcliff_synth_data)
+      estimate_dm(drift_dm_obj = tmp, obs_data = ratcliff_synth_data, seed = 1)
     Message
       Using the data supplied via the 'obs_data' argument.
       Using optimizer 'Nelder-Mead'.
@@ -9,22 +9,22 @@
       Using EZ-Diffusion estimates for: muc, b, non_dec
       Performing latin hypercube sampling (n_lhs = 10) on: range_non_dec
       Starting optimizer 'Nelder-Mead' with the following starting values:
-      muc=3.092, b=0.418, non_dec=0.298, range_non_dec=0.02
-      Optimization routine exited after 141 function evaluations
+      muc=3.092, b=0.418, non_dec=0.298, range_non_dec=0.027
+      Optimization routine exited after 265 function evaluations
       Final Parameters:
-      muc = 3.089
-      b = 0.411
-      non_dec = 0.299
-      range_non_dec = 0.02
-      ==> gave a neg_log_like of -325.456
+      muc = 3.12
+      b = 0.398
+      non_dec = 0.307
+      range_non_dec = 0.03
+      ==> gave a neg_log_like of -324.311
     Output
       Class(es) ratcliff_dm, drift_dm
       Optimizer: Nelder-Mead
       Convergence: TRUE
       
       Parameter Values:
-             muc     b non_dec range_non_dec
-      null 3.089 0.411   0.299          0.02
+            muc     b non_dec range_non_dec
+      null 3.12 0.398   0.307          0.03
       
       Parameter Settings:
            muc b non_dec range_non_dec

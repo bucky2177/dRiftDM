@@ -41,7 +41,7 @@ test_that("estimate_dm -> sep_c works as expected", {
   # check if starting values are used
   tmp <- ratcliff_dm(var_non_dec = TRUE)
   expect_snapshot(
-    estimate_dm(drift_dm_obj = tmp, obs_data = ratcliff_synth_data)
+    estimate_dm(drift_dm_obj = tmp, obs_data = ratcliff_synth_data, seed = 1)
   )
 
   # check messages
