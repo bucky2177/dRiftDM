@@ -771,14 +771,7 @@ get_default_functions <- function(
   }
 
   if (is.null(mu_int_fun)) {
-    mu_int_fun <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
-      # integral of a constant drift rate
-      mu <- standard_drift()
-      if (!is.numeric(t_vec) | length(t_vec) <= 1) {
-        stop("t_vec is not a numeric vector with more than one entry")
-      }
-      return(mu * t_vec)
-    }
+    mu_int_fun <- dummy_t
   }
 
   if (is.null(x_fun)) {
@@ -862,7 +855,7 @@ get_default_functions <- function(
 #' @examples
 #' # choose a pre-built model (e.g., the Ratcliff model)
 #' # and set the discretization as needed
-#' my_model <- ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
+#' my_model <- ratcliff_dm()
 #'
 #' # then calculate the model's predicted PDF
 #' my_model <- re_evaluate_model(my_model)
@@ -1441,7 +1434,7 @@ set_one_solver_setting <- function(
     # check if the time line works out
     dt <- prms_solve[["dt"]]
     t_max <- prms_solve[["t_max"]]
-    check <- (t_max / dt) %% 1 < drift_dm_approx_error()
+    check <- round((t_max / dt), 1.e8) %% 1 < drift_dm_approx_error()
     if (!check) {
       t_max_new <- ceiling(t_max / dt) * dt
       message(
@@ -1459,6 +1452,8 @@ set_one_solver_setting <- function(
     prms_solve["nt"] <- as.integer(
       prms_solve[["t_max"]] / prms_solve[["dt"]] + 1.e-8
     )
+    # re_calc t_max to ensure tmax/nt works out
+    prms_solve[["t_max"]] <- prms_solve[["nt"]] * dt
     drift_dm_obj$prms_solve <- prms_solve
   }
 
@@ -2769,7 +2764,7 @@ ddm_opts.fits_agg_dm <- function(object, ...) {
 #'
 #' @examples
 #' # get a pre-built model for demonstration purpose
-#' a_model <- dmc_dm(dx = .01, dt = .005)
+#' a_model <- dmc_dm()
 #' str(pdfs(a_model))
 #'
 #' @seealso [dRiftDM::drift_dm()], [dRiftDM::re_evaluate_model()],
@@ -2843,9 +2838,15 @@ pdfs.fits_agg_dm <- function(object, ...) {
 #'
 #' @examples
 #' # get a pre-built model for demonstration purpose
-#' a_model <- ratcliff_dm(dx = .01, dt = .01, obs_data = ratcliff_synth_data)
+#' a_model <- ratcliff_dm(obs_data = ratcliff_synth_data)
 #' cost_function(a_model)
 #' cost_value(a_model)
+#'
+#' # switch the default cost function to rmse
+#' cost_function(a_model) <- "rmse"
+#' out <- estimate_dm(a_model, verbose = 0, messaging = FALSE)
+#' # -> the model was estimated using the RMSE statistic
+#'
 #'
 #' @seealso [dRiftDM::drift_dm()], [dRiftDM::re_evaluate_model()]
 #'
@@ -3050,7 +3051,7 @@ comp_vals <- function(
             stop(
               "function for ",
               name_comp_fun,
-              "provided infinite values or NAs, condition ",
+              " provided infinite values or NAs, condition ",
               one_cond
             )
           }
@@ -3089,7 +3090,6 @@ comp_vals <- function(
           }
 
           length_check <- ifelse(name_comp_fun == "x_fun", nx + 1, nt + 1)
-
           if (length(vals) != length_check) {
             stop(
               "function for ",
@@ -3098,6 +3098,19 @@ comp_vals <- function(
               "number of values, condition ",
               one_cond
             )
+          }
+
+          # for starting values, no zeros on the edges
+          if (name_comp_fun == "x_fun") {
+            if (vals[1] != 0 || vals[nx + 1] != 0) {
+              stop(
+                "function for ",
+                name_comp_fun,
+                " provides starting values that are at the decision boundary, ",
+                "condition ",
+                one_cond
+              )
+            }
           }
           return(vals)
         },
@@ -3887,7 +3900,7 @@ unpack_traces.traces_dm_list <- function(
 #' @examples
 #' # Example 1 ----------------------------------------------------------------
 #' # get a pre-built model for demonstration
-#' a_model <- ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
+#' a_model <- ratcliff_dm()
 #'
 #' # define a lower and upper simulation space
 #' lower <- c(1, 0.4, 0.1)
@@ -3904,7 +3917,7 @@ unpack_traces.traces_dm_list <- function(
 #' # Example 2 ----------------------------------------------------------------
 #' # more flexibility when defining lists for lower and upper
 #' # get a pre-built model, and allow muc to vary across conditions
-#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005, instr = "muc ~ ")
+#' a_model <- dmc_dm(instr = "muc ~ ")
 #'
 #' # define a lower and upper simulation space
 #' # let muc vary between 2 and 6, but in incomp conditions, let it vary
@@ -4109,8 +4122,8 @@ simulate_data.drift_dm <- function(
 # in the model object)
 #'
 #' @param drift_dm_obj a [dRiftDM::drift_dm] object
-#' @param n numeric, specifying the number of trials per condition. Can be a
-#' single numeric, or a (named) numeric vector with the same length as
+#' @param n integer, specifying the number of trials per condition. Can be a
+#' single integer, or a (named) integer vector with the same length as
 #' conds
 #' @param conds character vector, specifying the conditions to sample from.
 #' Default `NULL` is equivalent to conds(drift_dm_obj)
@@ -4158,6 +4171,7 @@ simulate_one_data_set <- function(
   if (!is_numeric(n) || any(n <= 0)) {
     stop("n must be numeric > 0")
   }
+  n <- sapply(n, as.integer)
 
   if (is.null(round_to)) {
     round_to <- 3L

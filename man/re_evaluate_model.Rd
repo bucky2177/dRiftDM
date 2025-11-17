@@ -38,7 +38,7 @@ deriving the PDFs can be found in
 \examples{
 # choose a pre-built model (e.g., the Ratcliff model)
 # and set the discretization as needed
-my_model <- ratcliff_dm(t_max = 1.5, dx = .005, dt = .005)
+my_model <- ratcliff_dm()
 
 # then calculate the model's predicted PDF
 my_model <- re_evaluate_model(my_model)

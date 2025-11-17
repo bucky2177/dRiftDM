@@ -5,19 +5,25 @@
 print.stats_dm <- function(
   x,
   ...,
-  round_digits = drift_dm_default_rounding(),
-  print_rows = 10,
-  some = FALSE,
-  show_header = TRUE,
-  show_note = TRUE
+  round_digits = NULL,
+  print_rows = NULL,
+  some = NULL,
+  show_header = NULL,
+  show_note = NULL
 ) {
+  round_digits <- round_digits %||% drift_dm_default_rounding()
+  print_rows <- print_rows %||% 10L
+  some <- some %||% FALSE
+  show_header <- show_header %||% TRUE
+  show_note <- show_note %||% TRUE
+
+  stats_dm_obj <- x
+  n_row <- nrow(stats_dm_obj)
+
   if (show_header) {
     cat("Type of Statistic:", class(x)[1])
     cat("\n\n")
   }
-
-  stats_dm_obj <- x
-  n_row <- nrow(stats_dm_obj)
 
   # stats_dm objects are always of type data.frame
   idx_numeric <- sapply(stats_dm_obj, is.numeric)
@@ -109,6 +115,7 @@ print.sum_dist <- function(x, ...) {
 #' @export
 print.stats_dm_list <- function(x, ...) {
   stats_dm_list_obj <- x
+  dotdot <- list(...)
 
   if (length(x) == 0) {
     print(unclass(x))
@@ -119,7 +126,14 @@ print.stats_dm_list <- function(x, ...) {
     one_stats_obj <- stats_dm_list_obj[[idx]]
     cat("Element ", idx, ", contains ", names(stats_dm_list_obj)[idx], sep = "")
     cat("\n\n")
-    print(one_stats_obj, show_header = FALSE, show_note = FALSE)
+    print(
+      one_stats_obj,
+      show_header = FALSE,
+      show_note = FALSE,
+      round_digits = dotdot$round_digits,
+      print_rows = dotdot$print_rows,
+      some = dotdot$some
+    )
     cat("\n")
     if (idx != length(stats_dm_list_obj)) cat("\n")
   }
@@ -195,7 +209,7 @@ print.stats_dm_list <- function(x, ...) {
 #'
 #' @examples
 #' # get a model with data for demonstration purpose
-#' a_model <- dmc_dm(t_max = 2.0, dx = .01, dt = .005)
+#' a_model <- dmc_dm()
 #' obs_data(a_model) <- dmc_synth_data
 #'
 #' # now get some statistics and call the summary functions

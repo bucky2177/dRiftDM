@@ -40,7 +40,7 @@ called before returning the PDFs.
 }
 \examples{
 # get a pre-built model for demonstration purpose
-a_model <- dmc_dm(dx = .01, dt = .005)
+a_model <- dmc_dm()
 str(pdfs(a_model))
 
 }

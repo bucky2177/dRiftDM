@@ -462,7 +462,6 @@ test_that("untreated error - log_like_heart", {
 
 
 test_that("cpp_kfe_ada and cpp_kfe_ada_fixed_mu_b lead to the same results", {
-
   a_model <- ratcliff_dummy
   prms_solve(a_model)[c("dx", "dt")] <- c(.01, .005)
   nt <- prms_solve(a_model)["nt"]
@@ -474,29 +473,45 @@ test_that("cpp_kfe_ada and cpp_kfe_ada_fixed_mu_b lead to the same results", {
   t_vec <- seq(0, t_max, dt)
   x_vec <- seq(-1, 1, dx)
 
-
   # this triggers the fixed kfe variant
   comps <- comp_vals(a_model)
-  with_mocked_bindings({
-    pdfs_fixed <- calc_pdfs_heart(
-      comp_vals_one_cond = comps$null, nt = nt, nx = nx, dt = dt, dx = dx,
-      sigma = sigma, t_vec = t_vec, x_vec = x_vec, solver = "kfe"
-    )
-  }, cpp_kfe_ada = function(...) stop("this should not be called")
+  with_mocked_bindings(
+    {
+      pdfs_fixed <- calc_pdfs_heart(
+        comp_vals_one_cond = comps$null,
+        nt = nt,
+        nx = nx,
+        dt = dt,
+        dx = dx,
+        sigma = sigma,
+        t_vec = t_vec,
+        x_vec = x_vec,
+        solver = "kfe"
+      )
+    },
+    cpp_kfe_ada = function(...) stop("this should not be called")
   )
-
 
   # this triggers the general kfe variant
   comps <- comp_vals(a_model)
   comps$null$mu_vals[nt] <- comps$null$mu_vals[nt] + 1e-10
   mu_vals <- comps$null$mu_vals
   expect_false(all(mu_vals == mu_vals[1]))
-  with_mocked_bindings({
-    pdfs_general <- calc_pdfs_heart(
-      comp_vals_one_cond = comps$null, nt = nt, nx = nx, dt = dt, dx = dx,
-      sigma = sigma, t_vec = t_vec, x_vec = x_vec, solver = "kfe"
-    )
-  }, cpp_kfe_ada_fixed_mu_b = function(...) stop("this should not be called")
+  with_mocked_bindings(
+    {
+      pdfs_general <- calc_pdfs_heart(
+        comp_vals_one_cond = comps$null,
+        nt = nt,
+        nx = nx,
+        dt = dt,
+        dx = dx,
+        sigma = sigma,
+        t_vec = t_vec,
+        x_vec = x_vec,
+        solver = "kfe"
+      )
+    },
+    cpp_kfe_ada_fixed_mu_b = function(...) stop("this should not be called")
   )
 
   # compare
@@ -504,5 +519,4 @@ test_that("cpp_kfe_ada and cpp_kfe_ada_fixed_mu_b lead to the same results", {
   expect_type(pdfs_fixed$pdf_u, "double")
   expect_equal(pdfs_general$pdf_u, pdfs_fixed$pdf_u)
   expect_equal(pdfs_general$pdf_l, pdfs_fixed$pdf_l)
-
 })

@@ -9,8 +9,8 @@ simulate_one_data_set(drift_dm_obj, n, conds = NULL, round_to = NULL)
 \arguments{
 \item{drift_dm_obj}{a \link{drift_dm} object}
 
-\item{n}{numeric, specifying the number of trials per condition. Can be a
-single numeric, or a (named) numeric vector with the same length as
+\item{n}{integer, specifying the number of trials per condition. Can be a
+single integer, or a (named) integer vector with the same length as
 conds}
 
 \item{conds}{character vector, specifying the conditions to sample from.

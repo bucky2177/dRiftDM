@@ -328,8 +328,10 @@ simulate_values <- function(
 #' There are not yet overall and officially published recommendations on how
 #' large the Hellinger distance can be without affecting model precision, and
 #' this might even depend on the model itself. Based on some preliminary
-#' simulations we would recommend trying to keep the Hellinger Distance between
-#' below 5 percent on average.
+#' simulations we would recommend trying to keep the Hellinger Distance at best
+#' below 10 percent. However, it is best to iterate between plotting model
+#' predictions and calculating the Hellinger Distance, to ensure that you can
+#' best interpret this quantity for your model at hand.
 #'
 #' @param object a [dRiftDM::drift_dm], `fits_agg_dm`, or `fits_ids_dm` object.
 #'   (the latter two are returned by [dRiftDM::estimate_dm()])

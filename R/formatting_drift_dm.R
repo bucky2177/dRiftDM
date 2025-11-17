@@ -88,7 +88,7 @@ print.drift_dm <- function(x, ..., round_digits = drift_dm_default_rounding()) {
 #'
 #' @examples
 #' # get a pre-built model for demonstration
-#' a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+#' a_model <- dmc_dm()
 #' sum_obj <- summary(a_model)
 #' print(sum_obj, round_digits = 2)
 #'

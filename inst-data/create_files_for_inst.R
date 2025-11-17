@@ -1,6 +1,6 @@
 # FITS_SEP ----------------------------------------------------------------
 
-ddm = dmc_dm(dx = .01, dt = .01)
+ddm = dmc_dm()
 ulrich_flanker_data = ulrich_flanker_data
 ulrich_flanker_data = ulrich_flanker_data[
   ulrich_flanker_data$ID %in% c(1, 2, 3),
@@ -44,7 +44,7 @@ saveRDS(object = fits_agg, file = file.path("inst", "example_fits_agg.rds"))
 
 # MCMC --------------------------------------------------------------------
 
-ddm <- ratcliff_dm(dx = .01, dt = .01)
+ddm <- ratcliff_dm()
 
 obs_data(ddm) <- ratcliff_synth_data
 
@@ -62,7 +62,7 @@ saveRDS(object = chains, file = file.path("inst", "example_mcmc.rds"))
 
 # MCMC HIER ----------------------------------------------------------------
 
-ddm <- ratcliff_dm(dx = .01, dt = .01)
+ddm <- ratcliff_dm()
 
 data <- simulate_data(
   ddm,

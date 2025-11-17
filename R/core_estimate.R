@@ -25,7 +25,8 @@
 #'   `NULL` and if a Bayesian framework is used, defaults to `"DE-MCMC`.
 #'   Note that `"BFGS"` and `"L-BFGS-B"` are often unstable.
 #' @param control a list of control parameters passed to the optimizer
-#'   (see [dfoptim::nmkb], [DEoptim::DEoptim], [stats::optim]).
+#'   (for Nelder-Mead, BFGS, and L-BFGS-B, see [stats::optim]; for nmkb, see
+#'   [dfoptim::nmkb]; for DEoptim, see [DEoptim::DEoptim]).
 #'   Per default, we set the `trace` control argument for [DEoptim::DEoptim] to
 #'   `FALSE`. Also, we set the `parscale` control argument for "Nelder-Mead" via
 #'   [stats::optim] to `pmax(x0, 1e-6)`.
@@ -68,7 +69,11 @@
 #'    (when fitting a single individual and starting the estimation
 #'    routine with multiple starting points; if `TRUE`, then a list of all
 #'    routines is returned), `probs/n_bins` (the quantile levels and the number
-#'    of CAF bins when fitting aggregated data using the RMSE cost function).
+#'    of CAF bins when fitting aggregated data using the RMSE cost function),
+#'    `use_ez/n_lhs` (logical and integer; the first controls if EZ-Diffusion
+#'    Parameter Estimates shall be used for determining starting points; the
+#'    latter controls the number of parameters to sample per dimension for the
+#'    latin hypercube sampling when searching for starting values)
 #' @param round_digits integer, specifying the number of decimal places for
 #'   rounding in the printed summary. Default is 3.
 #' @param x an object of type `fits_agg_dm`, `fits_ids_dm`, or `mcmc_dm`
@@ -173,7 +178,7 @@
 #' default, equal to \eqn{\mu^{(j)}}. This can be changed by passing
 #' the `sd` argument. The lower and upper boundaries of the truncated normal
 #' are `-Inf` and `Inf` per default. This can be altered by passing the
-#' arguments `lower` and  `upper`.
+#' arguments `lower` and  `upper` (see the examples below).
 #'
 #' **(Default) Prior settings in the hierarchical case:**
 #'
@@ -224,6 +229,20 @@
 #' - Aggregated fitting is handled within `estimate_dm()` in combination with
 #'   [dRiftDM::estimate_classical()]
 #'
+#' When fitting a model with `optimizer = "DEoptim"`, the corresponding
+#' minimization routine always runs for 200 iterations by default, irrespective
+#' of whether a minimum has already been reached (see
+#' [DEoptim::DEoptim.control]). Therefore, with default optimization settings,
+#' `estimate_dm()` returns the convergence flag `NA` for
+#' `optimizer = "DEoptim"`, because the termination of the routine does not
+#' necessarily indicate convergence. However, this is typically not an issue, as
+#' 200 iterations are generally sufficient for the algorithm to find the global
+#' minimum. If users explicitly define convergence criteria via the `control`
+#' argument of `estimate_dm()` (which is passed on to
+#' [DEoptim::DEoptim.control]), valid convergence messages and flags are
+#' returned.
+#'
+#'
 #' @seealso [dRiftDM::estimate_classical()], [dRiftDM::estimate_bayesian()],
 #'   [dRiftDM::estimate_classical_wrapper()], [dRiftDM::get_parameters_smart()]
 #'
@@ -238,7 +257,6 @@
 #'
 #' # get a model for the examples (DMC with just two free parameters)
 #' model <- dmc_dm(
-#'   t_max = 1.5, dx = .01, dt = .01,
 #'   instr = "
 #'    b <!>
 #'    non_dec <!>
@@ -555,7 +573,7 @@ estimate_dm <- function(
     )
     if (messaging) {
       message(
-        "Fitting the model to aggregated data across participants. The ",
+        "Fitting the model once to the aggregated data. The ",
         "returned object will of type 'fits_agg_dm'."
       )
     }
@@ -572,7 +590,9 @@ estimate_dm <- function(
       de_n_cores = n_cores,
       control = control,
       round_digits = dots$round_digits,
-      seed = seed
+      seed = seed,
+      use_ez = dots$use_ez,
+      n_lhs = dots$n_lhs
     )
 
     # wrap up the return value and create a custom class
@@ -591,7 +611,11 @@ estimate_dm <- function(
         0L
       }
       if (n_ids <= 1L) {
-        obs_data(drift_dm_obj) <- obs_data
+        obs_data(
+          drift_dm_obj,
+          probs = dots$probs,
+          n_bins = dots$n_bins
+        ) <- obs_data
         toggle <- "single"
       } else {
         toggle <- "multi"
@@ -624,7 +648,9 @@ estimate_dm <- function(
         de_n_cores = n_cores,
         control = control,
         round_digits = dots$round_digits,
-        seed = seed
+        seed = seed,
+        use_ez = dots$use_ez,
+        n_lhs = dots$n_lhs
       )
       return(drift_dm_obj)
     }
@@ -688,7 +714,11 @@ estimate_dm <- function(
         n_cores = n_cores,
         control = control,
         round_digits = dots$round_digits,
-        seed = seed
+        seed = seed,
+        use_ez = dots$use_ez,
+        n_lhs = dots$n_lhs,
+        probs = dots$probs,
+        n_bins = dots$n_bins
       )
     }
 
@@ -906,7 +936,9 @@ estimate_classical <- function(
   de_n_cores = 1,
   control = list(),
   round_digits = NULL,
-  seed = NULL
+  seed = NULL,
+  use_ez = NULL,
+  n_lhs = NULL
 ) {
   # input checks
   if (!inherits(drift_dm_obj, "drift_dm")) {
@@ -927,6 +959,34 @@ estimate_classical <- function(
     choices = c("nmkb", "Nelder-Mead", "BFGS", "L-BFGS-B", "DEoptim")
   )
 
+  if (optimizer %in% c("nmkb", "L-BFGS-B", "DEoptim")) {
+    if (is.null(lower) || is.null(upper)) {
+      stop(
+        "The optimizer '",
+        optimizer,
+        "' requires both 'lower' and 'upper' ",
+        "bounds. Please specify these arguments and call the function again."
+      )
+    }
+  }
+
+  if (optimizer == "DEoptim") {
+    if (!is.numeric(de_n_cores) || de_n_cores <= 0) {
+      stop("de_n_cores must be a numeric > 0")
+    }
+  }
+
+  if (!is.list(control)) {
+    stop("control must be a list")
+  }
+
+  if (is.null(round_digits)) {
+    round_digits <- drift_dm_default_rounding()
+  }
+  if (!is.numeric(round_digits) || length(round_digits) != 1) {
+    stop("'round_digits' must be a single numeric value")
+  }
+
   # continue checks/defaults
   if (is.null(verbose)) {
     verbose <- 1
@@ -945,12 +1005,24 @@ estimate_classical <- function(
     )
   }
 
+  # maybe get starting values if they are not provided
+  if (optimizer != "DEoptim" && is.null(start_vals)) {
+    start_vals <- get_starting_values(
+      drift_dm_obj,
+      lower = lower,
+      upper = upper,
+      verbose = verbose,
+      use_ez = use_ez,
+      n_lhs = n_lhs
+    )
+  }
+
   # check if start_vals is a data.frame, and omit the ID column;
   # mabye turn into a simple vector if it has only one row
   if (is.data.frame(start_vals)) {
-    start_vals <- start_vals[,names(start_vals) != "ID"]
+    start_vals <- start_vals[, names(start_vals) != "ID"]
     if (nrow(start_vals) == 1) {
-      start_vals <-  unlist(start_vals)
+      start_vals <- unlist(start_vals)
     }
   }
 
@@ -974,7 +1046,10 @@ estimate_classical <- function(
         drift_dm_obj = drift_dm_obj,
         input_a = start_vals
       )$vec_a
-      coef(drift_dm_obj) <- prm
+      drift_dm_obj$flex_prms_obj <- x2prms_vals(
+        x = prm,
+        flex_prms_obj = drift_dm_obj$flex_prms_obj
+      )
     } else {
       # otherwise call the function recursively
       stopifnot(nrow(start_vals) > 1)
@@ -992,7 +1067,9 @@ estimate_classical <- function(
           upper = upper,
           verbose = verbose,
           control = control,
-          round_digits = round_digits
+          round_digits = round_digits,
+          use_ez = use_ez,
+          n_lhs = n_lhs
         )
       })
       cost_values <- sapply(results, cost_value)
@@ -1022,34 +1099,6 @@ estimate_classical <- function(
   )
   lower <- lower_upper$vec_a
   upper <- lower_upper$vec_b
-
-  if (optimizer %in% c("nmkb", "L-BFGS-B", "DEoptim")) {
-    if (is.null(lower) || is.null(upper)) {
-      stop(
-        "The optimizer '",
-        optimizer,
-        "' requires both 'lower' and 'upper' ",
-        "bounds. Please specify these arguments and call the function again."
-      )
-    }
-  }
-
-  if (optimizer == "DEoptim") {
-    if (!is.numeric(de_n_cores) || de_n_cores <= 0) {
-      stop("de_n_cores must be a numeric > 0")
-    }
-  }
-
-  if (!is.list(control)) {
-    stop("control must be a list")
-  }
-
-  if (is.null(round_digits)) {
-    round_digits <- drift_dm_default_rounding()
-  }
-  if (!is.numeric(round_digits) || length(round_digits) != 1) {
-    stop("'round_digits' must be a single numeric value")
-  }
 
   # objective function to minimize
   goal_wrapper <- function(
@@ -1306,7 +1355,7 @@ estimate_classical <- function(
   if (verbose >= 1) {
     prms_string <- prms_to_str(drift_dm_obj, sep = " = ")
     message(
-      "Final Parameters\n",
+      "Final Parameters:\n",
       prms_string,
       "\n==> gave a ",
       drift_dm_obj$cost_function,
@@ -1428,7 +1477,11 @@ estimate_classical_wrapper <- function(
 
   # create a list of models to fit, handling observed data, and starting values
   tmp <- function(one_id) {
-    obs_data(drift_dm_obj) <- obs_data_ids[obs_data_ids$ID == one_id, ]
+    obs_data(
+      drift_dm_obj,
+      probs = dots$probs,
+      n_bins = dots$n_bins
+    ) <- obs_data_ids[obs_data_ids$ID == one_id, ]
 
     sv <- NULL
     if (!is.null(start_vals)) {
@@ -1456,7 +1509,9 @@ estimate_classical_wrapper <- function(
         de_n_cores = dots$de_n_cores,
         control = dots$control,
         round_digits = dots$round_digits,
-        seed = dots$seed
+        seed = dots$seed,
+        use_ez = dots$use_ez,
+        n_lhs = dots$n_lhs
       )
     }
 

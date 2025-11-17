@@ -15,7 +15,9 @@ estimate_classical(
   de_n_cores = 1,
   control = list(),
   round_digits = NULL,
-  seed = NULL
+  seed = NULL,
+  use_ez = NULL,
+  n_lhs = NULL
 )
 }
 \arguments{

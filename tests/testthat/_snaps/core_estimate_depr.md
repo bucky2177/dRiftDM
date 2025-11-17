@@ -977,7 +977,7 @@
       non_dec = 0.299
       ==> gave a neg_log_like of -1551.398
       Optimization routine exited after 194 function evaluations
-      Final Parameters
+      Final Parameters:
       muc = 2.964
       b = 0.593
       non_dec = 0.299
@@ -1047,7 +1047,7 @@
       Iteration: 32 bestvalit: -592.852369 bestmemit:    4.200642    0.306433
     Message
       Optimization routine exited after 32 iterations.
-      Final Parameters
+      Final Parameters:
       muc = 4.201
       non_dec = 0.306
       ==> gave a neg_log_like of -592.852
@@ -1123,7 +1123,7 @@
       Iteration: 32 bestvalit: -592.852369 bestmemit:    4.200642    0.306433
     Message
       Optimization routine exited after 32 iterations.
-      Final Parameters
+      Final Parameters:
       muc = 4.201
       non_dec = 0.306
       ==> gave a neg_log_like of -592.852

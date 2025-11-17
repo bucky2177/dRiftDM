@@ -49,11 +49,11 @@ calc_stats(object, type, ...)
 \method{print}{stats_dm}(
   x,
   ...,
-  round_digits = drift_dm_default_rounding(),
-  print_rows = 10,
-  some = FALSE,
-  show_header = TRUE,
-  show_note = TRUE
+  round_digits = NULL,
+  print_rows = NULL,
+  some = NULL,
+  show_header = NULL,
+  show_note = NULL
 )
 
 \method{print}{stats_dm_list}(x, ...)
@@ -296,7 +296,7 @@ values \code{NA}. Users can alter this by explicitly passing the argument
 \examples{
 # Example 1: Calculate CAFs and Quantiles from a model ---------------------
 # get a model for demonstration purpose
-a_model <- ssp_dm(dx = .0025, dt = .0025, t_max = 2)
+a_model <- ssp_dm()
 # and then calculate cafs and quantiles
 some_stats <- calc_stats(a_model, type = c("cafs", "quantiles"))
 print(some_stats)

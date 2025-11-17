@@ -72,7 +72,7 @@ Colors, symbols, and line styles can be customized via \code{...}.
 }
 \examples{
 # Example 1: Model predictions only ---------------------------------------
-a_model <- dmc_dm(t_max = 1.5, dx = .01, dt = .005)
+a_model <- dmc_dm()
 quantiles <- calc_stats(a_model, type = "quantiles")
 plot(quantiles)
 plot(quantiles, col = c("green", "red"), xlim = c(0.2, 0.6))

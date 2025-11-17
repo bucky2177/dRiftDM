@@ -483,6 +483,19 @@ plot(check_fit)
 
  Circles indicate observed data while lines indicate the model's predictions. 
  
+To invoke a bootstrap, where we repeatedly resample individuals to derive an uncertainty interval around both the observed and predicted data, we can specify the argument \verb|resample| in combination with the argument \verb|level = "group"|. This helps us to judge if small misfits between the observed data and the model predictions are just related to sampling noise, or whether they reflect systematic misfits that are apparent across individuals.^[It is also possible to resample at the individual level. In this case, however, we don't bootstrap the participants, but instead bootstrap the trials within each individual.]:
+
+```{r plot-results-51}
+check_fit <- calc_stats(
+  object = all_fits,
+  type = c("cafs", "quantiles"),
+  level = "group",
+  resample = TRUE
+)
+plot(check_fit)
+```
+
+
 ## Extracting Parameter Estimates and Fit Statistics
 
 Extracting the parameter estimates can be done via the `coef()` method, which work with the objects returned by `estimate_dm()`.

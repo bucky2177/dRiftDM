@@ -70,9 +70,15 @@ the data.
 }
 \examples{
 # get a pre-built model for demonstration purpose
-a_model <- ratcliff_dm(dx = .01, dt = .01, obs_data = ratcliff_synth_data)
+a_model <- ratcliff_dm(obs_data = ratcliff_synth_data)
 cost_function(a_model)
 cost_value(a_model)
+
+# switch the default cost function to rmse
+cost_function(a_model) <- "rmse"
+out <- estimate_dm(a_model, verbose = 0, messaging = FALSE)
+# -> the model was estimated using the RMSE statistic
+
 
 }
 \seealso{

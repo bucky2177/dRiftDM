@@ -1174,7 +1174,7 @@ dummy_t <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 }
 
 
-# FUNCTION FOR GETTING LOWER/UPPER ----------------------------------------
+# FUNCTION FOR GETTING LOWER/UPPER/START ----------------------------------
 
 #' Get Default Parameter Ranges for a Model
 #'
@@ -1214,7 +1214,7 @@ dummy_t <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #'
 #' @examples
 #' # get a model for the example
-#' model <- dmc_dm(dx = .005, dt = 0.005, obs_data = dmc_synth_data)
+#' model <- dmc_dm(obs_data = dmc_synth_data)
 #'
 #' # get the parameter ranges
 #' lu <- get_lower_upper(model)
@@ -1346,4 +1346,264 @@ get_lower_upper.drift_dm <- function(object, ..., warn = TRUE) {
   prms_lower <- prms_lower[intersect(free_prms, names(prms_lower))]
   prms_upper <- prms_upper[intersect(free_prms, names(prms_upper))]
   return(list(lower = prms_lower, upper = prms_upper))
+}
+
+
+#' TITLE
+#'
+#' @param object
+#'
+#' @param ...
+#'
+#' @keywords internal
+get_starting_values <- function(object, ...) {
+  UseMethod("get_starting_values")
+}
+
+#' @rdname get_starting_values
+#' @export
+get_starting_values.drift_dm <- function(
+  object,
+  ...,
+  lower = NULL,
+  upper = NULL,
+  verbose = 0,
+  use_ez = NULL,
+  n_lhs = NULL
+) {
+  drift_dm_obj <- object
+  prms_model <- names(coef(drift_dm_obj))
+  use_ez = use_ez %||% TRUE
+  n_lhs = n_lhs %||% 10L
+  verbose = verbose %||% 0
+
+  # if ez is requested, try to provide corresponding starting values
+  ez_guess <- numeric()
+  if (use_ez && !is.null(object$obs_data)) {
+    # 1.) find component functions that can be leveraged
+    comp_funs <- comp_funs(drift_dm_obj)
+
+    mu_funs <- list(mu_constant, mu_dmc, mu_ssp)
+    check_mu <- sapply(mu_funs, \(x) isTRUE(all.equal(x, comp_funs$mu_fun)))
+    check_mu <- any(check_mu)
+
+    b_funs <- list(b_constant)
+    check_b <- sapply(b_funs, \(x) isTRUE(all.equal(x, comp_funs$b_fun)))
+    check_b <- any(check_b)
+
+    nt_funs <- list(nt_uniform, nt_constant, nt_truncated_normal)
+    check_non_dec <- sapply(nt_funs, \(x) {
+      isTRUE(all.equal(x, comp_funs$nt_fun))
+    })
+    check_non_dec <- any(check_non_dec)
+
+    # 2.) find ez diffusion parmaeters
+    ez_mat <- get_ez_diffusion(drift_dm_obj)
+    ez_mat <- ez_mat[c("muc", "b", "non_dec"), , drop = FALSE]
+    ez_mat <- ez_mat[c(check_mu, check_b, check_non_dec), , drop = FALSE]
+
+    # 3.) map to model (or skip)
+    if (nrow(ez_mat) > 0) {
+      ez_vec <- as.vector(ez_mat)
+      names(ez_vec) <- outer(
+        rownames(ez_mat),
+        colnames(ez_mat),
+        paste,
+        sep = "."
+      )
+
+      # small helper to map
+      ez_map <- function(p, ez_vec) {
+        # average over all entries
+        idx <- grepl(paste0("^", p, "\\."), names(ez_vec))
+        res <- mean(ez_vec[idx])
+        if (is.na(res)) {
+          return(NA_real_)
+        } else {
+          return(res)
+        }
+      }
+
+      ez_guess <- vapply(
+        X = prms_model,
+        FUN = ez_map,
+        FUN.VALUE = numeric(1),
+        USE.NAMES = FALSE,
+        ez_vec = ez_vec
+      )
+      names(ez_guess) <- prms_model
+      ez_guess <- ez_guess[!is.na(ez_guess)]
+
+      if (verbose > 0) {
+        message(
+          "Using EZ-Diffusion estimates for: ",
+          paste(names(ez_guess), collapse = ", ")
+        )
+      }
+    }
+  }
+
+  # check if there are parameters left and return them (or NULL)
+  rem_prms <- setdiff(prms_model, names(ez_guess))
+  if (length(rem_prms) == 0 || n_lhs <= 0) {
+    if (length(ez_guess) == 0) {
+      return(NULL)
+    } else {
+      return(ez_guess)
+    }
+  }
+
+  # perform a rough "grid search" for the remaining parameters
+  # find lower and upper ranges to try out
+  l_u = tryCatch(
+    {
+      get_lower_upper(drift_dm_obj)
+    },
+    warning = function(w) {
+      return(NULL)
+    },
+    error = function(e) {
+      return(NULL)
+    }
+  )
+  # if this fails, and lower/upper are not both provided,
+  # then return NULL to not perform an initial grid search
+  if ((is.null(lower) || is.null(upper)) && is.null(l_u)) {
+    return(NULL)
+  }
+  if (is.null(lower)) {
+    lower <- l_u$lower
+  }
+  if (is.null(upper)) {
+    upper <- l_u$upper
+  }
+  l_u = get_parameters_smart(
+    drift_dm_obj = drift_dm_obj,
+    input_a = lower,
+    input_b = upper,
+  )
+  lower = l_u$vec_a
+  upper = l_u$vec_b
+  rem_lower = lower[rem_prms]
+  rem_upper = upper[rem_prms]
+
+  # now the actual sampling
+  if (verbose > 0) {
+    message(
+      "Performing latin hypercube sampling (n_lhs = ",
+      n_lhs,
+      ") on: ",
+      paste(rem_prms, collapse = ", ")
+    )
+  }
+
+  # helper for hyper-cube sampling
+  lhs_unit <- function(n, d) {
+    X <- matrix(NA_real_, nrow = n, ncol = d)
+    for (j in seq_len(d)) {
+      # Random permutation of strata {0,1,...,n-1}
+      strata <- sample.int(n) - 1L
+      # One uniform draw within each stratum
+      u <- stats::runif(n)
+      # Map to the j-th column
+      X[, j] <- (strata + u) / n
+    }
+    return(X)
+  }
+
+  # get samples
+  d <- length(rem_lower)
+  n <- n_lhs * d
+  U <- lhs_unit(n, d)
+
+  # map to parameter space
+  prms_lhs <- sweep(U, 2, rem_upper - rem_lower, `*`) +
+    matrix(rem_lower, nrow = n, ncol = d, byrow = TRUE)
+  colnames(prms_lhs) <- names(rem_lower)
+
+  # combine to one big matrix and evaluate n times (ensuring sorting)
+  ez_prms <- matrix(ez_guess, nrow = n, ncol = length(ez_guess), byrow = TRUE)
+  colnames(ez_prms) <- names(ez_guess)
+  prms_lhs <- cbind(ez_prms, prms_lhs)
+  stopifnot(ncol(prms_lhs) == length(prms_model))
+  prms_lhs <- prms_lhs[, prms_model]
+  cost_vals <- apply(prms_lhs, MARGIN = 1, \(x) {
+    drift_dm_obj$flex_prms_obj <- x2prms_vals(x, drift_dm_obj$flex_prms_obj)
+    drift_dm_obj <- re_evaluate_model(drift_dm_obj)
+    return(drift_dm_obj$cost_value)
+  })
+
+  # final parameters and ensure they are not outside the limits
+  final <- prms_lhs[which.min(cost_vals), ]
+  nudge <- (upper - lower) * 0.05
+  final <- ifelse(final <= lower, lower + nudge, final)
+  final <- ifelse(final >= upper, upper - nudge, final)
+
+  return(final)
+}
+
+
+#' Compute EZ Diffusion parameters
+#'
+#' Internal helper that computes EZ diffusion model parameters for each
+#' condition in a `drift_dm_obj`. The computation is based on the equations
+#' from Wagenmakers et al. (2007) and estimates drift rate (`muc`), boundary
+#' separation (`b`), and non-decision time (`non_dec`).
+#'
+#' @param drift_dm_obj a drift diffusion model object containing observed data
+#'   in `obs_data`, including upper (`rts_u`) and lower (`rts_l`) response times
+#'   per condition
+#'
+#' @returns a matrix with rows `muc`, `b`, and `non_dec`
+#'
+#' @details
+#' If `Pc` equals 0, 0.5, or 1, small adjustments are applied to prevent
+#' numerical issues in the logit transformation.
+#'
+#' @keywords internal
+get_ez_diffusion <- function(drift_dm_obj) {
+  # if no data provided, return NULL
+  if (is.null(drift_dm_obj$obs_data)) {
+    return(NULL)
+  }
+
+  # helper to calculate for one case
+  ez <- function(pc, vrt, mrt, s = 1) {
+    stopifnot(0 <= pc, pc <= 1)
+    stopifnot(0 < vrt, 0 < mrt, 0 < s)
+    s2 = s^2
+    # If Pc equals 0, .5, or 1, the method will not work, so I make a slight
+    # adjustements
+    adj <- 0.001
+    tol <- 1e-6
+    if (abs(pc - 1) < tol) {
+      pc <- 1.0 - adj
+    }
+    if (abs(pc - 0.5) < tol) {
+      pc <- 0.5 + adj
+    }
+    if (abs(pc - 0) < tol) {
+      pc <- 0.0 + adj
+    }
+    L = stats::qlogis(pc)
+    x = L * (L * pc^2 - L * pc + pc - .5) / vrt
+    v = sign(pc - .5) * s * x^(1 / 4)
+    a = s2 * stats::qlogis(pc) / v
+    y = -v * a / s2
+    mdt = (a / (2 * v)) * (1 - exp(y)) / (1 + exp(y))
+    ter = mrt - mdt
+    return(c(muc = v, b = a / 2, non_dec = ter))
+  }
+
+  all_conds = conds(drift_dm_obj)
+  sigma <- prms_solve(drift_dm_obj)[["sigma"]]
+  prms <- sapply(all_conds, \(x) {
+    rts_u <- drift_dm_obj$obs_data$rts_u[[x]]
+    rts_l <- drift_dm_obj$obs_data$rts_l[[x]]
+    pc = length(rts_u) / (length(rts_u) + length(rts_l))
+    vrt = stats::var(c(rts_u, rts_l))
+    mrt = mean(c(rts_u, rts_l))
+    ez(pc = pc, vrt = vrt, mrt = mrt, s = sigma)
+  })
+  return(prms)
 }
