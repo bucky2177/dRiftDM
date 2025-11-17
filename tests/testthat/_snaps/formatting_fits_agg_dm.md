@@ -39,18 +39,18 @@
       
       Parameters:
              muc     b non_dec
-      null 2.891 0.534   0.294
+      null 3.343 0.549   0.341
       
       Cost Function: rmse
       
       Fit Indices:
           Log_Like Neg_Log_Like          AIC          BIC       RMSE_s      RMSE_ms 
-                NA           NA           NA           NA        0.009        9.382 
+                NA           NA           NA           NA        0.011       10.744 
       
       -------
       Deriving PDFS:
         solver: kfe
-        values: sigma=1, t_max=3, dt=0.005, dx=0.005, nt=600, nx=400
+        values: sigma=1, t_max=3, dt=0.0075, dx=0.02, nt=400, nx=100
 
 ---
 
@@ -67,16 +67,16 @@
       
       Parameters:
             muc    b non_dec
-      null 2.89 0.53    0.29
+      null 3.34 0.55    0.34
       
       Cost Function: rmse
       
       Fit Indices:
           Log_Like Neg_Log_Like          AIC          BIC       RMSE_s      RMSE_ms 
-                NA           NA           NA           NA         0.01         9.38 
+                NA           NA           NA           NA         0.01        10.74 
       
       -------
       Deriving PDFS:
         solver: kfe
-        values: sigma=1, t_max=3, dt=0.005, dx=0.005, nt=600, nx=400
+        values: sigma=1, t_max=3, dt=0.0075, dx=0.02, nt=400, nx=100
 

@@ -1,4 +1,6 @@
 # FITS_SEP ----------------------------------------------------------------
+library("dRiftDM")
+set.seed(1)
 
 ddm = dmc_dm()
 ulrich_flanker_data = ulrich_flanker_data
@@ -14,7 +16,8 @@ fits_ids = estimate_dm(
   upper = l_u$upper,
   verbose = 0,
   progress = 1,
-  n_cores = 3
+  n_cores = 3,
+  seed = 1
 )
 
 use_directory("inst")
@@ -27,7 +30,6 @@ lower = c(2, 0.4, 0.2)
 upper = c(6, 0.7, 0.4)
 obs_data = simulate_data(ddm, n = 100, k = 3, lower = lower, upper = upper)
 
-prms_solve(ddm)[c("dx", "dt")] = .005
 fits_agg = estimate_dm(
   drift_dm_obj = ddm,
   obs_data = obs_data$synth_data,
@@ -35,7 +37,8 @@ fits_agg = estimate_dm(
   approach = "agg_c",
   lower = lower,
   upper = upper,
-  verbose = 0
+  verbose = 0,
+  seed = 1
 )
 
 
@@ -45,7 +48,6 @@ saveRDS(object = fits_agg, file = file.path("inst", "example_fits_agg.rds"))
 # MCMC --------------------------------------------------------------------
 
 ddm <- ratcliff_dm()
-
 obs_data(ddm) <- ratcliff_synth_data
 
 chains = estimate_dm(

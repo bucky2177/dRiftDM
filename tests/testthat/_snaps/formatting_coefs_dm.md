@@ -6,9 +6,9 @@
       Object Type: coefs_dm
       
         ID  muc    b non_dec sd_non_dec  tau    A alpha
-      1  1 4.70 0.45    0.34       0.03 0.03 0.10  6.61
-      2  2 4.70 0.39    0.30       0.04 0.10 0.09  5.04
-      3  3 5.96 0.63    0.32       0.01 0.11 0.19  3.33
+      1  1 4.55 0.45    0.34       0.03 0.04 0.10  7.39
+      2  2 4.17 0.39    0.29       0.04 0.07 0.08  7.74
+      3  3 5.65 0.58    0.32       0.01 0.10 0.18  3.84
       
       (access the data.frame's columns/rows as usual)
 
@@ -20,9 +20,9 @@
       Object Type: coefs_dm
       
         ID  muc    b non_dec sd_non_dec  tau    A alpha
-      4  4 4.70 0.45    0.34       0.03 0.03 0.10  6.61
-      7  7 4.70 0.45    0.34       0.03 0.03 0.10  6.61
-      9  9 5.96 0.63    0.32       0.01 0.11 0.19  3.33
+      4  4 4.55 0.45    0.34       0.03 0.04 0.10  7.39
+      7  7 4.55 0.45    0.34       0.03 0.04 0.10  7.39
+      9  9 5.65 0.58    0.32       0.01 0.10 0.18  3.84
       ...
       
       (access the data.frame's columns/rows as usual)
@@ -36,19 +36,19 @@
       
       Parameters:
             muc             b            non_dec        sd_non_dec    
-       Min.   :4.70   Min.   :0.391   Min.   :0.297   Min.   :0.0120  
-       1st Qu.:4.70   1st Qu.:0.418   1st Qu.:0.307   1st Qu.:0.0221  
-       Median :4.70   Median :0.446   Median :0.318   Median :0.0323  
-       Mean   :5.12   Mean   :0.488   Mean   :0.319   Mean   :0.0285  
-       3rd Qu.:5.33   3rd Qu.:0.536   3rd Qu.:0.330   3rd Qu.:0.0368  
-       Max.   :5.96   Max.   :0.626   Max.   :0.341   Max.   :0.0413  
+       Min.   :4.17   Min.   :0.387   Min.   :0.292   Min.   :0.0142  
+       1st Qu.:4.36   1st Qu.:0.416   1st Qu.:0.306   1st Qu.:0.0232  
+       Median :4.55   Median :0.446   Median :0.319   Median :0.0322  
+       Mean   :4.79   Mean   :0.472   Mean   :0.317   Mean   :0.0289  
+       3rd Qu.:5.10   3rd Qu.:0.515   3rd Qu.:0.330   3rd Qu.:0.0363  
+       Max.   :5.65   Max.   :0.585   Max.   :0.341   Max.   :0.0403  
             tau               A              alpha     
-       Min.   :0.0322   Min.   :0.0893   Min.   :3.33  
-       1st Qu.:0.0667   1st Qu.:0.0956   1st Qu.:4.19  
-       Median :0.1012   Median :0.1019   Median :5.04  
-       Mean   :0.0812   Mean   :0.1286   Mean   :4.99  
-       3rd Qu.:0.1056   3rd Qu.:0.1483   3rd Qu.:5.82  
-       Max.   :0.1101   Max.   :0.1947   Max.   :6.61  
+       Min.   :0.0350   Min.   :0.0785   Min.   :3.84  
+       1st Qu.:0.0509   1st Qu.:0.0906   1st Qu.:5.61  
+       Median :0.0668   Median :0.1026   Median :7.39  
+       Mean   :0.0676   Mean   :0.1202   Mean   :6.32  
+       3rd Qu.:0.0839   3rd Qu.:0.1411   3rd Qu.:7.56  
+       Max.   :0.1010   Max.   :0.1795   Max.   :7.74  
       
       N IDs: 3 
 
