@@ -1,6 +1,7 @@
 ---
 title: "How To Perform a Model Recovery"
 output: rmarkdown::html_vignette
+bibliography: REFERENCES.bib
 vignette: >
   %\VignetteIndexEntry{How To Perform a Model Recovery}
   %\VignetteEngine{knitr::rmarkdown}
@@ -110,7 +111,7 @@ fits_r_r <- estimate_dm(
   optimizer = "DEoptim",
   lower = l_u_ratcliff$lower,
   upper = l_u_ratcliff$upper,
-  n_cores = 2,
+  n_cores = 1, # you might want to increase this
   verbose = 0,
   progress = 0,
   messaging = 0 # suppresses all status infos
@@ -123,7 +124,7 @@ fits_r_d <- estimate_dm(
   optimizer = "DEoptim",
   lower = l_u_ratcliff$lower,
   upper = l_u_ratcliff$upper,
-  n_cores = 2,
+  n_cores = 1, # you might want to increase this
   verbose = 0,
   progress = 0,
   messaging = 0 # suppresses all status infos
@@ -136,7 +137,7 @@ fits_d_d <- estimate_dm(
   optimizer = "DEoptim",
   lower = l_u_dmc$lower,
   upper = l_u_dmc$upper,
-  n_cores = 2,
+  n_cores = 1, # you might want to increase this
   verbose = 0,
   progress = 0,
   messaging = 0 # suppresses all status infos
@@ -149,7 +150,7 @@ fits_d_r <- estimate_dm(
   optimizer = "DEoptim",
   lower = l_u_dmc$lower,
   upper = l_u_dmc$upper,
-  n_cores = 2,
+  n_cores = 1, # you might want to increase this
   verbose = 0,
   progress = 0,
   messaging = 0 # suppresses all status infos
