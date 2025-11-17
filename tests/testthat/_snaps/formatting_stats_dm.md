@@ -243,15 +243,15 @@
       
       Dependent Variables:
          Quant_corr      Quant_err    
-       Min.   :0.301   Min.   :0.244  
-       1st Qu.:0.368   1st Qu.:0.305  
-       Median :0.401   Median :0.351  
-       Mean   :0.404   Mean   :0.356  
-       3rd Qu.:0.435   3rd Qu.:0.391  
-       Max.   :0.552   Max.   :0.498  
-                       NA's   :9      
+       Min.   :0.285   Min.   :0.230  
+       1st Qu.:0.368   1st Qu.:0.335  
+       Median :0.401   Median :0.368  
+       Mean   :0.411   Mean   :0.376  
+       3rd Qu.:0.451   3rd Qu.:0.410  
+       Max.   :0.638   Max.   :0.668  
+                       NA's   :18     
       
-      N IDs: 3 
+      N IDs: 16 
       Sources: obs 
       Conditions: comp, incomp 
       Probs: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 
