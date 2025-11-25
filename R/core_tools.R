@@ -327,11 +327,17 @@ simulate_values <- function(
 #'
 #' There are not yet overall and officially published recommendations on how
 #' large the Hellinger distance can be without affecting model precision, and
-#' this might even depend on the model itself. Based on some preliminary
-#' simulations we would recommend trying to keep the Hellinger Distance at best
-#' below 10 percent. However, it is best to iterate between plotting model
-#' predictions and calculating the Hellinger Distance, to ensure that you can
-#' best interpret this quantity for your model at hand.
+#' this very likely will depend on the model itself. Based on some preliminary
+#' simulations using [dRiftDM::dmc_dm()], we would recommend trying to keep the
+#' Hellinger Distance at best below 10 percent. However, we also observed for
+#' extreme parameter values that the Hellinger distance can be even larger
+#' without sacrificing the qualitative model behavior, and vice versa! It is
+#' thus best to iterate between plotting model predictions and calculating the
+#' Hellinger Distance, to ensure that you can best interpret this quantity for
+#' your model at hand. Furthermore, we recommend to run parameter recoveries
+#' using [dRiftDM::simulate_data()] and [dRiftDM::estimate_dm()], to check if
+#' you can recover data generated under your model with fine discretization
+#' using that same model with coarse discretization.
 #'
 #' @param object a [dRiftDM::drift_dm], `fits_agg_dm`, or `fits_ids_dm` object.
 #'   (the latter two are returned by [dRiftDM::estimate_dm()])
