@@ -34,7 +34,7 @@ test_that("input checks estimate_model", {
   )
 
   expect_error(
-    w_estimate_model(a_model, lower = c(0.2, 0.2, 0.1), upper = c(1, Inf, 0.6)),
+    w_estimate_model(a_model, lower = c(0.2, 0.2, 0.1), upper = c(1, "2", 0.6)),
     "illegal data type"
   )
 

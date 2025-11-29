@@ -1595,13 +1595,13 @@ calc_stats <- function(object, type, ...) {
   # the statistics
   withr::defer(stats.options(NULL))
 
-  # re_evaluate if necessary (to avoid doing this multiple times)
-  if (inherits(object, "drift_dm") && is.null(object$pdfs)) {
-    object <- re_evaluate_model(object)
-  }
-
   # now pass forward or loop
   if (length(type) > 1) {
+    # re_evaluate if necessary (to avoid doing this multiple times)
+    if (inherits(object, "drift_dm") && is.null(object$pdfs)) {
+      object <- re_evaluate_model(object)
+    }
+    # then call the function recursively
     all_stats <- sapply(
       type,
       function(one_type) {

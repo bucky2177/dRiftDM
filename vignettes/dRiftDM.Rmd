@@ -443,7 +443,7 @@ all_fits_deoptim <- estimate_dm(
 
 Because DEoptim is time-consuming, it is recommended to use multiple cores. You can set the desired number of cores using the `n_cores` argument.^[The reason we do not use multiple cores here is related to how this vignette is built on GitHub, but regular users should increase this value.] To get the number of available cores, use `parallel::detectCores()`.
 
-A common question concerns the number of cores to use. By default, `dRiftDM` (v.0.3.0) parallelizes across individuals---that is, one individual is fitted per core. Therefore, you should not specify more cores than there are individuals. In the present toy example, this limits the number of cores to four.
+A common question concerns the number of cores to use. By default, `dRiftDM` (>v.0.3.0) parallelizes across individuals---that is, one individual is fitted per core. Therefore, you should not specify more cores than there are individuals. In the present toy example, this limits the number of cores to four.
 
 Additionally, the fitting process runs in batches. For instance, if there are two cores and four individuals, `dRiftDM` first fits the first two individuals and then the remaining two. In practice, it is thus often convenient to choose a number of cores that divides the number of individuals evenly (e.g., six cores for 18 individuals, 50 cores for 200 individuals).
 

@@ -75,11 +75,12 @@ Per default the shape parameter \code{a} is set to 2 and not allowed to
 vary. This is because the derivative of the scaled gamma-distribution
 function does not exist at \code{t = 0} for \code{a < 2}. Currently, we recommend
 keeping \code{a} fixed to 2. If users decide to set \code{a != 2},
-then a small value of \code{1e-05} is added to the time vector \code{t_vec} before
-calculating the derivative of the scaled gamma-distribution as originally
-introduced by \insertCite{Ulrichetal.2015;textual}{dRiftDM}. Note that
-varying \code{a} can lead to large numerical inaccuracies if both \code{tau} and \code{a}
-are small and/or \code{dt} is large.
+then a small value of \code{tol = 0.001} (default) is added to the time vector
+\code{t_vec} before calculating the derivative of the scaled gamma-distribution as
+originally introduced by \insertCite{Ulrichetal.2015;textual}{dRiftDM}. Users
+can control this value by passing a value via \code{ddm_opts()} (see the example
+below). Note, however, that varying \code{a} can lead to large numerical
+inaccuracies if \code{a} gets smaller.
 
 The model assumes the amplitude \code{A} to be negative for
 incompatible trials. Also, the model contains the custom parameter
@@ -100,6 +101,16 @@ my_model <- dmc_dm()
 # the model with no variability in the starting point and a finer
 # discretization
 my_model <- dmc_dm(var_start = FALSE, dt = .005, dx = .01)
+
+# we don't recommend this, but if you really want a != 2, just do...
+# (see the Details for more warnings/information about this)
+my_model <- dmc_dm(instr = "a ~!")
+coef(my_model)["a"] <- 1.9
+# -> if you want to control the small value that is added to t_vec when
+# calculating the drift rate for a != 2, just use ...
+ddm_opts(my_model) <- 0.0001 # ==> t_vec + 0.0001
+ddm_opts(my_model) <- NULL # default ==> t_vec + 0.001
+
 
 }
 \references{

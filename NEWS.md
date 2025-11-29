@@ -1,3 +1,19 @@
+# dRiftDM 0.3.1
+
+## Minor
+
+- For `type = "sep_b"` in `estimate_dm()`: Chains are now initialized more 
+robustly.
+
+- We reverted back to adding the value `0.001` to `t_vec` when evaluating DMC's
+drift rate for `a!=2` (after noticing solver crashes with the former value of 
+`1e-5`).
+
+- It is now possible to pass a value via `ddm_opts()` to objects of type 
+`dmc_dm()`; this controls the value that is added to `t_vec` when evaluating DMC's
+drift rate for `a!=2`.
+
+
 # dRiftDM 0.3.0
 
 ## Important notes for users

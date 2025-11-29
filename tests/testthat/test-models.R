@@ -44,6 +44,7 @@ test_that("testing DMC", {
   ## DMC tests for drift
   # with a != 2
   a_dmc_model <- dmc_dm(instr = "a ~ => 2.1", dt = .001, dx = .001)
+  ddm_opts(a_dmc_model) <- 1e-5
   all_comps <- comp_vals(a_dmc_model)
 
   # just to ensure comp_vals evaluates the integral
@@ -86,6 +87,14 @@ test_that("testing DMC", {
   )
   pdf_test <- pdf_test / (sum(pdf_test) * 0.001)
   expect_equal(pdf_test, pdf_nt)
+
+  #### test once more with default tol
+  a_dmc_model <- dmc_dm(instr = "a ~ => 2.1", dt = .001, dx = .001)
+  all_comps <- comp_vals(a_dmc_model)
+
+  # drift rate
+  mu_t <- all_comps$comp$mu_vals[c(0.002, 0.2) / 0.001 + 1]
+  expect_equal(round(mu_t, 5), c(8.96352, 3.795))
 
   ##########
   # test with different component functions

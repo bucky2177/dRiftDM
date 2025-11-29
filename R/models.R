@@ -409,11 +409,12 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' vary. This is because the derivative of the scaled gamma-distribution
 #' function does not exist at `t = 0` for `a < 2`. Currently, we recommend
 #' keeping `a` fixed to 2. If users decide to set `a != 2`,
-#' then a small value of `1e-05` is added to the time vector `t_vec` before
-#' calculating the derivative of the scaled gamma-distribution as originally
-#' introduced by \insertCite{Ulrichetal.2015;textual}{dRiftDM}. Note that
-#' varying `a` can lead to large numerical inaccuracies if both `tau` and `a`
-#' are small and/or `dt` is large.
+#' then a small value of `tol = 0.001` (default) is added to the time vector
+#' `t_vec` before calculating the derivative of the scaled gamma-distribution as
+#' originally introduced by \insertCite{Ulrichetal.2015;textual}{dRiftDM}. Users
+#' can control this value by passing a value via `ddm_opts()` (see the example
+#' below). Note, however, that varying `a` can lead to large numerical
+#' inaccuracies if `a` gets smaller.
 #'
 #' The model assumes the amplitude `A` to be negative for
 #' incompatible trials. Also, the model contains the custom parameter
@@ -440,6 +441,16 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' # the model with no variability in the starting point and a finer
 #' # discretization
 #' my_model <- dmc_dm(var_start = FALSE, dt = .005, dx = .01)
+#'
+#' # we don't recommend this, but if you really want a != 2, just do...
+#' # (see the Details for more warnings/information about this)
+#' my_model <- dmc_dm(instr = "a ~!")
+#' coef(my_model)["a"] <- 1.9
+#' # -> if you want to control the small value that is added to t_vec when
+#' # calculating the drift rate for a != 2, just use ...
+#' ddm_opts(my_model) <- 0.0001 # ==> t_vec + 0.0001
+#' ddm_opts(my_model) <- NULL # default ==> t_vec + 0.001
+#'
 #'
 #' @references
 #' \insertRef{Ulrichetal.2015}{dRiftDM}
@@ -543,6 +554,8 @@ mu_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   tau <- prms_model[["tau"]]
   a <- prms_model[["a"]]
   A <- prms_model[["A"]]
+  tol <- ddm_opts %||% 0.001
+
   if (!is.numeric(muc) | length(muc) != 1) {
     stop("parameter muc is not a single number")
   }
@@ -555,13 +568,16 @@ mu_dmc <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   if (!is.numeric(A) | length(A) != 1) {
     stop("parameter A is not a single number")
   }
+  if (!is.numeric(tol) | length(tol) != 1 | tol <= 0) {
+    stop("optional parameter tol is not a single number larger than 0")
+  }
   if (!is.numeric(t_vec) | length(t_vec) <= 1) {
     stop("t_vec is not a numeric vector with more than one entry")
   }
 
   # calculate the first derivative of the gamma-function
   if (a != 2) {
-    t_vec <- t_vec + 1e-05 # general form can not be derived for t <= 0
+    t_vec <- t_vec + tol # general form can not be derived for t <= 0
     mua <- A *
       exp(-t_vec / tau) *
       ((t_vec * exp(1)) / ((a - 1) * tau))^(a - 1) *

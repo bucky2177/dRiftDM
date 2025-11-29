@@ -497,7 +497,7 @@ test_that("log_posterior_lower -> works in the hierarchical case", {
 
   # test expectations
   expect_named(result, c("posterior_vals", "log_like_vals"))
-  expect_equal(lls * temperatures, result$log_like_vals)
+  expect_equal(lls, result$log_like_vals)
   expect_equal(posteriors, result$posterior_vals)
 })
 
@@ -564,7 +564,7 @@ test_that("log_posterior_lower -> works in the non-hierarchical case", {
 
   # test expectations
   expect_named(result, c("posterior_vals", "log_like_vals"))
-  expect_equal(lls * temperatures, result$log_like_vals)
+  expect_equal(lls, result$log_like_vals)
   expect_equal(posteriors, result$posterior_vals)
 })
 

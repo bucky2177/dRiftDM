@@ -545,8 +545,6 @@ log_posterior_lower <- function(
   })
   stopifnot(is.vector(log_like_vals))
   stopifnot(length(log_like_vals) == n_chains)
-
-  log_like_vals <- log_like_vals * temperatures
   log_like_vals[is.na(log_like_vals)] <- -Inf
 
   # then get the log prior density values
@@ -595,8 +593,9 @@ log_posterior_lower <- function(
   }
 
   # combine everything and pass back ...
+  # Note for TIDE; log-likelihood not raised to the power of t
   return_list <- list(
-    posterior_vals = log_like_vals + log_priors,
+    posterior_vals = log_like_vals * temperatures + log_priors,
     log_like_vals = log_like_vals
   )
   return(return_list)
@@ -1351,13 +1350,14 @@ estimate_bayes_one_subj <- function(
   n_thetas <- length(theta_names)
   iterations <- as.integer(burn_in + samples + 1)
   n_chains <- as.integer(n_chains)
+  i_chains <- seq_len(n_chains)
 
   theta_array <- array(
     0,
     dim = c(n_thetas, n_chains, iterations),
     dimnames = list(
       theta_names,
-      seq_len(n_chains),
+      i_chains,
       seq_len(iterations)
     )
   )
@@ -1366,12 +1366,12 @@ estimate_bayes_one_subj <- function(
   pis_theta <- array(
     0,
     dim = c(n_chains, iterations),
-    dimnames = list(seq_len(n_chains), seq_len(iterations))
+    dimnames = list(i_chains, seq_len(iterations))
   )
   lls_theta <- array(
     0,
     dim = c(n_chains, iterations),
-    dimnames = list(seq_len(n_chains), seq_len(iterations))
+    dimnames = list(i_chains, seq_len(iterations))
   )
 
   # create powers (or get ones)
@@ -1382,22 +1382,54 @@ estimate_bayes_one_subj <- function(
     message("Finding starting values...")
   }
 
-  # results in a matrix n_chains x prms
-  thetas_i <- sapply(theta_names, \(one_prm) r_priors[[one_prm]](n = n_chains))
-  thetas_i <- t(thetas_i)
+  thetas_i <- theta_array[,, 1]
+  ll_i <- lls_theta[, 1]
+  pi_i <- pis_theta[, 1]
 
-  # get the log_likelihoods and pis
-  pis_lls <- log_posterior_lower(
-    thetas_one_subj_mat = thetas_i,
-    all_phis_mat = NULL,
-    model_subj = drift_dm_obj,
-    log_prior_lower_funs = log_priors,
-    temperatures = temperatures
-  )
+  ok_chains <- rep(FALSE, n_chains)
+  while (!all(ok_chains)) {
+    # indices of chains that still need valid starting values
+    bad_chains <- which(!ok_chains)
+
+    # draw new parameters only for bad chains
+    # sapply results in a matrix n_chains x prms (if more than 2 bad_chains)
+    # or a vector (if there is only 1 bad_chains)
+    thetas_new <- sapply(
+      X = theta_names,
+      FUN = \(one_prm) r_priors[[one_prm]](n = length(bad_chains))
+    )
+    if (is.matrix(thetas_new)) {
+      thetas_new <- t(thetas_new)
+    } else {
+      thetas_new <- as.matrix(thetas_new)
+    }
+
+    # put them into the starting parameter matrix
+    thetas_i[, bad_chains] <- thetas_new
+
+    # get the log_likelihoods and pis
+    pis_lls <- log_posterior_lower(
+      thetas_one_subj_mat = thetas_new,
+      all_phis_mat = NULL,
+      model_subj = drift_dm_obj,
+      log_prior_lower_funs = log_priors,
+      temperatures = temperatures[bad_chains]
+    )
+
+    # a chain is ok if its log posterior is finite
+    ok_new <- is.finite(pis_lls$posterior_vals) # (-Inf is not finite)
+
+    # update starting values bookkeeping
+    idx <- bad_chains[ok_new]
+
+    ok_chains[idx] <- TRUE
+    pi_i[idx] <- pis_lls$posterior_vals[ok_new]
+    ll_i[idx] <- pis_lls$log_like_vals[ok_new]
+  }
 
   # sort the values in
-  pis_theta[, 1] <- pis_lls$posterior_vals
-  lls_theta[, 1] <- pis_lls$log_like_vals
+  pis_theta[, 1] <- pi_i
+  lls_theta[, 1] <- ll_i
   theta_array[,, 1] <- thetas_i
 
   # start the sampling....
@@ -1522,6 +1554,7 @@ estimate_bayesian <- function(
   if (!is_numeric(n_chains) | n_chains < 3) {
     stop("n_chains must be a numeric >= 3")
   }
+  n_chains = as.integer(n_chains)
   if (!is_numeric(burn_in) | burn_in < 0) {
     stop("burn_in must be a numeric >= 0")
   }
@@ -1593,6 +1626,9 @@ estimate_bayesian <- function(
         2 *
         (utils::tail(m_ll_theta, -1) + utils::head(m_ll_theta, -1))
     )
+    v_ll_theta <- apply(lls_theta, MARGIN = 1, stats::var)
+    cor <- utils::tail(v_ll_theta, -1) - utils::head(v_ll_theta, -1)
+    ti <- ti - sum(cor * diff(temperatures)^2 / 12)
   }
 
   # add ti value to the list

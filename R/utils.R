@@ -278,7 +278,7 @@ create_matrix_smart <- function(input, conds, prm_labels = NULL) {
     }
     def_values <- input$default_values
     input <- input[which(names(input) != "default_values")]
-  } else if (is_numeric(input)) {
+  } else if (is.numeric(input)) {
     # if it is a vector and has condition specific values, wrangle them into a
     # list.. this aligns downstream processing with directly specifying a list
     names_input <- names(input)
