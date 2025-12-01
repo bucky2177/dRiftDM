@@ -367,7 +367,7 @@ valid convergence messages and flags are returned.
 ``` r
 ##########
 # Note: The following examples were trimmed for speed to ensure they run
-# within seconds. They do not always provide realistic settings.
+# within seconds. They do not always provide realistic scenarios.
 ##########
 
 ####
@@ -384,7 +384,8 @@ model <- dmc_dm(
    "
 )
 
-# get some data (the first two participants in the data set of Ulrich et al.)
+# get some data (the first two participants in the flanker data set of
+# Ulrich et al.)
 data <- ulrich_flanker_data[ulrich_flanker_data$ID %in% 1:2, ]
 
 
@@ -496,9 +497,6 @@ print(fit)
 
 ####
 # Fit a single individual (using DEoptim)
-# Note: DEoptim always runs for 200 iterations per default; which is not
-# necessary here -> in this simple example, we stop it after 10 iterations
-# without improvement
 l_u <- get_lower_upper(model)
 set.seed(2)
 fit <- estimate_dm(
@@ -506,26 +504,26 @@ fit <- estimate_dm(
   obs_data = data[data$ID == 1, ],
   optimizer = "DEoptim",
   lower = l_u$lower, upper = l_u$upper,
-  control = list(steptol = 10)
+  control = list(itermax = 5) # way higher in practice! (default: 200)
 )
 #> Using the data supplied via the 'obs_data' argument.
 #> Using optimizer 'DEoptim'.
 #> Fitting a single data set/participant (cost function: 'neg_log_like'). The returned object will be the model itself.
 #> Starting optimizer 'DEoptim' 
-#> Optimization routine exited after 65 iterations.
+#> Optimization routine exited after 5 iterations.
 #> Final Parameters:
-#> muc = 4.608
-#> A = 0.081
-#> ==> gave a neg_log_like of -368.96
+#> muc = 4.397
+#> A = 0.068
+#> ==> gave a neg_log_like of -367.943
 print(fit)
 #> Class(es) dmc_dm, drift_dm
 #> Optimizer: DEoptim
-#> Convergence: TRUE
+#> Convergence: NA
 #> 
 #> Parameter Values:
 #>          muc   b non_dec sd_non_dec  tau a      A alpha
-#> comp   4.608 0.6     0.3       0.02 0.04 2  0.081     4
-#> incomp 4.608 0.6     0.3       0.02 0.04 2 -0.081     4
+#> comp   4.397 0.6     0.3       0.02 0.04 2  0.068     4
+#> incomp 4.397 0.6     0.3       0.02 0.04 2 -0.068     4
 #> 
 #> Parameter Settings:
 #>        muc b non_dec sd_non_dec tau a A alpha
@@ -575,7 +573,7 @@ coef(fit)
 #> Object Type: coefs_dm
 #> 
 #>   ID   muc     A
-#> 1  1 4.595 0.081
+#> 1  1 4.607 0.083
 #> 2  2 6.843 0.114
 #> 
 #> (access the data.frame's columns/rows as usual)
@@ -596,8 +594,8 @@ fit <- estimate_dm(
 #> Fitting the model once to the aggregated data. The returned object will of type 'fits_agg_dm'.
 #> Performing latin hypercube sampling (n_lhs = 10) on: muc, A
 #> Starting optimizer 'Nelder-Mead' with the following starting values:
-#> muc=5.843, A=0.222
-#> Optimization routine exited after 63 function evaluations
+#> muc=5.601, A=0.186
+#> Optimization routine exited after 59 function evaluations
 #> Final Parameters:
 #> muc = 5.549
 #> A = 0.164
@@ -612,7 +610,7 @@ print(fit)
 #>  168 trials comp; 168 trials incomp
 coef(fit)
 #>       muc         A 
-#> 5.5490172 0.1639635 
+#> 5.5491885 0.1639734 
 
 
 ###
@@ -622,9 +620,9 @@ fit <- estimate_dm(
   drift_dm_obj = model,
   obs_data = data[data$ID == 1, ],
   approach = "sep_b",
-  burn_in = 2, # this is usually way higher
-  samples = 2, # this too
-  n_chains = 10, # this too
+  burn_in = 1, # higher in practice (e.g., 500)
+  samples = 1, # higher in practice (e.g., 1000)
+  n_chains = 5, # higher in practice (e.g., 40)
   mean = c(muc = 3, A = 0.9),
   sd = c(muc = 2, A = 0.8),
 )
@@ -637,11 +635,11 @@ print(fit)
 #> Sampler: DE-MCMC 
 #> Hierarchical: FALSE 
 #> No. Parameters: 2 
-#> No. Chains: 10 
-#> Iterations Per Chain: 2 
+#> No. Chains: 5 
+#> Iterations Per Chain: 1 
 coef(fit)
-#>       muc         A 
-#> 4.0081676 0.1581212 
+#>      muc        A 
+#> 5.105814 0.190643 
 
 
 ###
@@ -651,9 +649,10 @@ fit <- estimate_dm(
   drift_dm_obj = model,
   approach = "hier_b",
   obs_data = data, # contains data for two individuals
-  burn_in = 2, # this is usually way higher
-  samples = 2, # this too
-  n_chains = 10 # this too
+  burn_in = 1, # higher in practice (e.g., 500)
+  samples = 1, # higher in practice (e.g., 1000)
+  n_chains = 5, # higher in practice (e.g., 40)
+  n_cores = 1, # higher in practice (depending on your machine and data set)
 )
 #> Using the data supplied via the 'obs_data' argument.
 #> Using optimizer 'DE-MCMC'.
@@ -664,9 +663,9 @@ print(fit)
 #> Sampler: DE-MCMC 
 #> Hierarchical: TRUE 
 #> No. Group-Level Parameters: 4 
-#> No. Chains: 10 
-#> Iterations Per Chain: 2 
+#> No. Chains: 5 
+#> Iterations Per Chain: 1 
 coef(fit)
 #>     M-muc     S-muc       M-A       S-A 
-#> 3.9463775 2.2222783 0.0522379 1.4335086 
+#> 5.1101865 2.8522145 0.0946409 1.1137877 
 ```

@@ -116,8 +116,8 @@ summary(traces)
 #> 
 #> Summary of First Passage Times:
 #>         mean    sd p_corr p_err
-#> comp   0.138 0.030      1     0
-#> incomp 0.153 0.072      1     0
+#> comp   0.264 0.099      1     0
+#> incomp 0.204 0.109      1     0
 #> 
 #> 
 #> Orginal Parameter Values:
@@ -143,7 +143,7 @@ summary(one_traces_obj)
 #> 
 #> Summary of First Passage Times:
 #>   mean     sd p_corr  p_err 
-#>  0.138  0.030  1.000  0.000 
+#>  0.264  0.099  1.000  0.000 
 #> 
 #> 
 #> Orginal Parameter Values:

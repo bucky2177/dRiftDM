@@ -150,10 +150,10 @@ some_data <- some_data[sample(1:nrow(some_data)), ] #' # shuffle the data set
 obs_data(my_model) <- some_data
 all.equal(obs_data(my_model), some_data)
 #> Extracting observed data from a model object. Remember that the result may be sorted differently than expect!
-#> [1] "Attributes: < Component “row.names”: Mean relative difference: 0.6864657 >"
-#> [2] "Component “RT”: Mean relative difference: 0.2174177"                       
+#> [1] "Attributes: < Component “row.names”: Mean relative difference: 0.6615267 >"
+#> [2] "Component “RT”: Mean relative difference: 0.2195587"                       
 #> [3] "Component “Error”: Mean relative difference: 2"                            
-#> [4] "Component “Cond”: 324 string mismatches"                                   
+#> [4] "Component “Cond”: 294 string mismatches"                                   
 # so don't do obs_data(my_model)["Cond"] <- ...
 
 # Addition: ----------------------------------------------------------------

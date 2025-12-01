@@ -136,12 +136,12 @@ of the normal distributions.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">values</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        a               b               c        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Min.   :1.007   Min.   :1.048   Min.   :1.079  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1st Qu.:1.545   1st Qu.:1.638   1st Qu.:1.870  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Median :2.080   Median :2.280   Median :2.448  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean   :2.040   Mean   :2.355   Mean   :2.850  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3rd Qu.:2.524   3rd Qu.:2.991   3rd Qu.:4.024  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   :2.972   Max.   :3.921   Max.   :4.901  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Min.   :1.033   Min.   :1.126   Min.   :1.004  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1st Qu.:1.533   1st Qu.:2.128   1st Qu.:2.504  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Median :1.849   Median :2.545   Median :3.428  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean   :1.953   Mean   :2.640   Mean   :3.258  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3rd Qu.:2.316   3rd Qu.:3.392   3rd Qu.:4.209  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   :2.901   Max.   :3.887   Max.   :4.943  </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 2: Draw from truncated normal distributions ---------------------</span></span></span>
 <span class="r-in"><span><span class="va">lower</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">1</span>, c <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
@@ -159,13 +159,13 @@ of the normal distributions.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">values</span><span class="op">$</span><span class="va">a</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     2.5%      50%    97.5% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.173769 1.991099 2.851390 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.158297 1.997958 2.859411 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">values</span><span class="op">$</span><span class="va">b</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     2.5%      50%    97.5% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.557860 2.502299 3.451225 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.545730 2.491228 3.466518 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">values</span><span class="op">$</span><span class="va">c</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     2.5%      50%    97.5% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.026115 3.011531 3.965225 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.065234 3.008299 3.973892 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

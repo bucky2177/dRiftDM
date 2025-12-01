@@ -94,12 +94,12 @@ values <- simulate_values(
 )
 summary(values)
 #>        a               b               c        
-#>  Min.   :1.007   Min.   :1.048   Min.   :1.079  
-#>  1st Qu.:1.545   1st Qu.:1.638   1st Qu.:1.870  
-#>  Median :2.080   Median :2.280   Median :2.448  
-#>  Mean   :2.040   Mean   :2.355   Mean   :2.850  
-#>  3rd Qu.:2.524   3rd Qu.:2.991   3rd Qu.:4.024  
-#>  Max.   :2.972   Max.   :3.921   Max.   :4.901  
+#>  Min.   :1.033   Min.   :1.126   Min.   :1.004  
+#>  1st Qu.:1.533   1st Qu.:2.128   1st Qu.:2.504  
+#>  Median :1.849   Median :2.545   Median :3.428  
+#>  Mean   :1.953   Mean   :2.640   Mean   :3.258  
+#>  3rd Qu.:2.316   3rd Qu.:3.392   3rd Qu.:4.209  
+#>  Max.   :2.901   Max.   :3.887   Max.   :4.943  
 
 # Example 2: Draw from truncated normal distributions ---------------------
 lower <- c(a = 1, b = 1, c = 1)
@@ -117,11 +117,11 @@ values <- simulate_values(
 )
 quantile(values$a, probs = c(0.025, 0.5, 0.975))
 #>     2.5%      50%    97.5% 
-#> 1.173769 1.991099 2.851390 
+#> 1.158297 1.997958 2.859411 
 quantile(values$b, probs = c(0.025, 0.5, 0.975))
 #>     2.5%      50%    97.5% 
-#> 1.557860 2.502299 3.451225 
+#> 1.545730 2.491228 3.466518 
 quantile(values$c, probs = c(0.025, 0.5, 0.975))
 #>     2.5%      50%    97.5% 
-#> 2.026115 3.011531 3.965225 
+#> 2.065234 3.008299 3.973892 
 ```

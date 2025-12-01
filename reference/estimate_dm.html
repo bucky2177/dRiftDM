@@ -395,7 +395,7 @@ returned.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">##########</span></span></span>
 <span class="r-in"><span><span class="co"># Note: The following examples were trimmed for speed to ensure they run</span></span></span>
-<span class="r-in"><span><span class="co"># within seconds. They do not always provide realistic settings.</span></span></span>
+<span class="r-in"><span><span class="co"># within seconds. They do not always provide realistic scenarios.</span></span></span>
 <span class="r-in"><span><span class="co">##########</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">####</span></span></span>
@@ -412,7 +412,8 @@ returned.</p>
 <span class="r-in"><span><span class="st">   "</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># get some data (the first two participants in the data set of Ulrich et al.)</span></span></span>
+<span class="r-in"><span><span class="co"># get some data (the first two participants in the flanker data set of</span></span></span>
+<span class="r-in"><span><span class="co"># Ulrich et al.)</span></span></span>
 <span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">ulrich_flanker_data</span><span class="op">[</span><span class="va">ulrich_flanker_data</span><span class="op">$</span><span class="va">ID</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
@@ -524,9 +525,6 @@ returned.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">####</span></span></span>
 <span class="r-in"><span><span class="co"># Fit a single individual (using DEoptim)</span></span></span>
-<span class="r-in"><span><span class="co"># Note: DEoptim always runs for 200 iterations per default; which is not</span></span></span>
-<span class="r-in"><span><span class="co"># necessary here -&gt; in this simple example, we stop it after 10 iterations</span></span></span>
-<span class="r-in"><span><span class="co"># without improvement</span></span></span>
 <span class="r-in"><span><span class="va">l_u</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_lower_upper.html">get_lower_upper</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">estimate_dm</span><span class="op">(</span></span></span>
@@ -534,26 +532,26 @@ returned.</p>
 <span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span><span class="op">[</span><span class="va">data</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span>,</span></span>
 <span class="r-in"><span>  optimizer <span class="op">=</span> <span class="st">"DEoptim"</span>,</span></span>
 <span class="r-in"><span>  lower <span class="op">=</span> <span class="va">l_u</span><span class="op">$</span><span class="va">lower</span>, upper <span class="op">=</span> <span class="va">l_u</span><span class="op">$</span><span class="va">upper</span>,</span></span>
-<span class="r-in"><span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>steptol <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>itermax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="co"># way higher in practice! (default: 200)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the data supplied via the 'obs_data' argument.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using optimizer 'DEoptim'.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting a single data set/participant (cost function: 'neg_log_like'). The returned object will be the model itself.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting optimizer 'DEoptim' </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 65 iterations.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 5 iterations.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Final Parameters:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 4.608</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.081</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==&gt; gave a neg_log_like of -368.96</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 4.397</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.068</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==&gt; gave a neg_log_like of -367.943</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Class(es) dmc_dm, drift_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Optimizer: DEoptim</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Convergence: TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Convergence: NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Values:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          muc   b non_dec sd_non_dec  tau a      A alpha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> comp   4.608 0.6     0.3       0.02 0.04 2  0.081     4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> incomp 4.608 0.6     0.3       0.02 0.04 2 -0.081     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> comp   4.397 0.6     0.3       0.02 0.04 2  0.068     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> incomp 4.397 0.6     0.3       0.02 0.04 2 -0.068     4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Settings:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        muc b non_dec sd_non_dec tau a A alpha</span>
@@ -603,7 +601,7 @@ returned.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Object Type: coefs_dm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ID   muc     A</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 4.595 0.081</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 4.607 0.083</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2  2 6.843 0.114</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (access the data.frame's columns/rows as usual)</span>
@@ -624,8 +622,8 @@ returned.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting the model once to the aggregated data. The returned object will of type 'fits_agg_dm'.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing latin hypercube sampling (n_lhs = 10) on: muc, A</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting optimizer 'Nelder-Mead' with the following starting values:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> muc=5.843, A=0.222</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 63 function evaluations</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> muc=5.601, A=0.186</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Optimization routine exited after 59 function evaluations</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Final Parameters:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> muc = 5.549</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> A = 0.164</span>
@@ -640,7 +638,7 @@ returned.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  168 trials comp; 168 trials incomp</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       muc         A </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5.5490172 0.1639635 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5.5491885 0.1639734 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">###</span></span></span>
@@ -650,9 +648,9 @@ returned.</p>
 <span class="r-in"><span>  drift_dm_obj <span class="op">=</span> <span class="va">model</span>,</span></span>
 <span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span><span class="op">[</span><span class="va">data</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span>,</span></span>
 <span class="r-in"><span>  approach <span class="op">=</span> <span class="st">"sep_b"</span>,</span></span>
-<span class="r-in"><span>  burn_in <span class="op">=</span> <span class="fl">2</span>, <span class="co"># this is usually way higher</span></span></span>
-<span class="r-in"><span>  samples <span class="op">=</span> <span class="fl">2</span>, <span class="co"># this too</span></span></span>
-<span class="r-in"><span>  n_chains <span class="op">=</span> <span class="fl">10</span>, <span class="co"># this too</span></span></span>
+<span class="r-in"><span>  burn_in <span class="op">=</span> <span class="fl">1</span>, <span class="co"># higher in practice (e.g., 500)</span></span></span>
+<span class="r-in"><span>  samples <span class="op">=</span> <span class="fl">1</span>, <span class="co"># higher in practice (e.g., 1000)</span></span></span>
+<span class="r-in"><span>  n_chains <span class="op">=</span> <span class="fl">5</span>, <span class="co"># higher in practice (e.g., 40)</span></span></span>
 <span class="r-in"><span>  mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">3</span>, A <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>muc <span class="op">=</span> <span class="fl">2</span>, A <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -665,11 +663,11 @@ returned.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sampler: DE-MCMC </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Hierarchical: FALSE </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> No. Parameters: 2 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> No. Chains: 10 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iterations Per Chain: 2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> No. Chains: 5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iterations Per Chain: 1 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       muc         A </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4.0081676 0.1581212 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      muc        A </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5.105814 0.190643 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">###</span></span></span>
@@ -679,9 +677,10 @@ returned.</p>
 <span class="r-in"><span>  drift_dm_obj <span class="op">=</span> <span class="va">model</span>,</span></span>
 <span class="r-in"><span>  approach <span class="op">=</span> <span class="st">"hier_b"</span>,</span></span>
 <span class="r-in"><span>  obs_data <span class="op">=</span> <span class="va">data</span>, <span class="co"># contains data for two individuals</span></span></span>
-<span class="r-in"><span>  burn_in <span class="op">=</span> <span class="fl">2</span>, <span class="co"># this is usually way higher</span></span></span>
-<span class="r-in"><span>  samples <span class="op">=</span> <span class="fl">2</span>, <span class="co"># this too</span></span></span>
-<span class="r-in"><span>  n_chains <span class="op">=</span> <span class="fl">10</span> <span class="co"># this too</span></span></span>
+<span class="r-in"><span>  burn_in <span class="op">=</span> <span class="fl">1</span>, <span class="co"># higher in practice (e.g., 500)</span></span></span>
+<span class="r-in"><span>  samples <span class="op">=</span> <span class="fl">1</span>, <span class="co"># higher in practice (e.g., 1000)</span></span></span>
+<span class="r-in"><span>  n_chains <span class="op">=</span> <span class="fl">5</span>, <span class="co"># higher in practice (e.g., 40)</span></span></span>
+<span class="r-in"><span>  n_cores <span class="op">=</span> <span class="fl">1</span>, <span class="co"># higher in practice (depending on your machine and data set)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the data supplied via the 'obs_data' argument.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using optimizer 'DE-MCMC'.</span>
@@ -692,11 +691,11 @@ returned.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sampler: DE-MCMC </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Hierarchical: TRUE </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> No. Group-Level Parameters: 4 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> No. Chains: 10 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iterations Per Chain: 2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> No. Chains: 5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iterations Per Chain: 1 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     M-muc     S-muc       M-A       S-A </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3.9463775 2.2222783 0.0522379 1.4335086 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5.1101865 2.8522145 0.0946409 1.1137877 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
