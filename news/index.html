@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,9 +36,18 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/bucky2177/dRiftDM/blob/v0.3.0_last/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/bucky2177/dRiftDM/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.1" id="driftdm-031">dRiftDM 0.3.1<a class="anchor" aria-label="anchor" href="#driftdm-031"></a></h2>
+<div class="section level3">
+<h3 id="minor-0-3-1">Minor<a class="anchor" aria-label="anchor" href="#minor-0-3-1"></a></h3>
+<ul><li><p>For <code>type = "sep_b"</code> in <code><a href="../reference/estimate_dm.html">estimate_dm()</a></code>: Chains are now initialized more robustly.</p></li>
+<li><p>We reverted back to adding the value <code>0.001</code> to <code>t_vec</code> when evaluating DMC’s drift rate for <code>a!=2</code> (after noticing solver crashes with the former value of <code>1e-5</code>).</p></li>
+<li><p>It is now possible to pass a value via <code><a href="../reference/ddm_opts.html">ddm_opts()</a></code> to objects of type <code><a href="../reference/dmc_dm.html">dmc_dm()</a></code>; this controls the value that is added to <code>t_vec</code> when evaluating DMC’s drift rate for <code>a!=2</code>.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="driftdm-030">dRiftDM 0.3.0<a class="anchor" aria-label="anchor" href="#driftdm-030"></a></h2>
 <div class="section level3">

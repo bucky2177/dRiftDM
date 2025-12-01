@@ -1099,7 +1099,7 @@ argument.[¹](#fn1) To get the number of available cores, use
 [`parallel::detectCores()`](https://rdrr.io/r/parallel/detectCores.html).
 
 A common question concerns the number of cores to use. By default,
-`dRiftDM` (v.0.3.0) parallelizes across individuals—that is, one
+`dRiftDM` (\>v.0.3.0) parallelizes across individuals—that is, one
 individual is fitted per core. Therefore, you should not specify more
 cores than there are individuals. In the present toy example, this
 limits the number of cores to four.

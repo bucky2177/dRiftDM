@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>The Observed Data</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/v0.3.0_last/R/core_dm.R" class="external-link"><code>R/core_dm.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/main/R/core_dm.R" class="external-link"><code>R/core_dm.R</code></a></small>
       <div class="d-none name"><code>obs_data.Rd</code></div>
     </div>
 
@@ -163,10 +163,10 @@ for a <code>fits_ids_dm</code> object) doesn't make sense.</p>
 <span class="r-in"><span><span class="fu">obs_data</span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">some_data</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu">obs_data</span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span>, <span class="va">some_data</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Extracting observed data from a model object. Remember that the result may be sorted differently than expect!</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Attributes: &lt; Component “row.names”: Mean relative difference: 0.679523 &gt;"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2] "Component “RT”: Mean relative difference: 0.2304412"                      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "Component “Error”: Mean relative difference: 2"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4] "Component “Cond”: 318 string mismatches"                                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Attributes: &lt; Component “row.names”: Mean relative difference: 0.6864657 &gt;"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2] "Component “RT”: Mean relative difference: 0.2174177"                       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "Component “Error”: Mean relative difference: 2"                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4] "Component “Cond”: 324 string mismatches"                                   </span>
 <span class="r-in"><span><span class="co"># so don't do obs_data(my_model)["Cond"] &lt;- ...</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Addition: ----------------------------------------------------------------</span></span></span>

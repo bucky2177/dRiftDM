@@ -641,7 +641,7 @@ print(fit)
 #> Iterations Per Chain: 2 
 coef(fit)
 #>       muc         A 
-#> 4.3807555 0.2611374 
+#> 4.0081676 0.1581212 
 
 
 ###
@@ -667,6 +667,6 @@ print(fit)
 #> No. Chains: 10 
 #> Iterations Per Chain: 2 
 coef(fit)
-#>      M-muc      S-muc        M-A        S-A 
-#> 2.23822502 3.41562477 0.08431614 0.81469557 
+#>     M-muc     S-muc       M-A       S-A 
+#> 3.9463775 2.2222783 0.0522379 1.4335086 
 ```

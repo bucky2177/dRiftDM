@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to dRiftDM</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/v0.3.0_last/vignettes/dRiftDM.Rmd" class="external-link"><code>vignettes/dRiftDM.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/main/vignettes/dRiftDM.Rmd" class="external-link"><code>vignettes/dRiftDM.Rmd</code></a></small>
       <div class="d-none name"><code>dRiftDM.Rmd</code></div>
     </div>
 
@@ -1068,8 +1068,8 @@ to how this vignette is built on GitHub, but regular users should
 increase this value.&lt;/p&gt;"><sup>1</sup></a> To get the number of available cores, use
 <code><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">parallel::detectCores()</a></code>.</p>
 <p>A common question concerns the number of cores to use. By default,
-<code>dRiftDM</code> (v.0.3.0) parallelizes across individuals—that is,
-one individual is fitted per core. Therefore, you should not specify
+<code>dRiftDM</code> (&gt;v.0.3.0) parallelizes across individuals—that
+is, one individual is fitted per core. Therefore, you should not specify
 more cores than there are individuals. In the present toy example, this
 limits the number of cores to four.</p>
 <p>Additionally, the fitting process runs in batches. For instance, if

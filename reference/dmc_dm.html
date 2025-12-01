@@ -13,7 +13,7 @@ Ulrich et al. (2015)
 
     <a class="navbar-brand me-2" href="../index.html">dRiftDM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,7 @@ Ulrich et al. (2015)
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Create the Diffusion Model for Conflict Tasks</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/v0.3.0_last/R/models.R" class="external-link"><code>R/models.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/main/R/models.R" class="external-link"><code>R/models.R</code></a></small>
       <div class="d-none name"><code>dmc_dm.Rd</code></div>
     </div>
 
@@ -128,12 +128,13 @@ assumed (i.e., a dirac delta over 0).</p>
 vary. This is because the derivative of the scaled gamma-distribution
 function does not exist at <code>t = 0</code> for <code>a &lt; 2</code>. Currently, we recommend
 keeping <code>a</code> fixed to 2. If users decide to set <code>a != 2</code>,
-then a small value of <code>1e-05</code> is added to the time vector <code>t_vec</code> before
-calculating the derivative of the scaled gamma-distribution as originally
-introduced by Ulrich et al. (2015)
-. Note that
-varying <code>a</code> can lead to large numerical inaccuracies if both <code>tau</code> and <code>a</code>
-are small and/or <code>dt</code> is large.</p>
+then a small value of <code>tol = 0.001</code> (default) is added to the time vector
+<code>t_vec</code> before calculating the derivative of the scaled gamma-distribution as
+originally introduced by Ulrich et al. (2015)
+. Users
+can control this value by passing a value via <code><a href="ddm_opts.html">ddm_opts()</a></code> (see the example
+below). Note, however, that varying <code>a</code> can lead to large numerical
+inaccuracies if <code>a</code> gets smaller.</p>
 <p>The model assumes the amplitude <code>A</code> to be negative for
 incompatible trials. Also, the model contains the custom parameter
 <code>peak_l</code>, containing the peak latency (<code>(a-2)*tau</code>).</p>
@@ -165,6 +166,16 @@ We describe how to convert the parameters on our
 <span class="r-in"><span><span class="co"># the model with no variability in the starting point and a finer</span></span></span>
 <span class="r-in"><span><span class="co"># discretization</span></span></span>
 <span class="r-in"><span><span class="va">my_model</span> <span class="op">&lt;-</span> <span class="fu">dmc_dm</span><span class="op">(</span>var_start <span class="op">=</span> <span class="cn">FALSE</span>, dt <span class="op">=</span> <span class="fl">.005</span>, dx <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># we don't recommend this, but if you really want a != 2, just do...</span></span></span>
+<span class="r-in"><span><span class="co"># (see the Details for more warnings/information about this)</span></span></span>
+<span class="r-in"><span><span class="va">my_model</span> <span class="op">&lt;-</span> <span class="fu">dmc_dm</span><span class="op">(</span>instr <span class="op">=</span> <span class="st">"a ~!"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span><span class="op">[</span><span class="st">"a"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1.9</span></span></span>
+<span class="r-in"><span><span class="co"># -&gt; if you want to control the small value that is added to t_vec when</span></span></span>
+<span class="r-in"><span><span class="co"># calculating the drift rate for a != 2, just use ...</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ddm_opts.html">ddm_opts</a></span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0.0001</span> <span class="co"># ==&gt; t_vec + 0.0001</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ddm_opts.html">ddm_opts</a></span><span class="op">(</span><span class="va">my_model</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span> <span class="co"># default ==&gt; t_vec + 0.001</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

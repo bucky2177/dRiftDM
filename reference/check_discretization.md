@@ -10,12 +10,22 @@ grid.
 
 There are not yet overall and officially published recommendations on
 how large the Hellinger distance can be without affecting model
-precision, and this might even depend on the model itself. Based on some
-preliminary simulations we would recommend trying to keep the Hellinger
-Distance at best below 10 percent. However, it is best to iterate
+precision, and this very likely will depend on the model itself. Based
+on some preliminary simulations using
+[`dmc_dm()`](https://bucky2177.github.io/dRiftDM/reference/dmc_dm.md),
+we would recommend trying to keep the Hellinger Distance at best below
+10 percent. However, we also observed for extreme parameter values that
+the Hellinger distance can be even larger without sacrificing the
+qualitative model behavior, and vice versa! It is thus best to iterate
 between plotting model predictions and calculating the Hellinger
 Distance, to ensure that you can best interpret this quantity for your
-model at hand.
+model at hand. Furthermore, we recommend to run parameter recoveries
+using
+[`simulate_data()`](https://bucky2177.github.io/dRiftDM/reference/simulate_data.md)
+and
+[`estimate_dm()`](https://bucky2177.github.io/dRiftDM/reference/estimate_dm.md),
+to check if you can recover data generated under your model with fine
+discretization using that same model with coarse discretization.
 
 ## Usage
 
