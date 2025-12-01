@@ -305,7 +305,7 @@ returned.
 \examples{
 ##########
 # Note: The following examples were trimmed for speed to ensure they run
-# within seconds. They do not always provide realistic settings.
+# within seconds. They do not always provide realistic scenarios.
 ##########
 
 ####
@@ -322,7 +322,8 @@ model <- dmc_dm(
    "
 )
 
-# get some data (the first two participants in the data set of Ulrich et al.)
+# get some data (the first two participants in the flanker data set of
+# Ulrich et al.)
 data <- ulrich_flanker_data[ulrich_flanker_data$ID \%in\% 1:2, ]
 
 
@@ -352,9 +353,6 @@ print(fit)
 
 ####
 # Fit a single individual (using DEoptim)
-# Note: DEoptim always runs for 200 iterations per default; which is not
-# necessary here -> in this simple example, we stop it after 10 iterations
-# without improvement
 l_u <- get_lower_upper(model)
 set.seed(2)
 fit <- estimate_dm(
@@ -362,7 +360,7 @@ fit <- estimate_dm(
   obs_data = data[data$ID == 1, ],
   optimizer = "DEoptim",
   lower = l_u$lower, upper = l_u$upper,
-  control = list(steptol = 10)
+  control = list(itermax = 5) # way higher in practice! (default: 200)
 )
 print(fit)
 
@@ -399,9 +397,9 @@ fit <- estimate_dm(
   drift_dm_obj = model,
   obs_data = data[data$ID == 1, ],
   approach = "sep_b",
-  burn_in = 2, # this is usually way higher
-  samples = 2, # this too
-  n_chains = 10, # this too
+  burn_in = 1, # higher in practice (e.g., 500)
+  samples = 1, # higher in practice (e.g., 1000)
+  n_chains = 5, # higher in practice (e.g., 40)
   mean = c(muc = 3, A = 0.9),
   sd = c(muc = 2, A = 0.8),
 )
@@ -416,9 +414,10 @@ fit <- estimate_dm(
   drift_dm_obj = model,
   approach = "hier_b",
   obs_data = data, # contains data for two individuals
-  burn_in = 2, # this is usually way higher
-  samples = 2, # this too
-  n_chains = 10 # this too
+  burn_in = 1, # higher in practice (e.g., 500)
+  samples = 1, # higher in practice (e.g., 1000)
+  n_chains = 5, # higher in practice (e.g., 40)
+  n_cores = 1, # higher in practice (depending on your machine and data set)
 )
 print(fit)
 coef(fit)

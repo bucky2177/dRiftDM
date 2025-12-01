@@ -3,7 +3,7 @@
 
 [![](https://www.r-pkg.org/badges/version/dRiftDM?color=green)](https://cran.r-project.org/package=dRiftDM)
 [![](http://cranlogs.r-pkg.org/badges/grand-total/dRiftDM?color=blue)](https://cran.r-project.org/package=dRiftDM)
-[![](https://img.shields.io/badge/devel%20version-0.3.0-blue.svg)](https://github.com/bucky2177/dRiftDM)
+[![](https://img.shields.io/badge/devel%20version-0.3.1-blue.svg)](https://github.com/bucky2177/dRiftDM)
 [![Codecov test
 coverage](https://codecov.io/gh/bucky2177/dRiftDM/graph/badge.svg)](https://app.codecov.io/gh/bucky2177/dRiftDM)
 [![R-CMD-check](https://github.com/bucky2177/dRiftDM/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bucky2177/dRiftDM/actions/workflows/R-CMD-check.yaml)
