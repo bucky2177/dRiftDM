@@ -270,7 +270,7 @@ calc_pdfs_heart <- function(
 #' Convolute the First Passage Times with the Non-Decision Time Distribution
 #'
 #' Calls [stats::convolve] for the first passage times and the non-decision
-#' time distribution to derive the full distribution of response times. Before
+#' time distribution to derive the full distribution of response times. After
 #' convolution, I add the robustness parameter.
 #'
 #' @param pdf_nt the non-decision time density values
