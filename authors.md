@@ -11,7 +11,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/bucky2177/dRiftDM/blob/v0.3.1/inst/CITATION)
+[`inst/CITATION`](https://github.com/bucky2177/dRiftDM/blob/main/inst/CITATION)
 
 Koob V, Richter T, Janczyk M (2025). *dRiftDM: An R package for fitting
 non-stationary drift diffusion models*. R package version 0.3.0.

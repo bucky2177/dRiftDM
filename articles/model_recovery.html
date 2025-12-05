@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>How To Perform a Model Recovery</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/v0.3.1/vignettes/model_recovery.Rmd" class="external-link"><code>vignettes/model_recovery.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bucky2177/dRiftDM/blob/main/vignettes/model_recovery.Rmd" class="external-link"><code>vignettes/model_recovery.Rmd</code></a></small>
       <div class="d-none name"><code>model_recovery.Rmd</code></div>
     </div>
 
@@ -293,7 +293,7 @@ provides the better fit using the BIC fit statistic.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="va">stats_r_r</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="va">stats_d_r</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="va">stats_r_d</span><span class="op">$</span><span class="va">ID</span> <span class="op">==</span> <span class="va">stats_d_d</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># now count how often for each data set a model</span></span>
+<span><span class="co"># now count how often for each data set a model turned out "best"</span></span>
 <span><span class="va">winner_ratcliff_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">stats_r_r</span><span class="op">$</span><span class="va">BIC</span> <span class="op">&lt;</span> <span class="va">stats_d_r</span><span class="op">$</span><span class="va">BIC</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">winner_ratcliff_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">winner_ratcliff_data</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">winner_dmc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">stats_r_d</span><span class="op">$</span><span class="va">BIC</span> <span class="op">&lt;</span> <span class="va">stats_d_d</span><span class="op">$</span><span class="va">BIC</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>

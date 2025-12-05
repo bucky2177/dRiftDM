@@ -240,7 +240,7 @@ stats_d_d <- BIC(fits_d_d, type = "fit_stats")
 stopifnot(stats_r_r$ID == stats_d_r$ID)
 stopifnot(stats_r_d$ID == stats_d_d$ID)
 
-# now count how often for each data set a model
+# now count how often for each data set a model turned out "best"
 winner_ratcliff_data <- ifelse(stats_r_r$BIC < stats_d_r$BIC, 1, 2)
 winner_ratcliff_data <- factor(winner_ratcliff_data, levels = c(1, 2))
 winner_dmc_data <- ifelse(stats_r_d$BIC < stats_d_d$BIC, 1, 2)
