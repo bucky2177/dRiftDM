@@ -2,7 +2,7 @@
 
 Calls [stats::convolve](https://rdrr.io/r/stats/convolve.html) for the
 first passage times and the non-decision time distribution to derive the
-full distribution of response times. Before convolution, I add the
+full distribution of response times. After convolution, I add the
 robustness parameter.
 
 ## Usage

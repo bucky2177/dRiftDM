@@ -249,7 +249,7 @@ symmetric beta distribution <span class="citation">(see Ulrich et al.
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">five_traces</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"green"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-1.png" class="r-plt" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-1.png" class="r-plt" alt="" width="700"></p>
 <p>If you would like diffusion processes with a higher temporal
 resolution (e.g., for a nice publication-ready figure), simply increase
 <code>dt</code> (see the next chapter below) and run
@@ -261,7 +261,7 @@ by eliminating the stochastic noise with setting the argument
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exp_behavior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">ddm</span>, k <span class="op">=</span> <span class="fl">1</span>, sigma <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">exp_behavior</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"green"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-2-1.png" class="r-plt" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-2-1.png" class="r-plt" alt="" width="700"></p>
 <p>Note: When deriving the diffusion processes, <code>dRiftDM</code>
 simply uses the Euler-Maruyama method with a fixed time step size of
 <code>dt</code>. When actually deriving model predictions via the
@@ -323,7 +323,7 @@ model predictions:</p>
 method:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sum_stats</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-3-1.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-3-2.png" class="r-plt" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-3-1.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-3-2.png" class="r-plt" alt="" width="700"></p>
 <p>It is also possible to plot the predicted response time distributions
 using <code>type = "densities"</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -349,10 +349,10 @@ using <code>type = "densities"</code>.</p>
 for each condition, so they don’t overlap too much:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sum_stats</span>, conds <span class="op">=</span> <span class="st">"comp"</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-4-1.png" class="r-plt" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-4-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sum_stats</span>, conds <span class="op">=</span> <span class="st">"incomp"</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-4-2.png" class="r-plt" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-4-2.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -1266,9 +1266,9 @@ quantiles.</p>
 <code class="sourceCode R"><span><span class="va">check_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">all_fits</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cafs"</span>, <span class="st">"quantiles"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">check_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Aggregating across ID</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-5-1.png" class="r-plt" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-5-1.png" class="r-plt" alt="" width="700"></p>
 <pre><code><span><span class="co">#&gt; Aggregating across ID</span></span></code></pre>
-<p><img src="dRiftDM_files/figure-html/plot-results-5-2.png" class="r-plt" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-5-2.png" class="r-plt" alt="" width="700"></p>
 <p>Circles indicate observed data while lines indicate the model’s
 predictions.</p>
 <p>To invoke a bootstrap, where we repeatedly resample individuals to
@@ -1287,7 +1287,7 @@ bootstrap the trials within each individual.&lt;/p&gt;"><sup>3</sup></a>:</p>
 <span>  resample <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">check_fit</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-51-1.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-51-2.png" class="r-plt" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-51-1.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-51-2.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="extracting-parameter-estimates-and-fit-statistics">Extracting Parameter Estimates and Fit Statistics<a class="anchor" aria-label="anchor" href="#extracting-parameter-estimates-and-fit-statistics"></a>
@@ -1311,7 +1311,7 @@ bootstrap the trials within each individual.&lt;/p&gt;"><sup>3</sup></a>:</p>
 distributions using the <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist()</a></code> method.</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">all_coefs</span>, bundle_plots <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-6-1.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-2.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-3.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-4.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-5.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-6.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-7.png" class="r-plt" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-6-1.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-2.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-3.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-4.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-5.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-6.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-6-7.png" class="r-plt" alt="" width="700"></p>
 <p>After fitting a model, we often want to quantify its fit—and maybe
 compare the quantiative fit between several candidate models. To this
 end, we can request several relative and absolute fit measures, using
@@ -1411,7 +1411,7 @@ individual.</p>
 <span><span class="co">#&gt;        muc          b    non_dec        tau          A      alpha </span></span>
 <span><span class="co">#&gt; 4.44719079 0.63874750 0.26239573 0.06165401 0.08431614 6.88167399</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">one_mcmc</span>, bundle_plots <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dRiftDM_files/figure-html/plot-results-7-1.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-2.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-3.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-4.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-5.png" class="r-plt" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-6.png" class="r-plt" width="700"></p>
+<p><img src="dRiftDM_files/figure-html/plot-results-7-1.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-2.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-3.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-4.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-5.png" class="r-plt" alt="" width="700"><img src="dRiftDM_files/figure-html/plot-results-7-6.png" class="r-plt" alt="" width="700"></p>
 <p>It is also possible to request hierarchical estimation.</p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mcmc_hier</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_dm.html">estimate_dm</a></span><span class="op">(</span></span>

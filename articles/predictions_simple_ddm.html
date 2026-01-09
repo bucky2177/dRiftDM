@@ -98,7 +98,7 @@ generic <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="exte
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="va">model</span>, k <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">traces</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="700"></p>
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="700"></p>
 <p>You might wonder why these trajectories appear so “coarse.” This
 results from the discretization settings of the underlying solver that
 computes the first-passage times when fitting the model. To obtain a
@@ -109,14 +109,14 @@ domain:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="va">model</span>, k <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">traces</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="700"></p>
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
 <p>Sometimes, we might want to visualize the model without noise. In
 this case, the argument <code>sigma</code> of the
 <code><a href="../reference/simulate_traces.html">simulate_traces()</a></code> function comes in handy.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="va">model</span>, k <span class="op">=</span> <span class="fl">1</span>, sigma <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">traces</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="700"></p>
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700"></p>
 <p>To derive basic model predictions for mean response times (RTs) and
 accuracy, we can use the <code><a href="../reference/calc_stats.html">calc_stats()</a></code> method and the
 argument <code>type = "basic_stats"</code>:</p>
@@ -179,7 +179,7 @@ panels).</p>
 <span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"muc"</span>, ylab <span class="op">=</span> <span class="st">"Accuarcy"</span>, main <span class="op">=</span> <span class="st">"Influence: Drift Rate"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="700"></p>
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Boundary Plots</span></span>
@@ -193,7 +193,7 @@ panels).</p>
 <span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"b"</span>, ylab <span class="op">=</span> <span class="st">"Accuarcy"</span>, main <span class="op">=</span> <span class="st">"Influence: Boundary"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-9-2.png" class="r-plt" width="700"></p>
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-9-2.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Non-Decision Time Plots</span></span>
@@ -207,7 +207,7 @@ panels).</p>
 <span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"non_dec"</span>, ylab <span class="op">=</span> <span class="st">"Accuarcy"</span>, main <span class="op">=</span> <span class="st">"Influence: Non-Decision Time"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-9-3.png" class="r-plt" width="700"></p>
+<p><img src="predictions_simple_ddm_files/figure-html/unnamed-chunk-9-3.png" class="r-plt" alt="" width="700"></p>
 <p>The effects of these variations on RTs and accuracy are
 straightforward:</p>
 <ul>
