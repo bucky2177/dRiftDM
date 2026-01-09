@@ -3,7 +3,7 @@
 \name{get_starting_values}
 \alias{get_starting_values}
 \alias{get_starting_values.drift_dm}
-\title{TITLE}
+\title{Get Starting Values for Model Parameters}
 \usage{
 get_starting_values(object, ...)
 
@@ -18,11 +18,29 @@ get_starting_values(object, ...)
 )
 }
 \arguments{
-\item{object}{}
+\item{object}{supported object, currently only of type \link{drift_dm}.}
 
-\item{...}{}
+\item{...}{additional arguments passed to the respective method.}
+
+\item{lower, upper}{optional named numeric vectors of search bounds. Required
+for the latin hypercube search.}
+
+\item{verbose}{numeric scalar controlling messages (0 = silent).}
+
+\item{use_ez}{logical; try EZ-diffusion starting values when possible.}
+
+\item{n_lhs}{integer; base size factor for latin hypercube sampling (total
+samples are \code{n_lhs * d}, where \code{d} is the number of remaining parameters).}
+}
+\value{
+a named numeric vector of starting values, or \code{NULL} if no reasonable
+starting values can be determined.
 }
 \description{
-TITLE
+I return a named numeric vector of starting values, when possible. If
+\code{use_ez} is \code{TRUE} and \code{obs_data} is available, I try to obtain
+EZ-diffusion-based guesses for compatible component functions. Remaining
+parameters (if any) can be initialized via a simple latin hypercube search
+within \code{lower}/\code{upper}.
 }
 \keyword{internal}

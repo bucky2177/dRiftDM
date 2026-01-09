@@ -1,5 +1,9 @@
 # dRiftDM (development version)
 
+## Bug fix
+
+- Ensure EZ guesses are within the search space
+
 # dRiftDM 0.3.1
 
 ## Minor

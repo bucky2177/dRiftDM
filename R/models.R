@@ -1365,11 +1365,25 @@ get_lower_upper.drift_dm <- function(object, ..., warn = TRUE) {
 }
 
 
-#' TITLE
+#' Get Starting Values for Model Parameters
 #'
-#' @param object
+#' I return a named numeric vector of starting values, when possible. If
+#' `use_ez` is `TRUE` and `obs_data` is available, I try to obtain
+#' EZ-diffusion-based guesses for compatible component functions. Remaining
+#' parameters (if any) can be initialized via a simple latin hypercube search
+#' within `lower`/`upper`.
 #'
-#' @param ...
+#' @param object supported object, currently only of type [dRiftDM::drift_dm].
+#' @param ... additional arguments passed to the respective method.
+#' @param lower,upper optional named numeric vectors of search bounds. Required
+#'  for the latin hypercube search.
+#' @param verbose numeric scalar controlling messages (0 = silent).
+#' @param use_ez logical; try EZ-diffusion starting values when possible.
+#' @param n_lhs integer; base size factor for latin hypercube sampling (total
+#'  samples are `n_lhs * d`, where `d` is the number of remaining parameters).
+#'
+#' @return a named numeric vector of starting values, or `NULL` if no reasonable
+#'  starting values can be determined.
 #'
 #' @keywords internal
 get_starting_values <- function(object, ...) {
@@ -1459,18 +1473,8 @@ get_starting_values.drift_dm <- function(
     }
   }
 
-  # check if there are parameters left and return them (or NULL)
-  rem_prms <- setdiff(prms_model, names(ez_guess))
-  if (length(rem_prms) == 0 || n_lhs <= 0) {
-    if (length(ez_guess) == 0) {
-      return(NULL)
-    } else {
-      return(ez_guess)
-    }
-  }
-
-  # perform a rough "grid search" for the remaining parameters
-  # find lower and upper ranges to try out
+  # check if ez produced values outside the (optional) search space
+  # for this, check if there is a search space provided or can be inferred
   l_u = tryCatch(
     {
       get_lower_upper(drift_dm_obj)
@@ -1482,26 +1486,44 @@ get_starting_values.drift_dm <- function(
       return(NULL)
     }
   )
-  # if this fails, and lower/upper are not both provided,
-  # then return NULL to not perform an initial grid search
-  if ((is.null(lower) || is.null(upper)) && is.null(l_u)) {
-    return(NULL)
-  }
-  if (is.null(lower)) {
-    lower <- l_u$lower
-  }
-  if (is.null(upper)) {
-    upper <- l_u$upper
-  }
   l_u = get_parameters_smart(
     drift_dm_obj = drift_dm_obj,
-    input_a = lower,
-    input_b = upper,
+    input_a = l_u$lower,
+    input_b = l_u$upper
   )
-  lower = l_u$vec_a
-  upper = l_u$vec_b
-  rem_lower = lower[rem_prms]
-  rem_upper = upper[rem_prms]
+  if (is.null(lower)) {
+    lower <- l_u$vec_a
+  }
+  if (is.null(upper)) {
+    upper <- l_u$vec_b
+  }
+
+  # then nudge inward, if necessary and possible
+  if (!is.null(lower) && !is.null(upper) && length(ez_guess) > 0) {
+    lower_ez <- lower[names(ez_guess)]
+    upper_ez <- upper[names(ez_guess)]
+    nudge <- (upper_ez - lower_ez) * 0.025
+    ez_guess <- ifelse(ez_guess <= lower_ez, lower_ez + nudge, ez_guess)
+    ez_guess <- ifelse(ez_guess >= upper_ez, upper_ez - nudge, ez_guess)
+  }
+
+  # check if there are parameters left and return if none are left
+  # (or return NULL if there is nothing left and no ez guesses)
+  rem_prms <- setdiff(prms_model, names(ez_guess))
+  if (length(rem_prms) == 0 || n_lhs <= 0) {
+    if (length(ez_guess) == 0) {
+      return(NULL)
+    }
+    return(ez_guess)
+  }
+
+  # perform a rough "grid search" for the remaining parameters
+  # if there is no search space, then return NULL
+  if (is.null(lower) || is.null(upper)) {
+    return(NULL)
+  }
+  rem_lower <- lower[rem_prms]
+  rem_upper <- upper[rem_prms]
 
   # now the actual sampling
   if (verbose > 0) {
@@ -1548,13 +1570,7 @@ get_starting_values.drift_dm <- function(
     drift_dm_obj <- re_evaluate_model(drift_dm_obj)
     return(drift_dm_obj$cost_value)
   })
-
-  # final parameters and ensure they are not outside the limits
   final <- prms_lhs[which.min(cost_vals), ]
-  nudge <- (upper - lower) * 0.05
-  final <- ifelse(final <= lower, lower + nudge, final)
-  final <- ifelse(final >= upper, upper - nudge, final)
-
   return(final)
 }
 

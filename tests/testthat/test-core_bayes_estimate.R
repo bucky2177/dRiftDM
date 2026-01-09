@@ -397,8 +397,8 @@ test_that("log_posterior_hyper works as expected", {
     sd = phi_j_mat[2, ],
     log = TRUE
   )
-  log_likes <- rowSums(log_likes) * temperatures
-  posterior <- log_likes + log_prior_hyper_fun(phi_j_mat)
+  log_likes <- rowSums(log_likes)
+  posterior <- log_likes * temperatures + log_prior_hyper_fun(phi_j_mat)
 
   expect_named(out, c("posterior_vals", "log_like_vals"))
   expect_equal(length(out$posterior_vals), 3)

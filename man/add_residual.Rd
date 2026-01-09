@@ -19,7 +19,7 @@ a list of PDFs for one condition "pdf_u" and "pdf_l"
 }
 \description{
 Calls \link[stats:convolve]{stats::convolve} for the first passage times and the non-decision
-time distribution to derive the full distribution of response times. Before
+time distribution to derive the full distribution of response times. After
 convolution, I add the robustness parameter.
 }
 \keyword{internal}

@@ -488,7 +488,7 @@ log_posterior_hyper <- function(
 
   # log_likes has likelihoods for each individual (cols) across chains (rows)
   # -> sum across individuals, i.e., get sum for each chain.
-  log_like_vals <- rowSums(log_likes_mat) * temperatures
+  log_like_vals <- rowSums(log_likes_mat)
   log_like_vals[is.na(log_like_vals)] <- -Inf
 
   # get the log prior density value for phi_j
@@ -503,7 +503,7 @@ log_posterior_hyper <- function(
 
   # add everything together and pass back ....
   return_list <- list(
-    posterior_vals = log_like_vals + log_like_prior_vals,
+    posterior_vals = log_like_vals * temperatures + log_like_prior_vals,
     log_like_vals = log_like_vals
   )
   return(return_list)
@@ -1626,6 +1626,7 @@ estimate_bayesian <- function(
         2 *
         (utils::tail(m_ll_theta, -1) + utils::head(m_ll_theta, -1))
     )
+    # TODO: figure out if this is appropriate for hierarchical estimation
     v_ll_theta <- apply(lls_theta, MARGIN = 1, stats::var)
     cor <- utils::tail(v_ll_theta, -1) - utils::head(v_ll_theta, -1)
     ti <- ti - sum(cor * diff(temperatures)^2 / 12)
