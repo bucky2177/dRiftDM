@@ -1409,7 +1409,7 @@ get_starting_values.drift_dm <- function(
 
   # if ez is requested, try to provide corresponding starting values
   ez_guess <- numeric()
-  if (use_ez && !is.null(object$obs_data)) {
+  if (use_ez && !is.null(drift_dm_obj$obs_data)) {
     # 1.) find component functions that can be leveraged
     comp_funs <- comp_funs(drift_dm_obj)
 
@@ -1444,7 +1444,13 @@ get_starting_values.drift_dm <- function(
 
       # small helper to map
       ez_map <- function(p, ez_vec) {
-        # average over all entries
+        # check if condition-specific parameter is present
+        res <- ez_vec[p]
+        if (is_numeric(res)) {
+          return(res)
+        }
+
+        # otherwise check if parameter is there and average over all entries
         idx <- grepl(paste0("^", p, "\\."), names(ez_vec))
         res <- mean(ez_vec[idx])
         if (is.na(res)) {
@@ -1475,26 +1481,33 @@ get_starting_values.drift_dm <- function(
 
   # check if ez produced values outside the (optional) search space
   # for this, check if there is a search space provided or can be inferred
-  l_u = tryCatch(
-    {
-      get_lower_upper(drift_dm_obj)
-    },
-    warning = function(w) {
-      return(NULL)
-    },
-    error = function(e) {
-      return(NULL)
-    }
-  )
-  l_u = get_parameters_smart(
-    drift_dm_obj = drift_dm_obj,
-    input_a = l_u$lower,
-    input_b = l_u$upper
-  )
-  if (is.null(lower)) {
+  stopifnot(!xor(is.null(lower), is.null(upper)))
+  if (is.null(lower) && is.null(upper)) {
+    l_u = tryCatch(
+      {
+        get_lower_upper(drift_dm_obj)
+      },
+      warning = function(w) {
+        return(NULL)
+      },
+      error = function(e) {
+        return(NULL)
+      }
+    )
+    l_u = get_parameters_smart(
+      drift_dm_obj = drift_dm_obj,
+      input_a = l_u$lower,
+      input_b = l_u$upper
+    )
     lower <- l_u$vec_a
-  }
-  if (is.null(upper)) {
+    upper <- l_u$vec_b
+  } else {
+    l_u = get_parameters_smart(
+      drift_dm_obj = drift_dm_obj,
+      input_a = lower,
+      input_b = upper
+    )
+    lower <- l_u$vec_a
     upper <- l_u$vec_b
   }
 
