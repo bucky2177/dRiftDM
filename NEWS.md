@@ -1,4 +1,4 @@
-# dRiftDM (development version)
+# dRiftDM 0.3.2
 
 
 # dRiftDM 0.3.2
@@ -13,6 +13,8 @@ argument of `estimate_dm()`.
 ## Bug fix
 
 - Ensure EZ guesses are within the search space
+
+
 
 # dRiftDM 0.3.1
 

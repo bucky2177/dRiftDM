@@ -229,8 +229,7 @@ summary.stats_dm <- function(
   ans$type <- class(stats_dm_obj)[1]
   ans$summary_dataframe <- summary.data.frame(
     stats_dm_obj,
-    digits = round_digits,
-    character.method = NULL
+    digits = round_digits
   )
 
   if ("ID" %in% names(stats_dm_obj)) {
