@@ -42,7 +42,7 @@ each rts_* entry being a named list with the RT values for each condition
 
 \subsection{log_like_heart}{
 
-Gets the density values for RTs in rts_u/rts_l via \code{\link[stats:approxfun]{stats::approx()}},
+Gets the density values for RTs in rts_u/rts_l via \code{\link[stats:approx]{stats::approx()}},
 takes the log of that, and then sums across both.
 Wraps up the calculation in a tryCatch statement, throwing warnings when
 log_like_values can not be calculated

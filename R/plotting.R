@@ -2472,7 +2472,7 @@ plot_mcmc_auto <- function(
 #'
 #' @param colors character vector, specifying colors for conditions. If `NULL`,
 #' default colors are used.
-#' @param n
+#' @param n numeric, specifying the number of colors to get.
 #'
 #' @return A character vector of colors of length `n`.
 #'

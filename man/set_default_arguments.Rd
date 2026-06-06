@@ -23,7 +23,7 @@ to plotting functions. (done internally, not by the user)
 This function sets/updates graphical parameters (passed through \code{...} by
 \verb{plot.*()} methods of \code{dRiftDM}) and handles default settings.
 It supports arguments relevant to
-\code{\link[graphics:plot.default]{graphics::plot()}}, \code{\link[graphics:points]{graphics::points()}}, \code{\link[graphics:legend]{graphics::legend()}}, and
+\code{\link[graphics:plot]{graphics::plot()}}, \code{\link[graphics:points]{graphics::points()}}, \code{\link[graphics:legend]{graphics::legend()}}, and
 \code{\link[graphics:arrows]{graphics::arrows()}}, allowing users fine-grained control over plotting
 while avoiding argument clashes. This is an internal function, so users
 won't call it directly. However, the Details below list all optional

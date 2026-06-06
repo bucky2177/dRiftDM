@@ -22,7 +22,7 @@
 \code{\link[=estimate_bayesian]{estimate_bayesian()}}}
 
 \item{...}{additional arguments passed forward to
-\code{\link[coda:summary.mcmc]{coda::summary.mcmc.list()}}.}
+\code{\link[coda:summary.mcmc.list]{coda::summary.mcmc.list()}}.}
 
 \item{id}{optional single numeric or character, specifying one or more
 participant IDs to subset \code{object} in the hierarchical case. Note that \code{id}
@@ -80,5 +80,5 @@ summary(mcmc_obj)
 }
 \seealso{
 \code{\link[coda:gelman.diag]{coda::gelman.diag()}}, \code{\link[coda:effectiveSize]{coda::effectiveSize()}},
-\code{\link[coda:summary.mcmc]{coda::summary.mcmc.list()}}
+\code{\link[coda:summary.mcmc.list]{coda::summary.mcmc.list()}}
 }

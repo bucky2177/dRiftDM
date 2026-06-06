@@ -10,7 +10,7 @@ set_default_colors(colors, n)
 \item{colors}{character vector, specifying colors for conditions. If \code{NULL},
 default colors are used.}
 
-\item{n}{}
+\item{n}{numeric, specifying the number of colors to get.}
 }
 \value{
 A character vector of colors of length \code{n}.

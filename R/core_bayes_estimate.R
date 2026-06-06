@@ -1072,7 +1072,16 @@ estimate_bayes_h <- function(
   temperatures <- create_temperatures(n_chains, sampler)
 
   # turn on parallel engine
-  cl <- mirai::make_cluster(n_cores)
+  if (!is.null(seed)) {
+    if (!is_numeric(seed) | length(seed) != 1) {
+      stop("seed must be a single numeric")
+    }
+    withr::local_preserve_seed()
+    set.seed(seed)
+    seed = sample.int(.Machine$integer.max, 1)
+  }
+
+  cl <- mirai::make_cluster(n_cores, seed = seed)
   withr::defer(parallel::stopCluster(cl))
   parallel::clusterExport(
     cl,
@@ -1087,13 +1096,6 @@ estimate_bayes_h <- function(
     ),
     envir = environment()
   )
-
-  if (!is.null(seed)) {
-    if (!is_numeric(seed) | length(seed) != 1) {
-      stop("seed must be a single numeric")
-    }
-    parallel::clusterSetRNGStream(cl, iseed = seed)
-  }
 
   # get starting values
   if (verbose >= 1) {

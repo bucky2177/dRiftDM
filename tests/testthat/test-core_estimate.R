@@ -396,12 +396,30 @@ test_that("estimate_dm -> hier_b runs as expected", {
     verbose = 0,
     burn_in = 1,
     progress = 0,
-    samples = 1,
+    samples = 2,
     n_chains = 3,
     n_cores = 2,
     seed = 1
   )
   expect_true(attr(mcmc_obj, "hierarchical"))
+
+  # check reproducability
+  mcmc_obj2 <- estimate_dm(
+    drift_dm_obj = model,
+    obs_data = data,
+    approach = "hier_b",
+    lower = l_u$lower,
+    messaging = FALSE,
+    verbose = 0,
+    burn_in = 1,
+    progress = 0,
+    samples = 2,
+    n_chains = 3,
+    n_cores = 2,
+    seed = 1
+  )
+  expect_identical(mcmc_obj$theta, mcmc_obj2$theta)
+  expect_identical(mcmc_obj$phi, mcmc_obj2$phi)
 
   mock_call_bayesian <- function(...) {
     return(1)

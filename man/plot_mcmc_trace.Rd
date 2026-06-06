@@ -48,7 +48,7 @@ This argument is not optional and will be provided by
 \code{\link[=plot.mcmc_dm]{plot.mcmc_dm()}}.}
 
 \item{col_palette}{a function to generate a color palette for chains
-(default is \link[grDevices:palettes]{grDevices::rainbow}). Must be callable like this
+(default is \link[grDevices:rainbow]{grDevices::rainbow}). Must be callable like this
 \code{col_palette(n)}.}
 
 \item{col_chains}{a character vector, defining colors(s) to override

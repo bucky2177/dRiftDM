@@ -27,7 +27,7 @@ the entries in each nested component, and returns the cumulative sum as the
 total observation count.
 
 It was written to provide an \code{nobs} method for calculating the log-likelihood
-(\link{logLik}), AIC (\link[stats:AIC]{stats::AIC}), and BIC (\link[stats:AIC]{stats::BIC}) statistics
+(\link{logLik}), AIC (\link[stats:AIC]{stats::AIC}), and BIC (\link[stats:BIC]{stats::BIC}) statistics
 for objects of type \link{drift_dm}.
 }
 \examples{

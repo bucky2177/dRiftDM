@@ -1093,7 +1093,6 @@ test_that("estimate_bayes_one_subj runs and returns correct structure", {
   some_model <- ratcliff_dummy
   prms_solve(some_model)[c("dx", "dt", "t_max")] <- c(0.01, 0.01, 1)
   withr::local_seed(123)
-  sink(file = file.path(tempdir(), "capture.txt"))
   result <- estimate_bayes_one_subj(
     drift_dm_obj = some_model,
     sampler = "DE-MCMC",
@@ -1104,7 +1103,6 @@ test_that("estimate_bayes_one_subj runs and returns correct structure", {
     prob_re_eval = 0.1,
     verbose = 0
   )
-  sink()
 
   # check the returned list
   expect_type(result, "list")
@@ -1142,7 +1140,6 @@ test_that("estimate_bayes_h runs and returns correct structure", {
     cbind(d, ID = 2)
   )
 
-  sink(file = file.path(tempdir(), "capture.txt"))
   result <- estimate_bayes_h(
     drift_dm_obj = some_model,
     obs_data_ids = obs_data_ids,
@@ -1155,7 +1152,6 @@ test_that("estimate_bayes_h runs and returns correct structure", {
     prob_re_eval = 0.1,
     verbose = 0
   )
-  sink()
 
   # check the returned list
   expect_type(result, "list")

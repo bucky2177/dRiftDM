@@ -57,5 +57,5 @@ coef(all_fits, select_unique = FALSE)
 
 }
 \seealso{
-\code{\link[stats:AIC]{stats::AIC()}}, \code{\link[stats:AIC]{stats::BIC()}}, \link{logLik.drift_dm}
+\code{\link[stats:AIC]{stats::AIC()}}, \code{\link[stats:BIC]{stats::BIC()}}, \link{logLik.drift_dm}
 }

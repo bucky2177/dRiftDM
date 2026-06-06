@@ -24,6 +24,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Valentin Koob \email{v.koob@web.de} [copyright holder]
   \item Thomas Richter [copyright holder]
   \item Markus Janczyk
 }

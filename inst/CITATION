@@ -3,5 +3,5 @@ bibentry(
   title    = "dRiftDM: An R package for fitting non-stationary drift diffusion models",
   author   = "Valentin Koob, Thomas Richter, Markus Janczyk",
   year     = "2025",
-  note = "R package version 0.3.0"
+  note = "R package version 0.3.2"
 )
