@@ -8,6 +8,7 @@ We can create the classical (Ratcliff) DDM, which is pre-built in
 [`ratcliff_dm()`](https://bucky2177.github.io/dRiftDM/reference/ratcliff_dm.md):
 
 ``` r
+
 model <- ratcliff_dm()
 ```
 
@@ -15,6 +16,7 @@ To access the parameter settings, we can use the
 [`coef()`](https://rdrr.io/r/stats/coef.html) method:
 
 ``` r
+
 coef(model)
 #>     muc       b non_dec 
 #>     3.0     0.6     0.3
@@ -26,6 +28,7 @@ and the non-decision time `non_dec` is 0.3 (seconds). We can alter the
 parameter settings like this:
 
 ``` r
+
 coef(model)["muc"] <- 2.5
 coef(model)["b"] <- 0.5
 coef(model)
@@ -40,6 +43,7 @@ and the generic [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
 method.
 
 ``` r
+
 set.seed(1)
 traces <- simulate_traces(model, k = 10)
 plot(traces, col = "black")
@@ -53,6 +57,7 @@ the first-passage times when fitting the model. To obtain a smoother
 plot, we can temporarily increase the resolution in the time domain:
 
 ``` r
+
 prms_solve(model)["dt"] = .001 # set to 1 ms step size (for a nice plot)
 set.seed(1)
 traces <- simulate_traces(model, k = 10)
@@ -67,6 +72,7 @@ case, the argument `sigma` of the
 function comes in handy.
 
 ``` r
+
 traces <- simulate_traces(model, k = 1, sigma = 0)
 plot(traces, col = "black")
 ```
@@ -79,6 +85,7 @@ accuracy, we can use the
 method and the argument `type = "basic_stats"`:
 
 ``` r
+
 prms_solve(model)["dt"] = .010 # set it back to a 10 ms step size (for speed)
 calc_stats(model, type = "basic_stats")
 #> Type of Statistic: basic_stats
@@ -100,14 +107,15 @@ correct RTs and accuracy by systematically varying each parameter one
 after the other. For this example demonstration, let’s use the following
 parameter ranges:
 
-- Drift rate: $\mu \in \{ 1.5,2.0,\ldots,4.5,5.0\}$
-- Boundary: $b \in \{ 0.2,0.3,\ldots,0.8,0.9\}$
-- Non-decision time: $t0 \in \{ 0.1,0.15,\ldots,0.40,0.45\}$
+- Drift rate: $`\mu \in \{1.5, 2.0, \ldots, 4.5, 5.0\}`$
+- Boundary: $`b \in \{0.2, 0.3, \ldots, 0.8, 0.9\}`$
+- Non-decision time: $`t0 \in \{0.1, 0.15, \ldots, 0.40, 0.45\}`$
 
 The following code iterates over each parameter, plotting the influence
 of each parameter on RTs (upper panels) and accuracy (lower panels).
 
 ``` r
+
 par(mfcol = c(1, 2))
 
 # define the parameter ranges
@@ -140,6 +148,7 @@ plot(stats_mu[2, ] ~ muc_seq,
 
 ``` r
 
+
 # Boundary Plots
 par(mfcol = c(1, 2))
 stats_b <- sapply(b_seq, get_stats, prm_label = "b")
@@ -156,6 +165,7 @@ plot(stats_b[2, ] ~ b_seq,
 ![](predictions_simple_ddm_files/figure-html/unnamed-chunk-9-2.png)
 
 ``` r
+
 
 # Non-Decision Time Plots
 par(mfcol = c(1, 2))

@@ -18,6 +18,8 @@ set_default_colors(colors, n)
 
 - n:
 
+  numeric, specifying the number of colors to get.
+
 ## Value
 
 A character vector of colors of length `n`.

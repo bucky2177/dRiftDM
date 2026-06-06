@@ -18,7 +18,7 @@ The dRiftDM package helps you to do this:
 - Options to customize models
 
 - With efficient algorithms to derive the model predictions for
-  time-dependent DDMs (see Richter, Ulrich, and Janczyk 2023)
+  time-dependent DDMs (see Richter et al. 2023)
 
 Three pre-built models are currently available:
 
@@ -28,11 +28,11 @@ Three pre-built models are currently available:
 
 - The Diffusion Model for Conflict Tasks (see
   [`dmc_dm()`](https://bucky2177.github.io/dRiftDM/reference/dmc_dm.md),
-  Ulrich et al. 2015; Janczyk, Mackenzie, and Koob 2024)
+  Ulrich et al. 2015; Janczyk et al. 2024)
 
 - The Shrinking Spotlight Model (see
   [`ssp_dm()`](https://bucky2177.github.io/dRiftDM/reference/ssp_dm.md),
-  White, Ratcliff, and Starns 2011)
+  White et al. 2011)
 
 This document introduces you to dRiftDM, focusing on first steps in
 exploring and fitting a DDM.
@@ -46,6 +46,7 @@ model, we call the pre-built function `dmc_fun()` and assign its output
 to a variable:
 
 ``` r
+
 ddm <- dmc_dm()
 ```
 
@@ -55,6 +56,7 @@ When printing a model to the console, we obtain detailed information
 about it:
 
 ``` r
+
 print(ddm)
 #> Class(es) dmc_dm, drift_dm
 #> (model has not been estimated yet)
@@ -143,6 +145,7 @@ simulate.
 For example, we could simulate 5 traces for DMC per condition:
 
 ``` r
+
 five_traces <- simulate_traces(object = ddm, k = 5)
 five_traces
 #> Class(es): traces_dm_list
@@ -170,6 +173,7 @@ zero. To simulate traces with a variable starting point (if provided by
 model), we can set the argument `add_x = TRUE`:
 
 ``` r
+
 five_traces <- simulate_traces(object = ddm, k = 5, add_x = TRUE)
 five_traces
 #> Class(es): traces_dm_list
@@ -199,6 +203,7 @@ We can easily visualize these traces by calling the generic
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method:
 
 ``` r
+
 plot(five_traces, col = c("green", "red"))
 ```
 
@@ -216,6 +221,7 @@ by eliminating the stochastic noise with setting the argument
 `sigma = 0`.
 
 ``` r
+
 exp_behavior <- simulate_traces(object = ddm, k = 1, sigma = 0)
 plot(exp_behavior, col = c("green", "red"))
 ```
@@ -247,6 +253,7 @@ Conditional Accuracy Functions (CAFs) are common ways to summarize the
 model predictions:
 
 ``` r
+
 sum_stats <- calc_stats(object = ddm, type = c("cafs", "quantiles"))
 sum_stats
 #> Element 1, contains cafs
@@ -286,6 +293,7 @@ We can visualize summary statistics with the
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method:
 
 ``` r
+
 plot(sum_stats)
 ```
 
@@ -295,6 +303,7 @@ It is also possible to plot the predicted response time distributions
 using `type = "densities"`.
 
 ``` r
+
 sum_stats <- calc_stats(object = ddm, type = c("densities"))
 sum_stats
 #> Type of Statistic: densities
@@ -319,12 +328,14 @@ In this case, it’s often helpful to plot the distributions separately
 for each condition, so they don’t overlap too much:
 
 ``` r
+
 plot(sum_stats, conds = "comp", xlim = c(0, 1.0))
 ```
 
 ![](dRiftDM_files/figure-html/plot-results-4-1.png)
 
 ``` r
+
 plot(sum_stats, conds = "incomp", xlim = c(0, 1.0))
 ```
 
@@ -377,6 +388,7 @@ are covered in
 ### `coef()`
 
 ``` r
+
 coef(ddm)
 #>        muc          b    non_dec sd_non_dec        tau          A      alpha 
 #>       4.00       0.60       0.30       0.02       0.04       0.10       4.00
@@ -390,6 +402,7 @@ We can combine [`coef()`](https://rdrr.io/r/stats/coef.html) with the
 `[]` operator to change the values of the parameters:
 
 ``` r
+
 coef(ddm)["muc"] <- 5
 coef(ddm)
 #>        muc          b    non_dec sd_non_dec        tau          A      alpha 
@@ -400,6 +413,7 @@ To request the entire parameter matrix with all parameter values across
 conditions, we can set the argument `select_unique = FALSE`:
 
 ``` r
+
 coef(ddm, select_unique = FALSE)
 #>        muc   b non_dec sd_non_dec  tau a    A alpha peak_l
 #> comp     5 0.6     0.3       0.02 0.04 2  0.1     4   0.04
@@ -415,6 +429,7 @@ function
 ### `prms_solve()`
 
 ``` r
+
 prms_solve(ddm)
 #>   sigma   t_max      dt      dx      nt      nx 
 #> 1.0e+00 3.0e+00 7.5e-03 2.0e-02 4.0e+02 1.0e+02
@@ -424,6 +439,7 @@ This shows the diffusion constant and the discretization settings. We
 can again use a combination with `[]` to modify these values.
 
 ``` r
+
 prms_solve(ddm)["dt"] <- .005
 prms_solve(ddm)
 #> sigma t_max    dt    dx    nt    nx 
@@ -467,6 +483,7 @@ model predictions obtained under very fine discretization settings using
 the Hellinger-Distance.
 
 ``` r
+
 check_discretization(ddm)
 #>    comp  incomp 
 #> 0.01027 0.01431
@@ -482,6 +499,7 @@ most of the relevant parameter settings.
 ### `solver()`
 
 ``` r
+
 solver(ddm)
 #> [1] "kfe"
 ```
@@ -498,6 +516,7 @@ compatibility, and we recommend using the `"kfe"` solver.
 ### `b_coding()`
 
 ``` r
+
 b_coding(ddm)
 #> $column
 #> [1] "Error"
@@ -515,6 +534,7 @@ This returns a list that specifies how the boundaries of a DDM are
 coded. We can change the boundary coding by modifying the returned list:
 
 ``` r
+
 copy <- ddm # to not change the original model object
 b_coding(copy)$column <- "Response"
 b_coding(copy)$u_name_value <- c("left" = -1)
@@ -540,6 +560,7 @@ Note that this will also alter the column names of the summary
 statistics:
 
 ``` r
+
 calc_stats(copy, "quantiles")
 #> Type of Statistic: quantiles
 #> 
@@ -569,6 +590,7 @@ When setting observed data, we have to make sure that the supplied
 conditions of the model.
 
 ``` r
+
 data <- dRiftDM::dmc_synth_data # some synthetic data suitable for DMC that ships with dRiftDM
 # the Cond column matches with conds(ddm).
 # The Error column matches b_coding(ddm)
@@ -592,6 +614,7 @@ respect to the original data set. To remind you of that, a message is
 thrown.
 
 ``` r
+
 extr_data <- obs_data(ddm)
 #> Extracting observed data from a model object. Remember that the result may be sorted differently than expect!
 head(extr_data)
@@ -611,6 +634,7 @@ about it’s core properties with the generic
 [`summary()`](https://rdrr.io/r/base/summary.html) function:
 
 ``` r
+
 summary(ddm)
 #> Class(es) dmc_dm, drift_dm
 #> 
@@ -698,6 +722,7 @@ first four individuals of the Simon data set provided by Ulrich et al.
 (2015).
 
 ``` r
+
 # get some data (here we use a Simon data set provided by Ulrich et al.)
 data <- dRiftDM::ulrich_simon_data
 data <- data[data$ID %in% 1:4, ] # just the first four individuals
@@ -802,6 +827,7 @@ From the messages, it becomes clear that `dRiftDM` used the
 log-likelihood. The starting values were taken from the model:
 
 ``` r
+
 coef(ddm)
 #>        muc          b    non_dec sd_non_dec        tau          A      alpha 
 #>       4.00       0.60       0.30       0.02       0.04       0.10       4.00
@@ -824,6 +850,7 @@ the documentation of
 for more info).
 
 ``` r
+
 all_fits <- estimate_dm(
   drift_dm_obj = ddm,
   obs_data = data,
@@ -913,6 +940,7 @@ considered free in at least one condition; essentially, this means we
 have to define a range for each of the following parameters:
 
 ``` r
+
 coef(ddm)
 #>        muc          b    non_dec sd_non_dec        tau          A      alpha 
 #>       4.00       0.60       0.30       0.02       0.04       0.10       4.00
@@ -924,6 +952,7 @@ makes it easier to select these ranges—at least for the pre-built models
 and model components:
 
 ``` r
+
 l_u <- get_lower_upper(ddm)
 print(l_u)
 #> $lower
@@ -1007,6 +1036,7 @@ In this case, we only saw a convergence warning for one participant. By
 increasing the number of iterations, this warning again disappears:
 
 ``` r
+
 all_fits_nmkb <- estimate_dm(
   drift_dm_obj = ddm,
   obs_data = data,
@@ -1084,6 +1114,7 @@ using “DEoptim”, since it performs reliably even when the cost function
 is complex (which is almost always the case with DDMs).
 
 ``` r
+
 all_fits_deoptim <- estimate_dm(
   drift_dm_obj = ddm,
   obs_data = data,
@@ -1095,7 +1126,7 @@ all_fits_deoptim <- estimate_dm(
 
 Because DEoptim is time-consuming, it is recommended to use multiple
 cores. You can set the desired number of cores using the `n_cores`
-argument.[¹](#fn1) To get the number of available cores, use
+argument.[^1] To get the number of available cores, use
 [`parallel::detectCores()`](https://rdrr.io/r/parallel/detectCores.html).
 
 A common question concerns the number of cores to use. By default,
@@ -1128,6 +1159,7 @@ returned an object of class `fits_ids_dm`, which contains all the
 individual fits.
 
 ``` r
+
 # Example
 class(all_fits_deoptim)
 #> [1] "fits_ids_dm"
@@ -1149,6 +1181,7 @@ for backward compatibility. Nothing special to worry about—just be aware
 of it.
 
 ``` r
+
 ddm_est <- estimate_dm(
   drift_dm_obj = ddm,
   obs_data = data[data$ID == 1, ],
@@ -1203,6 +1236,7 @@ or accuracy). This was the original way DMC was fitted to observed data
 `"rmse"`, which stands for *Root-Mean-Squared-E rror*.
 
 ``` r
+
 cost_function(ddm) <- "rmse"
 print(ddm) # see the end of the following output
 #> Class(es) dmc_dm, drift_dm
@@ -1243,9 +1277,10 @@ data. That is, we first compute individual descriptive statistics
 statistics across individuals, and finally fit the model once to the
 aggregated data, yielding a single set of parameters. Requesting this
 approach in `dRiftDM` is straightforward: we simply specify the argument
-`approach = "agg_c"`.[²](#fn2)
+`approach = "agg_c"`.[^2]
 
 ``` r
+
 fits_agg <- estimate_dm(
   drift_dm_obj = ddm,
   obs_data = data,
@@ -1306,6 +1341,7 @@ using “Nelder-Mead”. Specifically, we plot predicted and observed CAFs
 and quantiles.
 
 ``` r
+
 check_fit <- calc_stats(object = all_fits, type = c("cafs", "quantiles"))
 plot(check_fit)
 #> Aggregating across ID
@@ -1326,9 +1362,10 @@ data, we can specify the argument in combination with the argument .
 This helps us to judge if small misfits between the observed data and
 the model predictions are just related to sampling noise, or whether
 they reflect systematic misfits that are apparent across
-individuals.[³](#fn3):
+individuals.[^3]:
 
 ``` r
+
 check_fit <- calc_stats(
   object = all_fits,
   type = c("cafs", "quantiles"),
@@ -1348,6 +1385,7 @@ the objects returned by
 [`estimate_dm()`](https://bucky2177.github.io/dRiftDM/reference/estimate_dm.md).
 
 ``` r
+
 all_coefs <- coef(all_fits)
 print(all_coefs)
 #> Object Type: coefs_dm
@@ -1365,6 +1403,7 @@ We can even make a quick visualization of the respective distributions
 using the [`hist()`](https://rdrr.io/r/graphics/hist.html) method.
 
 ``` r
+
 hist(all_coefs, bundle_plots = FALSE)
 ```
 
@@ -1377,6 +1416,7 @@ end, we can request several relative and absolute fit measures, using
 and the argument `type = "fit_stats"`.
 
 ``` r
+
 calc_stats(all_fits, type = "fit_stats")
 #> Type of Statistic: fit_stats
 #> 
@@ -1398,6 +1438,7 @@ parameter estimates can be obtained via the
 [`summary()`](https://rdrr.io/r/base/summary.html) method.
 
 ``` r
+
 summary(all_fits)
 #> Fit approach: separately - classical
 #> Fitted model type: dmc_dm, drift_dm
@@ -1442,6 +1483,7 @@ documentation of
 [`estimate_dm()`](https://bucky2177.github.io/dRiftDM/reference/estimate_dm.md))
 
 ``` r
+
 # DMC without variability in the non-decision time;
 # makes it a bit easier to estimate, although it is still
 # difficult, because trial numbers are low in the sample data set :)
@@ -1467,6 +1509,7 @@ mcmc_list <- estimate_dm(
 This returns a list of `mcmc_dm` objects, one for each individual.
 
 ``` r
+
 one_mcmc <- mcmc_list[[1]]
 one_mcmc
 #> Sampler: DE-MCMC 
@@ -1485,6 +1528,7 @@ plot(one_mcmc, bundle_plots = FALSE)
 It is also possible to request hierarchical estimation.
 
 ``` r
+
 mcmc_hier <- estimate_dm(
   drift_dm_obj = ddm,
   obs_data = data,
@@ -1508,6 +1552,7 @@ function. The first argument takes the model object. The second argument
 is a numeric (vector), defining the number of trials per condition:
 
 ``` r
+
 ddm <- ratcliff_dm() # a model for demonstration purpose
 sim_1 <- simulate_data(object = ddm, n = 200)
 head(sim_1)
@@ -1531,6 +1576,7 @@ parameter combinations per data set (see the `simulate_data`
 documentation for more details):
 
 ``` r
+
 sim_2 <- simulate_data(
   object = ddm, n = 200, k = 2,
   lower = c(muc = 1, b = .4, non_dec = .2),
@@ -1542,6 +1588,7 @@ This returns a list with the synthetic data sets and the corresponding
 parameter values:
 
 ``` r
+
 head(sim_2$synth_data)
 #>      RT Error Cond ID
 #> 1 0.415     0 null  1
@@ -1577,6 +1624,7 @@ class labels. This can be useful, for example, if you want to create
 your own plot or wrangle the data into a particular format.
 
 ``` r
+
 ddm <- dmc_dm()
 traces <- simulate_traces(ddm, k = 2)
 # although this object is essentially a list of matrices, the class label ...
@@ -1631,16 +1679,14 @@ Models of the Flanker Task: Discrete Versus Gradual Attentional
 Selection.” *Cognitive Psychology* 63 (4): 210–38.
 <https://doi.org/10.1016/j.cogpsych.2011.08.001>.
 
-------------------------------------------------------------------------
+[^1]: The reason we do not use multiple cores here is related to how
+    this vignette is built on GitHub, but regular users should increase
+    this value.
 
-1.  The reason we do not use multiple cores here is related to how this
-    vignette is built on GitHub, but regular users should increase this
-    value.
-
-2.  Here, `"agg_c"` stands for “aggregated data,” and optimization is
+[^2]: Here, `"agg_c"` stands for “aggregated data,” and optimization is
     performed in the “classical” way via an optimization algorithm such
     as Nelder-Mead or Differential Evolution.
 
-3.  It is also possible to resample at the individual level. In this
+[^3]: It is also possible to resample at the individual level. In this
     case, however, we don’t bootstrap the participants, but instead
     bootstrap the trials within each individual.

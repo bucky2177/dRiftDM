@@ -402,12 +402,12 @@ fit <- estimate_dm(
 #> Using EZ-Diffusion estimates for: muc
 #> Performing latin hypercube sampling (n_lhs = 10) on: A
 #> Starting optimizer 'Nelder-Mead' with the following starting values:
-#> muc=3.868, A=0.076
-#> Optimization routine exited after 91 function evaluations
+#> muc=3.868, A=0.069
+#> Optimization routine exited after 71 function evaluations
 #> Final Parameters:
-#> muc = 4.608
+#> muc = 4.595
 #> A = 0.081
-#> ==> gave a neg_log_like of -368.96
+#> ==> gave a neg_log_like of -368.958
 print(fit)
 #> Class(es) dmc_dm, drift_dm
 #> Optimizer: Nelder-Mead
@@ -415,8 +415,8 @@ print(fit)
 #> 
 #> Parameter Values:
 #>          muc   b non_dec sd_non_dec  tau a      A alpha
-#> comp   4.608 0.6     0.3       0.02 0.04 2  0.081     4
-#> incomp 4.608 0.6     0.3       0.02 0.04 2 -0.081     4
+#> comp   4.595 0.6     0.3       0.02 0.04 2  0.081     4
+#> incomp 4.595 0.6     0.3       0.02 0.04 2 -0.081     4
 #> 
 #> Parameter Settings:
 #>        muc b non_dec sd_non_dec tau a A alpha

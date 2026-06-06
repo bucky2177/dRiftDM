@@ -25,6 +25,7 @@ We can see these entries by addressing the labels of the underlying
 list:
 
 ``` r
+
 a_model <- ratcliff_dm() # some model
 names(a_model) # the entries of the underlying list
 #> [1] "flex_prms_obj" "prms_solve"    "solver"        "comp_funs"    
@@ -77,6 +78,7 @@ generic
 accessor method:
 
 ``` r
+
 # Create a model (here the Diffusion Model for Conflict Tasks, DMC)
 ddm <- dmc_dm()
 flex_prms(ddm)
@@ -120,6 +122,7 @@ string. For example, if we want `muc` to vary freely across conditions,
 we can write
 
 ``` r
+
 ddm_free_muc <- modify_flex_prms(
   ddm, # the model
   instr = "muc ~" # an instructions in a formula-like format
@@ -150,6 +153,7 @@ is also why [`coef()`](https://rdrr.io/r/stats/coef.html) now provides
 two (modifiable) values for `muc` per condition:
 
 ``` r
+
 coef(ddm) # in this model muc is the same for all conditions
 #>        muc          b    non_dec sd_non_dec        tau          A      alpha 
 #>       4.00       0.60       0.30       0.02       0.04       0.10       4.00
@@ -200,6 +204,7 @@ The current conditions of a model can be accessed with the
 method:
 
 ``` r
+
 conds(ddm)
 #> [1] "comp"   "incomp"
 ```
@@ -208,6 +213,7 @@ We can assign new values to change these conditions. For example, a
 researcher may want to introduce a neutral condition:
 
 ``` r
+
 conds(ddm) <- c("comp", "neutral", "incomp")
 #> resetting parameter specifications
 ```
@@ -219,6 +225,7 @@ object, we see that the previous settings are gone (e.g., `A` in the
 condition):
 
 ``` r
+
 flex_prms(ddm)
 #> Parameter Values:
 #>         muc   b non_dec sd_non_dec  tau a   A alpha
@@ -242,6 +249,7 @@ while setting `A` to zero for the new `neutral` condition. We might also
 want to keep `a` again fixed for all conditions:
 
 ``` r
+
 instructions <- "
 a <!>                      # 'a' is fixed across all conditions
 A ~ incomp == -(A ~ comp)  # A in incomp is -A in comp
@@ -290,6 +298,7 @@ non-decision time. We can access each component function using the
 method:
 
 ``` r
+
 ddm <- dmc_dm() # some pre-built model
 names(comp_funs(ddm))
 #> [1] "mu_fun"     "mu_int_fun" "x_fun"      "b_fun"      "dt_b_fun"  
@@ -313,6 +322,7 @@ A number of predefined component functions are already available via
 (see the documentation for a description of each function):
 
 ``` r
+
 all_funs <- component_shelf()
 names(all_funs)
 #>  [1] "mu_constant"         "mu_dmc"              "mu_ssp"             
@@ -329,6 +339,7 @@ same. The drift rate, boundary, and non-decision time functions (i.e.,
 following declaration:
 
 ``` r
+
 ... <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   ...
 }
@@ -339,6 +350,7 @@ following declaration:
   model (see the first part of the following output).
 
 ``` r
+
 flex_prms(ddm)
 #> Parameter Values:
 #>        muc   b non_dec sd_non_dec  tau a    A alpha
@@ -363,6 +375,7 @@ flex_prms(ddm)
   constant and the discretization settings. It is identical to:
 
 ``` r
+
 prms_solve(ddm)
 #>   sigma   t_max      dt      dx      nt      nx 
 #> 1.0e+00 3.0e+00 7.5e-03 2.0e-02 4.0e+02 1.0e+02
@@ -372,6 +385,7 @@ prms_solve(ddm)
   constructed from `dt` and `t_max`:
 
 ``` r
+
 t_max <- prms_solve(ddm)["t_max"]
 dt <- prms_solve(ddm)["dt"]
 t_vec <- seq(0, t_max, dt)
@@ -406,6 +420,7 @@ The declaration for the starting point function, `x_fun`, is similar,
 with one exception. It must take the argument `x_vec`:
 
 ``` r
+
 ... <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
   ...
 }
@@ -415,6 +430,7 @@ with one exception. It must take the argument `x_vec`:
   It is constructed from `dx` and spans from -1 to 1:
 
 ``` r
+
 dx <- prms_solve(ddm)["dx"]
 x_vec <- seq(-1, 1, dx)
 ```
@@ -444,16 +460,22 @@ The following sections provide examples for a custom …
 ### Example 1: Custom Drift Rate
 
 Assume that we want a model with the following custom drift rate:
-\$\$\mu(t) = \left\\ \begin{array}{ c l } \mu_c + \mu_a & \quad
-\textrm{for compatible conditions} \\ \mu_c - \mu_a & \quad \textrm{for
-incompatible conditions} \end{array} \right.\$\$ Thus, in compatible
-conditions, the drift rate at each time step is the sum of the two drift
-rates $\mu_{c}$ and $\mu_{a}$, while in incompatible conditions it is
-their difference.
+``` math
+\mu(t) = \left\{ 
+  \begin{array}{ c l }
+    \mu_c + \mu_a & \quad \textrm{for compatible conditions} \\
+    \mu_c - \mu_a & \quad \textrm{for incompatible conditions}
+  \end{array}
+\right.
+```
+Thus, in compatible conditions, the drift rate at each time step is the
+sum of the two drift rates $`\mu_c`$ and $`\mu_a`$, while in
+incompatible conditions it is their difference.
 
 First, we write the corresponding drift rate function like this:
 
 ``` r
+
 cust_mu <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   # extract all parameters (one row of the parameter matrix)
   muc <- prms_model[["muc"]]
@@ -477,11 +499,12 @@ calling dRiftDM’s backbone function
 Here we define vectors for all model parameters and conditions. We then
 assemble the model using not only our custom drift rate function, but
 also pre-built functions for the boundary, start point, and non-decision
-time.[¹](#fn1) Finally, we ensure that the auxiliary sign parameter
-works as intended by modifying the parameter settings with
+time.[^1] Finally, we ensure that the auxiliary sign parameter works as
+intended by modifying the parameter settings with
 [`modify_flex_prms()`](https://bucky2177.github.io/dRiftDM/reference/modify_flex_prms.md):
 
 ``` r
+
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
@@ -537,6 +560,7 @@ method is recommended and often works fine. Thus, especially novel users
 can just skip the following part.
 
 ``` r
+
 cust_mu_int <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   # extract all parameters (one row of the parameter matrix)
   muc <- prms_model[["muc"]]
@@ -555,13 +579,14 @@ This function is then passed to the `mu_int_fun` argument within the
 ### Example 2: Custom Starting Point (Distribution)
 
 Suppose we want a model where the starting point of the diffusion
-process is controlled by a parameter $z$. If $z = 0.5$, the starting
-point is zero. If $0.5 < z < 1$, the starting point is closer to the
-upper boundary. If $0 < z < 0.5$, the start point is closer to the lower
-boundary. Such a custom starting point distribution might look like
-this:
+process is controlled by a parameter $`z`$. If $`z = 0.5`$, the starting
+point is zero. If $`0.5 < z < 1`$, the starting point is closer to the
+upper boundary. If $`0 < z < 0.5`$, the start point is closer to the
+lower boundary. Such a custom starting point distribution might look
+like this:
 
 ``` r
+
 cust_x <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
   dx <- prms_solve[["dx"]]
   z <- prms_model[["z"]]
@@ -578,6 +603,7 @@ cust_x <- function(prms_model, prms_solve, x_vec, one_cond, ddm_opts) {
 Then we write a function that assembles the custom model:
 
 ``` r
+
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
@@ -625,15 +651,18 @@ component functions.
 
 Suppose we want collapsing boundaries. The formula for the upper
 boundary should be
-$$b(t) = b_{0}\left( 1 - \kappa \cdot \frac{t}{t + t_{0.5}} \right)\,,$$
-where $b_{0}$ is the initial value of the upper boundary, $\kappa$ is
-the rate of collapse, and $t_{0.5}$ is the time at which the boundary
+``` math
+b(t) = b_0 \left(1-\kappa\cdot \frac{t}{t+t_{0.5}}\right)\,,
+```
+where $`b_0`$ is the initial value of the upper boundary, $`\kappa`$ is
+the rate of collapse, and $`t_{0.5}`$ is the time at which the boundary
 has collapsed by half. Since `dRiftDM` assumes symmetric boundaries, the
-lower bound is $- b(t)$.
+lower bound is $`-b(t)`$.
 
 The corresponding R function for this is:
 
 ``` r
+
 # the boundary function
 cust_b <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   b0 <- prms_model[["b0"]]
@@ -646,11 +675,14 @@ cust_b <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 
 To make this work with `dRiftDM`, we also provide the derivative of the
 boundary:
-$$\frac{d}{dt}b(t) = - \left( \frac{b_{0} \cdot \kappa \cdot t_{0.5}}{\left( t + t_{0.5} \right)^{2}} \right)\,.$$
+``` math
+\frac{d}{dt} b(t) = -\left(\frac{b_0 \cdot \kappa \cdot t_{0.5}}{(t + t_{0.5})^2}\right)\,.
+```
 
 The corresponding R function for this is:
 
 ``` r
+
 # the derivative of the boundary function
 cust_dt_b <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   b0 <- prms_model[["b0"]]
@@ -664,6 +696,7 @@ cust_dt_b <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 Then we write a function that assembles the custom model;
 
 ``` r
+
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
@@ -709,6 +742,7 @@ Suppose we want a uniform non-decision time distribution with parameters
 `non_dec` and `range_non_dec`:
 
 ``` r
+
 cust_nt <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   # get the relevant parameters
   non_dec <- prms_model[["non_dec"]]
@@ -728,6 +762,7 @@ cust_nt <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 Then we write a function that assembles the custom model:
 
 ``` r
+
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
@@ -771,6 +806,7 @@ found in the documentation for
 [`component_shelf()`](https://bucky2177.github.io/dRiftDM/reference/component_shelf.md).
 
 ``` r
+
 ?component_shelf
 ```
 
@@ -779,6 +815,7 @@ The source code for each function is available on our Github page
 Alternatively, you can access the source code from R like this:
 
 ``` r
+
 all_funs <- component_shelf() # all functions
 View(all_funs$x_uniform) # see the code for x_uniform
 ```
@@ -789,6 +826,7 @@ drift rate, you can plot the expected time course of your diffusion
 model:
 
 ``` r
+
 ddm <- dmc_dm()
 test <- simulate_traces(ddm, k = 1, sigma = 0, add_x = FALSE)
 plot(test)
@@ -801,6 +839,7 @@ function by passing the model object to the generic
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method:
 
 ``` r
+
 plot(ddm, col = c("green", "red"), bundle_plots = FALSE)
 ```
 
@@ -812,6 +851,7 @@ can request these model predictions using the
 function.
 
 ``` r
+
 stats <- calc_stats(ddm, type = "quantiles")
 plot(stats)
 ```
@@ -828,6 +868,7 @@ burden. For the pre-built models, we therefore use larger `dt` and `dx`
 values chosen after extensive model simulations.
 
 ``` r
+
 prms_solve(dmc_dm())
 #>   sigma   t_max      dt      dx      nt      nx 
 #> 1.0e+00 3.0e+00 7.5e-03 2.0e-02 4.0e+02 1.0e+02
@@ -841,6 +882,7 @@ compares them to predictions obtained under a fine discretization (with
 distance.
 
 ``` r
+
 cust_model <- cust_model() # some custom model
 # set the intended discretization setting
 prms_solve(cust_model)["dx"] <- .01
@@ -882,6 +924,7 @@ method, set the custom component function, and see the corresponding
 console output after calling `re_evaluate()`.
 
 ``` r
+
 cust_mu <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
   print(ddm_opts) # print out the values of ddm_opts
   muc <- rep(prms_model[["muc"]], length(t_vec))
@@ -925,6 +968,7 @@ of the component functions or parameters, except those related to
 `mu_constant` and `mu_int_constant`.
 
 ``` r
+
 cust_model <- function() {
   # define all parameters and conditions
   prms_model <- c(
@@ -969,6 +1013,7 @@ plot(
 
 ``` r
 
+
 # visualize the effect of trial-by-trial variability: slow errors
 plot(
   calc_stats(my_model, type = "cafs")
@@ -977,9 +1022,7 @@ plot(
 
 ![](customize_ddms_files/figure-html/unnamed-chunk-40-2.png)
 
-------------------------------------------------------------------------
-
-1.  It would also be possible to omit the pre-built functions for the
+[^1]: It would also be possible to omit the pre-built functions for the
     boundary, start point, and non-decision time. In this case dRiftDM
     will fall back to default settings, see also the documentation for
     [`comp_funs()`](https://bucky2177.github.io/dRiftDM/reference/comp_funs.md)

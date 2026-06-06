@@ -2,6 +2,14 @@
 
 ## dRiftDM (development version)
 
+## dRiftDM 0.3.2
+
+### Minor
+
+- Bayesian hierarchical estimation is now fully reproducable when using
+  the seed argument of
+  [`estimate_dm()`](https://bucky2177.github.io/dRiftDM/reference/estimate_dm.md).
+
 ### Bug fix
 
 - Ensure EZ guesses are within the search space

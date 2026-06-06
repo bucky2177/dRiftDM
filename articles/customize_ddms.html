@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>How To Customize DDMs • dRiftDM</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="How To Customize DDMs">
 </head>
@@ -476,13 +476,13 @@ a function that assembles the model.</p>
 <h3 id="example-1-custom-drift-rate">Example 1: Custom Drift Rate<a class="anchor" aria-label="anchor" href="#example-1-custom-drift-rate"></a>
 </h3>
 <p>Assume that we want a model with the following custom drift rate:
-<span class="math display">$$\mu(t) = \left\{
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>μ</mi><mi>c</mi></msub><mo>+</mo><msub><mi>μ</mi><mi>a</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mspace width="1.0em"></mspace><mtext mathvariant="normal">for compatible conditions</mtext></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>μ</mi><mi>c</mi></msub><mo>−</mo><msub><mi>μ</mi><mi>a</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mspace width="1.0em"></mspace><mtext mathvariant="normal">for incompatible conditions</mtext></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\mu(t) = \left\{ 
   \begin{array}{ c l }
     \mu_c + \mu_a &amp; \quad \textrm{for compatible conditions} \\
     \mu_c - \mu_a &amp; \quad \textrm{for incompatible conditions}
   \end{array}
-\right.$$</span> Thus, in compatible conditions, the drift rate at each
-time step is the sum of the two drift rates
+\right.</annotation></semantics></math> Thus, in compatible conditions,
+the drift rate at each time step is the sum of the two drift rates
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>c</mi></msub><annotation encoding="application/x-tex">\mu_c</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>a</mi></msub><annotation encoding="application/x-tex">\mu_a</annotation></semantics></math>,
@@ -651,7 +651,7 @@ model with a collapsing boundary, just jump to the
 pre-built component functions.</p>
 <p>Suppose we want collapsing boundaries. The formula for the upper
 boundary should be
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>κ</mi><mo>⋅</mo><mfrac><mi>t</mi><mrow><mi>t</mi><mo>+</mo><msub><mi>t</mi><mn>0.5</mn></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mo>,</mo></mrow><annotation encoding="application/x-tex">b(t) = b_0 \left(1-\kappa\cdot \frac{t}{t+t_{0.5}}\right)\,,</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>κ</mi><mo>⋅</mo><mfrac><mi>t</mi><mrow><mi>t</mi><mo>+</mo><msub><mi>t</mi><mn>0.5</mn></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mo>,</mo></mrow><annotation encoding="application/x-tex">b(t) = b_0 \left(1-\kappa\cdot \frac{t}{t+t_{0.5}}\right)\,,</annotation></semantics></math>
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mn>0</mn></msub><annotation encoding="application/x-tex">b_0</annotation></semantics></math>
 is the initial value of the upper boundary,
@@ -660,7 +660,7 @@ is the rate of collapse, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mn>0.5</mn></msub><annotation encoding="application/x-tex">t_{0.5}</annotation></semantics></math>
 is the time at which the boundary has collapsed by half. Since
 <code>dRiftDM</code> assumes symmetric boundaries, the lower bound is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mi>b</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">-b(t)</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">-b(t)</annotation></semantics></math>.</p>
 <p>The corresponding R function for this is:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># the boundary function</span></span>
@@ -673,7 +673,7 @@ is the time at which the boundary has collapsed by half. Since
 <span><span class="op">}</span></span></code></pre></div>
 <p>To make this work with <code>dRiftDM</code>, we also provide the
 derivative of the boundary:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>d</mi><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mi>b</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msub><mi>b</mi><mn>0</mn></msub><mo>⋅</mo><mi>κ</mi><mo>⋅</mo><msub><mi>t</mi><mn>0.5</mn></msub></mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>+</mo><msub><mi>t</mi><mn>0.5</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mi>.</mi></mrow><annotation encoding="application/x-tex">\frac{d}{dt} b(t) = -\left(\frac{b_0 \cdot \kappa \cdot t_{0.5}}{(t + t_{0.5})^2}\right)\,.</annotation></semantics></math></p>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>d</mi><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msub><mi>b</mi><mn>0</mn></msub><mo>⋅</mo><mi>κ</mi><mo>⋅</mo><msub><mi>t</mi><mn>0.5</mn></msub></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><msub><mi>t</mi><mn>0.5</mn></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mi>.</mi></mrow><annotation encoding="application/x-tex">\frac{d}{dt} b(t) = -\left(\frac{b_0 \cdot \kappa \cdot t_{0.5}}{(t + t_{0.5})^2}\right)\,.</annotation></semantics></math></p>
 <p>The corresponding R function for this is:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># the derivative of the boundary function</span></span>

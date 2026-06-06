@@ -60,7 +60,8 @@ plot_mcmc_auto(
 - col_palette:
 
   a function to generate a color palette for chains (default is
-  grDevices::rainbow). Must be callable like this `col_palette(n)`.
+  [grDevices::rainbow](https://rdrr.io/r/grDevices/palettes.html)). Must
+  be callable like this `col_palette(n)`.
 
 - col_chains:
 

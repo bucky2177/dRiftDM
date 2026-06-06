@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>How To Perform a Model Recovery • dRiftDM</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="How To Perform a Model Recovery">
 </head>
@@ -82,17 +82,17 @@ the competing models on a quantitative level.</p>
 synthetic data under each model and then fit each model to each data
 set. To assess model recovery, we can track which model provides the
 best fit to each data set, using a fit statistic that penalizes model
-complexity <span class="citation">(Vandekerckhove, Matzke, and
-Wagenmakers 2015)</span>, and summarize the results in a contingency
-table—also known as a confusion matrix <span class="citation">(see
-Wilson and Collins 2019)</span>.</p>
+complexity <span class="citation">(Vandekerckhove et al. 2015)</span>,
+and summarize the results in a contingency table—also known as a
+confusion matrix <span class="citation">(see Wilson and Collins
+2019)</span>.</p>
 <p>Here, we provide demonstration code comparing the Ratcliff DDM with a
 simplified version of the Diffusion Model for Conflict Tasks (DMC),
 using a combination of and . As a fit statistic, we use the Bayesian
 Information Criterion (BIC), although the same logic applies to other
 fit indices that similarly balance goodness of fit and model complexity
-<span class="citation">(see, e.g., Vandekerckhove, Matzke, and
-Wagenmakers 2015)</span>.</p>
+<span class="citation">(see, e.g., Vandekerckhove et al.
+2015)</span>.</p>
 <p>First, we define each model and specify the parameter spaces used to
 generate the synthetic data. Note that we need to slightly customize the
 Ratcliff model (see ) so that it includes the same two conditions as the
@@ -301,7 +301,7 @@ provides the better fit using the BIC fit statistic.</p>
 <p>Finally, we create a contingency table that quantifies the
 ``probability’’ that a given model fits a data set best, conditional on
 which model generated the data (i.e.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">fit model</mtext><mo>∣</mo><mtext mathvariant="normal">sim model</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(\text{fit model} \mid \text{sim model})</annotation></semantics></math>).</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">fit model</mtext><mo>∣</mo><mtext mathvariant="normal">sim model</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(\text{fit model} \mid \text{sim model})</annotation></semantics></math>).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># convert to proportions</span></span>
 <span><span class="va">table_ratcliff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proportions.html" class="external-link">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">winner_ratcliff_data</span><span class="op">)</span><span class="op">)</span></span>
@@ -330,9 +330,9 @@ of simulated data.&lt;/p&gt;"><sup>1</sup></a></p>
 <p>We can go even a step further and convert the confusion matrix into
 an <em>inversion matrix</em> <span class="citation">(see Wilson and
 Collins 2019)</span>. Whereas the confusion matrix quantifies
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">fit model</mtext><mo>∣</mo><mtext mathvariant="normal">sim model</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(\text{fit model} \mid \text{sim model})</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">fit model</mtext><mo>∣</mo><mtext mathvariant="normal">sim model</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(\text{fit model} \mid \text{sim model})</annotation></semantics></math>,
 the inversion matrix quantifies
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">sim model</mtext><mo>∣</mo><mtext mathvariant="normal">fit model</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(\text{sim model} \mid \text{fit model})</annotation></semantics></math>—that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">sim model</mtext><mo>∣</mo><mtext mathvariant="normal">fit model</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(\text{sim model} \mid \text{fit model})</annotation></semantics></math>—that
 is, the probability that data best fit by a given model were actually
 generated by another model. Assuming equal prior probabilities across
 models, the inversion matrix can be obtained simply by re-normalizing
@@ -356,13 +356,13 @@ generalize to the actual model-fitting context. Thus, it is important to
 stress that a model recovery should be designed to closely mirror the
 conditions under which the models will ultimately be fitted to empirical
 data.</p>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Vandekerckhove2015book" class="csl-entry">
 Vandekerckhove, Joachim, Dora Matzke, and Eric-Jan Wagenmakers. 2015.
 <span>“Model Comparison and the Principle of Parsimony.”</span> In
 <em>The Oxford Handbook of Computational and Mathematical
-Psychology</em>, edited by Wang Busemeyer J. R., 300–319. Oxford
-University Press. <a href="https://doi.org/10.1093/oxfordhb/9780199957996.013.14" class="external-link">https://doi.org/10.1093/oxfordhb/9780199957996.013.14</a>.
+Psychology</em>, edited by Wang Busemeyer J. R. Oxford University Press.
+<a href="https://doi.org/10.1093/oxfordhb/9780199957996.013.14" class="external-link">https://doi.org/10.1093/oxfordhb/9780199957996.013.14</a>.
 </div>
 <div id="ref-WilsonCollins2019" class="csl-entry">
 Wilson, Robert C, and Anne GE Collins. 2019. <span>“Ten Simple Rules for

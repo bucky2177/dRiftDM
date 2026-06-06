@@ -6,8 +6,9 @@ is that the size of the model’s parameters depends on the time scale
 (seconds vs. milliseconds) and the diffusion constant. For example, in
 the original article by Ulrich et al. (2015), DMC was introduced on the
 time scale of milliseconds and with a diffusion constant of
-$\sigma = 4$. However, it is not uncommon for DDMs to be realized in the
-time scale of seconds and/or with a diffusion constant of $\sigma = 1$.
+$`\sigma = 4`$. However, it is not uncommon for DDMs to be realized in
+the time scale of seconds and/or with a diffusion constant of
+$`\sigma = 1`$.
 
 The motivation for this vignette is to show how to convert **DMC’s
 parameters** for different time scales and diffusion constants, thereby
@@ -41,15 +42,20 @@ the scale of the y-axis of the evidence accumulation process). This is
 the case for `muc`, `b`, and `A` of DMC. We can transform these
 parameters with:
 
-$$\theta_{new} = \theta_{\sigma_{old}} \cdot \frac{\sigma_{new}}{\sigma_{old}}\,.$$
-Here, $\theta_{\sigma_{old}}$ is a parameter (e.g., `muc`, `b`, and `A`)
-in the scale of the previous diffusion constant, $\sigma_{old}$, and
-$\theta_{\sigma_{new}}$ is the transformed parameter after scaling it to
-the target diffusion constant, $\sigma_{new}$.
+``` math
+\theta_{new} = \theta_{\sigma_{old}} \cdot \frac{\sigma_{new}}{\sigma_{old}}\,.
+```
+Here, $`\theta_{\sigma_{old}}`$ is a parameter (e.g., `muc`, `b`, and
+`A`) in the scale of the previous diffusion constant, $`\sigma_{old}`$,
+and $`\theta_{\sigma_{new}}`$ is the transformed parameter after scaling
+it to the target diffusion constant, $`\sigma_{new}`$.
 
-Example: To transform `muc` $= 0.5$ from a diffusion constant of
-$\sigma_{old} = 4$ to match a DDM with a diffusion constant of
-$\sigma_{new} = 1$, we compute $$0.5 \cdot \frac{1}{4} = 0.125\,.$$
+Example: To transform `muc` $`= 0.5`$ from a diffusion constant of
+$`\sigma_{old} = 4`$ to match a DDM with a diffusion constant of
+$`\sigma_{new} = 1`$, we compute
+``` math
+0.5\cdot \frac{1}{4} = 0.125\,.
+```
 
 ### Scaling the Time Space
 
@@ -60,30 +66,39 @@ how a parameter is affected by the time and/or evidence-space scale.
   The transformation from seconds to milliseconds, or vice versa, is
   straightforward:
 
-$$\theta_{s} = \theta_{ms}/1000\quad\text{and}\quad\theta_{ms} = \theta_{s} \cdot 1000\,.$$
+``` math
+\theta_{s} = \theta_{ms} / 1000 \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot 1000\,.
+```
 
 - `b` and `A` depend primarily on the evidence space scale. Yet, we
-  still transform them slightly.[¹](#fn1) For these parameters we can
-  use
+  still transform them slightly.[^1] For these parameters we can use
 
-$$\theta_{s} = \theta_{ms}/\sqrt{1000}\quad\text{and}\quad\theta_{ms} = \theta_{s} \cdot \sqrt{1000}\,.$$
+``` math
+\theta_{s} = \theta_{ms} / \sqrt{1000} \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot \sqrt{1000}\,.
+```
 
 - Finally, the drift rate `muc` describes the rate of *evidence
   increase* per *time step*. For it we have to use
 
-$$\theta_{s} = \theta_{ms} \cdot \frac{1000}{\sqrt{1000}}\quad\text{and}\quad\theta_{ms} = \theta_{s} \cdot \frac{\sqrt{1000}}{1000}\,.$$
+``` math
+\theta_s = \theta_{ms} \cdot \frac{1000}{\sqrt{1000}} \quad \text{and} \quad \theta_{ms} = \theta_{s} \cdot \frac{\sqrt{1000}}{1000}\,.
+```
 
-Example: To transform `muc` $= 0.5$ from milliseconds to seconds, we
-calculate $$0.5 \cdot \frac{1000}{\sqrt{1000}} = 15.8\,.$$
+Example: To transform `muc` $`= 0.5`$ from milliseconds to seconds, we
+calculate
+``` math
+0.5\cdot \frac{1000}{\sqrt{1000}} = 15.8\,.
+```
 
 ## An R Helper Function
 
 It would be tedious to do all the transformations “by hand,” so we
 present here a small helper function that implements these
 transformations. The function takes a named numeric vector of parameter
-values and returns the transformed values.[²](#fn2)
+values and returns the transformed values.[^2]
 
 ``` r
+
 # Input documentation:
 # named_values: a named numeric vector
 # sigma_old, sigma_new: the previous and target diffusion constants
@@ -146,6 +161,7 @@ Let’s see if the conversion works by checking if model predictions are
 the same before and after scaling:
 
 ``` r
+
 dmc_s <- dmc_dm()
 prms_solve(dmc_s) # current parameter settings for sigma = 1 and seconds
 #>   sigma   t_max      dt      dx      nt      nx 
@@ -205,6 +221,7 @@ diffusion constant of 4 are similar in size to those obtained by Ulrich
 et al. (2015).
 
 ``` r
+
 coef(dmc_s)
 #>        muc          b    non_dec sd_non_dec        tau          A      alpha 
 #>       4.00       0.60       0.30       0.02       0.04       0.10       4.00
@@ -228,10 +245,8 @@ Superimposed Diffusion Processes and Delta Functions.” *Cognitive
 Psychology* 78: 148–74.
 <https://doi.org/10.1016/j.cogpsych.2015.02.005>.
 
-------------------------------------------------------------------------
+[^1]: They depend indirectly on the time scale through the variance of
+    the diffusion process.
 
-1.  They depend indirectly on the time scale through the variance of the
-    diffusion process.
-
-2.  We did not export it with dRiftDM because it does not apply to all
+[^2]: We did not export it with dRiftDM because it does not apply to all
     DDMs, only to DMC

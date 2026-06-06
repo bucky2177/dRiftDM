@@ -83,6 +83,7 @@ standard deviation of the normal distributions.
 ## Examples
 
 ``` r
+
 # Example 1: Draw from uniform distributions ------------------------------
 lower <- c(a = 1, b = 1, c = 1)
 upper <- c(a = 3, b = 4, c = 5)
@@ -94,12 +95,12 @@ values <- simulate_values(
 )
 summary(values)
 #>        a               b               c        
-#>  Min.   :1.033   Min.   :1.126   Min.   :1.004  
-#>  1st Qu.:1.533   1st Qu.:2.128   1st Qu.:2.504  
-#>  Median :1.849   Median :2.545   Median :3.428  
-#>  Mean   :1.953   Mean   :2.640   Mean   :3.258  
-#>  3rd Qu.:2.316   3rd Qu.:3.392   3rd Qu.:4.209  
-#>  Max.   :2.901   Max.   :3.887   Max.   :4.943  
+#>  Min.   :1.003   Min.   :1.049   Min.   :1.168  
+#>  1st Qu.:1.654   1st Qu.:1.800   1st Qu.:2.504  
+#>  Median :2.178   Median :2.273   Median :3.059  
+#>  Mean   :2.110   Mean   :2.430   Mean   :3.186  
+#>  3rd Qu.:2.667   3rd Qu.:2.975   3rd Qu.:4.189  
+#>  Max.   :2.924   Max.   :3.851   Max.   :4.850  
 
 # Example 2: Draw from truncated normal distributions ---------------------
 lower <- c(a = 1, b = 1, c = 1)
@@ -117,11 +118,11 @@ values <- simulate_values(
 )
 quantile(values$a, probs = c(0.025, 0.5, 0.975))
 #>     2.5%      50%    97.5% 
-#> 1.158297 1.997958 2.859411 
+#> 1.158646 1.999479 2.858730 
 quantile(values$b, probs = c(0.025, 0.5, 0.975))
 #>     2.5%      50%    97.5% 
-#> 1.545730 2.491228 3.466518 
+#> 1.545730 2.490363 3.470296 
 quantile(values$c, probs = c(0.025, 0.5, 0.975))
 #>     2.5%      50%    97.5% 
-#> 2.065234 3.008299 3.973892 
+#> 2.064599 3.007652 3.972964 
 ```

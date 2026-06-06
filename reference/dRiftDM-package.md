@@ -25,6 +25,8 @@ Useful links:
 
 Authors:
 
+- Valentin Koob <v.koob@web.de> \[copyright holder\]
+
 - Thomas Richter \[copyright holder\]
 
 - Markus Janczyk

@@ -48,6 +48,7 @@ You can install the development version of dRiftDM from
 [GitHub](https://github.com/) with:
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("bucky2177/dRiftDM")
 ```
@@ -55,6 +56,7 @@ devtools::install_github("bucky2177/dRiftDM")
 The [CRAN](https://cran.r-project.org/) version can be installed with:
 
 ``` r
+
 install.packages("dRiftDM")
 ```
 
@@ -85,6 +87,7 @@ features:
 To install one of the older versions (0.1.1, 0.2.1, 0.2.2), you can use:
 
 ``` r
+
 devtools::install_github("bucky2177/dRiftDM", ref = "<insert version>")
 ```
 
