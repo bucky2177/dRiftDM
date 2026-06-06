@@ -1,6 +1,6 @@
 # Changelog
 
-## dRiftDM (development version)
+## dRiftDM 0.3.2
 
 ## dRiftDM 0.3.2
 
