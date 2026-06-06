@@ -90,7 +90,8 @@ summary.coefs_dm <- function(
   ans$type <- class(coefs_obj)[1]
   ans$summary_dataframe <- summary.data.frame(
     coefs_obj,
-    digits = round_digits
+    digits = round_digits,
+    character.method = NULL # TODO: Delete for R >= 4.7
   )
 
   ans$n_ids <- length(unique(coefs_obj$ID))

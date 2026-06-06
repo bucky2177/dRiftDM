@@ -182,13 +182,13 @@
       Type of Statistic: sum_dist
       
       Dependent Variables:
-             Source          Cond         Bin        P_corr     
-       Length   :20   Length   :20   Min.   :1   Min.   :0.733  
-       N.unique : 2   N.unique : 2   1st Qu.:2   1st Qu.:0.950  
-       N.blank  : 0   N.blank  : 0   Median :3   Median :0.981  
-       Min.nchar: 3   Min.nchar: 4   Mean   :3   Mean   :0.951  
-       Max.nchar: 4   Max.nchar: 6   3rd Qu.:4   3rd Qu.:0.984  
-                                     Max.   :5   Max.   :1.000  
+          Source              Cond                Bin        P_corr     
+       Length:20          Length:20          Min.   :1   Min.   :0.733  
+       Class :character   Class :character   1st Qu.:2   1st Qu.:0.950  
+       Mode  :character   Mode  :character   Median :3   Median :0.981  
+                                             Mean   :3   Mean   :0.951  
+                                             3rd Qu.:4   3rd Qu.:0.984  
+                                             Max.   :5   Max.   :1.000  
       
       Sources: obs, pred 
 
