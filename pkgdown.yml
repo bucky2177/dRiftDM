@@ -1,5 +1,5 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   convert_dmc_parameters: convert_dmc_parameters.html
@@ -7,7 +7,7 @@ articles:
   dRiftDM: dRiftDM.html
   model_recovery: model_recovery.html
   predictions_simple_ddm: predictions_simple_ddm.html
-last_built: 2026-06-06T13:43Z
+last_built: 2026-08-12T22:33Z
 urls:
   reference: https://bucky2177.github.io/dRiftDM/reference
   article: https://bucky2177.github.io/dRiftDM/articles

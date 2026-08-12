@@ -1,8 +1,14 @@
 # Changelog
 
-## dRiftDM 0.3.2
+## dRiftDM (development version)
 
 ## dRiftDM 0.3.2
+
+CRAN release: 2026-06-06
+
+## dRiftDM 0.3.2
+
+CRAN release: 2026-06-06
 
 ### Minor
 
