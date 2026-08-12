@@ -451,7 +451,6 @@ nt_uniform <- function(prms_model, prms_solve, t_vec, one_cond, ddm_opts) {
 #' ddm_opts(my_model) <- 0.0001 # ==> t_vec + 0.0001
 #' ddm_opts(my_model) <- NULL # default ==> t_vec + 0.001
 #'
-#'
 #' @references
 #' \insertRef{Ulrichetal.2015}{dRiftDM}
 #'
@@ -1403,9 +1402,9 @@ get_starting_values.drift_dm <- function(
 ) {
   drift_dm_obj <- object
   prms_model <- names(coef(drift_dm_obj))
-  use_ez = use_ez %||% TRUE
-  n_lhs = n_lhs %||% 10L
-  verbose = verbose %||% 0
+  use_ez <- use_ez %||% TRUE
+  n_lhs <- n_lhs %||% 10L
+  verbose <- verbose %||% 0
 
   # if ez is requested, try to provide corresponding starting values
   ez_guess <- numeric()
@@ -1483,7 +1482,7 @@ get_starting_values.drift_dm <- function(
   # for this, check if there is a search space provided or can be inferred
   stopifnot(!xor(is.null(lower), is.null(upper)))
   if (is.null(lower) && is.null(upper)) {
-    l_u = tryCatch(
+    l_u <- tryCatch(
       {
         get_lower_upper(drift_dm_obj)
       },
@@ -1494,7 +1493,7 @@ get_starting_values.drift_dm <- function(
         return(NULL)
       }
     )
-    l_u = get_parameters_smart(
+    l_u <- get_parameters_smart(
       drift_dm_obj = drift_dm_obj,
       input_a = l_u$lower,
       input_b = l_u$upper
@@ -1502,7 +1501,7 @@ get_starting_values.drift_dm <- function(
     lower <- l_u$vec_a
     upper <- l_u$vec_b
   } else {
-    l_u = get_parameters_smart(
+    l_u <- get_parameters_smart(
       drift_dm_obj = drift_dm_obj,
       input_a = lower,
       input_b = upper
@@ -1616,7 +1615,7 @@ get_ez_diffusion <- function(drift_dm_obj) {
   ez <- function(pc, vrt, mrt, s = 1) {
     stopifnot(0 <= pc, pc <= 1)
     stopifnot(0 < vrt, 0 < mrt, 0 < s)
-    s2 = s^2
+    s2 <- s^2
     # If Pc equals 0, .5, or 1, the method will not work, so I make a slight
     # adjustements
     adj <- 0.001
@@ -1630,24 +1629,24 @@ get_ez_diffusion <- function(drift_dm_obj) {
     if (abs(pc - 0) < tol) {
       pc <- 0.0 + adj
     }
-    L = stats::qlogis(pc)
-    x = L * (L * pc^2 - L * pc + pc - .5) / vrt
-    v = sign(pc - .5) * s * x^(1 / 4)
-    a = s2 * stats::qlogis(pc) / v
-    y = -v * a / s2
-    mdt = (a / (2 * v)) * (1 - exp(y)) / (1 + exp(y))
-    ter = mrt - mdt
+    L <- stats::qlogis(pc)
+    x <- L * (L * pc^2 - L * pc + pc - .5) / vrt
+    v <- sign(pc - .5) * s * x^(1 / 4)
+    a <- s2 * stats::qlogis(pc) / v
+    y <- -v * a / s2
+    mdt <- (a / (2 * v)) * (1 - exp(y)) / (1 + exp(y))
+    ter <- mrt - mdt
     return(c(muc = v, b = a / 2, non_dec = ter))
   }
 
-  all_conds = conds(drift_dm_obj)
+  all_conds <- conds(drift_dm_obj)
   sigma <- prms_solve(drift_dm_obj)[["sigma"]]
   prms <- sapply(all_conds, \(x) {
     rts_u <- drift_dm_obj$obs_data$rts_u[[x]]
     rts_l <- drift_dm_obj$obs_data$rts_l[[x]]
-    pc = length(rts_u) / (length(rts_u) + length(rts_l))
-    vrt = stats::var(c(rts_u, rts_l))
-    mrt = mean(c(rts_u, rts_l))
+    pc <- length(rts_u) / (length(rts_u) + length(rts_l))
+    vrt <- stats::var(c(rts_u, rts_l))
+    mrt <- mean(c(rts_u, rts_l))
     ez(pc = pc, vrt = vrt, mrt = mrt, s = sigma)
   })
   return(prms)

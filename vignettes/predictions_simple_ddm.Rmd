@@ -48,7 +48,7 @@ plot(traces, col = "black")
 You might wonder why these trajectories appear so "coarse." This results from the discretization settings of the underlying solver that computes the first-passage times when fitting the model. To obtain a smoother plot, we can temporarily increase the resolution in the time domain:
 
 ```{r}
-prms_solve(model)["dt"] = .001 # set to 1 ms step size (for a nice plot)
+prms_solve(model)["dt"] <- .001 # set to 1 ms step size (for a nice plot)
 set.seed(1)
 traces <- simulate_traces(model, k = 10)
 plot(traces, col = "black")
@@ -64,7 +64,7 @@ plot(traces, col = "black")
 To derive basic model predictions for mean response times (RTs) and accuracy, we can use the `calc_stats()` method and the argument `type = "basic_stats"`:
 
 ```{r}
-prms_solve(model)["dt"] = .010 # set it back to a 10 ms step size (for speed)
+prms_solve(model)["dt"] <- .010 # set it back to a 10 ms step size (for speed)
 calc_stats(model, type = "basic_stats")
 ```
 

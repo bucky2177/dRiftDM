@@ -2847,7 +2847,6 @@ pdfs.fits_agg_dm <- function(object, ...) {
 #' out <- estimate_dm(a_model, verbose = 0, messaging = FALSE)
 #' # -> the model was estimated using the RMSE statistic
 #'
-#'
 #' @seealso [dRiftDM::drift_dm()], [dRiftDM::re_evaluate_model()]
 #'
 #'

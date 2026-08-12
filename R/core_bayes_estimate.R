@@ -1078,7 +1078,7 @@ estimate_bayes_h <- function(
     }
     withr::local_preserve_seed()
     set.seed(seed)
-    seed = sample.int(.Machine$integer.max, 1)
+    seed <- sample.int(.Machine$integer.max, 1)
   }
 
   cl <- mirai::make_cluster(n_cores, seed = seed)
@@ -1556,7 +1556,7 @@ estimate_bayesian <- function(
   if (!is_numeric(n_chains) | n_chains < 3) {
     stop("n_chains must be a numeric >= 3")
   }
-  n_chains = as.integer(n_chains)
+  n_chains <- as.integer(n_chains)
   if (!is_numeric(burn_in) | burn_in < 0) {
     stop("burn_in must be a numeric >= 0")
   }

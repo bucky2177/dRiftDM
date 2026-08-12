@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 library(dRiftDM)
 set.seed(1014)
 
-re_run = FALSE # if TRUE, runs heavy computations and saves them to inst.. 
+re_run <- FALSE # if TRUE, runs heavy computations and saves them to inst..
 # -> otherwise just load them (for speed)
 ```
 
@@ -414,20 +414,18 @@ if (re_run) {
     upper = l_u$upper,
     n_cores = 4 # you might want to increase this
   )
-  
+
   # save
   use_directory("inst")
   saveRDS(
     object = all_fits_deoptim,
     file = file.path("inst", "drift_dm_vignette_all_fits_deoptim.rds")
   )
-  
 } else {
   all_fits_deoptim <- readRDS(
     file = file.path(sys_path, "drift_dm_vignette_all_fits_deoptim.rds")
   )
 }
-
 ```
 
 ```{r fit-model-4, eval=FALSE}
@@ -589,7 +587,7 @@ if (re_run) {
 
   # save the chains (without data to avoid unnec. storage of data)
   use_directory("inst")
-  for_save = lapply(mcmc_list, \(x) {
+  for_save <- lapply(mcmc_list, \(x) {
     attr(x, "data_model") <- NULL
     x
   })
