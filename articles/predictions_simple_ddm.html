@@ -105,7 +105,7 @@ computes the first-passage times when fitting the model. To obtain a
 smoother plot, we can temporarily increase the resolution in the time
 domain:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">=</span> <span class="fl">.001</span> <span class="co"># set to 1 ms step size (for a nice plot)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.001</span> <span class="co"># set to 1 ms step size (for a nice plot)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">traces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_traces.html">simulate_traces</a></span><span class="op">(</span><span class="va">model</span>, k <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">traces</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></code></pre></div>
@@ -121,7 +121,7 @@ this case, the argument <code>sigma</code> of the
 accuracy, we can use the <code><a href="../reference/calc_stats.html">calc_stats()</a></code> method and the
 argument <code>type = "basic_stats"</code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">=</span> <span class="fl">.010</span> <span class="co"># set it back to a 10 ms step size (for speed)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/prms_solve.html">prms_solve</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.010</span> <span class="co"># set it back to a 10 ms step size (for speed)</span></span>
 <span><span class="fu"><a href="../reference/calc_stats.html">calc_stats</a></span><span class="op">(</span><span class="va">model</span>, type <span class="op">=</span> <span class="st">"basic_stats"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Type of Statistic: basic_stats</span></span>
 <span><span class="co">#&gt; </span></span>

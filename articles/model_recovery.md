@@ -68,7 +68,6 @@ print(ratcliff_model)
 #> Observed Data: NULL
 
 
-
 # 1.2) now create DMC (without trial-by-trial variability in the starting point
 # and non-decision time; matching with the Ratcliff model)
 dmc_model <- dmc_dm(var_non_dec = FALSE, var_start = FALSE)

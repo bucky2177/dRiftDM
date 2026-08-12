@@ -58,7 +58,7 @@ plot, we can temporarily increase the resolution in the time domain:
 
 ``` r
 
-prms_solve(model)["dt"] = .001 # set to 1 ms step size (for a nice plot)
+prms_solve(model)["dt"] <- .001 # set to 1 ms step size (for a nice plot)
 set.seed(1)
 traces <- simulate_traces(model, k = 10)
 plot(traces, col = "black")
@@ -86,7 +86,7 @@ method and the argument `type = "basic_stats"`:
 
 ``` r
 
-prms_solve(model)["dt"] = .010 # set it back to a 10 ms step size (for speed)
+prms_solve(model)["dt"] <- .010 # set it back to a 10 ms step size (for speed)
 calc_stats(model, type = "basic_stats")
 #> Type of Statistic: basic_stats
 #> 
