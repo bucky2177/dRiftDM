@@ -1150,7 +1150,8 @@ test_that("estimate_bayes_h runs and returns correct structure", {
     n_cores = 1,
     prob_migration = 0.1,
     prob_re_eval = 0.1,
-    verbose = 0
+    verbose = 0,
+    seed = 1
   )
 
   # check the returned list

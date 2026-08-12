@@ -1127,7 +1127,7 @@ estimate_bayes_h <- function(
       r_priors_lower[[one_prm]](
         n = n_chains,
         mean = mean_hyper[one_prm],
-        sd = mean_hyper[one_prm] / 4
+        sd = abs(mean_hyper[one_prm]) / 4
       )
     })
 
